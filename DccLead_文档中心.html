@@ -3,27 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DCC培育 · SaaS平台 — 文档中心</title>
+<title>DCC培育 v1.2 — 文档中心</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 :root {
-  --color-primary: #1a56db;
-  --color-primary-dark: #1e3a8a;
-  --color-accent: #6366f1;
-  --color-bg: #f0f2f5;
+  --color-primary: #003594;
+  --color-primary-dark: #00174b;
+  --color-accent: #004ac6;
+  --color-bg: #faf8ff;
   --color-white: #ffffff;
-  --color-text: #1f2937;
-  --color-text-muted: #6b7280;
-  --color-border: #e5e7eb;
+  --color-text: #191b23;
+  --color-text-muted: #434654;
+  --color-border: #c3c6d6;
   --radius: 8px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.08);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+  --shadow: 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,53,148,0.2);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body {
   height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
   background: var(--color-bg);
   color: var(--color-text);
   overflow: hidden;
@@ -39,7 +41,7 @@ html, body {
   gap: 32px;
   flex-shrink: 0;
   z-index: 10;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0,53,148,0.2);
 }
 
 .header-logo {
@@ -115,7 +117,7 @@ html, body {
   border-color: rgba(255,255,255,0.4);
   color: #fff;
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 6px rgba(0,53,148,0.25);
 }
 
 .tab-badge {
@@ -215,16 +217,6 @@ html, body {
   color: var(--color-text-muted);
 }
 
-/* Keyboard hint */
-.kb-hint {
-  font-size: 10px;
-  opacity: 0.5;
-  padding: 4px 8px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 4px;
-  margin-left: 8px;
-}
-
 /* Footer */
 .footer {
   padding: 6px 24px;
@@ -248,7 +240,87 @@ html, body {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #10b981;
+  background: #22c55e;
+}
+
+/* Logic flow placeholder */
+.logic-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 40px;
+}
+.logic-placeholder .lp-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.3;
+}
+.logic-placeholder .lp-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 8px;
+}
+.logic-placeholder .lp-desc {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  max-width: 360px;
+  line-height: 1.6;
+}
+.logic-link-list {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 28px;
+}
+.logic-link-list .ll-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.logic-link-list .ll-desc {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-bottom: 22px;
+}
+.logic-link-list .ll-items {
+  display: grid;
+  gap: 12px;
+}
+.logic-link-list .ll-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px 20px;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--color-text);
+  box-shadow: var(--shadow);
+  transition: all .18s;
+}
+.logic-link-list .ll-item:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 6px 18px rgba(0,53,148,.12);
+  transform: translateY(-1px);
+}
+.logic-link-list .ll-item-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+.logic-link-list .ll-item-meta {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+}
+.logic-link-list .ll-arrow {
+  color: var(--color-primary);
+  font-size: 18px;
+  font-weight: 700;
 }
 
 @media (max-width: 900px) {
@@ -259,6 +331,8 @@ html, body {
   }
   .toolbar { margin-left: 0; }
   .tab-nav { order: 3; width: 100%; overflow-x: auto; }
+  .logic-link-list { padding: 24px 16px; }
+  .logic-link-list .ll-item { align-items: flex-start; flex-direction: column; }
 }
 </style>
 </head>
@@ -269,31 +343,34 @@ html, body {
   <div class="header-logo">
     <div class="icon">D</div>
     <div>
-      <h1>DCC培育 · SaaS平台</h1>
+      <h1>DCC培育 <span class="version">v1.2</span></h1>
       <span class="subtitle">汽车行业线索管理系统 · 文档中心</span>
     </div>
   </div>
 
   <div class="tab-nav" id="tabNav">
     <button class="tab-btn active" data-tab="0" onclick="switchTab(0)">
-      原型文件<span class="tab-badge">1</span>
+      版本日志
     </button>
     <button class="tab-btn" data-tab="1" onclick="switchTab(1)">
-      功能说明
+      原型文件
     </button>
     <button class="tab-btn" data-tab="2" onclick="switchTab(2)">
-      交互流程图
+      功能说明
     </button>
     <button class="tab-btn" data-tab="3" onclick="switchTab(3)">
-      功能清单
+      交互流程图
     </button>
     <button class="tab-btn" data-tab="4" onclick="switchTab(4)">
-      逻辑说明图
+      功能清单
+    </button>
+    <button class="tab-btn" data-tab="5" onclick="switchTab(5)">
+      逻辑流程图
     </button>
   </div>
 
   <div class="toolbar">
-    <a class="tool-btn" id="btnNewWindow" href="#" target="_blank" title="在新窗口打开当前文档">↗ 新窗口</a>
+    <a class="tool-btn" id="btnNewWindow" href="#" target="_blank" title="在新窗口打开当前文档">&#8599; 新窗口</a>
   </div>
 </div>
 
@@ -301,7 +378,7 @@ html, body {
 <div class="content-area" id="contentArea">
   <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-spinner"></div>
-    <div class="loading-text" id="loadingText">正在加载原型文件…</div>
+    <div class="loading-text" id="loadingText">正在加载版本日志…</div>
   </div>
 
   <iframe id="frame0" class="active"
@@ -328,91 +405,67 @@ html, body {
     onload="onFrameLoad(4)"
     onerror="onFrameError(4)">
   </iframe>
+
+  <iframe id="frame5"
+    onload="onFrameLoad(5)"
+    onerror="onFrameError(5)">
+  </iframe>
 </div>
 
 <!-- Footer -->
 <div class="footer">
   <span class="stat"><span class="dot"></span> 文档就绪</span>
   <span>|</span>
-  <span>原型 859 KB</span>
+  <span>键盘切换：&larr; &rarr;</span>
   <span>|</span>
-  <span>键盘切换：← →</span>
-  <span>|</span>
-  <span id="footerStatus">当前：原型文件</span>
+  <span id="footerStatus">当前：版本日志</span>
 </div>
 
 <script>
 var currentTab = 0;
-var tabCount = 5;
+var tabCount = 6;
 var loadingTimer = null;
 
-var tabNames = ['原型文件', '功能说明', '交互流程图', '功能清单', '逻辑说明图'];
+var tabNames = ['版本日志', '原型文件', '功能说明', '交互流程图', '功能清单', '逻辑流程图'];
 var tabUrls = [
-  "https://huangyufeng107.github.io/DccLead//DccLead.html"
+  'https://huangyufeng107.github.io/DccLead/DccLead_版本日志.html',
+  'https://huangyufeng107.github.io/DccLead/DccLead.html',
+  'https://huangyufeng107.github.io/DccLead/DccLead_功能说明.html',
+  'https://huangyufeng107.github.io/DccLead/DccLead_交互流程图.html',
+  'https://huangyufeng107.github.io/DccLead/DccLead_功能清单.html',
+  ''
 ];
 
-var placeholderHtml = [
-  '<!DOCTYPE html>',
-  '<html lang="zh-CN">',
-  '<head>',
-  '<meta charset="UTF-8">',
-  '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
-  '<style>',
-  '*{box-sizing:border-box}body{margin:0;padding:0;height:100vh;background:#fff;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:#1f2937}.container{text-align:center;padding:24px;margin-top:-60px}.title{font-size:32px;font-weight:700;margin-bottom:12px;color:#111827}.desc{font-size:15px;color:#4b5563;line-height:1.6}',
-  '</style>',
-  '</head>',
-  '<body>',
-  '<div class="container">',
-  '<div class="title">产品设计阶段</div>',
-  '<div class="desc">线索导入正在产品设计阶段，后续将补充完整的页面内容。</div>',
-  '</div>',
-  '</body>',
-  '</html>'
-].join('');
+var logicFlowHtml = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");*{box-sizing:border-box}body{margin:0;background:#faf8ff;color:#191b23;font-family:"Inter",-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}.wrap{max-width:800px;margin:0 auto;padding:32px 24px}.section-title{font-size:14px;font-weight:600;color:#434654;margin-bottom:16px;display:flex;align-items:center;gap:8px}.section-title::before{content:"";display:inline-block;width:4px;height:16px;background:#003594;border-radius:2px}.link-card{display:block;background:#fff;border:1px solid #c3c6d6;border-radius:8px;padding:16px 20px;text-decoration:none;color:#191b23;transition:box-shadow .15s, border-color .15s}.link-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08);border-color:#003594}.link-card .link-title{font-size:15px;font-weight:600;color:#191b23;margin-bottom:4px}.link-card .link-url{font-size:12px;color:#434654;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}.link-card .link-meta{font-size:11px;color:#8b8fa3;margin-top:6px}</style></head><body><div class="wrap"><div class="section-title">三无忧</div><a class="link-card" href="https://www.processon.com/f/6a3100099b73415e9e4ecd14#%E4%B8%89%E6%97%A0%E5%BF%A7%E5%86%B7%E7%BA%BF%E7%B4%A2%E5%90%8C%E6%AD%A5DCC%E5%9F%B9%E8%82%B2" target="_blank"><div class="link-title">三无忧冷线索同步DCC培育</div><div class="link-url">processon.com</div><div class="link-meta">ProcessOn · 逻辑流程图</div></a></div></body></html>';
 
 function switchTab(index) {
   if (index === currentTab) return;
   currentTab = index;
 
-  // Update buttons
   var btns = document.querySelectorAll('.tab-btn');
   btns.forEach(function(b, i) {
     b.classList.toggle('active', i === index);
   });
 
-  // Update iframes
   var frames = document.querySelectorAll('.content-area iframe');
   frames.forEach(function(f, i) {
     f.classList.toggle('active', i === index);
   });
 
-  // Show loading if frame hasn't loaded yet
   var frame = document.getElementById('frame' + index);
-  if (index === 0) {
-    if (!frame.getAttribute('src')) {
-      frame.setAttribute('src', tabUrls[0]);
-    }
-  } else {
-    if (!frame.getAttribute('srcdoc')) {
-      frame.setAttribute('srcdoc', placeholderHtml);
-    }
+  if (index === 5 && !frame.getAttribute('srcdoc')) {
+    frame.setAttribute('srcdoc', logicFlowHtml);
+  } else if (index !== 5 && !frame.getAttribute('src')) {
+    frame.setAttribute('src', tabUrls[index]);
   }
-
   var loaded = frame.getAttribute('data-loaded');
-  if (index === 0 && !loaded) {
+  if (!loaded) {
     showLoading(tabNames[index]);
   } else {
     hideLoading();
   }
 
-  // Update new-window link
-  var btnNewWindow = document.getElementById('btnNewWindow');
-  if (index === 0) {
-    btnNewWindow.style.display = 'inline-flex';
-    btnNewWindow.href = tabUrls[0];
-  } else {
-    btnNewWindow.style.display = 'none';
-  }
+  document.getElementById('btnNewWindow').href = index === 5 ? '#' : tabUrls[index];
   document.getElementById('footerStatus').textContent = '当前：' + tabNames[index];
 }
 
@@ -430,14 +483,14 @@ function onFrameError(index) {
   if (index === currentTab) {
     var overlay = document.getElementById('loadingOverlay');
     overlay.classList.remove('hidden');
-    document.getElementById('loadingText').textContent = '⚠ 文档加载失败，请尝试"新窗口"打开';
+    document.getElementById('loadingText').textContent = '\u26a0 文档加载失败，请尝试"新窗口"打开';
   }
 }
 
 function showLoading(name) {
   var overlay = document.getElementById('loadingOverlay');
   overlay.classList.remove('hidden');
-  document.getElementById('loadingText').textContent = '正在加载' + name + '…';
+  document.getElementById('loadingText').textContent = '正在加载' + name + '\u2026';
   clearTimeout(loadingTimer);
   loadingTimer = setTimeout(function() {
     if (!overlay.classList.contains('hidden')) {
@@ -463,7 +516,7 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
-// Initialize new-window link
+// Initialize
 document.getElementById('btnNewWindow').href = tabUrls[0];
 showLoading(tabNames[0]);
 document.getElementById('frame0').setAttribute('src', tabUrls[0]);
