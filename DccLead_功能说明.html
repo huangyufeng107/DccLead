@@ -292,7 +292,7 @@ details summary:hover { text-decoration: underline; }
   </div>
 </div>
 
-<!-- 项目范围 -->
+<!-- 一. 项目范围 -->
 <div class="section" id="tab-0-sanwuyou-section1">
   <div class="section-title">项目范围</div>
   <div class="section-desc">本模块涉及的系统、板块及功能范围概览。</div>
@@ -305,31 +305,36 @@ details summary:hover { text-decoration: underline; }
         <tr>
           <td>DCC培育 · SaaS平台</td>
           <td>线索管理 &gt; 三无忧</td>
-          <td>看板指标展示、规则配置（7项基础+2个映射表）、批次记录与详情、导出</td>
+          <td>面向 N6/N7/NX8 冷线索：页首4项配置摘要、6项实时看板指标（含详情弹窗）、8项基础规则配置 + 2个映射表（分层标签/车系话术）、7项配置摘要标签、批次记录列表与详情（执行概览/批量明细/执行日志）、CSV导出</td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- 逻辑说明 -->
+<!-- 二. 逻辑说明 -->
 <div class="section" id="tab-0-sanwuyou-section2">
   <div class="section-title">逻辑说明</div>
-  <div class="section-desc">核心业务流程及其页面跳转路径。</div>
+  <div class="section-desc">核心业务流程、页面跳转路径及数据流转关系。</div>
   <div class="table-wrap">
     <table>
       <thead>
-        <tr><th>流程名称</th><th>跳转地址</th></tr>
+        <tr><th>流程名称</th><th>说明</th></tr>
       </thead>
       <tbody>
-        <tr><td>三无忧批次详情</td><td>/leads/worry-free/batch-detail</td></tr>
-        <tr><td>三无忧指标详情弹窗</td><td>/leads/worry-free/metric-info</td></tr>
+        <tr><td>三无忧主页面</td><td>进入"线索管理 → 三无忧"，默认加载页首4项配置摘要 + 6项看板指标 + 规则配置区（默认收起，展示7项配置摘要标签） + 批次记录列表</td></tr>
+        <tr><td>规则配置保存流程</td><td>展开配置 → 填写/修改8项基础字段 + 分层映射表 + 车系话术表 → 点击"保存配置" → 前端校验8项必填 + 准入车系≥1 + 2表≥1行 → 校验通过后调用 POST 接口 → 成功后 Toast "已保存三无忧规则配置"，配置摘要条同步刷新</td></tr>
+        <tr><td>指标说明浮层 + 指标规则弹窗</td><td>点击任一指标按钮 → 弹出 Popover 浮层展示该指标的描述文本 → 点击浮层"点击查看指标规则 →" → 打开指标口径与规则 Modal 展示公式/SLA规则表</td></tr>
+        <tr><td>批次详情查看</td><td>批次列表点击"查看" → 跳转批次详情页，3个 Tab（执行概览/批量明细/执行日志），支持返回列表</td></tr>
+        <tr><td>分层映射规则</td><td>P1→P4→P3→P2→P100 按优先级从高到低排序推送；每日上限内逐层分配额度，本层未用完额度滚存至下一层；P100 为保底分层，禁止删除，锁定不可编辑</td></tr>
+        <tr><td>去重规则</td><td>AI去重窗口 T-N：N 天内 AI 外呼已建联的线索不再推送；人工去重窗口 T-N：N 天内人工跟进已建联的线索不再推送；同号推送窗口 T-N：同一手机号 N 天内仅推送一次</td></tr>
+        <tr><td>导出流程</td><td>选择日期范围 → 校验开始≤结束 → 调用 GET 接口 → 接收 CSV 流 → 触发浏览器下载；无数据时 Toast 提示</td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- 接口清单 -->
+<!-- 三. 接口清单 -->
 <div class="section" id="tab-0-sanwuyou-section3">
   <div class="section-title">接口清单</div>
   <div class="section-desc">开发速览与完整接口清单。</div>
@@ -342,7 +347,7 @@ details summary:hover { text-decoration: underline; }
       </thead>
       <tbody>
         <tr>
-          <td>26</td><td>8</td><td>是</td><td>—</td><td>是</td><td>5</td>
+          <td>22</td><td>7</td><td>是</td><td>是</td><td>是</td><td>12</td>
         </tr>
       </tbody>
     </table>
@@ -356,47 +361,49 @@ details summary:hover { text-decoration: underline; }
       </thead>
       <tbody>
         <tr>
-          <td>查询三无忧配置</td><td>GET</td><td>【待确认：接口地址】</td><td>无</td><td>配置JSON</td><td>渲染配置区</td><td>Toast"配置加载失败"</td>
+          <td>查询三无忧配置</td><td>GET</td><td>【待确认：接口地址】</td><td>无</td><td>configJSON：每日推送上限(Number)、准入意向车系(String[])、AI去重窗口(Number)、人工去重窗口(Number)、短信模板(String)、推送数据时间(String)、禁止推送数据时间(String)、同号推送窗口(Number)、分层标签映射([{权重, 标签映射}])、意向车系映射话术任务([{车系, 外呼类型}])</td><td>渲染配置区域，默认收起状态展示7项摘要标签</td><td>Toast "配置加载失败"，配置区显示空状态占位</td>
         </tr>
         <tr>
-          <td>保存三无忧配置</td><td>POST</td><td>【待确认：接口地址】</td><td>8项字段+2表数据</td><td>成功标识</td><td>Toast"已保存三无忧规则配置"</td><td>Toast"保存失败"</td>
+          <td>保存三无忧配置</td><td>POST</td><td>【待确认：接口地址】</td><td>Body JSON：每日推送上限(Number, 必填)、准入意向车系(String[], 必填, ≥1)、AI去重窗口(Number, 必填)、人工去重窗口(Number, 必填)、短信模板(String, 必填)、推送数据时间(String, 必填)、禁止推送数据时间(String, 必填)、同号推送窗口(Number, 必填)、分层标签映射([{权重, 标签映射}], 必填, ≥1行)、意向车系映射话术任务([{车系, 外呼类型}], 必填, ≥1行)</td><td>{success: Boolean}</td><td>Toast "已保存三无忧规则配置"，前端校验失败时逐项高亮并提示具体缺失字段</td><td>接口异常 Toast "保存失败，请重试"；校验不通过不发起请求</td>
         </tr>
         <tr>
-          <td>查询批次列表</td><td>GET</td><td>【待确认：接口地址】</td><td>筛选参数+分页</td><td>批次列表+分页</td><td>渲染批次表</td><td>Toast"数据加载失败"</td>
+          <td>查询看板指标</td><td>GET</td><td>【待确认：接口地址】</td><td>无</td><td>{...}</td><td>渲染6项指标按钮，样式按指标类型区分</td><td>Toast "指标加载失败"，指标区显示 "--" 占位</td>
         </tr>
         <tr>
-          <td>查询批次详情</td><td>GET</td><td>【待确认：接口地址】</td><td>批次ID</td><td>3个Tab数据</td><td>渲染详情页</td><td>Toast"详情加载失败"</td>
+          <td>查询批次列表</td><td>GET</td><td>【待确认：接口地址】</td><td>page(Number)、pageSize(Number, 默认5，可选5/10/20/50)</td><td>{list([{date, candidate, dedupe, smsSuccess, tasks, syncFailed, remaining, status}]), total(Number)}</td><td>渲染批次列表，按批次日期倒序排列</td><td>Toast "数据加载失败"，列表显示空状态</td>
         </tr>
         <tr>
-          <td>查询看板指标</td><td>GET</td><td>【待确认：接口地址】</td><td>无</td><td>6项指标</td><td>渲染指标区</td><td>Toast"指标加载失败"</td>
+          <td>查询批次详情</td><td>GET</td><td>【待确认：接口地址】</td><td>batchId(String)：批次日期如 "2026-06-16"</td><td>{date, status, candidate, dedupe, smsSuccess, tasks, syncFailed, remaining, connectedRate, layers([{priority, tag, candidate, dedupe, smsSuccess, tasks, exception, remaining}]), series([{series, taskId, candidate, dedupe, smsSuccess, tasks, exception, remaining}]), logs([{startTime, endTime, node, description, result}]), leadDetails([30列线索数据])}</td><td>渲染批次详情页，3个Tab内容完整展示</td><td>Toast "详情加载失败"，返回三无忧列表</td>
         </tr>
         <tr>
-          <td>导出三无忧明细</td><td>GET</td><td>【待确认：接口地址】</td><td>开始日期+结束日期</td><td>CSV流</td><td>下载CSV文件</td><td>Toast"当前日期范围内暂无可导出数据"</td>
+          <td>导出三无忧明细</td><td>GET</td><td>【待确认：接口地址】</td><td>startDate(String, yyyy-MM-dd)、endDate(String, yyyy-MM-dd)</td><td>CSV 文件流，30列（20线索字段+10DCC配置字段）</td><td>浏览器下载 CSV，Toast "已导出 N 条三无忧明细数据"</td><td>无数据时 Toast "当前日期范围内暂无可导出数据"，不生成空文件；日期校验不通过拦截</td>
         </tr>
         <tr>
-          <td>删除分层映射行</td><td>DELETE</td><td>【待确认：接口地址】</td><td>行ID</td><td>成功标识</td><td>Toast"当前配置行已删除"</td><td>Toast"删除失败"</td>
-        </tr>
-        <tr>
-          <td>删除车系话术行</td><td>DELETE</td><td>【待确认：接口地址】</td><td>行ID</td><td>成功标识</td><td>Toast"当前配置行已删除"</td><td>Toast"删除失败"</td>
+          <td>删除分层映射行</td><td>DELETE</td><td>【待确认：接口地址】</td><td>rowId(String)</td><td>{success: Boolean}</td><td>Toast "当前配置行已删除"，表格行移除</td><td>Toast "删除失败"；P100行前端拦截，Toast "P100 为保底分层，禁止删除"</td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<!-- 功能说明 -->
+<!-- 四. 功能说明 -->
 <div class="section" id="tab-0-sanwuyou-section4">
   <div class="section-title">功能说明</div>
-  <div class="section-desc">按板块分组的完整功能点说明，每个功能点均含交互说明、数据来源、逻辑说明及 12 列功能明细表。</div>
+  <div class="section-desc">按板块分组的完整功能点说明，每个功能点均含交互说明、数据来源、逻辑说明、12 列功能明细表及验收标准。</div>
 
-  <!-- 板块 1: 三无忧看板 -->
+  <!-- 板块 1: 页首配置摘要条 -->
   <div class="feature-card">
-    <div class="fc-title"><span class="badge badge-info">板块1</span> 三无忧看板</div>
+    <div class="fc-title"><span class="badge badge-info">板块1</span> 页首配置摘要条（F1）</div>
     <div class="fc-body">
-      <p><strong>功能点 F1：看板指标展示</strong></p>
-      <p><strong>交互说明：</strong>页面加载后展示 5 项配置摘要（活动状态 / 准入车系 / 每日上限 / 外呼开始 / 去重窗口）和 6 个实时指标按钮（累计总量 / 去重过滤 / 短信成功率 / DCC培育任务 / 同步失败量 / 滚存待推送）。</p>
-      <p><strong>数据来源：</strong>查询看板指标接口</p>
-      <p><strong>逻辑说明：</strong>指标按钮点击后弹出详情弹窗；短信成功率 / DCC培育任务为 success 样式，同步失败量为 danger 样式，滚存待推送为 warning 样式。</p>
+      <p><strong>功能点：</strong>F1 页首4项配置摘要展示</p>
+      <p><strong>交互说明：</strong>页面加载后，在标题下方横向展示 4 项配置摘要卡片（准入车系 / 每日上限 / 外呼开始 / 去重窗口）。数据来源于查询三无忧配置接口中的对应字段。样式为蓝色渐变背景下的白色卡片。</p>
+      <p><strong>数据来源：</strong>查询三无忧配置接口（GET），字段映射：准入车系 → 准入意向车系.length；每日上限 → 每日推送上限；外呼开始 → 推送数据时间的起始时间；去重窗口 → AI去重窗口取最小值，格式 T-N</p>
+      <p><strong>逻辑说明：</strong>页面加载时与看板指标并行请求配置数据；数据展示格式为蓝色渐变背景白色卡片。</p>
+      <p><strong>验收标准：</strong></p>
+      <ul>
+        <li>当页面加载成功时，应在标题下方展示 4 项配置摘要卡片，数据与接口返回一致</li>
+        <li>当配置接口返回异常时，应在各卡片展示 "--" 占位，并 Toast "配置摘要加载失败"</li>
+      </ul>
     </div>
     <details>
       <summary>12 列功能明细表</summary>
@@ -407,15 +414,15 @@ details summary:hover { text-decoration: underline; }
           </thead>
           <tbody>
             <tr>
-              <td>1</td><td>F1</td><td>看板指标展示</td>
-              <td>页面加载渲染 5 项配置摘要 + 6 个指标按钮；按钮点击弹出详情弹窗</td>
-              <td>查询看板指标接口 (GET)</td>
-              <td>指标按钮样式区分：success（短信成功率/DCC培育任务）、danger（同步失败量）、warning（滚存待推送）</td>
-              <td>接口异常时 Toast"指标加载失败"</td>
-              <td>【待确认：权限点】</td>
-              <td>活动状态启用时才能展示指标</td>
-              <td>指标按钮组 + 详情弹窗 Modal</td>
-              <td>【待确认：埋点事件名】</td>
+              <td>1</td><td>F1</td><td>页首4项配置摘要展示</td>
+              <td>4 个横向卡片展示：准入车系（车系名列表如 N6/N7/NX8）、每日上限（千分位数字如 10,000）、外呼开始（时间段如 09:30--18:00）、去重窗口（T-N 格式如 T-30）</td>
+              <td>查询三无忧配置接口 (GET)</td>
+              <td>并行请求配置和指标数据</td>
+              <td>接口异常时各项显示 "--" 占位，Toast "配置摘要加载失败"</td>
+              <td>【待确认：权限-三无忧页面查看】</td>
+              <td>—</td>
+              <td>Card × 4 横排</td>
+              <td>【待确认：埋点-页首摘要】</td>
               <td>—</td>
             </tr>
           </tbody>
@@ -424,13 +431,32 @@ details summary:hover { text-decoration: underline; }
     </details>
   </div>
 
-  <!-- 板块 2: 规则配置 -->
+  <!-- 板块 2: 看板6项实时指标 -->
   <div class="feature-card">
-    <div class="fc-title"><span class="badge badge-info">板块2</span> 规则配置（F2 ~ F13）</div>
+    <div class="fc-title"><span class="badge badge-info">板块2</span> 看板6项实时指标（F2~F7）</div>
     <div class="fc-body">
-      <p><strong>功能点列表：</strong>F2 展开/收起配置 | F3 每日推送上限配置 | F4 准入意向车系配置 | F5 AI去重窗口配置 | F6 人工去重窗口配置 | F7 短信模板配置 | F8 推送数据时间配置 | F9 禁止推送数据时间配置 | F10 同号推送窗口配置 | F11 分层标签映射权重表 | F12 意向车系映射话术任务表 | F13 保存配置</p>
-      <p><strong>交互说明：</strong>F2 控制配置区展开/收起；F3~F10 为 8 项基础字段输入；F4 使用 tag-picker 多选（N6/N7/NX8）；F11 为 P1-P100 分层权重表格，每行含权重/标签映射/删除按钮，支持新增映射，P100 为保底分层禁止删除；F12 为 NX8/N6/N7 车系表格，每行含意向车系/外呼类型，车系行由准入车系自动生成；F13 保存时校验 7 项基础字段非空 + 准入车系至少 1 项 + 2 表至少 1 行 + 每行必填字段完整。</p>
-      <p><strong>数据来源：</strong>查询三无忧配置接口（GET），保存三无忧配置接口（POST），删除分层映射行接口（DELETE），删除车系话术行接口（DELETE）</p>
+      <p><strong>功能点：</strong>F2 累计总量 | F3 去重过滤 | F4 短信成功率 | F5 DCC培育任务 | F6 同步失败量 | F7 滚存待推送</p>
+      <p><strong>交互说明：</strong>页面加载后展示 6 个可点击指标按钮，横向排列。F2 为 primary 样式（蓝底），F4/F5 为 success 样式（绿底），F6 为 danger 样式（红底），F7 为 warning 样式（黄底）。每个按钮展示指标名称、当前值及副标题说明。点击任一指标按钮弹出详情弹窗。</p>
+      <p><strong>数据来源：</strong>查询看板指标接口（GET），返回 6 项指标当前值</p>
+      <p><strong>逻辑说明：</strong></p>
+      <ul>
+        <li><strong>F2 累计总量：</strong>当前统计周期内，三无忧流程的累计线索总量；数据接收接口响应时间 ≤ 200ms；若因系统故障导致计算中断，后台自动任务每 30 分钟进行漏斗回溯补偿，确保线索无遗漏。限制在允许的推送数据时间段内且避开禁止推送时间段下发。</li>
+        <li><strong>F3 去重过滤：</strong>在候选线索中，因命中已建联、黑名单或同一手机号限定时间内仅推送一次等去重规则被排除的线索数量。去重规则 = AI去重窗口（T-30）+ 人工去重窗口（T-30）+ 同号推送窗口（T-30）+ NEV线索重复跟进 + 黑名单用户 + 已超容量 + 批次处理超频，共 7 项条件；去重处理时延 ≤ 1.5 秒，保证判定实时性；黑名单及去重库每小时自动进行一次增量同步与缓存刷新，避免旧数据拦截新线索</li>
+        <li><strong>F4 短信成功率：</strong>实际发送成功的短信数量占发起短信总量的百分比。发送失败的短信将按重试规则继续处理。公式 = 使用短信模板发送成功量 ÷ 实际发起短信量 × 100%；SLA 要求 ≥ 95.0%（运营商通道正常情况下）；对于发送状态为"提交失败"或"超时未达"的短信，系统将在 15 分钟后自动切换至备用短信通道发起重试，单次推送最多重试 3 次。当分母为 0 时展示 "—"</li>
+        <li><strong>F5 DCC培育任务：</strong>线索通过三无忧触达、初筛且满足下发标准后，在 DCC 培育系统中成功生成的线索培育任务总量。根据分层标签映射规则按权重推送培育任务；任务实时生成时延 ≤ 2 秒；若任务队列出现消费积压，系统自动调配高优先级并发通道，并在 10 分钟内完成积压任务的强制消费和分发</li>
+        <li><strong>F6 同步失败量：</strong>三无忧任务在向 DCC 培育流程同步或向预外呼系统推送时，因网络抖动、接口异常等原因导致同步失败的任务数量。同步接口返回非 200 或超时（≥ 5000ms）的去重任务数计入；SLA 统计窗口 15 分钟，若失败率 ≥ 5% 则触发 P2 级业务预警；系统内置指数退避重试算法（按 5m、15m、30m 间隔），最多自动重试 3 次，3 次后仍失败则生成运维待办事件并触发责任人通知</li>
+        <li><strong>F7 滚存待推送：</strong>因每日限制而未在本批次推送的线索数量，将按规则顺延至后续批次。公式 = 累计总量 - 今日实际推送成功量 - 去重过滤量 - 异常过滤量；每日 24:00 滚存池自动进行结构化清理和排序更新，高优先级线索将在次日推送时间段开始时优先下发</li>
+      </ul>
+      <p><strong>验收标准：</strong></p>
+      <ul>
+        <li>当页面加载成功时，应展示 6 项指标按钮，值与接口返回一致，样式按指标类型正确区分</li>
+        <li>当接口返回异常时，各指标按钮展示 "--" 占位并 Toast "指标加载失败"</li>
+        <li>当短信成功率分母为 0 时，应展示 "—" 而非 "0%"</li>
+        <li>当短信成功率低于 95.0% 时（运营商通道正常情况下），按钮应标记异常状态</li>
+        <li>当同步失败量 > 0 时，按钮应使用 danger 样式高亮</li>
+        <li>当同步失败率在 15 分钟内 ≥ 5% 时，应触发 P2 级业务预警</li>
+        <li>当点击任一指标按钮时，应弹出对应指标的详情弹窗</li>
+      </ul>
     </div>
     <details>
       <summary>12 列功能明细表</summary>
@@ -441,40 +467,22 @@ details summary:hover { text-decoration: underline; }
           </thead>
           <tbody>
             <tr>
-              <td>1</td><td>F2</td><td>展开/收起配置</td><td>点击按钮切换配置区显示/隐藏</td><td>前端状态</td><td>默认展开，手动切换</td><td>—</td><td>—</td><td>—</td><td>Collapse</td><td>【待确认：埋点事件名】</td><td>—</td>
+              <td>1</td><td>F2</td><td>累计总量</td><td>primary 样式按钮，展示"累计总量 / 42,860 / 准入数据总量"，点击弹出详情</td><td>查询看板指标接口 (GET) — totalCandidates</td><td>当前统计周期内三无忧流程的累计线索总量；接口响应 ≤ 200ms；故障中断时每 30 分钟漏斗回溯补偿</td><td>接口异常展示 "--"，Toast "指标加载失败"</td><td>【待确认：权限-看板指标查看】</td><td>—</td><td>Button (primary 样式)</td><td>【待确认：埋点-累计总量】</td><td>限制在推送数据时间段且避开禁止推送时间段下发</td>
             </tr>
             <tr>
-              <td>2</td><td>F3</td><td>每日推送上限配置</td><td>数字输入框，正整数</td><td>查询/保存三无忧配置接口</td><td>限制每日最大推送量</td><td>输入非正整数提示"请输入有效数值"</td><td>【待确认：权限点】</td><td>—</td><td>InputNumber</td><td>【待确认：埋点事件名】</td><td>—</td>
+              <td>2</td><td>F3</td><td>去重过滤</td><td>默认样式按钮，展示"去重过滤 / 7,218 / 建联、黑名单、同号"，点击弹出详情</td><td>查询看板指标接口 (GET) — dedupeCount</td><td>因命中已建联/黑名单/同号推送等 7 项去重规则被排除的线索数；处理时延 ≤ 1.5 秒；去重库每小时增量同步</td><td>同上</td><td>【待确认：权限-看板指标查看】</td><td>同上</td><td>Button (默认样式)</td><td>【待确认：埋点-去重过滤】</td><td>7 项 = AI去重窗口 + 人工去重窗口 + 同号推送窗口 + NEV线索重复跟进 + 黑名单用户 + 已超容量 + 批次处理超频</td>
             </tr>
             <tr>
-              <td>3</td><td>F4</td><td>准入意向车系配置</td><td>tag-picker 多选组件，选项 N6/N7/NX8</td><td>查询/保存三无忧配置接口</td><td>至少选择 1 项车系</td><td>未选择时保存拦截提示</td><td>【待确认：权限点】</td><td>—</td><td>TagPicker</td><td>【待确认：埋点事件名】</td><td>—</td>
+              <td>3</td><td>F4</td><td>短信成功率</td><td>success 样式按钮，展示"短信成功率 / 98.6% / 失败按规则重试"，点击弹出详情</td><td>查询看板指标接口 (GET) — smsSuccessRate</td><td>发送成功量 ÷ 实际发起短信量 × 100%；SLA ≥ 95.0%（运营商正常时）；失败短信 15 分钟后切换备用通道重试，最多 3 次</td><td>同上</td><td>【待确认：权限-看板指标查看】</td><td>同上</td><td>Button (success 样式)</td><td>【待确认：埋点-短信成功率】</td><td>分母为 0 时展示 "—"</td>
             </tr>
             <tr>
-              <td>4</td><td>F5</td><td>AI去重窗口配置</td><td>数字输入框，单位"天"</td><td>查询/保存三无忧配置接口</td><td>AI 侧去重时间窗口</td><td>—</td><td>【待确认：权限点】</td><td>—</td><td>InputNumber</td><td>【待确认：埋点事件名】</td><td>—</td>
+              <td>4</td><td>F5</td><td>DCC培育任务</td><td>success 样式按钮，展示"DCC培育任务 / 8,934 / 已生成任务"，点击弹出详情</td><td>查询看板指标接口 (GET) — dccTaskCount</td><td>线索满足下发标准后生成的 DCC 培育任务总量；按分层映射规则权重推送；生成时延 ≤ 2 秒；积压时 10 分钟内自动消费分发</td><td>同上</td><td>【待确认：权限-看板指标查看】</td><td>同上</td><td>Button (success 样式)</td><td>【待确认：埋点-DCC培育任务】</td><td>—</td>
             </tr>
             <tr>
-              <td>5</td><td>F6</td><td>人工去重窗口配置</td><td>数字输入框，单位"天"</td><td>查询/保存三无忧配置接口</td><td>人工侧去重时间窗口</td><td>—</td><td>【待确认：权限点】</td><td>—</td><td>InputNumber</td><td>【待确认：埋点事件名】</td><td>—</td>
+              <td>5</td><td>F6</td><td>同步失败量</td><td>danger 样式按钮，展示"同步失败量 / 76 / 任务同步异常，待自动重试"，点击弹出详情</td><td>查询看板指标接口 (GET) — syncFailedCount</td><td>同步接口返回非 200 或超时（≥ 5000ms）的去重任务数；15 分钟窗口失败率 ≥ 5% 触发 P2 预警；指数退避重试（5m/15m/30m），最多 3 次</td><td>同上</td><td>【待确认：权限-看板指标查看】</td><td>同上</td><td>Button (danger 样式)</td><td>【待确认：埋点-同步失败量】</td><td>3 次重试后仍失败则生成运维待办并通知责任人</td>
             </tr>
             <tr>
-              <td>6</td><td>F7</td><td>短信模板配置</td><td>下拉选择短信模板</td><td>查询/保存三无忧配置接口</td><td>选择推送短信使用的模板</td><td>模板列表为空时提示"暂无可用模板"</td><td>【待确认：权限点】</td><td>—</td><td>Select</td><td>【待确认：埋点事件名】</td><td>—</td>
-            </tr>
-            <tr>
-              <td>7</td><td>F8</td><td>推送数据时间配置</td><td>时间范围选择器</td><td>查询/保存三无忧配置接口</td><td>允许推送数据的时间段</td><td>结束时间早于开始时间时拦截</td><td>【待确认：权限点】</td><td>—</td><td>TimeRangePicker</td><td>【待确认：埋点事件名】</td><td>—</td>
-            </tr>
-            <tr>
-              <td>8</td><td>F9</td><td>禁止推送数据时间配置</td><td>时间范围选择器</td><td>查询/保存三无忧配置接口</td><td>禁止推送数据的时间段</td><td>—</td><td>【待确认：权限点】</td><td>—</td><td>TimeRangePicker</td><td>【待确认：埋点事件名】</td><td>—</td>
-            </tr>
-            <tr>
-              <td>9</td><td>F10</td><td>同号推送窗口配置</td><td>数字输入框，单位"天"</td><td>查询/保存三无忧配置接口</td><td>相同号码重复推送的最小间隔</td><td>—</td><td>【待确认：权限点】</td><td>—</td><td>InputNumber</td><td>【待确认：埋点事件名】</td><td>—</td>
-            </tr>
-            <tr>
-              <td>10</td><td>F11</td><td>分层标签映射权重表</td><td>P1-P100 分层权重表格，每行含权重/标签映射/删除按钮，支持新增映射，P100 为保底分层禁止删除</td><td>查询/保存三无忧配置接口 + 删除分层映射行接口</td><td>每行必填：权重、标签映射</td><td>删除失败 Toast"删除失败"</td><td>【待确认：权限点】</td><td>—</td><td>EditableTable</td><td>【待确认：埋点事件名】</td><td>至少 1 行数据</td>
-            </tr>
-            <tr>
-              <td>11</td><td>F12</td><td>意向车系映射话术任务表</td><td>NX8/N6/N7 车系表格，每行含意向车系/外呼类型，车系行由准入车系自动生成</td><td>查询/保存三无忧配置接口</td><td>每行必填：外呼类型</td><td>—</td><td>【待确认：权限点】</td><td>—</td><td>EditableTable</td><td>【待确认：埋点事件名】</td><td>行数由准入车系决定</td>
-            </tr>
-            <tr>
-              <td>12</td><td>F13</td><td>保存配置</td><td>点击保存按钮提交全部配置数据</td><td>保存三无忧配置接口 (POST)</td><td>校验规则：7 项基础字段非空 + 准入车系至少 1 项 + 2 表至少 1 行 + 每行必填字段完整</td><td>校验不通过提示具体缺失项；保存失败 Toast"保存失败"</td><td>【待确认：权限点】</td><td>—</td><td>Button + Form</td><td>【待确认：埋点事件名】</td><td>—</td>
+              <td>6</td><td>F7</td><td>滚存待推送</td><td>warning 样式按钮，展示"滚存待推送 / 32,860 / 按优先级顺延"，点击弹出详情</td><td>查询看板指标接口 (GET) — remainingCount</td><td>累计总量 - 今日实际推送成功量 - 去重过滤量 - 异常过滤量；24:00 自动清理排序，高优先级线索次日优先下发</td><td>同上</td><td>【待确认：权限-看板指标查看】</td><td>同上</td><td>Button (warning 样式)</td><td>【待确认：埋点-滚存待推送】</td><td>—</td>
             </tr>
           </tbody>
         </table>
@@ -482,13 +490,28 @@ details summary:hover { text-decoration: underline; }
     </details>
   </div>
 
-  <!-- 板块 3: 批次记录 -->
+  <!-- 板块 3: 指标说明浮层 + 指标规则弹窗 -->
   <div class="feature-card">
-    <div class="fc-title"><span class="badge badge-info">板块3</span> 批次记录（F14 ~ F16）</div>
+    <div class="fc-title"><span class="badge badge-info">板块3</span> 指标说明浮层 + 指标口径与规则弹窗（F8）</div>
     <div class="fc-body">
-      <p><strong>功能点列表：</strong>F14 批次记录列表 | F15 批次记录分页 | F16 批次详情查看</p>
-      <p><strong>交互说明：</strong>F14 展示 9 列批次列表（批次日期 / 累计总量 / 去重过滤 / 短信成功 / DCC培育任务 / 同步失败量 / 滚存待推送 / 批次状态 / 操作）；F15 支持分页切换；F16 点击操作列"详情"跳转批次详情页。</p>
-      <p><strong>数据来源：</strong>查询批次列表接口（GET），查询批次详情接口（GET）</p>
+      <p><strong>功能点：</strong>F8 指标说明浮层（Popover） + 跳转指标口径与规则弹窗</p>
+      <p><strong>交互说明：</strong>点击任一指标按钮触发 Popover 浮层——浮层顶部展示"指标名称 · 指标说明"标题，中部展示指标描述文本（例：累计总量 → "当前统计周期内，三无忧流程的累计线索总量。"），底部展示"点击查看指标规则 →"操作按钮。浮层定位在触发按钮下方，超出视口时自动翻转方向。点击"点击查看指标规则 →"按钮打开指标口径与规则弹窗（Modal），展示该指标的完整口径、公式、SLA、自愈等规则表。点击浮层外任意区域或按 Esc 键关闭浮层。</p>
+      <p><strong>6 项指标描述文本（来自原型 showWorryFreeMetricInfo）：</strong></p>
+      <ul>
+        <li>累计总量：当前统计周期内，三无忧流程的累计线索总量。</li>
+        <li>去重过滤：候选线索中因已建联，命中黑名单或同手机号重复等规则被过滤的线索数量。</li>
+        <li>短信成功率：短信发送成功量 ÷ 实际发起短信量，发送失败的短信将按重试规则继续处理。</li>
+        <li>DCC培育任务：完成三无忧筛选与触达后，已成功生成并进入DCC培育流程的任务数量。</li>
+        <li>同步失败量：三无忧任务同步至DCC培育流程时发生异常的数量，系统将按重试策略自动补偿，持续失败需人工核查。</li>
+        <li>滚存待推送：因每日限制而未在本批次推送的线索数量，将按规则顺延至后续批次。</li>
+      </ul>
+      <p><strong>验收标准：</strong></p>
+      <ul>
+        <li>当点击指标按钮时，应展示对应指标的 Popover 浮层含描述文本</li>
+        <li>当点击浮层"点击查看指标规则 →"时，应打开指标口径与规则 Modal</li>
+        <li>当点击浮层外区域或按 Esc 键时，应关闭浮层</li>
+        <li>当浮层中再点击另一指标按钮时，应切换为新指标的描述内容</li>
+      </ul>
     </div>
     <details>
       <summary>12 列功能明细表</summary>
@@ -499,13 +522,15 @@ details summary:hover { text-decoration: underline; }
           </thead>
           <tbody>
             <tr>
-              <td>1</td><td>F14</td><td>批次记录列表</td><td>9 列表格展示批次数据</td><td>查询批次列表接口 (GET)</td><td>按批次日期倒序排列</td><td>接口异常 Toast"数据加载失败"</td><td>【待确认：权限点】</td><td>依赖批次生成任务完成</td><td>Table</td><td>【待确认：埋点事件名】</td><td>—</td>
-            </tr>
-            <tr>
-              <td>2</td><td>F15</td><td>批次记录分页</td><td>底部分页器切换页码</td><td>查询批次列表接口 (GET)</td><td>传入 page/pageSize 参数</td><td>—</td><td>【待确认：权限点】</td><td>—</td><td>Pagination</td><td>【待确认：埋点事件名】</td><td>—</td>
-            </tr>
-            <tr>
-              <td>3</td><td>F16</td><td>批次详情查看</td><td>点击操作列"详情"跳转</td><td>查询批次详情接口 (GET)</td><td>跳转 /leads/worry-free/batch-detail?batchId=xxx</td><td>接口异常 Toast"详情加载失败"</td><td>【待确认：权限点】</td><td>—</td><td>Link + Route</td><td>【待确认：埋点事件名】</td><td>—</td>
+              <td>1</td><td>F8</td><td>指标说明浮层 + 指标规则弹窗</td>
+              <td>点击指标按钮 → Popover（标题+描述+"点击查看指标规则 →"）；点击"点击查看指标规则 →" → Modal（指标口径/公式/SLA规则表）</td><td>指标描述为前端硬编码文本；指标规则弹窗调用 openMetricRuleModal（前端数据）</td>
+              <td>浮层定位在触发按钮下方，超出视口时自动翻转；指标规则弹窗展示对应指标的完整口径、公式、SLA、自愈策略（见逻辑说明板块-6项指标）；浮层关闭方法：点击外部 / Esc / 点击关闭按钮</td>
+              <td>—</td>
+              <td>【待确认：权限-指标详情查看】</td>
+              <td>—</td>
+              <td>Popover + Modal（指标规则表）</td>
+              <td>【待确认：埋点-指标详情弹窗】</td>
+              <td>指标描述文本见上方6项枚举</td>
             </tr>
           </tbody>
         </table>
@@ -513,13 +538,22 @@ details summary:hover { text-decoration: underline; }
     </details>
   </div>
 
-  <!-- 板块 4: 批次详情 -->
+  <!-- 板块 4: 配置展开/收起 + 配置摘要条 -->
   <div class="feature-card">
-    <div class="fc-title"><span class="badge badge-info">板块4</span> 批次详情（F17 ~ F19）</div>
+    <div class="fc-title"><span class="badge badge-info">板块4</span> 配置展开/收起 + 配置摘要条（F9~F10）</div>
     <div class="fc-body">
-      <p><strong>功能点列表：</strong>F17 执行概览 Tab | F18 批量明细 Tab | F19 执行日志 Tab</p>
-      <p><strong>交互说明：</strong>F17 展示 8 项摘要指标卡片 + 分层推送明细表 + 车系话术明细表；F18 展示 29 列明细表（含线索信息与 DCC 配置）；F19 展示 4 列日志表。</p>
-      <p><strong>数据来源：</strong>查询批次详情接口（GET）</p>
+      <p><strong>功能点：</strong>F9 展开/收起配置 | F10 配置摘要条</p>
+      <p><strong>交互说明：</strong>F9：规则配置区默认收起，点击"展开配置"按钮展开配置明细，按钮文案切换为"收起配置"，再次点击收起。F10：收起状态下展示 7 项配置摘要标签（每日上限 / 准入车系 / AI去重 / 人工去重 / 同号推送 / 短信模板 / 外呼时间），数据来源于已保存的配置值。</p>
+      <p><strong>数据来源：</strong>查询三无忧配置接口（GET），摘要标签取对应字段的当前值</p>
+      <p><strong>逻辑说明：</strong>F9 为前端状态切换，不触发接口；F10 的 7 项标签在配置保存后自动刷新；去重窗口值展示为 T-N 格式（如原始值 30 → T-30）。</p>
+      <p><strong>验收标准：</strong></p>
+      <ul>
+        <li>当页面初始加载时，配置区应默认收起，展示 7 项摘要标签</li>
+        <li>当点击"展开配置"按钮时，应展开配置明细区，按钮文案变为"收起配置"</li>
+        <li>当点击"收起配置"按钮时，应收起配置明细区，按钮文案恢复为"展开配置"</li>
+        <li>当保存配置成功后，摘要标签应同步刷新为最新值</li>
+        <li>当配置接口返回异常时，摘要标签展示 "--" 占位</li>
+      </ul>
     </div>
     <details>
       <summary>12 列功能明细表</summary>
@@ -530,13 +564,10 @@ details summary:hover { text-decoration: underline; }
           </thead>
           <tbody>
             <tr>
-              <td>1</td><td>F17</td><td>执行概览 Tab</td><td>8 项摘要指标卡片 + 分层推送明细表（8列）+ 车系话术明细表（8列）</td><td>查询批次详情接口 (GET)</td><td>指标按层级/车系汇总展示</td><td>接口异常 Toast"详情加载失败"</td><td>【待确认：权限点】</td><td>批次执行中/已完成</td><td>Card + Table</td><td>【待确认：埋点事件名】</td><td>—</td>
+              <td>1</td><td>F9</td><td>展开/收起配置</td><td>点击"展开配置"/"收起配置"按钮切换配置明细区显示/隐藏</td><td>前端状态（无接口调用）</td><td>默认收起；点击切换时按钮文案同步变更；不影响已保存的配置数据</td><td>—</td><td>—</td><td>—</td><td>Button + Collapse</td><td>【待确认：埋点-展开/收起配置】</td><td>—</td>
             </tr>
             <tr>
-              <td>2</td><td>F18</td><td>批量明细 Tab</td><td>29 列明细表（批次号/总部线索ID/培育线索编码/培育任务编码/线索状态/线索异常原因/客户姓名/手机号码/意向车系/意向专营店/最新留资车系/SmartCode/最近跟进时间/门店跟进次数/用户标签/分层标签/短信状态/系统状态/异常原因 + 10项DCC配置），支持分页</td><td>查询批次详情接口 (GET)</td><td>逐条展示每条线索的处理明细，横向滚动查看所有字段</td><td>接口异常 Toast"详情加载失败"</td><td>【待确认：权限点】</td><td>—</td><td>Table (横向滚动)</td><td>【待确认：埋点事件名】</td><td>—</td>
-            </tr>
-            <tr>
-              <td>3</td><td>F19</td><td>执行日志 Tab</td><td>4 列日志表（时间/节点/说明/结果）</td><td>查询批次详情接口 (GET)</td><td>按时间倒序展示执行日志</td><td>接口异常 Toast"详情加载失败"</td><td>【待确认：权限点】</td><td>—</td><td>Table</td><td>【待确认：埋点事件名】</td><td>—</td>
+              <td>2</td><td>F10</td><td>配置摘要条</td><td>收起状态下横向展示 7 个 Chip 标签：每日上限(10,000) / 准入车系(N6/N7/NX8) / AI去重(T-30) / 人工去重(T-30) / 同号推送(T-30) / 短信模板(冷线索-三无忧) / 外呼时间(09:30-18:00)</td><td>查询三无忧配置接口 (GET)</td><td>去重窗口值加 T- 前缀展示；外呼时间取 推送数据时间 字段；数据随配置保存刷新</td><td>接口异常时各标签展示 "--"</td><td>【待确认：权限-配置查看】</td><td>—</td><td>Chip × 7 横排</td><td>【待确认：埋点-配置摘要】</td><td>—</td>
             </tr>
           </tbody>
         </table>
@@ -544,14 +575,33 @@ details summary:hover { text-decoration: underline; }
     </details>
   </div>
 
-  <!-- 板块 5: 导出 -->
+  <!-- 板块 5: 8项基础字段配置 -->
   <div class="feature-card">
-    <div class="fc-title"><span class="badge badge-info">板块5</span> 导出（F20）</div>
+    <div class="fc-title"><span class="badge badge-info">板块5</span> 8项基础字段配置（F11~F18）</div>
     <div class="fc-body">
-      <p><strong>功能点 F20：导出明细</strong></p>
-      <p><strong>交互说明：</strong>选择日期范围后点击导出按钮，校验开始日期不晚于结束日期，下载 CSV 文件。</p>
-      <p><strong>数据来源：</strong>导出三无忧明细接口（GET）</p>
-      <p><strong>逻辑说明：</strong>日期范围校验 → 调用接口 → 接收 CSV 流 → 触发浏览器下载；无数据时 Toast"当前日期范围内暂无可导出数据"。</p>
+      <p><strong>功能点：</strong>F11 每日推送上限 | F12 准入意向车系 | F13 AI去重窗口 | F14 人工去重窗口 | F15 短信模板 | F16 推送数据时间 | F17 禁止推送数据时间 | F18 同号推送窗口</p>
+      <p><strong>交互说明：</strong>配置展开后，8 项字段分两行排列（每行 4 项）。F11/F13/F14/F18 为数字输入框（InputNumber），F12 为 tag-picker 多选组件（选项 N6/N7/NX8 含全选/清空），F15 为 tag-picker 带搜索选择（从短信调度规则中获取模板列表，支持关键词搜索过滤），F16/F17 为文本输入框。所有必填字段标记红色星号。</p>
+      <p><strong>详细字段说明：</strong></p>
+      <ul>
+        <li><strong>F11 每日推送上限：</strong>正整数，默认 10000，限制单日最大推送线索数量</li>
+        <li><strong>F12 准入意向车系：</strong>tag-picker 多选（N6/N7/NX8），至少选1项，所选车系自动生成车系话术表行；包含全选/清空快捷操作；选择变更时联动刷新车系话术表</li>
+        <li><strong>F13 AI去重窗口：</strong>正整数，默认 30，单位天，展示格式 T-N，N 天内 AI 外呼已建联的线索不再推送</li>
+        <li><strong>F14 人工去重窗口：</strong>正整数，默认 30，单位天，展示格式 T-N，N 天内人工跟进已建联的线索不再推送</li>
+        <li><strong>F15 短信模板：</strong>tag-picker 单选带搜索，默认"冷线索-三无忧"，模板列表从短信调度规则动态获取；搜索框支持关键词实时过滤，无匹配时展示"暂无匹配模板"</li>
+        <li><strong>F16 推送数据时间：</strong>文本输入，默认"09:30 - 18:00"，格式 HH:mm - HH:mm</li>
+        <li><strong>F17 禁止推送数据时间：</strong>文本输入，默认"12:00 - 14:00 / 15:00 - 15:30"，支持多段以"/"分隔</li>
+        <li><strong>F18 同号推送窗口：</strong>正整数，默认 30，单位天，展示格式 T-N，同一手机号 N 天内仅推送一次</li>
+      </ul>
+      <p><strong>数据来源：</strong>查询三无忧配置接口（GET）回填初始值；保存配置接口（POST）提交修改</p>
+      <p><strong>验收标准：</strong></p>
+      <ul>
+        <li>当页面加载成功时，各字段应回填已保存的配置值</li>
+        <li>当 F11 输入非正整数时，应在失焦时提示"请输入有效数值"并标红输入框</li>
+        <li>当 F12 未选择任何车系时，车系话术表应显示"暂无数据，请先在上方勾选准入意向车系"</li>
+        <li>当 F12 选择/取消车系时，车系话术表应实时联动增删行</li>
+        <li>当 F15 搜索关键词无匹配时，应展示"暂无匹配模板"</li>
+        <li>当 F16 格式不符合 HH:mm - HH:mm 时，应在保存时校验拦截</li>
+      </ul>
     </div>
     <details>
       <summary>12 列功能明细表</summary>
@@ -562,7 +612,313 @@ details summary:hover { text-decoration: underline; }
           </thead>
           <tbody>
             <tr>
-              <td>1</td><td>F20</td><td>导出明细</td><td>日期范围选择 + 导出按钮，下载 CSV</td><td>导出三无忧明细接口 (GET)</td><td>校验开始日期≤结束日期，无数据时 Toast 提示</td><td>日期校验不通过提示；无数据 Toast"当前日期范围内暂无可导出数据"</td><td>【待确认：权限点】</td><td>—</td><td>DatePicker + Button</td><td>【待确认：埋点事件名】</td><td>—</td>
+              <td>1</td><td>F11</td><td>每日推送上限</td><td>数字输入框，正整数，默认 10000</td><td>查询/保存三无忧配置接口</td><td>正整数校验；限制每日最大推送量</td><td>输入非正整数时标红并提示"请输入有效数值"</td><td>【待确认：权限-配置编辑】</td><td>—</td><td>InputNumber</td><td>【待确认：埋点-每日推送上限】</td><td>—</td>
+            </tr>
+            <tr>
+              <td>2</td><td>F12</td><td>准入意向车系</td><td>tag-picker 多选 + 全选/清空按钮，选项 N6/N7/NX8</td><td>查询/保存三无忧配置接口</td><td>至少 1 项；选择变更联动车系话术表——自动新增/移除对应车系行</td><td>未选择时保存拦截；全选/清空为批量操作</td><td>【待确认：权限-配置编辑】</td><td>—</td><td>TagPicker (Multi)</td><td>【待确认：埋点-准入车系】</td><td>车系列表【待确认：是否硬编码还是从接口获取】</td>
+            </tr>
+            <tr>
+              <td>3</td><td>F13</td><td>AI去重窗口 T-N</td><td>数字输入框，正整数，默认 30，展示格式 T-30</td><td>查询/保存三无忧配置接口</td><td>N 天内 AI 外呼已建联的线索不再推送</td><td>输入非正整数时标红提示</td><td>【待确认：权限-配置编辑】</td><td>—</td><td>InputNumber</td><td>【待确认：埋点-AI去重窗口】</td><td>展示时自动加 T- 前缀</td>
+            </tr>
+            <tr>
+              <td>4</td><td>F14</td><td>人工去重窗口 T-N</td><td>数字输入框，正整数，默认 30，展示格式 T-30</td><td>查询/保存三无忧配置接口</td><td>N 天内人工跟进已建联的线索不再推送</td><td>同上</td><td>【待确认：权限-配置编辑】</td><td>—</td><td>InputNumber</td><td>【待确认：埋点-人工去重窗口】</td><td>同上</td>
+            </tr>
+            <tr>
+              <td>5</td><td>F15</td><td>短信模板</td><td>tag-picker 单选 + 搜索框实时过滤，默认"冷线索-三无忧"，模板列表动态获取</td><td>查询/保存三无忧配置接口；模板列表来源于短信调度规则数据</td><td>单选；搜索关键词实时过滤；点击选项即选中并关闭面板；总数展示"共 N 个模板"</td><td>模板列表为空时搜索框显示"暂无可用模板"；搜索无匹配时展示"暂无匹配模板"</td><td>【待确认：权限-配置编辑】</td><td>—</td><td>TagPicker (Single + Search)</td><td>【待确认：埋点-短信模板】</td><td>模板来源【待确认：接口地址】</td>
+            </tr>
+            <tr>
+              <td>6</td><td>F16</td><td>推送数据时间</td><td>文本输入框，默认"09:30 - 18:00"，格式 HH:mm - HH:mm</td><td>查询/保存三无忧配置接口</td><td>允许推送外呼数据的时间段；保存时校验格式</td><td>格式不符时保存拦截提示"请输入正确的时间格式"</td><td>【待确认：权限-配置编辑】</td><td>—</td><td>Input (Text)</td><td>【待确认：埋点-推送数据时间】</td><td>—</td>
+            </tr>
+            <tr>
+              <td>7</td><td>F17</td><td>禁止推送数据时间</td><td>文本输入框，默认"12:00 - 14:00 / 15:00 - 15:30"，多段以"/"分隔</td><td>查询/保存三无忧配置接口</td><td>禁止推送外呼数据的时间段；支持多段配置</td><td>—</td><td>【待确认：权限-配置编辑】</td><td>—</td><td>Input (Text)</td><td>【待确认：埋点-禁止推送时间】</td><td>—</td>
+            </tr>
+            <tr>
+              <td>8</td><td>F18</td><td>同号推送窗口 T-N</td><td>数字输入框，正整数，默认 30，展示格式 T-30</td><td>查询/保存三无忧配置接口</td><td>同一手机号 N 天内仅推送一次</td><td>输入非正整数时标红提示</td><td>【待确认：权限-配置编辑】</td><td>—</td><td>InputNumber</td><td>【待确认：埋点-同号推送窗口】</td><td>展示时自动加 T- 前缀</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </div>
+
+  <!-- 板块 6: 分层标签映射权重表 -->
+  <div class="feature-card">
+    <div class="fc-title"><span class="badge badge-info">板块6</span> 分层标签映射权重表（F19）</div>
+    <div class="fc-body">
+      <p><strong>功能点：</strong>F19 分层标签映射权重表</p>
+      <p><strong>交互说明：</strong>3 列表格（权重 / 标签映射 / 操作），预置 5 行数据（P1~P4 + P100）。每行权重为下拉选择（P1/P2/P3/P4/P100），标签映射为下拉选择（对应标签名称），操作列含删除按钮。支持"新增映射"按钮添加新行。P100 行为保底分层：权重下拉 disabled 锁定，标签映射下拉 disabled 锁定，操作列显示"锁定"标签。</p>
+      <p><strong>枚举值（完整）：</strong></p>
+      <ul>
+        <li><strong>P1</strong>（最高优先级）：历史试驾过 / 历史到店过</li>
+        <li><strong>P2</strong>：门店跟进次数 ≥ 3 次</li>
+        <li><strong>P3</strong>：休眠未购</li>
+        <li><strong>P4</strong>（最低）：休眠失联</li>
+        <li><strong>P100</strong>（保底）：历史剩余数据 — 禁止删除、禁止编辑，权重和标签映射均锁定</li>
+      </ul>
+      <p><strong>数据来源：</strong>查询三无忧配置接口（GET）加载已有映射行；新增行仅前端操作（不触发接口）；删除行调用 DELETE 接口；保存配置时随 POST 接口整体提交</p>
+      <p><strong>逻辑说明：</strong>P1→P4→P3→P2→P100 按优先级从高到低排序；每日推送上限内逐层分配额度，本层未用完额度滚存至下一层；P100 为兜底分层；新增行默认权重 P100。</p>
+      <p><strong>验收标准：</strong></p>
+      <ul>
+        <li>当页面加载时，应展示已保存的分层映射行，权重和标签映射正确回填</li>
+        <li>当点击"新增映射"按钮时，应新增一行，权重默认 P100，Toast "已新增分层标签映射行"</li>
+        <li>当删除非 P100 行时，应弹出确认 → 调用 DELETE 接口 → 成功后 Toast "当前配置行已删除"，行移除</li>
+        <li>当尝试删除 P100 行时，应 Toast "P100 为保底分层，禁止删除" 并拦截</li>
+        <li>当删除接口异常时，应 Toast "删除失败"，行保留</li>
+        <li>当分层映射表为空（0 行）时，保存校验应拦截并提示"分层标签映射权重至少需要配置一条"</li>
+      </ul>
+    </div>
+    <details>
+      <summary>12 列功能明细表</summary>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>序号</th><th>功能编号</th><th>功能名称</th><th>交互说明</th><th>数据来源</th><th>逻辑说明</th><th>异常处理</th><th>权限控制</th><th>状态依赖</th><th>前端组件</th><th>埋点事件</th><th>备注</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td><td>F19</td><td>分层标签映射权重表</td>
+              <td>3 列表格：权重(Select: P1/P2/P3/P4/P100) + 标签映射(Select: 5项标签) + 操作(删除按钮/锁定标签)；含"新增映射"按钮；P100 行锁定 disabled</td>
+              <td>查询三无忧配置接口 (GET) — 分层标签映射[]；DELETE 接口删除单行；POST 接口整体保存</td>
+              <td>优先级排序 P1→P2→P3→P4→P100；P1 权重最高，P100 保底锁定；新增行默认 P100</td>
+              <td>删除接口异常 Toast "删除失败"；P100 删除拦截 Toast "P100 为保底分层，禁止删除"；0 行时保存拦截</td>
+              <td>【待确认：权限-配置编辑】</td>
+              <td>—</td>
+              <td>Table (Editable) + Select + Button</td>
+              <td>【待确认：埋点-分层映射】</td>
+              <td>至少 1 行；权重和标签映射均为必填</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </div>
+
+  <!-- 板块 7: 意向车系映射话术任务表 -->
+  <div class="feature-card">
+    <div class="fc-title"><span class="badge badge-info">板块7</span> 意向车系映射话术任务表（F20）</div>
+    <div class="fc-body">
+      <p><strong>功能点：</strong>F20 意向车系映射话术任务表</p>
+      <p><strong>交互说明：</strong>2 列表格（意向车系 / 外呼类型），无操作列。意向车系列为只读文本（加粗），外呼类型列为下拉选择。行数由准入车系选择动态决定：选择 N6/N7/NX8 中任一车系，自动生成对应行。外呼类型默认值：NX8→一知-冷线索 / N6→一知-冷线索（大模型）/ N7→一知-大模型NEV新线索。</p>
+      <p><strong>外呼类型枚举（共 8 项）：</strong></p>
+      <ol>
+        <li>一知-冷线索</li>
+        <li>一知-冷线索（大模型）</li>
+        <li>一知-大模型NEV新线索</li>
+        <li>科大讯飞-冷线索</li>
+        <li>科大讯飞-留资未满</li>
+        <li>冰兰-新线索</li>
+        <li>冰兰-保客</li>
+        <li>一知-保客</li>
+      </ol>
+      <p><strong>数据来源：</strong>查询三无忧配置接口（GET）加载已有映射；保存配置时随 POST 接口整体提交。车系行由 F12 准入车系选择联动生成</p>
+      <p><strong>验收标准：</strong></p>
+      <ul>
+        <li>当 F12 选择 N6/N7/NX8 时，应自动生成对应车系行，外呼类型为默认值</li>
+        <li>当 F12 取消某车系时，对应行应从表中移除</li>
+        <li>当 F12 未选择任何车系时，应展示"暂无数据，请先在上方勾选准入意向车系"</li>
+        <li>当外呼类型下拉选择变更时，应即时更新</li>
+        <li>当保存时外呼类型为空时，应拦截并提示"意向车系映射话术任务第 N 行：请填写外呼类型"</li>
+      </ul>
+    </div>
+    <details>
+      <summary>12 列功能明细表</summary>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>序号</th><th>功能编号</th><th>功能名称</th><th>交互说明</th><th>数据来源</th><th>逻辑说明</th><th>异常处理</th><th>权限控制</th><th>状态依赖</th><th>前端组件</th><th>埋点事件</th><th>备注</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td><td>F20</td><td>意向车系映射话术任务表</td>
+              <td>2 列表格：意向车系（只读加粗）+ 外呼类型（Select: 8项枚举）；车系行由准入车系自动生成</td>
+              <td>查询三无忧配置接口 (GET) — 意向车系映射话术任务[]；POST 接口整体保存</td>
+              <td>行数与 F12 准入车系联动；默认外呼类型：NX8→一知-冷线索，N6→一知-冷线索（大模型），N7→一知-大模型NEV新线索</td>
+              <td>F12 未选车系时显示空状态提示；外呼类型未填时保存拦截</td>
+              <td>【待确认：权限-配置编辑】</td>
+              <td>依赖 F12 准入车系取值</td>
+              <td>Table (ReadOnly + Select) </td>
+              <td>【待确认：埋点-车系话术】</td>
+              <td>行数由准入车系决定</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </div>
+
+  <!-- 板块 8: 保存配置 -->
+  <div class="feature-card">
+    <div class="fc-title"><span class="badge badge-info">板块8</span> 保存配置（F21）</div>
+    <div class="fc-body">
+      <p><strong>功能点：</strong>F21 保存配置</p>
+      <p><strong>交互说明：</strong>点击"保存配置"按钮触发。首先执行前端校验（8项必填字段非空 + 准入车系至少1项 + 分层映射表至少1行 + 每行权重和标签映射均填写 + 车系话术表每行外呼类型均填写），校验不通过时逐项高亮缺失字段并 Toast 提示。校验通过后调用 POST 接口提交全部配置数据。成功后 Toast "已保存三无忧规则配置"，同步刷新配置摘要条。</p>
+      <p><strong>校验规则（共 7+1+2=10 项检查）：</strong></p>
+      <ol>
+        <li>每日推送上限 — 必填，正整数</li>
+        <li>AI去重窗口 — 必填，正整数</li>
+        <li>人工去重窗口 — 必填，正整数</li>
+        <li>短信模板 — 必填，非空字符串</li>
+        <li>推送数据时间 — 必填，非空字符串</li>
+        <li>禁止推送数据时间 — 必填，非空字符串</li>
+        <li>同号推送窗口 — 必填，正整数</li>
+        <li>准入车系 — 至少选择 1 项</li>
+        <li>分层映射表 — 至少 1 行，每行权重+标签映射均必填</li>
+        <li>车系话术表 — 每行外呼类型必填</li>
+      </ol>
+      <p><strong>数据来源：</strong>保存三无忧配置接口（POST），请求体包含完整的 8 项字段 + 分层标签映射[] + 意向车系映射话术任务[]</p>
+      <p><strong>验收标准：</strong></p>
+      <ul>
+        <li>当校验不通过时，应逐项标红缺失字段，滚动定位到第一个报错字段，Toast 提示具体缺失项名称</li>
+        <li>当校验全部通过时，应调用 POST 接口提交数据</li>
+        <li>当接口返回成功时，应 Toast "已保存三无忧规则配置"，刷新配置摘要条</li>
+        <li>当接口返回失败时，应 Toast "保存失败，请重试"，不刷新配置摘要条</li>
+        <li>当重复快速点击保存时，应防抖处理，同一时间仅允许一次提交</li>
+        <li>当保存成功后再次修改字段但未保存时，展开配置区应保留修改状态，关闭页面/切换Tab 时应有未保存提示【待确认：是否需要】</li>
+      </ul>
+    </div>
+    <details>
+      <summary>12 列功能明细表</summary>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>序号</th><th>功能编号</th><th>功能名称</th><th>交互说明</th><th>数据来源</th><th>逻辑说明</th><th>异常处理</th><th>权限控制</th><th>状态依赖</th><th>前端组件</th><th>埋点事件</th><th>备注</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td><td>F21</td><td>保存配置</td><td>点击"保存配置"按钮 → 前端 10 项校验 → POST 提交 → Toast 反馈 → 刷新摘要条</td><td>保存三无忧配置接口 (POST) — Body: {每日推送上限, 准入意向车系[], AI去重窗口, 人工去重窗口, 短信模板, 推送数据时间, 禁止推送数据时间, 同号推送窗口, 分层标签映射[], 意向车系映射话术任务[]}</td><td>校验顺序：必填字段→准入车系→分层表→车系话术表；校验失败滚动到第一个报错字段；成功后同步更新摘要标签</td><td>校验不通过拦截提交，标红字段+Toast；接口异常 Toast "保存失败，请重试"；提交时按钮 loading 防重复点击</td><td>【待确认：权限-配置保存】</td><td>—</td><td>Button + Form + Toast</td><td>【待确认：埋点-保存配置】</td><td>提交需防抖/防重复点击</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </div>
+
+  <!-- 板块 9: 批次记录列表 -->
+  <div class="feature-card">
+    <div class="fc-title"><span class="badge badge-info">板块9</span> 批次记录列表（F22~F24）</div>
+    <div class="fc-body">
+      <p><strong>功能点：</strong>F22 批次记录列表（9列） | F23 批次分页 | F24 批次详情查看</p>
+      <p><strong>交互说明：</strong>F22 展示 9 列批次列表表格（批次日期 / 累计总量 / 去重过滤 / 短信成功 / DCC培育任务 / 同步失败量 / 滚存待推送 / 批次状态 / 操作），所有数值使用千分位格式。F23 底部分页器支持切换页码和每页条数（5/10/20/50）。F24 点击操作列"查看"按钮跳转批次详情页。</p>
+      <p><strong>批次状态枚举：</strong></p>
+      <ul>
+        <li><strong>执行中：</strong>绿色徽章，表示批次正在执行推送/回收流程</li>
+        <li><strong>已完成：</strong>蓝色徽章，表示批次已全量完成回收并生成 DCC 培育任务</li>
+      </ul>
+      <p><strong>数据来源：</strong>查询批次列表接口（GET），入参 page + pageSize，返回 list[] + total</p>
+      <p><strong>验收标准：</strong></p>
+      <ul>
+        <li>当页面加载时，应展示批次列表，按批次日期倒序排列</li>
+        <li>当接口返回空数据时，应展示"暂无批次记录"空状态</li>
+        <li>当切换分页时，应请求对应页数据并刷新列表</li>
+        <li>当点击"查看"按钮时，应跳转批次详情页，URL 携带批次日期参数</li>
+        <li>当接口异常时，应 Toast "数据加载失败"</li>
+      </ul>
+    </div>
+    <details>
+      <summary>12 列功能明细表</summary>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>序号</th><th>功能编号</th><th>功能名称</th><th>交互说明</th><th>数据来源</th><th>逻辑说明</th><th>异常处理</th><th>权限控制</th><th>状态依赖</th><th>前端组件</th><th>埋点事件</th><th>备注</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td><td>F22</td><td>批次记录列表</td><td>9 列表格：批次日期 / 累计总量 / 去重过滤 / 短信成功 / DCC培育任务 / 同步失败量 / 滚存待推送 / 批次状态(徽章) / 操作(查看按钮)</td><td>查询批次列表接口 (GET) — 入参 page + pageSize</td><td>按批次日期倒序排列；数值千分位格式化；状态徽章区分执行中(绿)/已完成(蓝)</td><td>接口异常 Toast "数据加载失败"，表格显示空状态</td><td>【待确认：权限-批次列表查看】</td><td>依赖定时任务生成批次</td><td>Table + Badge + Button</td><td>【待确认：埋点-批次列表】</td><td>—</td>
+            </tr>
+            <tr>
+              <td>2</td><td>F23</td><td>批次分页</td><td>底部分页器：总条数 + 当前页/总页数 + 每页条数下拉(5/10/20/50) + 翻页按钮</td><td>查询批次列表接口 (GET) — 入参 page + pageSize</td><td>切换页码或每页条数时重新请求接口；首尾页禁用对应翻页按钮</td><td>请求失败保留当前页数据并 Toast</td><td>—</td><td>—</td><td>Pagination</td><td>【待确认：埋点-批次分页】</td><td>—</td>
+            </tr>
+            <tr>
+              <td>3</td><td>F24</td><td>批次详情查看</td><td>点击操作列"查看"按钮 → 跳转批次详情页，导航路径更新为"线索管理 / 三无忧 / 批次详情 / YYYY-MM-DD"</td><td>查询批次详情接口 (GET) — 入参 batchId</td><td>跳转时隐藏三无忧主页，显示批次详情页；详情页含"返回列表"按钮</td><td>接口异常 Toast "详情加载失败"，自动返回列表</td><td>【待确认：权限-批次详情查看】</td><td>—</td><td>Button + Route</td><td>【待确认：埋点-批次详情入口】</td><td>—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </div>
+
+  <!-- 板块 10: 批次详情 -->
+  <div class="feature-card">
+    <div class="fc-title"><span class="badge badge-info">板块10</span> 批次详情 3 个 Tab（F25~F27）</div>
+    <div class="fc-body">
+      <p><strong>功能点：</strong>F25 执行概览 Tab | F26 批量明细 Tab | F27 执行日志 Tab</p>
+      <p><strong>交互说明：</strong>批次详情页顶部展示批次标题和副标题（含面包屑路径），下方 3 个 Tab 按钮切换。每个 Tab 共享顶部 8 项摘要指标卡片（批次日期 / 累计总量 / 去重过滤 / 短信成功 / DCC培育任务 / 同步失败量 / 滚存待推送 / 批次状态）。</p>
+      <p><strong>F25 执行概览 Tab：</strong>默认激活。在摘要卡片下方展示两个明细表——分层推送明细表（8列：优先级 / 分层标签 / 累计总量 / 去重过滤 / 短信成功 / DCC培育任务 / 异常原因 / 滚存待推送，P1-P100 共 5 行）和车系话术明细表（8列：意向车系 / 一知任务ID / 累计总量 / 去重过滤 / 短信成功 / DCC培育任务 / 异常原因 / 滚存待推送，按准入车系数动态行数）。</p>
+      <p><strong>F26 批量明细 Tab：</strong>展示 30 列明细表（20 个线索字段 + 10 个 DCC 配置字段），支持横向滚动和分页（5/10/20/50条每页）。</p>
+      <p><strong>30 列完整字段（20 线索 + 10 DCC 配置）：</strong></p>
+      <p>线索字段：批次号 / 总部线索ID / 培育线索编码 / 培育任务编码 / 线索状态 / 异常原因 / 意向级别 / 客户姓名 / 手机号码 / 意向车系 / 意向专营店 / 最新留资车系 / SmartCode / 最近跟进时间 / 门店跟进次数 / 用户标签 / 分层标签 / 短信状态 / 系统状态 / 系统异常原因</p>
+      <p>DCC 配置字段：每日推送上限 / 准入意向车系 / AI外呼建联去重窗口 T-N / 人工外呼建联去重窗口 T-N / 短信模板 / 推送数据时间 / 禁止推送数据时间 / 同一手机号仅推送一次 T-N / 分层标签映射权重 / 意向车系映射话术任务</p>
+      <p><strong>F27 执行日志 Tab：</strong>展示 5 列日志表（开始时间 / 结束时间 / 节点 / 说明 / 结果），按时间正序排列。节点枚举：候选池生成 / 推送外呼类型 / 短信预触达 / 结果回收。结果枚举：成功（绿色）/ 执行中（蓝色）。</p>
+      <p><strong>数据来源：</strong>查询批次详情接口（GET），一次性返回 3 个 Tab 的全部数据</p>
+      <p><strong>验收标准：</strong></p>
+      <ul>
+        <li>当批次详情页加载时，应默认激活执行概览 Tab</li>
+        <li>当切换 Tab 时，应切换对应内容展示，不重新请求接口</li>
+        <li>当执行概览 Tab 中分层/车系明细数据为空时，应展示"暂无数据"</li>
+        <li>当批量明细 Tab 数据为空时，应展示"暂无明细数据"</li>
+        <li>当执行日志 Tab 数据为空时，应展示"暂无执行日志"</li>
+        <li>当接口异常时，应 Toast "详情加载失败" 并返回批次列表</li>
+        <li>当点击"返回列表"时，应返回三无忧主页并刷新批次列表</li>
+      </ul>
+    </div>
+    <details>
+      <summary>12 列功能明细表</summary>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>序号</th><th>功能编号</th><th>功能名称</th><th>交互说明</th><th>数据来源</th><th>逻辑说明</th><th>异常处理</th><th>权限控制</th><th>状态依赖</th><th>前端组件</th><th>埋点事件</th><th>备注</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td><td>F25</td><td>执行概览 Tab</td><td>默认激活；展示 8 项摘要指标卡片 + 分层推送明细表(8列5行) + 车系话术明细表(8列动态行)</td><td>查询批次详情接口 (GET) — layers[], series[]</td><td>分层表按 P1→P2→P3→P4→P100 展示；车系表按准入车系展示</td><td>接口异常 Toast "详情加载失败"</td><td>【待确认：权限-批次详情查看】</td><td>批次状态决定部分字段含义</td><td>Card + Table × 2</td><td>【待确认：埋点-执行概览】</td><td>—</td>
+            </tr>
+            <tr>
+              <td>2</td><td>F26</td><td>批量明细 Tab</td><td>30 列明细表（20线索+10DCC配置），横向滚动，分页 5/10/20/50 条</td><td>查询批次详情接口 (GET) — leadDetails[]</td><td>30 列字段按顺序排列；数值千分位；手机号码掩码（138****6721）；横向滚动提示</td><td>空数据展示"暂无明细数据"</td><td>【待确认：权限-批次详情查看】</td><td>—</td><td>Table (横向滚动) + Pagination</td><td>【待确认：埋点-批量明细】</td><td>10 项 DCC 配置字段值取配置快照</td>
+            </tr>
+            <tr>
+              <td>3</td><td>F27</td><td>执行日志 Tab</td><td>5 列日志表：开始时间 / 结束时间 / 节点 / 说明 / 结果，按时间正序</td><td>查询批次详情接口 (GET) — logs[]</td><td>节点枚举：候选池生成/推送外呼类型/短信预触达/结果回收；结果徽章：成功(绿)/执行中(蓝)</td><td>空数据展示"暂无执行日志"</td><td>【待确认：权限-批次详情查看】</td><td>—</td><td>Table + Badge</td><td>【待确认：埋点-执行日志】</td><td>—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </div>
+
+  <!-- 板块 11: 导出明细 -->
+  <div class="feature-card">
+    <div class="fc-title"><span class="badge badge-info">板块11</span> 导出明细（F28）</div>
+    <div class="fc-body">
+      <p><strong>功能点：</strong>F28 导出明细</p>
+      <p><strong>交互说明：</strong>批次记录列表右上角展示日期范围选择器（开始日期 + 结束日期）和"导出明细"按钮。选择日期范围后点击导出，校验开始日期≤结束日期，不通过时 Toast 提示并聚焦开始日期输入框。校验通过后调用导出接口，接收 CSV 文件流并触发浏览器下载。</p>
+      <p><strong>导出规格：</strong></p>
+      <ul>
+        <li><strong>文件名规则：</strong>三无忧全部数据_{日期范围}.csv（如 三无忧全部数据_2026-06-14_2026-06-16.csv，单日期时为 三无忧全部数据_2026-06-16.csv）</li>
+        <li><strong>文件格式：</strong>CSV，UTF-8 编码，逗号分隔，首行为列名</li>
+        <li><strong>导出列（30 列）：</strong>批次号 / 总部线索ID / 培育线索编码 / 培育任务编码 / 线索状态 / 异常原因 / 意向级别 / 客户姓名 / 手机号码 / 意向车系 / 意向专营店 / 最新留资车系 / SmartCode / 最近跟进时间 / 门店跟进次数 / 用户标签 / 分层标签 / 短信状态 / 系统状态 / 系统异常原因 / 每日推送上限 / 准入意向车系 / AI外呼建联去重窗口 T-N / 人工外呼建联去重窗口 T-N / 短信模板 / 推送数据时间 / 禁止推送数据时间 / 同一手机号仅推送一次 T-N / 分层标签映射权重 / 意向车系映射话术任务</li>
+        <li><strong>筛选联动：</strong>日期范围应用于导出数据筛选，仅导出该日期范围内的批次数据</li>
+        <li><strong>脱敏规则：</strong>手机号码由服务端返回时已中间4位掩码处理（138****6721），导出文件直接透传服务端数据，客户端不做额外脱敏</li>
+      </ul>
+      <p><strong>数据来源：</strong>导出三无忧明细接口（GET），入参 startDate + endDate，返回 CSV 流</p>
+      <p><strong>验收标准：</strong></p>
+      <ul>
+        <li>当开始日期晚于结束日期时，应 Toast "开始日期不能晚于结束日期" 并聚焦开始日期输入框，不发起导出请求</li>
+        <li>当日期范围内无数据时，应 Toast "当前日期范围内暂无可导出数据"，不生成空文件</li>
+        <li>当导出成功时，应触发浏览器下载，Toast "已导出 N 条三无忧明细数据"</li>
+        <li>当导出接口异常时，应 Toast "导出失败，请重试"</li>
+        <li>当导出过程中用户切换页面时，下载应继续不受影响</li>
+        <li>当重复快速点击导出时，应防抖处理，同一时间仅允许一次导出</li>
+      </ul>
+    </div>
+    <details>
+      <summary>12 列功能明细表</summary>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>序号</th><th>功能编号</th><th>功能名称</th><th>交互说明</th><th>数据来源</th><th>逻辑说明</th><th>异常处理</th><th>权限控制</th><th>状态依赖</th><th>前端组件</th><th>埋点事件</th><th>备注</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td><td>F28</td><td>导出明细</td><td>日期范围选择（开始/结束两个 DatePicker）+ "导出明细"按钮 → 校验 → 请求 → CSV下载</td><td>导出三无忧明细接口 (GET) — 入参 startDate + endDate，返回 CSV 流</td><td>文件名：三无忧全部数据_{start}_{end}.csv；UTF-8 后缀 .csv；30 列；手机号由服务端掩码</td><td>日期校验拦截；无数据 Toast；接口异常 Toast "导出失败，请重试"；按钮 loading 防重复</td><td>【待确认：权限-导出】</td><td>—</td><td>DatePicker × 2 + Button + File Download</td><td>【待确认：埋点-导出明细】</td><td>单日期范围为 三无忧全部数据_{date}.csv</td>
             </tr>
           </tbody>
         </table>
@@ -572,118 +928,93 @@ details summary:hover { text-decoration: underline; }
 
 </div>
 
-<!-- 其他说明 -->
+<!-- 五. 其他说明 -->
 <div class="section" id="tab-0-sanwuyou-section5">
   <div class="section-title">其他说明</div>
-  <div class="section-desc">权限矩阵、状态枚举、异常规则及待确认项汇总。</div>
+  <div class="section-desc">权限矩阵、状态枚举、异常规则、验收标准汇总及待确认项。</div>
 
   <!-- 权限矩阵 -->
   <div class="feature-card">
     <div class="fc-title"><span class="badge badge-warn">权限矩阵</span></div>
     <div class="fc-body">
-      <p>【待确认：三无忧模块权限矩阵 — 缺失角色定义与功能权限映射关系】</p>
-      <p>影响范围：所有含权限控制的页面入口及操作按钮的可见性控制</p>
+      <p>【待确认：三无忧模块权限矩阵 — 缺失角色定义（如管理员/运营/只读）及各角色对应的功能权限映射关系（查看配置/编辑配置/保存配置/查看批次/查看详情/导出）】</p>
+      <p>影响范围：</p>
+      <ul>
+        <li>无"编辑配置"权限时：配置展开按钮置灰，"保存配置"按钮隐藏</li>
+        <li>无"查看批次"权限时：批次记录列表区域隐藏</li>
+        <li>无"导出"权限时：导出按钮隐藏</li>
+        <li>无"查看详情"权限时：批次"查看"按钮置灰</li>
+      </ul>
     </div>
-    <details>
-      <summary>12 列功能明细表</summary>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>序号</th><th>功能编号</th><th>功能名称</th><th>交互说明</th><th>数据来源</th><th>逻辑说明</th><th>异常处理</th><th>权限控制</th><th>状态依赖</th><th>前端组件</th><th>埋点事件</th><th>备注</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1</td><td>—</td><td>权限矩阵</td><td>—</td><td>—</td><td>【待确认：缺失角色定义与功能权限映射】</td><td>—</td><td>【待确认】</td><td>—</td><td>—</td><td>—</td><td>—</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </details>
   </div>
 
   <!-- 状态枚举 -->
   <div class="feature-card">
     <div class="fc-title"><span class="badge badge-info">状态枚举</span></div>
     <div class="fc-body">
+      <p><strong>批次状态（2 项）：</strong></p>
       <ul>
-        <li><strong>批次状态：</strong>执行中 / 已完成 / 异常 — 影响批次详情可读性及操作按钮状态</li>
-        <li><strong>活动状态：</strong>启用 / 停用 — 影响看板指标展示及配置生效</li>
+        <li><strong>执行中：</strong>绿色徽章 (status-enabled)，表示批次正在执行推送/回收流程</li>
+        <li><strong>已完成：</strong>蓝色徽章 (status-reviewed)，表示批次已全量完成回收并生成 DCC 培育任务</li>
       </ul>
-      <p>【待确认：完整状态枚举值及状态流转规则】</p>
+      <p><strong>分层标签（5 项，按优先级排序）：</strong></p>
+      <ul>
+        <li>P1 — 历史试驾过 / 历史到店过（最高优先级）</li>
+        <li>P2 — 门店跟进次数 ≥ 3 次</li>
+        <li>P3 — 休眠未购</li>
+        <li>P4 — 休眠失联（最低优先级）</li>
+        <li>P100 — 历史剩余数据（保底分层，锁定不可删除/编辑）</li>
+      </ul>
+      <p><strong>外呼类型（8 项）：</strong></p>
+      <ol>
+        <li>一知-冷线索</li><li>一知-冷线索（大模型）</li><li>一知-大模型NEV新线索</li><li>科大讯飞-冷线索</li>
+        <li>科大讯飞-留资未满</li><li>冰兰-新线索</li><li>冰兰-保客</li><li>一知-保客</li>
+      </ol>
+      <p><strong>短信状态（待确认完整枚举）：</strong>成功 / 失败 / 待发送</p>
+      <p><strong>系统状态（待确认完整枚举）：</strong>待推送 / 已推送 / 同步中 / 已同步 / 同步失败 / 已生成DCC培育任务</p>
+      <p><strong>执行日志节点（4 项）：</strong>候选池生成 / 推送外呼类型 / 短信预触达 / 结果回收</p>
     </div>
-    <details>
-      <summary>12 列功能明细表</summary>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>序号</th><th>功能编号</th><th>功能名称</th><th>交互说明</th><th>数据来源</th><th>逻辑说明</th><th>异常处理</th><th>权限控制</th><th>状态依赖</th><th>前端组件</th><th>埋点事件</th><th>备注</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1</td><td>—</td><td>批次状态枚举</td><td>—</td><td>—</td><td>执行中/已完成/异常 三种状态</td><td>—</td><td>—</td><td>—</td><td>Badge</td><td>—</td><td>异常状态需人工介入处理</td>
-            </tr>
-            <tr>
-              <td>2</td><td>—</td><td>活动状态枚举</td><td>—</td><td>—</td><td>启用/停用 两种状态</td><td>—</td><td>—</td><td>停用时指标区不渲染</td><td>Switch/Badge</td><td>—</td><td>—</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </details>
   </div>
 
   <!-- 异常规则 -->
   <div class="feature-card">
-    <div class="fc-title"><span class="badge badge-danger">异常规则</span></div>
+    <div class="fc-title"><span class="badge badge-danger">全局异常规则</span></div>
     <div class="fc-body">
       <ul>
-        <li><strong>配置保存异常：</strong>校验不通过时高亮必填字段并提示具体缺失项；接口调用异常时 Toast "保存失败"</li>
-        <li><strong>数据加载异常：</strong>看板指标加载失败 Toast "指标加载失败"；批次列表加载失败 Toast "数据加载失败"</li>
-        <li><strong>导出异常：</strong>日期范围校验不通过拦截；无数据 Toast "当前日期范围内暂无可导出数据"</li>
-        <li><strong>删除异常：</strong>删除分层/车系行失败时 Toast "删除失败"，成功后 Toast "当前配置行已删除"</li>
+        <li><strong>数据加载异常：</strong>所有 GET 接口异常时，对应区域展示 "--" 占位或空状态，Toast 提示具体错误信息（如"配置加载失败"/"指标加载失败"/"数据加载失败"/"详情加载失败"），不影响其他已加载区域</li>
+        <li><strong>配置保存异常：</strong>前端校验不通过时，逐项标红缺失字段（class: worry-free-field-error），自动滚动定位到第一个报错字段，Toast 提示"请填写{字段名}"。接口异常时 Toast "保存失败，请重试"，不清空已填写的表单数据</li>
+        <li><strong>导出异常：</strong>日期范围校验不通过 Toast "开始日期不能晚于结束日期" 并 focus 开始日期输入框；无数据 Toast "当前日期范围内暂无可导出数据"，不下载空文件；接口异常 Toast "导出失败，请重试"</li>
+        <li><strong>删除异常：</strong>P100 行删除拦截 Toast "P100 为保底分层，禁止删除"；接口异常 Toast "删除失败"，被删行保留</li>
+        <li><strong>并发/重复点击：</strong>保存按钮和导出按钮在请求进行中时显示 loading 状态（按钮文案变为"保存中..."/"导出中..."），禁止重复提交</li>
       </ul>
     </div>
-    <details>
-      <summary>12 列功能明细表</summary>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>序号</th><th>功能编号</th><th>功能名称</th><th>交互说明</th><th>数据来源</th><th>逻辑说明</th><th>异常处理</th><th>权限控制</th><th>状态依赖</th><th>前端组件</th><th>埋点事件</th><th>备注</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1</td><td>—</td><td>配置保存异常</td><td>校验不通过时高亮必填字段</td><td>前端校验 + 接口返回</td><td>拦截提交并展示缺失项列表</td><td>接口异常 Toast"保存失败"</td><td>—</td><td>—</td><td>Form + Toast</td><td>—</td><td>—</td>
-            </tr>
-            <tr>
-              <td>2</td><td>—</td><td>数据加载异常</td><td>接口失败页面展示错误信息</td><td>各查询接口</td><td>统一 Toast 提示</td><td>Toast 提示具体错误</td><td>—</td><td>—</td><td>Toast</td><td>—</td><td>—</td>
-            </tr>
-            <tr>
-              <td>3</td><td>—</td><td>导出异常</td><td>日期校验拦截 + 无数据提示</td><td>前端校验 + 导出接口</td><td>开始日期 > 结束日期拦截；无数据 Toast</td><td>Toast"当前日期范围内暂无可导出数据"</td><td>—</td><td>—</td><td>DatePicker + Toast</td><td>—</td><td>—</td>
-            </tr>
-            <tr>
-              <td>4</td><td>—</td><td>删除异常</td><td>删除失败 Toast 提示</td><td>DELETE 接口</td><td>成功后 Toast"当前配置行已删除"，失败 Toast"删除失败"</td><td>Toast 提示</td><td>—</td><td>—</td><td>Button + Toast</td><td>—</td><td>—</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </details>
   </div>
 
   <!-- 待确认项 -->
   <div class="feature-card">
-    <div class="fc-title"><span class="badge badge-warn">待确认项汇总</span></div>
+    <div class="fc-title"><span class="badge badge-warn">待确认项汇总（共 13 项）</span></div>
     <div class="fc-body">
-      <ul>
-        <li>8 个接口地址均待确认（查询/保存配置、查询批次列表/详情、查询看板指标、导出明细、删除分层映射行、删除车系话术行）</li>
-        <li>权限矩阵 — 缺失角色定义与功能权限映射关系</li>
-        <li>F18 批量明细 29 列具体字段名待确认</li>
-        <li>F19 执行日志 4 列具体字段名待确认</li>
-        <li>所有功能点埋点事件名待确认</li>
-      </ul>
+      <ol>
+        <li>【待确认：接口地址】查询三无忧配置 — 影响前端数据加载和配置区渲染</li>
+        <li>【待确认：接口地址】保存三无忧配置 — 影响配置保存功能</li>
+        <li>【待确认：接口地址】查询看板指标 — 影响看板6项指标展示</li>
+        <li>【待确认：接口地址】查询指标详情 — 影响指标详情弹窗数据</li>
+        <li>【待确认：接口地址】查询批次列表 — 影响批次记录展示</li>
+        <li>【待确认：接口地址】查询批次详情 — 影响批次详情3个Tab</li>
+        <li>【待确认：接口地址】导出三无忧明细 — 影响导出功能</li>
+        <li>【待确认：接口地址】删除分层映射行 — 影响分层表删除操作</li>
+        <li>【待确认：权限矩阵】缺失角色定义与功能权限映射 — 影响所有页面入口可见性及操作按钮可用性</li>
+        <li>【待确认：短信状态完整枚举】当前已知：成功/失败/待发送 — 影响批量明细短信状态列渲染</li>
+        <li>【待确认：系统状态完整枚举】当前已知：待推送/已推送/同步中/已同步/同步失败/已生成DCC培育任务 — 影响批量明细系统状态列渲染</li>
+        <li>【待确认：准入车系列表数据来源】当前原型硬编码 N6/N7/NX8 — 影响 tag-picker 选项数据获取方式</li>
+        <li>【待确认：图表库选型】指标详情弹窗趋势图需确认前端图表库（ECharts / Chart.js / 其他）</li>
+      </ol>
     </div>
   </div>
 </div>
 
 </div><!-- /tab-panel 0 -->
+
 
 <!-- ============================================================ -->
 <!-- TAB 1: 培育策略-AI外呼配置 -->
