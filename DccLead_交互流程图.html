@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DCC培育 · SaaS平台 — 交互流程分析</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #faf8ff; color: #191b23;
+  }
+
+  /* ===== 页面容器 ===== */
+  .page {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 20px 0 0;
+  }
+
+  /* ===== 顶部标题区（蓝渐变卡片头部） ===== */
+  .header {
+    background: linear-gradient(135deg, #00174b 0%, #003594 50%, #004ac6 100%);
+    color: #fff; padding: 28px 32px 0;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+  .header-badge {
+    display: inline-block;
+    background: rgba(255,255,255,.15);
+    color: #fff;
+    backdrop-filter: blur(4px);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  .header h1 {
+    font-size: 26px; font-weight: 700;
+    letter-spacing: 0.5px;
+    line-height: 1.3;
+  }
+  .header .desc {
+    font-size: 14px; opacity: .88; margin-top: 10px;
+    line-height: 1.6; max-width: 900px;
+  }
+  .header .meta {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    margin-top: 16px; font-size: 13px;
+    color: rgba(255,255,255,0.85);
+  }
+  .header .meta span { display: flex; align-items: center; gap: 4px; }
+  .header .meta .meta-label { font-weight: 700; color: #fff; }
+
+  /* ===== 一级标签：页面切换（内嵌头部卡片底部） ===== */
+  .page-tabs {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin: 20px -32px 0;
+    padding: 10px 32px;
+    background: rgba(255,255,255,.96);
+    border-top: 1px solid rgba(255,255,255,.25);
+    border-radius: 0 0 8px 8px;
+  }
+  .page-tabs button {
+    background: transparent; color: #003594;
+    border: 1px solid transparent; padding: 7px 16px; cursor: pointer;
+    font-size: 13px; font-family: inherit;
+    border-radius: 999px;
+    white-space: nowrap; transition: all .15s;
+    font-weight: 500;
+  }
+  .page-tabs button:hover { background: rgba(0,53,148,.08); }
+  .page-tabs button.active {
+    background: #003594; color: #fff; font-weight: 700;
+  }
+
+  /* ===== 二级标签：操作切换 ===== */
+  .op-tabs {
+    background: #fff;
+    max-width: 1180px; margin: 12px auto 0;
+    display: flex; gap: 4px; padding: 8px 28px;
+    border: 1px solid #c3c6d6; border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .op-tabs button {
+    background: transparent; color: #434654;
+    border: 1px solid transparent; padding: 6px 16px; cursor: pointer;
+    font-size: 12px; font-family: inherit;
+    border-radius: 6px; white-space: nowrap; transition: all .2s;
+  }
+  .op-tabs button:hover { background: #dbe1ff; color: #191b23; }
+  .op-tabs button.active {
+    background: #003594; color: #fff; border-color: #003594; font-weight: 600;
+  }
+  .op-tabs .op-group { display: none; }
+  .op-tabs .op-group.active { display: flex; gap: 4px; }
+
+  /* ===== 主容器 ===== */
+  .container { max-width: 1180px; margin: 0 auto; padding: 20px 4px 0; position: relative; }
+
+  /* ===== 流程卡片 ===== */
+  .chart-card {
+    background: #fff; border: 1px solid #c3c6d6; border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    padding: 32px 32px 16px; margin-bottom: 0; overflow-x: auto;
+    /* 重要：隐藏卡片必须用 visibility:hidden，不可使用 display 属性隐藏，否则 Mermaid 11 在零尺寸容器渲染会失败 */
+    position: absolute; visibility: hidden; width: 100%; left: 0; top: 0;
+  }
+  .chart-card.active { position: relative; visibility: visible; }
+  .chart-card h2 {
+    font-size: 16px; color: #003594; margin-bottom: 20px;
+    padding-bottom: 12px; border-bottom: 2px solid #c3c6d6;
+  }
+  .chart-card h2 .card-index {
+    display: inline-block; background: #003594; color: #fff;
+    font-size: 12px; padding: 2px 8px; border-radius: 10px;
+    margin-right: 8px; vertical-align: middle;
+  }
+  .chart-card .page-badge {
+    display: inline-block; background: #f1f5f9; color: #64748b;
+    font-size: 11px; padding: 2px 8px; border-radius: 8px;
+    margin-left: 8px; vertical-align: middle; font-weight: 400;
+  }
+
+  /* ===== 图例 ===== */
+  .legend { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 16px; font-size: 13px; }
+  .legend .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend .dot { width: 14px; height: 14px; border-radius: 4px; display: inline-block; flex-shrink: 0; }
+
+  /* ===== 参数说明框 ===== */
+  .param-box {
+    background: #f8fafc; border: 1px solid #c3c6d6;
+    border-radius: 8px; padding: 16px 20px; margin: 20px 0 12px;
+    font-size: 13px; color: #434654; line-height: 1.8;
+  }
+  .param-box strong { color: #191b23; }
+
+  .mermaid { display: flex; justify-content: center; }
+  .mermaid svg { max-width: 100%; height: auto; }
+  .mermaid {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 12px;
+    line-height: 1.7;
+    color: #334155;
+    white-space: pre;
+  }
+
+  .empty-hint {
+    text-align: center; padding: 48px 20px; color: #434654; font-size: 14px;
+  }
+
+  .end-hint { text-align: center; padding: 24px 0 16px; color: #434654; font-size: 13px; }
+
+  /* ===== 移动端适配 ===== */
+  @media (max-width: 768px) {
+    .page { padding: 12px 0 0; }
+    .header { padding: 20px 18px 0; border-radius: 8px; }
+    .header h1 { font-size: 19px; }
+    .header .desc { font-size: 13px; }
+    .header .meta { gap: 12px; font-size: 11.5px; }
+    .page-tabs { margin: 14px -18px 0; padding: 8px 18px; }
+    .page-tabs button { padding: 6px 12px; font-size: 12px; }
+    .op-tabs { padding: 6px 12px; }
+    .op-tabs button { padding: 5px 12px; font-size: 11px; }
+    .container { padding: 16px 4px 0; }
+    .chart-card { padding: 16px 16px 8px; }
+    .legend { gap: 12px; }
+  }
+  .section-divider {
+    color: #94a3b8; font-size: 11px; font-weight: 600; padding: 6px 8px; flex-shrink: 0;
+    display: flex; align-items: center; letter-spacing: 0.5px;
+  }
+  @media (max-width: 768px) {
+    .page { padding: 12px 0 0; }
+    .header { padding: 20px 18px 0; border-radius: 10px; }
+    .header h1 { font-size: 19px; }
+    .page-tabs { margin: 14px -18px 0; padding: 8px 18px; }
+    .op-tabs { padding: 6px 12px; }
+    .container { padding: 16px 4px 0; }
+    .chart-card { padding: 16px 16px 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+<div class="header">
+  <div class="header-badge">交互流程图 · 多菜单版（HTML 阅读版）</div>
+  <h1>DCC培育 · SaaS平台 · 交互流程图</h1>
+  <p class="desc">基于产品原型的交互流程分析，覆盖正常路径、异常分支与状态转换</p>
+  <div class="meta">
+    <span>系统：DCC培育 · SaaS平台</span>
+    <span>板块：多版块</span>
+    <span>版本：v1.2</span>
+    <span>日期：2026-07-16</span>
+  </div>
+  <div class="page-tabs">
+    <button data-page="syw" class="active">三无忧</button>
+    <button data-page="aiwh">AI外呼配置</button>
+  </div>
+</div>
+</div>
+
+<div class="op-tabs">
+  <div class="op-group active" data-page="syw">
+    <button data-op="syw-01" class="active">查询看板指标</button>
+    <button data-op="syw-02">查看指标详情</button>
+    <button data-op="syw-03">展开/收起配置</button>
+    <button data-op="syw-04">保存配置</button>
+    <button data-op="syw-05">新增分层映射</button>
+    <button data-op="syw-06">删除分层映射</button>
+    <button data-op="syw-07">车系话术自动同步</button>
+    <button data-op="syw-08">车系话术自动移除</button>
+    <button data-op="syw-09">查询批次列表</button>
+    <button data-op="syw-10">查看批次详情</button>
+    <button data-op="syw-11">切换详情Tab</button>
+    <button data-op="syw-12">导出明细</button>
+  </div>
+  <div class="op-group" data-page="aiwh">
+    <span class="section-divider">通话状态</span>
+    <button data-op="aiwh-01">查询</button>
+    <button data-op="aiwh-02">新增</button>
+    <button data-op="aiwh-03">编辑</button>
+    <button data-op="call-status-view">查看</button>
+    <button data-op="aiwh-04">删除</button>
+    <span class="section-divider">外呼重推</span>
+    <button data-op="aiwh-05">查询</button>
+    <button data-op="aiwh-06">新增</button>
+    <button data-op="aiwh-07">编辑</button>
+    <button data-op="ai-redial-view">查看</button>
+    <button data-op="aiwh-08">删除</button>
+    <span class="section-divider">线索下发</span>
+    <button data-op="aiwh-09">查询</button>
+    <button data-op="aiwh-10">新增</button>
+    <button data-op="aiwh-11">编辑</button>
+    <button data-op="lead-dispatch-view">查看</button>
+    <button data-op="aiwh-12">删除</button>
+    <span class="section-divider">短信下发</span>
+    <button data-op="aiwh-13">查询</button>
+    <button data-op="aiwh-14">新增</button>
+    <button data-op="aiwh-15">编辑</button>
+    <button data-op="sms-dispatch-view">查看</button>
+    <button data-op="aiwh-16">删除</button>
+    <span class="section-divider">门店冷线索</span>
+    <button data-op="aiwh-17">查询</button>
+    <button data-op="aiwh-18">新增</button>
+    <button data-op="aiwh-19">编辑</button>
+    <button data-op="cold-lead-view">查看</button>
+    <button data-op="aiwh-20">删除</button>
+    <span class="section-divider">分配比例</span>
+    <button data-op="aiwh-21">查询</button>
+    <button data-op="aiwh-22">新增</button>
+    <button data-op="aiwh-23">编辑</button>
+    <button data-op="allocation-view">查看</button>
+    <button data-op="aiwh-24">删除</button>
+    <span class="section-divider">外呼标签映射</span>
+    <button data-op="aiwh-25">查询</button>
+    <button data-op="aiwh-26">新增</button>
+    <button data-op="aiwh-27">编辑</button>
+    <button data-op="outbound-label-view">查看</button>
+    <button data-op="aiwh-28">删除</button>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ==================== 三无忧 ==================== -->
+
+<div class="chart-card active" data-page="syw" data-op="syw-01">
+  <h2><span class="card-index">01</span>查询看板指标<span class="page-badge">三无忧</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>时间范围(startDate, endDate), 指标类型(metricType), 门店ID(storeId)【待确认：是否需要门店维度筛选】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>指标列表[{指标名称(metricName), 当前值(currentValue), 环比变化率(changeRate), 环比变化量(changeValue)}], 更新时间(updateTime)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["进入三无忧页面"] --> A2["触发看板数据加载"]
+  A2 --> A3["调用看板指标查询接口"]
+  A3 --> D1{"接口返回成功?"}
+  D1 -->|否| A4["显示加载失败提示，支持重试"]
+  D1 -->|是| A5["渲染6项指标卡片"]
+  A5 --> A6["展示指标数值 / 环比变化率的升降箭头"]
+  A6 --> A7["加载完成"]
+  A4 --> D2{"用户点击重试?"}
+  D2 -->|是| A3
+  D2 -->|否| A7
+  </pre>
+</div>
+
+<div class="chart-card" data-page="syw" data-op="syw-02">
+  <h2><span class="card-index">02</span>查看指标详情<span class="page-badge">三无忧</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>指标ID(metricId), 时间范围(startDate, endDate)<br>
+    <strong>接口出参（根据表单字段推导）：</strong>指标名称(metricName), 趋势数据[{日期(date), 数值(value)}], 明细列表[{维度(dimension), 数值(value), 占比(ratio)}]
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击指标卡片/按钮"] --> A2["弹出指标详情弹窗"]
+  A2 --> A3["调用指标详情查询接口"]
+  A3 --> D1{"接口返回成功?"}
+  D1 -->|否| A4["Toast'获取详情失败，请重试'"]
+  D1 -->|是| A5["渲染详情内容"]
+  A5 --> A6["展示趋势图 / 明细数据表格"]
+  A6 --> A7["用户查看完毕后关闭弹窗"]
+  A7 --> A8["结束"]
+  A4 --> A8
+  </pre>
+</div>
+
+<div class="chart-card" data-page="syw" data-op="syw-03">
+  <h2><span class="card-index">03</span>展开/收起配置<span class="page-badge">三无忧</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>无，纯前端交互操作<br>
+    <strong>接口出参（根据表单字段推导）：</strong>无
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击展开/收起按钮"] --> D1{"配置区域当前状态?"}
+  D1 -->|已收起| A2["展开配置区域，显示完整表单"]
+  D1 -->|已展开| A3["收起配置区域，仅显示标题栏"]
+  A2 --> A4["切换按钮图标为'收起'状态"]
+  A3 --> A5["切换按钮图标为'展开'状态"]
+  A4 --> A6["记录展开状态到前端缓存"]
+  A5 --> A6
+  A6 --> A7["结束"]
+  </pre>
+</div>
+
+<div class="chart-card" data-page="syw" data-op="syw-04">
+  <h2><span class="card-index">04</span>保存配置<span class="page-badge">三无忧</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>每日推送上限(dailyLimit), 准入车系列表(series[]), AI去重窗口(aiDedupeWindow), 人工去重窗口(manualDedupeWindow), 短信模板(smsTemplate), 推送数据时间(callTime), 禁止推送数据时间(quietTime), 同号推送窗口(singlePhonePushWindow), 分层标签映射权重表[{权重(weight), 标签映射(labelMapping)}], 意向车系映射话术任务表[{意向车系(series), 外呼类型(outboundType)}]<br>
+    <strong>接口出参（根据表单字段推导）：</strong>保存结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["填写8项基础字段"] --> A2["配置分层标签映射权重表"]
+  A2 --> A3["配置意向车系映射话术任务表"]
+  A3 --> A4["点击保存按钮"]
+  A4 --> D1{"校验必填字段是否完整?"}
+  D1 -->|否| A5["Toast提示缺少必填字段，高亮缺失项"]
+  D1 -->|是| D2{"校验映射表数据格式?"}
+  D2 -->|否| A6["高亮异常行并提示具体错误"]
+  D2 -->|是| A7["提交配置数据"]
+  A7 --> D3{"接口返回成功?"}
+  D3 -->|否| A8["Toast'保存失败，请重试'"]
+  D3 -->|是| A9["Toast'保存成功'"]
+  A9 --> A10["更新本地配置状态"]
+  A10 --> A11["结束"]
+  A5 --> A11
+  A6 --> A11
+  A8 --> A11
+  </pre>
+</div>
+
+<div class="chart-card" data-page="syw" data-op="syw-05">
+  <h2><span class="card-index">05</span>新增分层映射<span class="page-badge">三无忧</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>无，前端行级操作，数据暂存本地，待整体保存时提交<br>
+    <strong>接口出参（根据表单字段推导）：</strong>无
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击新增分层映射行"] --> A2["在分层标签映射权重表末尾新增空行"]
+  A2 --> A3["行状态设为编辑中"]
+  A3 --> A4["选择权重(P1-P100下拉)"]
+  A4 --> A5["标签映射自动同步填充"]
+  A5 --> D1{"行内即时校验通过?"}
+  D1 -->|否| A6["行内红色提示校验错误信息"]
+  D1 -->|是| A7["行数据暂存前端，标记为新增"]
+  A7 --> A8["结束(待统一保存提交)"]
+  A6 --> A8
+  </pre>
+</div>
+
+<div class="chart-card" data-page="syw" data-op="syw-06">
+  <h2><span class="card-index">06</span>删除分层映射<span class="page-badge">三无忧</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>映射行ID(mappingId)【待确认：若行已保存到后端，需调用删除接口；若仅为前端暂存行，仅前端移除】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>删除结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击删除分层映射行"] --> D0{"该行权重为P100?"}
+  D0 -->|是| A1a["Toast'P100为保底分层，禁止删除'"]
+  D0 -->|否| A2["弹出确认删除提示框"]
+  A1a --> A9["结束"]
+  A2 --> D1{"用户确认删除?"}
+  D1 -->|否| A3["取消操作"]
+  D1 -->|是| A4["移除该行数据"]
+  A4 --> D2{"该行是否已保存到后端?"}
+  D2 -->|否| A5["仅前端移除行"]
+  D2 -->|是| A6["调用后端删除接口"]
+  A6 --> D3{"接口返回成功?"}
+  D3 -->|否| A7["Toast'删除失败'，恢复行数据"]
+  D3 -->|是| A8["Toast'当前配置行已删除'"]
+  A3 --> A9
+  A5 --> A9
+  A8 --> A9
+  A7 --> A9
+  </pre>
+</div>
+
+<div class="chart-card" data-page="syw" data-op="syw-07">
+  <h2><span class="card-index">07</span>车系话术映射自动同步<span class="page-badge">三无忧</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>无，前端联动操作——勾选/取消准入车系时自动同步<br>
+    <strong>接口出参（根据表单字段推导）：</strong>无
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["勾选/取消准入意向车系"] --> A2["触发车系话术表同步"]
+  A2 --> D1{"勾选 or 取消?"}
+  D1 -->|勾选| A3["在话术表末尾新增该车系行"]
+  D1 -->|取消| A4["从话术表中移除该车系行"]
+  A3 --> A5["默认选择外呼类型"]
+  A5 --> A6["车系行数据暂存前端"]
+  A4 --> A6
+  A6 --> A7["结束(待统一保存提交)"]
+  </pre>
+</div>
+
+<div class="chart-card" data-page="syw" data-op="syw-08">
+  <h2><span class="card-index">08</span>车系话术映射自动移除<span class="page-badge">三无忧</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>无，前端联动操作——取消勾选准入车系时自动移除对应行<br>
+    <strong>接口出参（根据表单字段推导）：</strong>无
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["取消勾选准入意向车系"] --> A2["触发车系话术表同步"]
+  A2 --> A3["查找话术表中该车系对应行"]
+  A3 --> D1{"该行是否存在?"}
+  D1 -->|否| A4["无需操作"]
+  D1 -->|是| A5["从话术表中移除该车系行"]
+  A4 --> A6["结束(待统一保存提交)"]
+  A5 --> A6
+  </pre>
+</div>
+
+<div class="chart-card" data-page="syw" data-op="syw-09">
+  <h2><span class="card-index">09</span>查询批次列表<span class="page-badge">三无忧</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>页码(pageNum), 每页条数(pageSize), 批次状态(batchStatus), 时间范围(startDate, endDate), 关键词(keyword)【待确认：筛选条件字段具体名称】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>总条数(total), 批次列表[{批次日期(batchDate), 累计总量(candidate), 去重过滤(dedupe), 短信成功(smsSuccess), DCC培育任务(tasks), 同步失败量(syncFailed), 滚存待推送(remaining), 批次状态(status)}]
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["进入批次列表区域"] --> A2["触发批次列表查询"]
+  A2 --> A3["传入默认分页参数(pageNum=1)"]
+  A3 --> A4["调用批次列表查询接口"]
+  A4 --> D1{"接口返回成功?"}
+  D1 -->|否| A5["显示加载失败提示，支持重试"]
+  D1 -->|是| A6["渲染列表数据"]
+  A6 --> A7["展示页码 / 总条数 / 翻页控件"]
+  A7 --> A8["用户点击翻页或修改筛选条件"]
+  A8 --> A9["更新分页/筛选参数"]
+  A9 --> A4
+  A5 --> A10["结束"]
+  </pre>
+</div>
+
+<div class="chart-card" data-page="syw" data-op="syw-10">
+  <h2><span class="card-index">10</span>查看批次详情<span class="page-badge">三无忧</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>批次ID(batchId)<br>
+    <strong>接口出参（根据表单字段推导）：</strong>8项批次摘要指标(批次日期/累计总量/去重过滤/短信成功/DCC培育任务/同步失败量/滚存待推送/批次状态), 分层推送明细列表[{优先级, 分层标签, 累计总量, 去重过滤, 短信成功, DCC培育任务, 异常原因, 滚存待推送}], 车系话术明细列表[{意向车系, 一知任务ID, 累计总量, 去重过滤, 短信成功, DCC培育任务, 异常原因, 滚存待推送}], 批量明细(30列), 执行日志[{时间, 节点, 说明, 结果}]
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击批次列表'查看'按钮"] --> A2["路由跳转至批次详情页"]
+  A2 --> A3["携带批次ID参数"]
+  A3 --> A4["调用批次详情查询接口"]
+  A4 --> D1{"接口返回成功?"}
+  D1 -->|否| A5["Toast'获取批次详情失败'，返回列表页"]
+  D1 -->|是| A6["渲染批次基本信息"]
+  A6 --> A7["默认展示'执行概览'Tab"]
+  A7 --> A8["加载完成"]
+  A5 --> A8
+  </pre>
+</div>
+
+<div class="chart-card" data-page="syw" data-op="syw-11">
+  <h2><span class="card-index">11</span>切换详情Tab<span class="page-badge">三无忧</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>无额外接口请求，批次详情数据已在步骤10中一次性加载<br>
+    <strong>接口出参（根据表单字段推导）：</strong>执行概览: 8项摘要指标 + 分层推送明细(8列) + 车系话术明细(8列); 批量明细: 30列明细表(含分页); 执行日志: 时间/节点/说明/结果(4列)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击详情页Tab标签"] --> D1{"Tab名称?"}
+  D1 -->|执行概览| A2["展示执行概览面板"]
+  D1 -->|批量明细| A3["展示批量明细面板"]
+  D1 -->|执行日志| A4["展示执行日志面板"]
+  A2 --> A5["渲染8项摘要指标卡"]
+  A5 --> A6["渲染分层推送明细表"]
+  A6 --> A7["渲染车系话术明细表"]
+  A3 --> A8["渲染30列批量明细表"]
+  A8 --> A9["支持分页切换"]
+  A4 --> A10["渲染4列执行日志表"]
+  A7 --> A11["结束"]
+  A9 --> A11
+  A10 --> A11
+</div>
+
+<div class="chart-card" data-page="syw" data-op="syw-12">
+  <h2><span class="card-index">12</span>导出明细<span class="page-badge">三无忧</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>开始日期(startDate), 结束日期(endDate)<br>
+    <strong>接口出参（根据表单字段推导）：</strong>CSV文件流(Content-Type: application/octet-stream), 文件名(filename)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击导出明细按钮"] --> A2["弹出日期范围选择器"]
+  A2 --> A3["用户选择开始日期和结束日期"]
+  A3 --> D1{"日期范围校验通过?"}
+  D1 -->|否| A4["Toast提示日期范围不合法"]
+  D1 -->|是| A5["点击确认导出"]
+  A5 --> A6["显示导出加载中状态"]
+  A6 --> A7["调用导出CSV接口"]
+  A7 --> D2{"接口返回成功?"}
+  D2 -->|否| A8["Toast'导出失败，请重试'"]
+  D2 -->|是| A9["触发浏览器下载CSV文件"]
+  A4 --> A10["结束"]
+  A8 --> A10
+  A9 --> A10
+  </pre>
+</div>
+
+<!-- ==================== AI外呼配置 ==================== -->
+
+<!-- 通话状态 -->
+<div class="chart-card" data-page="aiwh" data-op="aiwh-01">
+  <h2><span class="card-index">01</span>通话状态-查询<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>页码(pageNum), 每页条数(pageSize), 外呼类型(callType), 通话状态(callStatus), 状态(enabled)【待确认：筛选条件字段是否完整】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>总条数(total), 配置列表[{配置ID(id), 配置名称(name), 外呼类型(callType), 通话状态(callStatus), 线索状态更新值(leadStatus), 创建时间(createTime), 更新时间(updateTime), 启用状态(enabled)}]
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["切换到通话状态Tab"] --> A2["加载筛选条件区域"]
+  A2 --> A3["填写筛选字段（可选）"]
+  A3 --> A4["点击查询按钮"]
+  A4 --> A5["调用通话状态配置查询接口"]
+  A5 --> D1{"接口返回成功?"}
+  D1 -->|否| A6["Toast'查询失败，请重试'"]
+  D1 -->|是| A7["渲染配置列表"]
+  A7 --> A8["展示分页信息和翻页控件"]
+  A8 --> A9["结束"]
+  A6 --> A9
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="aiwh-02">
+  <h2><span class="card-index">02</span>通话状态-新增<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置名称(configName), 权重(priority), 外呼类型(callTypes, 多选), 通话状态(callStatuses, 多选), 状态判断条件(statusLogic, 且/或), 线索状态(updateLeadStatus), 异常原因(abnormalReason, 条件显隐), 意向级别(updateIntentLevel), 启用状态(enabled)【待确认：接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>配置ID(id), 创建结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击新增配置按钮"] --> A2["打开新增弹窗(3个Section)"]
+  A2 --> A3["填写基础信息: 名称/权重/状态"]
+  A3 --> A4["配置命中条件: 外呼类型(多选) + 通话状态(多选)+判断条件"]
+  A4 --> A5["配置执行动作: 线索状态 + 意向级别 + 异常原因(条件显隐)"]
+  A5 --> D1{"校验必填项是否完整?"}
+  D1 -->|否| A6["Toast提示缺少必填字段"]
+  D1 -->|是| A7["提交配置"]
+  A7 --> D2{"接口返回成功?"}
+  D2 -->|否| A8["Toast'新增失败，请重试'"]
+  D2 -->|是| A9["Toast'通话状态配置已新增'"]
+  A9 --> A10["关闭弹窗，刷新列表"]
+  A6 --> A11["结束"]
+  A8 --> A11
+  A10 --> A11
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="aiwh-03">
+  <h2><span class="card-index">03</span>通话状态-编辑<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id), 配置名称(configName), 权重(priority), 外呼类型(callTypes, 多选), 通话状态(callStatuses, 多选), 状态判断条件(statusLogic), 线索状态(updateLeadStatus), 异常原因(abnormalReason, 条件显隐), 意向级别(updateIntentLevel), 启用状态(enabled)【待确认：接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>更新结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击编辑按钮"] --> A2["调用详情接口获取配置数据"]
+  A2 --> D1{"接口返回成功?"}
+  D1 -->|否| A3["Toast'获取配置信息失败'"]
+  D1 -->|是| A4["打开编辑弹窗，回填已有数据"]
+  A4 --> A5["用户修改表单字段"]
+  A5 --> A6["点击提交"]
+  A6 --> D2{"校验必填项是否完整?"}
+  D2 -->|否| A7["Toast提示缺少必填字段"]
+  D2 -->|是| A8["调用编辑接口提交"]
+  A8 --> D3{"接口返回成功?"}
+  D3 -->|否| A9["Toast'编辑失败，请重试'"]
+  D3 -->|是| A10["Toast'通话状态配置已更新'"]
+  A10 --> A11["关闭弹窗，刷新列表"]
+  A3 --> A12["结束"]
+  A7 --> A12
+  A9 --> A12
+  A11 --> A12
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="call-status-view">
+  <h2><span class="card-index">29</span>通话状态-查看<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id)【待确认：查看通话状态配置详情接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>配置ID(id), 配置名称(name), 权重(weight), 外呼类型(callTypes), 通话状态(callStatuses), 线索状态更新(leadStatusUpdate), 异常原因(abnormalReason), 意向级别(intentLevel), 状态(status)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击查看按钮"] --> A2["弹窗只读查看模式"]
+  A2 --> A3["展示配置详情（基础信息+命中条件+执行动作）"]
+  A3 --> A4["结束"]
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="aiwh-04">
+  <h2><span class="card-index">04</span>通话状态-删除<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id)<br>
+    <strong>接口出参（根据表单字段推导）：</strong>删除结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击删除按钮"] --> A2["弹出确认删除提示框"]
+  A2 --> D1{"用户确认删除?"}
+  D1 -->|否| A3["取消操作"]
+  D1 -->|是| A4["调用删除接口"]
+  A4 --> D2{"接口返回成功?"}
+  D2 -->|否| A5["Toast'删除失败，请重试'"]
+  D2 -->|是| A6["Toast'通话状态配置已删除'"]
+  A6 --> A7["刷新列表"]
+  A3 --> A8["结束"]
+  A5 --> A8
+  A7 --> A8
+  </pre>
+</div>
+
+<!-- 外呼重推 -->
+<div class="chart-card" data-page="aiwh" data-op="aiwh-05">
+  <h2><span class="card-index">05</span>外呼重推-查询<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>页码(pageNum), 每页条数(pageSize), 原外呼类型(outboundType), 新外呼类型(newOutboundType), 命中类型(attributeType), 关键字(keyword), 启用状态(enabled)【待确认：接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>总条数(total), 配置列表[{配置ID(id), 配置名称(ruleName), 原外呼类型(outboundType), 新外呼类型(newOutboundType), 命中类型(attributeType), 推送时间(pushDelay), 重推次数(redialCount), 重推间隔(redialInterval), 启用状态(enabled), 创建时间(createTime)}]
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["切换到外呼重推Tab"] --> A2["加载筛选条件区域"]
+  A2 --> A3["填写筛选字段（可选）"]
+  A3 --> A4["点击查询按钮"]
+  A4 --> A5["调用外呼重推配置查询接口"]
+  A5 --> D1{"接口返回成功?"}
+  D1 -->|否| A6["Toast'查询失败，请重试'"]
+  D1 -->|是| A7["渲染配置列表"]
+  A7 --> A8["展示分页信息和翻页控件"]
+  A8 --> A9["结束"]
+  A6 --> A9
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="aiwh-06">
+  <h2><span class="card-index">06</span>外呼重推-新增<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置名称(ruleName), 原外呼类型(outboundType), 新外呼类型(newOutboundType), 命中类型(attributeType), 意向级别(intentLevel, 线索状态路径), 线索状态(leadStatus, 多选, 线索状态路径), 异常原因(abnormalReasons, 线索状态路径), 通话状态(callStatus, 通话状态路径), 外呼标签(outboundLabels, 多选, 通话状态路径), 推送时间(pushDelay), 重推次数(redialCount), 重推间隔(redialInterval), 启用状态(enabled)【待确认：接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>配置ID(id), 创建结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击新增配置按钮"] --> A2["打开新增弹窗(3个Section)"]
+  A2 --> A3["填写基础信息: 配置名称 + 状态"]
+  A3 --> A4["选择原外呼类型 + 新外呼类型"]
+  A4 --> A5["选择命中类型(线索状态/通话状态)"]
+  A5 --> A6a["(线索状态)选择意向级别/线索状态/异常原因"]
+  A5 --> A6b["(通话状态)选择通话状态/外呼标签"]
+  A6a --> A7["设置推送时间"]
+  A6b --> A7
+  A7 --> A8["设置重推次数 + 重推间隔"]
+  A8 --> D1{"校验必填项是否完整?"}
+  D1 -->|否| A9["Toast提示缺少必填字段"]
+  D1 -->|是| A10["提交配置"]
+  A10 --> D2{"接口返回成功?"}
+  D2 -->|否| A11["Toast'新增失败，请重试'"]
+  D2 -->|是| A12["Toast'外呼重推配置已新增'"]
+  A12 --> A13["关闭弹窗，刷新列表"]
+  A9 --> A14["结束"]
+  A11 --> A14
+  A13 --> A14
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="aiwh-07">
+  <h2><span class="card-index">07</span>外呼重推-编辑<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id), 配置名称(ruleName), 原外呼类型(outboundType), 新外呼类型(newOutboundType), 命中类型(attributeType), 意向级别(intentLevel), 线索状态(leadStatus), 异常原因(abnormalReasons), 通话状态(callStatus), 外呼标签(outboundLabels), 推送时间(pushDelay), 重推次数(redialCount), 重推间隔(redialInterval), 启用状态(enabled)【待确认：接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>更新结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击编辑按钮"] --> A2["调用详情接口获取配置数据"]
+  A2 --> D1{"接口返回成功?"}
+  D1 -->|否| A3["Toast'获取配置信息失败'"]
+  D1 -->|是| A4["打开编辑弹窗，回填已有数据"]
+  A4 --> A5["用户修改表单字段"]
+  A5 --> A6["点击提交"]
+  A6 --> D2{"校验必填项是否完整?"}
+  D2 -->|否| A7["Toast提示缺少必填字段"]
+  D2 -->|是| A8["调用编辑接口提交"]
+  A8 --> D3{"接口返回成功?"}
+  D3 -->|否| A9["Toast'编辑失败，请重试'"]
+  D3 -->|是| A10["Toast'外呼重推配置已更新'"]
+  A10 --> A11["关闭弹窗，刷新列表"]
+  A3 --> A12["结束"]
+  A7 --> A12
+  A9 --> A12
+  A11 --> A12
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="ai-redial-view">
+  <h2><span class="card-index">30</span>外呼重推-查看<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id)【待确认：查看外呼重推配置详情接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>配置ID(id), 配置名称(ruleName), 原外呼类型(outboundType), 新外呼类型(newOutboundType), 命中类型(attributeType), 意向级别(intentLevel), 线索状态(leadStatus), 异常原因(abnormalReasons), 通话状态(callStatus), 外呼标签(outboundLabels), 推送时间(pushDelay), 重推次数(redialCount), 重推间隔(redialInterval), 状态(enabled)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击查看按钮"] --> A2["弹窗只读查看模式"]
+  A2 --> A3["展示配置详情（配置名称+原/新外呼类型+命中类型+推送时间等）"]
+  A3 --> A4["结束"]
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="aiwh-08">
+  <h2><span class="card-index">08</span>外呼重推-删除<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id)<br>
+    <strong>接口出参（根据表单字段推导）：</strong>删除结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击删除按钮"] --> A2["弹出确认删除提示框"]
+  A2 --> D1{"用户确认删除?"}
+  D1 -->|否| A3["取消操作"]
+  D1 -->|是| A4["调用删除接口"]
+  A4 --> D2{"接口返回成功?"}
+  D2 -->|否| A5["Toast'删除失败，请重试'"]
+  D2 -->|是| A6["Toast'外呼重推配置已删除'"]
+  A6 --> A7["刷新列表"]
+  A3 --> A8["结束"]
+  A5 --> A8
+  A7 --> A8
+  </pre>
+</div>
+
+<!-- 线索下发 -->
+<div class="chart-card" data-page="aiwh" data-op="aiwh-09">
+  <h2><span class="card-index">09</span>线索下发-查询<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>页码(pageNum), 每页条数(pageSize), 外呼类型(callTypes), 下发动作(dispatchTarget), 启用状态(enabled)【待确认：接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>总条数(total), 配置列表[{配置ID(id), 配置名称(name), 权重(priority), 外呼类型(callTypes), 命中条件摘要, 下发动作(dispatchTarget), 字段更新摘要, 启用状态(enabled), 创建时间(createTime)}]
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["切换到线索下发Tab"] --> A2["加载筛选条件区域"]
+  A2 --> A3["填写筛选字段（可选）"]
+  A3 --> A4["点击查询按钮"]
+  A4 --> A5["调用线索下发配置查询接口"]
+  A5 --> D1{"接口返回成功?"}
+  D1 -->|否| A6["Toast'查询失败，请重试'"]
+  D1 -->|是| A7["渲染配置列表"]
+  A7 --> A8["展示分页信息和翻页控件"]
+  A8 --> A9["结束"]
+  A6 --> A9
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="aiwh-10">
+  <h2><span class="card-index">10</span>线索下发-新增<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置名称(configName), 权重(priority), 外呼类型(callTypes), 通话状态(includeCallStatuses), 通话时长(durationOperator/durationSeconds), 包含标签(includeTags), 不包含标签(excludeTags), 意向专营店(hasIntentDealer), 下发目标(dispatchTarget), SmartCode(updateSmartCode), 线索状态(updateLeadStatus), 异常原因(abnormalReason), 意向级别(updateIntentLevel), 启用状态(enabled)【待确认：接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>配置ID(id), 创建结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击新增配置按钮"] --> A2["打开新增弹窗(3个Section)"]
+  A2 --> A3["填写基础信息: 名称/权重/状态"]
+  A3 --> A4["配置命中条件: 外呼类型/通话状态/时长/标签/专营店"]
+  A4 --> A5["配置执行动作: 下发目标/SmartCode/线索状态/异常原因/意向级别"]
+  A5 --> D1{"校验必填项是否完整?"}
+  D1 -->|否| A6["Toast提示缺少必填字段"]
+  D1 -->|是| A7["提交配置"]
+  A7 --> D2{"接口返回成功?"}
+  D2 -->|否| A8["Toast'新增失败，请重试'"]
+  D2 -->|是| A9["Toast'线索下发配置已新增'"]
+  A9 --> A10["关闭弹窗，刷新列表"]
+  A6 --> A11["结束"]
+  A8 --> A11
+  A10 --> A11
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="aiwh-11">
+  <h2><span class="card-index">11</span>线索下发-编辑<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id), 配置名称(configName), 权重(priority), 外呼类型(callTypes), 通话状态(includeCallStatuses), 通话时长(durationOperator/durationSeconds), 包含标签(includeTags), 不包含标签(excludeTags), 意向专营店(hasIntentDealer), 下发目标(dispatchTarget), SmartCode(updateSmartCode), 线索状态(updateLeadStatus), 异常原因(abnormalReason), 意向级别(updateIntentLevel), 启用状态(enabled)【待确认：接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>更新结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击编辑按钮"] --> A2["调用详情接口获取配置数据"]
+  A2 --> D1{"接口返回成功?"}
+  D1 -->|否| A3["Toast'获取配置信息失败'"]
+  D1 -->|是| A4["打开编辑弹窗，回填已有数据"]
+  A4 --> A5["用户修改表单字段"]
+  A5 --> A6["点击提交"]
+  A6 --> D2{"校验必填项是否完整?"}
+  D2 -->|否| A7["Toast提示缺少必填字段"]
+  D2 -->|是| A8["调用编辑接口提交"]
+  A8 --> D3{"接口返回成功?"}
+  D3 -->|否| A9["Toast'编辑失败，请重试'"]
+  D3 -->|是| A10["Toast'线索下发配置已更新'"]
+  A10 --> A11["关闭弹窗，刷新列表"]
+  A3 --> A12["结束"]
+  A7 --> A12
+  A9 --> A12
+  A11 --> A12
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="lead-dispatch-view">
+  <h2><span class="card-index">31</span>线索下发-查看<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id)【待确认：查看线索下发配置详情接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>配置ID(id), 配置名称(configName), 权重(priority), 外呼类型(callTypes), 通话状态(includeCallStatuses), 通话时长(durationOperator/durationSeconds), 包含标签(includeTags), 不包含标签(excludeTags), 意向专营店(hasIntentDealer), 下发目标(dispatchTarget), SmartCode(updateSmartCode), 线索状态(updateLeadStatus), 异常原因(abnormalReason), 意向级别(updateIntentLevel), 状态(enabled)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击查看按钮"] --> A2["弹窗只读查看模式"]
+  A2 --> A3["展示配置详情（基础信息+命中条件+执行动作）"]
+  A3 --> A4["结束"]
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="aiwh-12">
+  <h2><span class="card-index">12</span>线索下发-删除<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id)<br>
+    <strong>接口出参（根据表单字段推导）：</strong>删除结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击删除按钮"] --> A2["弹出确认删除提示框"]
+  A2 --> D1{"用户确认删除?"}
+  D1 -->|否| A3["取消操作"]
+  D1 -->|是| A4["调用删除接口"]
+  A4 --> D2{"接口返回成功?"}
+  D2 -->|否| A5["Toast'删除失败，请重试'"]
+  D2 -->|是| A6["Toast'线索下发配置已删除'"]
+  A6 --> A7["刷新列表"]
+  A3 --> A8["结束"]
+  A5 --> A8
+  A7 --> A8
+  </pre>
+</div>
+
+<!-- 短信下发 -->
+<div class="chart-card" data-page="aiwh" data-op="aiwh-13">
+  <h2><span class="card-index">13</span>短信下发-查询<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>页码(pageNum), 每页条数(pageSize), 外呼类型(callTypes), 短信模板(template), 启用状态(enabled)【待确认：接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>总条数(total), 配置列表[{配置ID(id), 配置名称(name), 权重(priority), 外呼类型(callTypes), 通话状态(statuses), 包含标签(tags), 短信模板(template), 启用状态(enabled), 创建时间(createTime)}]
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["切换到短信下发Tab"] --> A2["加载筛选条件区域"]
+  A2 --> A3["填写筛选字段（可选）"]
+  A3 --> A4["点击查询按钮"]
+  A4 --> A5["调用短信下发配置查询接口"]
+  A5 --> D1{"接口返回成功?"}
+  D1 -->|否| A6["Toast'查询失败，请重试'"]
+  D1 -->|是| A7["渲染配置列表"]
+  A7 --> A8["展示分页信息和翻页控件"]
+  A8 --> A9["结束"]
+  A6 --> A9
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="aiwh-14">
+  <h2><span class="card-index">14</span>短信下发-新增<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置名称(configName), 权重(priority), 外呼类型(callTypes, 多选), 通话状态(statuses, 多选), 通话状态判断条件(statusLogic, 且/或), 包含标签(tags, 多选), 标签判断条件(tagLogic, 且/或), 不包含标签(excludeTags, 多选), 排除判断条件(excludeTagLogic, 且/或), 短信模板(template), 启用状态(enabled)【待确认：接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>配置ID(id), 创建结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击新增配置按钮"] --> A2["打开新增弹窗(3个Section)"]
+  A2 --> A3["填写基础信息: 名称/权重/状态"]
+  A3 --> A4["配置命中条件: 外呼类型(多选) + 通话状态(多选)+判断条件"]
+  A4 --> A5["配置命中条件: 包含标签(多选)+判断条件 + 不包含标签+排除判断条件"]
+  A5 --> A6["配置执行动作: 选择短信模板"]
+  A6 --> D1{"校验必填项是否完整?"}
+  D1 -->|否| A7["Toast提示缺少必填字段"]
+  D1 -->|是| A8["提交配置"]
+  A8 --> D2{"接口返回成功?"}
+  D2 -->|否| A9["Toast'新增失败，请重试'"]
+  D2 -->|是| A10["Toast'短信下发配置已新增'"]
+  A10 --> A11["关闭弹窗，刷新列表"]
+  A7 --> A12["结束"]
+  A9 --> A12
+  A11 --> A12
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="aiwh-15">
+  <h2><span class="card-index">15</span>短信下发-编辑<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id), 配置名称(configName), 权重(priority), 外呼类型(callTypes), 通话状态(statuses), 通话状态判断条件(statusLogic), 包含标签(tags), 标签判断条件(tagLogic), 不包含标签(excludeTags), 排除判断条件(excludeTagLogic), 短信模板(template), 启用状态(enabled)【待确认：接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>更新结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击编辑按钮"] --> A2["调用详情接口获取配置数据"]
+  A2 --> D1{"接口返回成功?"}
+  D1 -->|否| A3["Toast'获取配置信息失败'"]
+  D1 -->|是| A4["打开编辑弹窗，回填已有数据"]
+  A4 --> A5["用户修改表单字段"]
+  A5 --> A6["点击提交"]
+  A6 --> D2{"校验必填项是否完整?"}
+  D2 -->|否| A7["Toast提示缺少必填字段"]
+  D2 -->|是| A8["调用编辑接口提交"]
+  A8 --> D3{"接口返回成功?"}
+  D3 -->|否| A9["Toast'编辑失败，请重试'"]
+  D3 -->|是| A10["Toast'短信下发配置已更新'"]
+  A10 --> A11["关闭弹窗，刷新列表"]
+  A3 --> A12["结束"]
+  A7 --> A12
+  A9 --> A12
+  A11 --> A12
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="sms-dispatch-view">
+  <h2><span class="card-index">32</span>短信下发-查看<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id)【待确认：查看短信下发配置详情接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>配置ID(id), 配置名称(configName), 权重(priority), 外呼类型(callTypes), 通话状态(statuses), 通话状态判断条件(statusLogic), 包含标签(tags), 标签判断条件(tagLogic), 不包含标签(excludeTags), 排除判断条件(excludeTagLogic), 短信模板(template), 状态(enabled)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击查看按钮"] --> A2["弹窗只读查看模式"]
+  A2 --> A3["展示配置详情（命中条件+短信模板）"]
+  A3 --> A4["结束"]
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="aiwh-16">
+  <h2><span class="card-index">16</span>短信下发-删除<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id)<br>
+    <strong>接口出参（根据表单字段推导）：</strong>删除结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击删除按钮"] --> A2["弹出确认删除提示框"]
+  A2 --> D1{"用户确认删除?"}
+  D1 -->|否| A3["取消操作"]
+  D1 -->|是| A4["调用删除接口"]
+  A4 --> D2{"接口返回成功?"}
+  D2 -->|否| A5["Toast'删除失败，请重试'"]
+  D2 -->|是| A6["Toast'短信下发配置已删除'"]
+  A6 --> A7["刷新列表"]
+  A3 --> A8["结束"]
+  A5 --> A8
+  A7 --> A8
+  </pre>
+</div>
+
+<!-- 门店冷线索 -->
+<div class="chart-card" data-page="aiwh" data-op="aiwh-17">
+  <h2><span class="card-index">17</span>门店冷线索-查询<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>页码(pageNum), 每页条数(pageSize), 线索状态(leadStatus), 启用状态(enabled)【待确认：接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>总条数(total), 配置列表[{配置ID(id), 线索状态(leadStatus), 备注(remark), 启用状态(enabled), 创建时间(createTime)}]
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["切换到门店冷线索Tab"] --> A2["加载筛选条件区域"]
+  A2 --> A3["填写筛选字段（可选）"]
+  A3 --> A4["点击查询按钮"]
+  A4 --> A5["调用门店冷线索配置查询接口"]
+  A5 --> D1{"接口返回成功?"}
+  D1 -->|否| A6["Toast'查询失败，请重试'"]
+  D1 -->|是| A7["渲染配置列表"]
+  A7 --> A8["展示分页信息和翻页控件"]
+  A8 --> A9["结束"]
+  A6 --> A9
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="aiwh-18">
+  <h2><span class="card-index">18</span>门店冷线索-新增<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>线索状态(leadStatus, 必填), 状态(enabled, 启用/停用), 备注(remark, 可选)【待确认：接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>配置ID(id), 创建结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击新增配置按钮"] --> A2["打开新增弹窗"]
+  A2 --> A3["选择线索状态(必填)"]
+  A3 --> A4["选择状态(启用/停用)"]
+  A4 --> A5["(可选)填写备注"]
+  A5 --> D1{"校验必填项是否完整?"}
+  D1 -->|否| A6["Toast'请选择线索状态'"]
+  D1 -->|是| A7["提交配置"]
+  A7 --> D2{"接口返回成功?"}
+  D2 -->|否| A8["Toast'新增失败，请重试'"]
+  D2 -->|是| A9["Toast'门店冷线索配置已新增'"]
+  A9 --> A10["关闭弹窗，刷新列表"]
+  A6 --> A11["结束"]
+  A8 --> A11
+  A10 --> A11
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="aiwh-19">
+  <h2><span class="card-index">19</span>门店冷线索-编辑<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id), 线索状态(leadStatus), 状态(enabled), 备注(remark)【待确认：接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>更新结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击编辑按钮"] --> A2["调用详情接口获取配置数据"]
+  A2 --> D1{"接口返回成功?"}
+  D1 -->|否| A3["Toast'获取配置信息失败'"]
+  D1 -->|是| A4["打开编辑弹窗，回填已有数据"]
+  A4 --> A5["用户修改表单字段"]
+  A5 --> A6["点击提交"]
+  A6 --> D2{"校验必填项是否完整?"}
+  D2 -->|否| A7["Toast提示缺少必填字段"]
+  D2 -->|是| A8["调用编辑接口提交"]
+  A8 --> D3{"接口返回成功?"}
+  D3 -->|否| A9["Toast'编辑失败，请重试'"]
+  D3 -->|是| A10["Toast'门店冷线索配置已更新'"]
+  A10 --> A11["关闭弹窗，刷新列表"]
+  A3 --> A12["结束"]
+  A7 --> A12
+  A9 --> A12
+  A11 --> A12
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="cold-lead-view">
+  <h2><span class="card-index">33</span>门店冷线索-查看<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id)【待确认：查看门店冷线索配置详情接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>配置ID(id), 线索状态(leadStatus), 状态(enabled), 备注(remark)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击查看按钮"] --> A2["弹窗只读查看模式"]
+  A2 --> A3["展示配置详情（线索状态+状态+备注）"]
+  A3 --> A4["结束"]
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="aiwh-20">
+  <h2><span class="card-index">20</span>门店冷线索-删除<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id)<br>
+    <strong>接口出参（根据表单字段推导）：</strong>删除结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击删除按钮"] --> A2["弹出确认删除提示框"]
+  A2 --> D1{"用户确认删除?"}
+  D1 -->|否| A3["取消操作"]
+  D1 -->|是| A4["调用删除接口"]
+  A4 --> D2{"接口返回成功?"}
+  D2 -->|否| A5["Toast'删除失败，请重试'"]
+  D2 -->|是| A6["Toast'门店冷线索配置已删除'"]
+  A6 --> A7["刷新列表"]
+  A3 --> A8["结束"]
+  A5 --> A8
+  A7 --> A8
+  </pre>
+</div>
+
+<!-- 分配比例 -->
+<div class="chart-card" data-page="aiwh" data-op="aiwh-21">
+  <h2><span class="card-index">21</span>分配比例-查询<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>页码(pageNum), 每页条数(pageSize), 外呼类型(callType, 可选), 关联区域(scope: none/city/province, 可选), 状态(status: 启用/停用, 可选)【待确认：分配比例配置列表接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>总条数(total), 配置列表[{配置ID(id), 配置名称(name), 关联区域(scope), 线索分配规则(action), 外呼类型(callTypes), 引用关系(references), 状态(status), 更新时间(updatedAt)}]
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["切换到分配比例配置Tab"] --> A2["加载汇总指标和筛选区"]
+  A2 --> A3["选择外呼类型筛选（可选）"]
+  A3 --> A4["选择关联区域筛选（可选）"]
+  A4 --> A5["选择状态筛选（可选）"]
+  A5 --> A6["调用分配比例配置查询接口"]
+  A6 --> D1{"接口返回成功?"}
+  D1 -->|否| A7["Toast'查询失败，请重试'"]
+  D1 -->|是| A8["渲染配置列表和汇总指标"]
+  A8 --> A9["展示分页信息和翻页控件"]
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="aiwh-22">
+  <h2><span class="card-index">22</span>分配比例-新增<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置名称(name, 必填), 状态(status), 关联区域(allocationScope: none/city/province), 外呼类型比例(allocations[{channel,percent}], 合计100%), 区域配置(cityAllocations, 关联城市/省份时必填)【待确认：新增分配比例配置接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>配置ID(id), 创建结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击新增配置按钮"] --> A2["打开新增弹窗"]
+  A2 --> A3["填写配置名称"]
+  A3 --> A4["选择状态（启用/停用）"]
+  A4 --> A5["选择关联区域（不按区域/关联城市/关联省份）"]
+  A5 --> D1{"关联区域类型?"}
+  D1 -->|"不按区域"| A6["配置外呼类型比例（合计100%）"]
+  D1 -->|"关联城市/省份"| A7["配置外呼类型比例 + 区域分配面板"]
+  A7 --> A8["配置兜底区域"]
+  A6 --> D2{"校验必填项?"}
+  A8 --> D2
+  D2 -->|"名称为空"| A9["Toast'请填写配置名称'"]
+  D2 -->|"比例合计≠100%"| A10["Toast'各外呼类型比例合计必须为100%'"]
+  D2 -->|"通过"| A11["提交配置"]
+  A11 --> D3{"接口返回成功?"}
+  D3 -->|否| A12["Toast'新增失败，请重试'"]
+  D3 -->|是| A13["Toast'分配比例配置已新增'"]
+  A13 --> A14["关闭弹窗，刷新列表"]
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="aiwh-23">
+  <h2><span class="card-index">23</span>分配比例-编辑<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id), 配置名称(name, 必填), 状态(status), 关联区域(allocationScope: none/city/province), 外呼类型比例(allocations[{channel,percent}]), 区域配置(cityAllocations)【待确认：编辑分配比例配置接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>更新结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击编辑按钮"] --> A2["调用详情接口获取配置数据"]
+  A2 --> D1{"接口返回成功?"}
+  D1 -->|否| A3["Toast'获取配置信息失败'"]
+  D1 -->|是| A4["打开编辑弹窗，回填已有数据"]
+  A4 --> A5["回填配置名称/状态/关联区域/外呼类型比例"]
+  A5 --> A6["用户修改表单字段"]
+  A6 --> A7["点击保存"]
+  A7 --> D2{"校验必填项?"}
+  D2 -->|"名称为空"| A8["Toast'请填写配置名称'"]
+  D2 -->|"比例合计≠100%"| A9["Toast'各外呼类型比例合计必须为100%'"]
+  D2 -->|"通过"| A10["调用编辑接口提交"]
+  A10 --> D3{"接口返回成功?"}
+  D3 -->|否| A11["Toast'编辑失败，请重试'"]
+  D3 -->|是| A12["Toast'分配比例配置已更新'"]
+  A12 --> A13["关闭弹窗，刷新列表"]
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="allocation-view">
+  <h2><span class="card-index">34</span>分配比例-查看<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id)【待确认：查看分配比例配置详情接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>配置ID(id), 配置名称(name), 状态(status), 关联区域(allocationScope), 外呼类型比例(allocations[{channel,percent}]), 区域配置(cityAllocations), 引用关系(references)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击查看按钮"] --> A2["进入全页面只读查看模式"]
+  A2 --> A3["展示3个Section：基础信息/分配动作/引用关系"]
+  A3 --> A4["点击'返回列表'或'编辑配置'"]
+  A4 --> A5["结束"]
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="aiwh-24">
+  <h2><span class="card-index">24</span>分配比例-删除<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id)<br>
+    <strong>接口出参（根据表单字段推导）：</strong>删除结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击删除按钮"] --> A2["弹出确认删除提示框"]
+  A2 --> D1{"用户确认删除?"}
+  D1 -->|否| A3["取消操作"]
+  D1 -->|是| A4["调用删除接口"]
+  A4 --> D2{"接口返回成功?"}
+  D2 -->|否| A5["Toast'删除失败，请重试'"]
+  D2 -->|是| A6["Toast'分配比例配置已删除'"]
+  A6 --> A7["刷新列表"]
+  A3 --> A8["结束"]
+  A5 --> A8
+  A7 --> A8
+  </pre>
+</div>
+
+<!-- 外呼标签映射 -->
+<div class="chart-card" data-page="aiwh" data-op="aiwh-25">
+  <h2><span class="card-index">25</span>外呼标签映射-查询<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>页码(pageNum), 每页条数(pageSize), 标签分类(category), 匹配维度(sources), 启用状态(enabled)【待确认：接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>总条数(total), 映射列表[{映射ID(id), 规则名称(name), 标签分类(category), 映射结果(output), 匹配维度(sources), 匹配值(matchValues), 备注(remark), 启用状态(enabled), 创建时间(createTime)}]
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["切换到外呼标签映射Tab"] --> A2["加载筛选条件区域"]
+  A2 --> A3["选择标签分类筛选(抗拒原因/异常原因, 可选)"]
+  A3 --> A4["选择匹配维度筛选(外呼标签/通话状态, 可选)"]
+  A4 --> A5["选择状态筛选(启用/停用, 可选)"]
+  A5 --> A6["点击查询按钮"]
+  A6 --> A7["调用外呼标签映射查询接口"]
+  A7 --> D1{"接口返回成功?"}
+  D1 -->|否| A8["Toast'查询失败，请重试'"]
+  D1 -->|是| A9["渲染映射列表"]
+  A9 --> A10["展示分页信息和翻页控件"]
+  A10 --> A11["结束"]
+  A8 --> A11
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="aiwh-26">
+  <h2><span class="card-index">26</span>外呼标签映射-新增<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>规则名称(name), 标签分类(category, 抗拒原因/异常原因), 映射结果(output, 依赖category联动), 匹配维度(sources, 外呼标签/通话状态), 匹配值(matchValues, 依赖维度动态加载), 判断条件(matchLogicBySource, 且/或), 备注(remark, 可选), 启用状态(enabled)【待确认：接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>映射ID(id), 创建结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击新增外呼标签映射"] --> A2["打开新增弹窗"]
+  A2 --> A3["填写规则名称 + 状态"]
+  A3 --> A4["选择标签分类(抗拒原因/异常原因)"]
+  A4 --> A5["根据分类选择映射结果"]
+  A5 --> A6["选择匹配维度(外呼标签/通话状态)"]
+  A6 --> A7a["(外呼标签)选择包含标签+判断条件"]
+  A6 --> A7b["(通话状态)选择通话状态+判断条件"]
+  A7a --> A8["(可选)填写备注"]
+  A7b --> A8
+  A8 --> D1{"校验必填项是否完整?"}
+  D1 -->|否| A9["Toast提示缺少必填字段"]
+  D1 -->|是| A10["提交配置"]
+  A10 --> D2{"接口返回成功?"}
+  D2 -->|否| A11["Toast'新增失败，请重试'"]
+  D2 -->|是| A12["Toast'外呼标签映射已新增'"]
+  A12 --> A13["关闭弹窗，刷新列表"]
+  A9 --> A14["结束"]
+  A11 --> A14
+  A13 --> A14
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="aiwh-27">
+  <h2><span class="card-index">27</span>外呼标签映射-编辑<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>映射ID(id), 规则名称(name), 标签分类(category), 映射结果(output), 匹配维度(sources), 匹配值(matchValues), 判断条件(matchLogicBySource), 备注(remark), 启用状态(enabled)【待确认：接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>更新结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击编辑按钮"] --> A2["调用详情接口获取映射数据"]
+  A2 --> D1{"接口返回成功?"}
+  D1 -->|否| A3["Toast'获取映射信息失败'"]
+  D1 -->|是| A4["打开编辑弹窗，回填已有数据"]
+  A4 --> A5["用户修改规则名称/标签分类/映射结果/匹配维度/匹配值"]
+  A5 --> A6["点击提交"]
+  A6 --> D2{"校验必填项是否完整?"}
+  D2 -->|否| A7["Toast提示缺少必填字段"]
+  D2 -->|是| A8["调用编辑接口提交"]
+  A8 --> D3{"接口返回成功?"}
+  D3 -->|否| A9["Toast'编辑失败，请重试'"]
+  D3 -->|是| A10["Toast'外呼标签映射已更新'"]
+  A10 --> A11["关闭弹窗，刷新列表"]
+  A3 --> A12["结束"]
+  A7 --> A12
+  A9 --> A12
+  A11 --> A12
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="outbound-label-view">
+  <h2><span class="card-index">35</span>外呼标签映射-查看<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>映射ID(id)【待确认：查看外呼标签映射详情接口地址】<br>
+    <strong>接口出参（根据表单字段推导）：</strong>映射ID(id), 规则名称(name), 标签分类(category), 映射结果(output), 匹配维度(sources), 匹配值(matchValues), 判断条件(matchLogicBySource), 备注(remark), 状态(enabled)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击查看按钮"] --> A2["弹窗只读查看模式"]
+  A2 --> A3["展示配置详情（标签分类+映射结果+匹配维度+匹配值）"]
+  A3 --> A4["结束"]
+  </pre>
+</div>
+
+<div class="chart-card" data-page="aiwh" data-op="aiwh-28">
+  <h2><span class="card-index">28</span>外呼标签映射-删除<span class="page-badge">AI外呼配置</span></h2>
+  <div class="param-box">
+    <strong>接口入参（根据表单字段推导）：</strong>映射ID(id)<br>
+    <strong>接口出参（根据表单字段推导）：</strong>删除结果(success), 错误信息(errorMsg)
+  </div>
+  <pre class="mermaid">
+flowchart TD
+  A1["点击删除按钮"] --> A2["弹出确认删除提示框"]
+  A2 --> D1{"用户确认删除?"}
+  D1 -->|否| A3["取消操作"]
+  D1 -->|是| A4["调用删除接口"]
+  A4 --> D2{"接口返回成功?"}
+  D2 -->|否| A5["Toast'删除失败，请重试'"]
+  D2 -->|是| A6["Toast'外呼标签映射已删除'"]
+  A6 --> A7["刷新列表"]
+  A3 --> A8["结束"]
+  A5 --> A8
+  A7 --> A8
+  </pre>
+</div>
+
+</div>
+
+<div class="end-hint">— 当前操作流程结束，切换上方标签查看其他流程 —</div>
+
+<script>
+  (function() {
+    var pageTabs = document.querySelectorAll('.page-tabs button');
+    var opGroups = document.querySelectorAll('.op-tabs .op-group');
+    var cards = document.querySelectorAll('.chart-card');
+    var currentPageIdx = 0;
+    var currentOpIdx = 0;
+
+    function switchPage(pageIdx) {
+      if (pageIdx < 0 || pageIdx >= pageTabs.length) return;
+      currentPageIdx = pageIdx; currentOpIdx = 0;
+      pageTabs.forEach(function(t, i) { t.classList.toggle('active', i === pageIdx); });
+      opGroups.forEach(function(g, i) { g.classList.toggle('active', i === pageIdx); });
+      var pageName = pageTabs[pageIdx].getAttribute('data-page');
+      var pageCards = document.querySelectorAll('.chart-card[data-page="' + pageName + '"]');
+      cards.forEach(function(c) { c.classList.remove('active'); });
+      if (pageCards.length > 0) {
+        pageCards[0].classList.add('active');
+        var firstOpBtn = document.querySelector('.op-group.active button');
+        // 重置所有 op button
+        document.querySelectorAll('.op-tabs .op-group button').forEach(function(b) { b.classList.remove('active'); });
+        if (firstOpBtn) firstOpBtn.classList.add('active');
+      }
+    }
+
+    function switchOp(opIdx) {
+      var activeGroup = document.querySelector('.op-group.active');
+      if (!activeGroup) return;
+      var btns = activeGroup.querySelectorAll('button');
+      if (opIdx < 0 || opIdx >= btns.length) return;
+      currentOpIdx = opIdx;
+      btns.forEach(function(b, i) { b.classList.toggle('active', i === opIdx); });
+      var targetOp = btns[opIdx].getAttribute('data-op');
+      var targetPage = pageTabs[currentPageIdx].getAttribute('data-page');
+      cards.forEach(function(c) {
+        c.classList.toggle('active', c.getAttribute('data-page') === targetPage && c.getAttribute('data-op') === targetOp);
+      });
+    }
+
+    pageTabs.forEach(function(tab, i) { tab.addEventListener('click', function() { switchPage(i); }); });
+
+    document.querySelector('.op-tabs').addEventListener('click', function(e) {
+      if (e.target.tagName === 'BUTTON') {
+        var parentGroup = e.target.parentElement;
+        var btns = Array.from(parentGroup.querySelectorAll('button'));
+        switchOp(btns.indexOf(e.target));
+      }
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          var newPage = e.key === 'ArrowLeft' ? (currentPageIdx - 1 + pageTabs.length) % pageTabs.length : (currentPageIdx + 1) % pageTabs.length;
+          switchPage(newPage);
+          pageTabs[newPage].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        } else {
+          var activeGroup = document.querySelector('.op-group.active');
+          if (!activeGroup) return;
+          var btns = activeGroup.querySelectorAll('button');
+          if (btns.length === 0) return;
+          var newOp = e.key === 'ArrowLeft' ? (currentOpIdx - 1 + btns.length) % btns.length : (currentOpIdx + 1) % btns.length;
+          switchOp(newOp);
+          btns[newOp].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+      }
+    });
+
+    switchPage(0);
+  })();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'default', flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' } });
+</script>
+</body>
+</html>
