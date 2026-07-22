@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DCC培育 · SaaS平台</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg: #faf8ff;
+  --panel: #ffffff;
+  --text: #191b23;
+  --muted: #434654;
+  --border: #c3c6d6;
+  --accent: #003594;
+  --accent-soft: #dbe1ff;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #0ea5e9;
+  --radius: 8px;
+  --shadow: 0 1px 2px rgba(0,0,0,0.06);
+  --header-gradient: linear-gradient(135deg, #00174b 0%, #003594 50%, #004ac6 100%);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text);
+  background: var(--bg);
+}
+.page { max-width: 1180px; margin: 0 auto; padding: 20px 0 60px; }
+
+/* 头部 */
+.doc-header {
+  background: var(--header-gradient);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px 32px 0;
+  margin-bottom: 18px;
+  color: #fff;
+}
+.doc-header .doc-type-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  backdrop-filter: blur(4px);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+.doc-header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.5px;
+  line-height: 1.3;
+}
+.doc-header .doc-subtitle {
+  color: rgba(255,255,255,0.88);
+  font-size: 14px;
+  margin-top: 10px;
+  line-height: 1.6;
+}
+.doc-header .doc-meta-list {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.85);
+}
+.doc-header .doc-meta-list span { display: flex; align-items: center; gap: 4px; }
+.doc-header .doc-meta-list .meta-label { font-weight: 700; color: #fff; }
+
+/* 汇总卡片 */
+.summary-cards { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.summary-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px 20px;
+  flex: 1;
+  min-width: 140px;
+}
+.summary-card .summary-label { font-size: 12px; color: var(--muted); margin-bottom: 2px; }
+.summary-card .summary-value { font-size: 20px; font-weight: 700; color: var(--text); }
+
+/* 搜索框 */
+.search-box {
+  margin: 0;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+}
+.search-box input {
+  width: 100%;
+  max-width: 400px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  background: var(--panel);
+  color: var(--text);
+}
+.search-box input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0,53,148,0.1);
+}
+
+/* 表格卡片 */
+.table-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+.table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.toolbar-title { font-weight: 600; font-size: 14px; }
+.toolbar-count { font-size: 12px; color: var(--muted); margin-left: 8px; }
+.toolbar-actions { display: flex; gap: 8px; }
+.btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--text);
+  transition: all 0.15s;
+}
+.btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { background: #002b73; }
+
+/* 表格 */
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead { background: #f8fafc; }
+th {
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+.empty-row { text-align: center; color: var(--muted); padding: 40px 0; }
+
+/* Tab 导航（多菜单模式） */
+.tab-nav {
+  display: flex;
+  gap: 8px;
+  padding: 16px 24px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 18px;
+  overflow-x: auto;
+}
+.tab-btn {
+  padding: 8px 18px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.tab-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+.tab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* 头部蓝色卡片内嵌 tab 样式覆盖 — 与交互流程图/功能说明统一 */
+.doc-header .tab-nav {
+  flex-wrap: wrap;
+  margin: 20px -32px 0;
+  padding: 10px 32px;
+  gap: 6px;
+  background: rgba(255,255,255,.98);
+  border: none;
+  border-top: 1px solid rgba(255,255,255,.2);
+  border-radius: 0 0 var(--radius) var(--radius);
+  box-shadow: none;
+  margin-bottom: 0;
+}
+.doc-header .tab-nav .tab-btn {
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+}
+.doc-header .tab-nav .tab-btn:hover { background: var(--accent-soft); }
+.doc-header .tab-nav .tab-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+/* 子 Tab（多菜单版内嵌） */
+.subtab-nav {
+  display: flex; gap: 6px;
+  padding: 12px 20px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+  overflow-x: auto;
+}
+.subtab-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.subtab-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+.subtab-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+.subtab-content { display: none; }
+.subtab-content.active { display: block; }
+
+.badge-new {
+  display: inline-block;
+  background: var(--panel);
+  color: var(--success);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--success);
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- Document Header -->
+<div class="doc-header">
+  <div class="doc-type-badge">功能清单文档 · 多菜单版（HTML 阅读版）</div>
+  <h1>DCC培育 · SaaS平台</h1>
+  <div class="doc-subtitle">汽车行业线索培育管理系统 — 面向产品与研发团队的产品文档</div>
+  <div class="doc-meta-list">
+    <span><span class="meta-label">系统：</span>DCC培育 · SaaS平台</span>
+    <span><span class="meta-label">板块：</span>多版块</span>
+    <span><span class="meta-label">版本：</span>v1.2</span>
+    <span><span class="meta-label">日期：</span>2026-07-22</span>
+  </div>
+
+  <!-- Main Tab Navigation -->
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="sanwuyou">三无忧</button>
+    <button class="tab-btn" data-tab="ai-outbound">AI外呼配置</button>
+    <button class="tab-btn" data-tab="precall-monitor">预外呼监控</button>
+  </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="summary-cards">
+  <div class="summary-card">
+    <div class="summary-label">功能菜单</div>
+    <div class="summary-value">3</div>
+  </div>
+  <div class="summary-card">
+    <div class="summary-label">功能条目</div>
+    <div class="summary-value">121</div>
+  </div>
+  <div class="summary-card">
+    <div class="summary-label">板块分类</div>
+    <div class="summary-value">2</div>
+  </div>
+  <div class="summary-card">
+    <div class="summary-label">产出日期</div>
+    <div class="summary-value">2026-07-22</div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- Tab 1: 三无忧 -->
+<!-- ============================================ -->
+<div class="tab-content active" id="tab-sanwuyou">
+
+  <div class="table-card">
+    <div class="table-toolbar">
+      <div>
+        <span class="toolbar-title">三无忧</span>
+        <span class="toolbar-count">(26条)</span>
+      </div>
+      <div class="toolbar-actions">
+        <button class="btn btn-primary" onclick="exportCSV('table-sanwuyou','三无忧_功能清单')">导出CSV</button>
+      </div>
+    </div>
+    <div class="search-box" style="padding:12px 16px;border-bottom:1px solid var(--border);">
+      <input type="text" id="search-sanwuyou" placeholder="搜索功能模块或描述...">
+    </div>
+    <div class="table-scroll">
+      <table id="table-sanwuyou">
+        <thead>
+          <tr>
+            <th>项目版本号</th>
+            <th>修订类型</th>
+            <th>系统</th>
+            <th>板块</th>
+            <th>子板块</th>
+            <th>功能模块</th>
+            <th>描述</th>
+            <th>需求来源</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>查询汇总</td>
+            <td>展示活动状态、准入车系等5项配置与6个实时指标</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>查看详情（累计总量）</td>
+            <td>展示准入数据总量</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>查看详情（去重过滤）</td>
+            <td>展示建联、黑名单、同号去重后的过滤线索量</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>查看详情（短信成功率）</td>
+            <td>展示短信触达成功率，失败按规则重试</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>查看详情（DCC培育任务）</td>
+            <td>展示已生成的DCC培育任务数量</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>查看详情（同步失败量）</td>
+            <td>展示任务同步异常数量，待自动重试</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>查看详情（滚存待推送）</td>
+            <td>展示按优先级顺延的待推送线索量</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>展开/收起</td>
+            <td>切换规则配置区域的显示与隐藏</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>参数配置</td>
+            <td>配置每日推送线索数量的上限值</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>参数配置</td>
+            <td>多选tag-picker配置准入意向车系</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>参数配置</td>
+            <td>配置AI外呼建联去重窗口天数</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>参数配置</td>
+            <td>配置人工外呼建联去重窗口天数</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>参数配置</td>
+            <td>tag-picker搜索选择短信触达模板</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>参数配置</td>
+            <td>配置允许推送数据的时间段</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>参数配置</td>
+            <td>配置禁止推送数据的时段</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>参数配置</td>
+            <td>配置同号仅推送一次的窗口天数</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>参数配置</td>
+            <td>表格配置分层(P1-P100)标签映射权重，P100保底锁定</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>参数配置</td>
+            <td>表格配置意向车系与外呼类型映射，由准入车系自动生成</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>新增/编辑</td>
+            <td>提交并保存三无忧全部规则配置</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>查询筛选</td>
+            <td>展示每日批次的累计总量、去重过滤、短信成功等9列数据</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>分页控制</td>
+            <td>支持每页5/10/20/50条的分页控制</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>查看详情</td>
+            <td>点击查看进入批次详情页</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>查看详情（执行概览）</td>
+            <td>展示批次摘要指标、分层推送与车系话术明细</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>查看详情（批量明细）</td>
+            <td>展示31列批量明细表含线索信息与DCC配置</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>查看详情（执行日志）</td>
+            <td>展示开始时间/结束时间/节点/说明/结果5列日志表</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+          <tr>
+            <td>v1.2</td>
+            <td><span class="badge-new">新增</span></td>
+            <td>DCC培育 · SaaS平台</td>
+            <td>线索管理</td>
+            <td>三无忧</td>
+            <td>导出数据</td>
+            <td>按日期范围导出三无忧全部数据为CSV文件</td>
+            <td>DCC培育平台需求</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================ -->
+<!-- Tab 2: 培育策略-AI外呼配置 -->
+<!-- ============================================ -->
+<div class="tab-content" id="tab-ai-outbound">
+
+  <!-- Sub-Tab Navigation -->
+  <div class="subtab-nav" id="subtab-nav-ai">
+    <button class="subtab-btn active" data-subtab="call-status">通话状态配置</button>
+    <button class="subtab-btn" data-subtab="outbound-repush">外呼重推配置</button>
+    <button class="subtab-btn" data-subtab="lead-dispatch">线索下发配置</button>
+    <button class="subtab-btn" data-subtab="sms-dispatch">短信下发配置</button>
+    <button class="subtab-btn" data-subtab="store-cold-lead">门店冷线索配置</button>
+    <button class="subtab-btn" data-subtab="alloc-ratio">分配比例配置</button>
+    <button class="subtab-btn" data-subtab="outbound-tag-map">外呼标签映射</button>
+  </div>
+
+  <!-- Sub-Tab 1: 通话状态配置 -->
+  <div class="subtab-content active" id="subtab-call-status">
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div>
+          <span class="toolbar-title">AI外呼配置 · 通话状态配置</span>
+          <span class="toolbar-count">(8条)</span>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn btn-primary" onclick="exportCSV('table-call-status','通话状态配置_功能清单')">导出CSV</button>
+        </div>
+      </div>
+      <div class="search-box" style="padding:12px 16px;border-bottom:1px solid var(--border);">
+        <input type="text" id="search-call-status" placeholder="搜索功能模块或描述...">
+      </div>
+      <div class="table-scroll">
+        <table id="table-call-status">
+          <thead>
+            <tr>
+              <th>项目版本号</th>
+              <th>修订类型</th>
+              <th>系统</th>
+              <th>板块</th>
+              <th>子板块</th>
+              <th>功能模块</th>
+              <th>描述</th>
+              <th>需求来源</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查询汇总</td><td>展示规则总数、启用规则、覆盖外呼类型等5项</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查询筛选</td><td>按外呼类型、通话状态、状态3项筛选规则</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查询列表</td><td>展示权重/名称/外呼类型/通话状态等7列</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>分页控制</td><td>支持每页5/10/20条的分页控制</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>新增</td><td>弹窗表单新增规则，含基础信息/命中条件/执行动作联动</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>编辑</td><td>弹窗表单编辑已有规则</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查看</td><td>弹窗只读查看规则详情</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>删除</td><td>确认后删除规则</td><td>DCC培育平台需求</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sub-Tab 2: 外呼重推配置 -->
+  <div class="subtab-content" id="subtab-outbound-repush">
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div>
+          <span class="toolbar-title">AI外呼配置 · 外呼重推配置</span>
+          <span class="toolbar-count">(8条)</span>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn btn-primary" onclick="exportCSV('table-outbound-repush','外呼重推配置_功能清单')">导出CSV</button>
+        </div>
+      </div>
+      <div class="search-box" style="padding:12px 16px;border-bottom:1px solid var(--border);">
+        <input type="text" id="search-outbound-repush" placeholder="搜索功能模块或描述...">
+      </div>
+      <div class="table-scroll">
+        <table id="table-outbound-repush">
+          <thead>
+            <tr>
+              <th>项目版本号</th>
+              <th>修订类型</th>
+              <th>系统</th>
+              <th>板块</th>
+              <th>子板块</th>
+              <th>功能模块</th>
+              <th>描述</th>
+              <th>需求来源</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查询汇总</td><td>展示规则总数、启用规则、覆盖原外呼类型3项</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查询筛选</td><td>按关键字/原外呼类型/新外呼类型等5项筛选</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查询列表</td><td>展示10列含配置名称/原外呼类型/推送时间等</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>分页控制</td><td>支持分页控制</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>新增</td><td>弹窗表单新增规则，命中类型联动切换线索状态或通话状态条件</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>编辑</td><td>弹窗表单编辑已有规则</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查看</td><td>弹窗只读查看规则详情</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>删除</td><td>确认后删除规则</td><td>DCC培育平台需求</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sub-Tab 3: 线索下发配置 -->
+  <div class="subtab-content" id="subtab-lead-dispatch">
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div>
+          <span class="toolbar-title">AI外呼配置 · 线索下发配置</span>
+          <span class="toolbar-count">(8条)</span>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn btn-primary" onclick="exportCSV('table-lead-dispatch','线索下发配置_功能清单')">导出CSV</button>
+        </div>
+      </div>
+      <div class="search-box" style="padding:12px 16px;border-bottom:1px solid var(--border);">
+        <input type="text" id="search-lead-dispatch" placeholder="搜索功能模块或描述...">
+      </div>
+      <div class="table-scroll">
+        <table id="table-lead-dispatch">
+          <thead>
+            <tr>
+              <th>项目版本号</th>
+              <th>修订类型</th>
+              <th>系统</th>
+              <th>板块</th>
+              <th>子板块</th>
+              <th>功能模块</th>
+              <th>描述</th>
+              <th>需求来源</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查询汇总</td><td>展示规则总数/启用规则/下发NEV中台等5项</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查询筛选</td><td>按外呼类型/下发动作/状态3项筛选</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查询列表</td><td>展示权重/名称/命中条件/下发动作等8列</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>分页控制</td><td>支持分页控制</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>新增</td><td>弹窗表单新增规则，含通话时长/标签/意向专营店等命中条件与下发动作</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>编辑</td><td>弹窗表单编辑已有规则</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查看</td><td>弹窗只读查看规则详情</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>删除</td><td>确认后删除规则</td><td>DCC培育平台需求</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sub-Tab 4: 短信下发配置 -->
+  <div class="subtab-content" id="subtab-sms-dispatch">
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div>
+          <span class="toolbar-title">AI外呼配置 · 短信下发配置</span>
+          <span class="toolbar-count">(8条)</span>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn btn-primary" onclick="exportCSV('table-sms-dispatch','短信下发配置_功能清单')">导出CSV</button>
+        </div>
+      </div>
+      <div class="search-box" style="padding:12px 16px;border-bottom:1px solid var(--border);">
+        <input type="text" id="search-sms-dispatch" placeholder="搜索功能模块或描述...">
+      </div>
+      <div class="table-scroll">
+        <table id="table-sms-dispatch">
+          <thead>
+            <tr>
+              <th>项目版本号</th>
+              <th>修订类型</th>
+              <th>系统</th>
+              <th>板块</th>
+              <th>子板块</th>
+              <th>功能模块</th>
+              <th>描述</th>
+              <th>需求来源</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查询汇总</td><td>展示规则总数/启用规则/短信模板数3项</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查询筛选</td><td>按外呼类型/短信模板/状态3项筛选</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查询列表</td><td>展示权重/名称/命中条件/短信模板等7列</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>分页控制</td><td>支持分页控制</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>新增</td><td>弹窗表单新增规则，含外呼类型/通话状态/标签/短信模板等</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>编辑</td><td>弹窗表单编辑已有规则</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查看</td><td>弹窗只读查看规则详情</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>删除</td><td>确认后删除规则</td><td>DCC培育平台需求</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sub-Tab 5: 门店冷线索配置 -->
+  <div class="subtab-content" id="subtab-store-cold-lead">
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div>
+          <span class="toolbar-title">AI外呼配置 · 门店冷线索配置</span>
+          <span class="toolbar-count">(8条)</span>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn btn-primary" onclick="exportCSV('table-store-cold-lead','门店冷线索配置_功能清单')">导出CSV</button>
+        </div>
+      </div>
+      <div class="search-box" style="padding:12px 16px;border-bottom:1px solid var(--border);">
+        <input type="text" id="search-store-cold-lead" placeholder="搜索功能模块或描述...">
+      </div>
+      <div class="table-scroll">
+        <table id="table-store-cold-lead">
+          <thead>
+            <tr>
+              <th>项目版本号</th>
+              <th>修订类型</th>
+              <th>系统</th>
+              <th>板块</th>
+              <th>子板块</th>
+              <th>功能模块</th>
+              <th>描述</th>
+              <th>需求来源</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查询汇总</td><td>展示配置总数/启用配置2项</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查询筛选</td><td>按线索状态/状态2项筛选</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查询列表</td><td>展示行号/线索状态/备注/状态/操作5列</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>分页控制</td><td>支持分页控制</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>新增</td><td>弹窗表单新增配置，含线索状态/状态/备注</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>编辑</td><td>弹窗表单编辑已有配置</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查看</td><td>弹窗只读查看配置详情</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>删除</td><td>确认后删除配置</td><td>DCC培育平台需求</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sub-Tab 6: 分配比例配置 -->
+  <div class="subtab-content" id="subtab-alloc-ratio">
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div>
+          <span class="toolbar-title">AI外呼配置 · 分配比例配置</span>
+          <span class="toolbar-count">(8条)</span>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn btn-primary" onclick="exportCSV('table-alloc-ratio','分配比例配置_功能清单')">导出CSV</button>
+        </div>
+      </div>
+      <div class="search-box" style="padding:12px 16px;border-bottom:1px solid var(--border);">
+        <input type="text" id="search-alloc-ratio" placeholder="搜索功能模块或描述...">
+      </div>
+      <div class="table-scroll">
+        <table id="table-alloc-ratio">
+          <thead>
+            <tr>
+              <th>项目版本号</th>
+              <th>修订类型</th>
+              <th>系统</th>
+              <th>板块</th>
+              <th>子板块</th>
+              <th>功能模块</th>
+              <th>描述</th>
+              <th>需求来源</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查询汇总</td><td>展示配置总数、启用配置、区域配置、外呼类型、引用规则5项</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查询筛选</td><td>按外呼类型、关联区域(不按区域/关联城市/关联省份)、状态3项筛选</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查询列表</td><td>展示8列含配置名称、关联区域、线索分配规则、外呼类型、引用关系、状态、操作</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>分页控制</td><td>支持每页5/10/20/50条的分页控制</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>新增</td><td>弹窗表单新增配置，含配置名称/状态/关联区域/外呼类型比例(合计100%)/区域配置</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>编辑</td><td>弹窗表单编辑已有配置，支持关联区域联动切换</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查看</td><td>全页面只读查看配置详情与引用关系</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>删除</td><td>确认删除，被线索分配规则引用时不可删除需先解除关联</td><td>DCC培育平台需求</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sub-Tab 7: 外呼标签映射 -->
+  <div class="subtab-content" id="subtab-outbound-tag-map">
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div>
+          <span class="toolbar-title">AI外呼配置 · 外呼标签映射</span>
+          <span class="toolbar-count">(8条)</span>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn btn-primary" onclick="exportCSV('table-outbound-tag-map','外呼标签映射_功能清单')">导出CSV</button>
+        </div>
+      </div>
+      <div class="search-box" style="padding:12px 16px;border-bottom:1px solid var(--border);">
+        <input type="text" id="search-outbound-tag-map" placeholder="搜索功能模块或描述...">
+      </div>
+      <div class="table-scroll">
+        <table id="table-outbound-tag-map">
+          <thead>
+            <tr>
+              <th>项目版本号</th>
+              <th>修订类型</th>
+              <th>系统</th>
+              <th>板块</th>
+              <th>子板块</th>
+              <th>功能模块</th>
+              <th>描述</th>
+              <th>需求来源</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查询汇总</td><td>展示规则总数/启用规则/抗拒原因标签等6项</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查询筛选</td><td>按标签分类/匹配维度/状态3项筛选</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查询列表</td><td>展示行号/规则名称/标签分类等9列</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>分页控制</td><td>支持分页控制</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>新增</td><td>弹窗表单新增映射，含标签分类→映射结果→匹配维度→匹配值三级联动</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>编辑</td><td>弹窗表单编辑已有映射</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>查看</td><td>弹窗只读查看映射详情</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.2</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>培育策略</td><td>AI外呼配置</td><td>删除</td><td>确认后删除映射</td><td>DCC培育平台需求</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================ -->
+<!-- Tab 3: 预外呼监控 -->
+<!-- ============================================ -->
+<div class="tab-content" id="tab-precall-monitor">
+
+  <div class="subtab-nav">
+    <button class="subtab-btn active" data-subtab="precall-overview">数据概览</button>
+    <button class="subtab-btn" data-subtab="precall-detail">明细列表</button>
+    <button class="subtab-btn" data-subtab="precall-batch">同步批次汇总</button>
+    <button class="subtab-btn" data-subtab="precall-alert">预警管理</button>
+    <button class="subtab-btn" data-subtab="precall-auto">自动化运维与响应</button>
+  </div>
+
+  <!-- 数据概览 -->
+  <div class="subtab-content active" id="subtab-precall-overview">
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div><span class="toolbar-title">预外呼监控 · 数据概览</span><span class="toolbar-count">(8条)</span></div>
+        <div class="toolbar-actions"><button class="btn btn-primary" onclick="exportCSV('table-precall-overview','预外呼监控_数据概览_功能清单')">导出CSV</button></div>
+      </div>
+      <div class="search-box"><input type="text" id="search-precall-overview" placeholder="搜索功能模块或描述..."></div>
+      <div class="table-scroll">
+        <table id="table-precall-overview">
+          <thead><tr><th>项目版本号</th><th>修订类型</th><th>系统</th><th>板块</th><th>子板块</th><th>功能模块</th><th>描述</th><th>需求来源</th></tr></thead>
+          <tbody>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>双组指标看板</td><td>23项实时指标分两组展示，含环比变化率</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>指标分组-任务流转</td><td>8项指标：任务总量/已推送/同步失败/坐席分配/线索下发</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>指标分组-外呼回传</td><td>15项指标：话单回传/接通率/呼叫时长/线路拒呼/录音丢失</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>指标高亮告警</td><td>同步失败/话单超时/录音丢失/线路拒呼/未呼5项自动高亮</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>指标详情弹窗</td><td>点击指标弹出Popover，展示说明与规则入口</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>指标口径规则</td><td>弹窗展示核心定义/计算公式/SLA阈值/自愈策略</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>指标分类着色</td><td>flow蓝色/quality青色/risk灰色/alert橙红边框区分</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>数据概览空状态</td><td>无数据时显示暂无预外呼监控数据</td><td>DCC培育平台需求</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 明细列表 -->
+  <div class="subtab-content" id="subtab-precall-detail">
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div><span class="toolbar-title">预外呼监控 · 明细列表</span><span class="toolbar-count">(11条)</span></div>
+        <div class="toolbar-actions"><button class="btn btn-primary" onclick="exportCSV('table-precall-detail','预外呼监控_明细列表_功能清单')">导出CSV</button></div>
+      </div>
+      <div class="search-box"><input type="text" id="search-precall-detail" placeholder="搜索功能模块或描述..."></div>
+      <div class="table-scroll">
+        <table id="table-precall-detail">
+          <thead><tr><th>项目版本号</th><th>修订类型</th><th>系统</th><th>板块</th><th>子板块</th><th>功能模块</th><th>描述</th><th>需求来源</th></tr></thead>
+          <tbody>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>查询筛选</td><td>同步日期/系统状态/任务状态/外呼结果/关键词5项筛选</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>更多筛选</td><td>可展开异常原因和首次外呼时间筛选</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>定位筛选</td><td>从预警指标卡片点击可定位筛选对应任务</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>查询列表</td><td>16列任务明细表含客户/外呼次数/系统状态/话单回传</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>分页控制</td><td>支持5/10/20/50条每页和跳页</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>查看任务详情</td><td>弹窗展示任务信息和话单回传明细两区</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>详情-任务信息</td><td>10字段：任务编码/线索ID/客户/车系/同步时间/状态/异常原因</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>详情-话单回传</td><td>7列话单明细：话单ID/第几次外呼/外呼时间/时长/结果/状态/回传时间</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>导出任务明细</td><td>XLS双Sheet导出：任务明细24列+话单明细9列</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>状态标签着色</td><td>已完成绿色/超时橙色/处理中蓝色区分</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>列表空状态</td><td>无数据时显示"暂无预外呼任务"</td><td>DCC培育平台需求</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 同步批次汇总 -->
+  <div class="subtab-content" id="subtab-precall-batch">
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div><span class="toolbar-title">预外呼监控 · 同步批次汇总</span><span class="toolbar-count">(5条)</span></div>
+        <div class="toolbar-actions"><button class="btn btn-primary" onclick="exportCSV('table-precall-batch','预外呼监控_批次汇总_功能清单')">导出CSV</button></div>
+      </div>
+      <div class="search-box"><input type="text" id="search-precall-batch" placeholder="搜索功能模块或描述..."></div>
+      <div class="table-scroll">
+        <table id="table-precall-batch">
+          <thead><tr><th>项目版本号</th><th>修订类型</th><th>系统</th><th>板块</th><th>子板块</th><th>功能模块</th><th>描述</th><th>需求来源</th></tr></thead>
+          <tbody>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>查询筛选</td><td>按同步日期范围筛选</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>查询列表</td><td>26列按天聚合：同步日期+flow8列+call17列+人均承载量</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>统计尾行</td><td>tfoot统计行汇总全量合计值</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>分页控制</td><td>支持5/10/20/50条每页</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>导出批次</td><td>CSV导出含同步日期+25指标列+统计行</td><td>DCC培育平台需求</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 预警管理 -->
+  <div class="subtab-content" id="subtab-precall-alert">
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div><span class="toolbar-title">预外呼监控 · 预警管理</span><span class="toolbar-count">(8条)</span></div>
+        <div class="toolbar-actions"><button class="btn btn-primary" onclick="exportCSV('table-precall-alert','预外呼监控_预警管理_功能清单')">导出CSV</button></div>
+      </div>
+      <div class="search-box"><input type="text" id="search-precall-alert" placeholder="搜索功能模块或描述..."></div>
+      <div class="table-scroll">
+        <table id="table-precall-alert">
+          <thead><tr><th>项目版本号</th><th>修订类型</th><th>系统</th><th>板块</th><th>子板块</th><th>功能模块</th><th>描述</th><th>需求来源</th></tr></thead>
+          <tbody>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>预警统计卡片</td><td>待处置/P1紧急/通知升级中3张卡片动态计算</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>预警事件列表</td><td>8列：预警编号/等级P1-P2/类型/任务/处置/责任人/状态/操作</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>确认预警</td><td>确认后状态变为"处理中"，责任人变为"DCC运营"</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>关闭预警</td><td>关闭后状态变为"已关闭"，处置记录留存</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>预警规则列表</td><td>7列：规则名称/触发条件/等级/通知/升级/告警策略/状态</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>规则配置弹窗</td><td>配置超时阈值/预警等级/通知对象/升级时间/告警抑制</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>规则保存校验</td><td>阈值必填，校验不通过提示"请完整填写"</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>预置预警规则</td><td>话单超时P1/同步失败率P2/录音缺失P2 三条内置规则</td><td>DCC培育平台需求</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 自动化运维与响应 -->
+  <div class="subtab-content" id="subtab-precall-auto">
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div><span class="toolbar-title">预外呼监控 · 自动化运维与响应</span><span class="toolbar-count">(8条)</span></div>
+        <div class="toolbar-actions"><button class="btn btn-primary" onclick="exportCSV('table-precall-auto','预外呼监控_自动化运维_功能清单')">导出CSV</button></div>
+      </div>
+      <div class="search-box"><input type="text" id="search-precall-auto" placeholder="搜索功能模块或描述..."></div>
+      <div class="table-scroll">
+        <table id="table-precall-auto">
+          <thead><tr><th>项目版本号</th><th>修订类型</th><th>系统</th><th>板块</th><th>子板块</th><th>功能模块</th><th>描述</th><th>需求来源</th></tr></thead>
+          <tbody>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>自动化统计卡片</td><td>运行中自动化/今日自动处置/修复成功率3张卡片</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>自动化编排列表</td><td>7列：任务ID/名称/触发条件/响应/状态/最近执行/操作</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>手动执行</td><td>手动触发自动化任务执行</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>启用/暂停</td><td>切换自动化任务运行中/已暂停状态</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>数据对账列表</td><td>10列：批次/范围/任务总量/已推送/同步失败/回传/录音/差异/修复/状态</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>立即对账</td><td>发起对账任务并自动生成差异修复记录</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>SLA趋势</td><td>同步成功率98%/回传及时率96%/修复成功率96.2%</td><td>DCC培育平台需求</td></tr>
+            <tr><td>v1.1</td><td><span class="badge-new">新增</span></td><td>DCC培育 · SaaS平台</td><td>系统运维</td><td>预外呼监控</td><td>责任处理分析</td><td>系统运维/ DCC运营各组平均处理时长</td><td>DCC培育平台需求</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</div>
+
+<script>
+function exportCSV(tableId, filename) {
+  const table = document.getElementById(tableId);
+  if (!table) return;
+  const headers = [];
+  table.querySelectorAll('thead th').forEach(th => headers.push(th.textContent.trim()));
+  const rows = [headers.map(esc).join(',')];
+  table.querySelectorAll('tbody tr').forEach(row => {
+    if (row.style.display === 'none') return;
+    const cells = [];
+    row.querySelectorAll('td').forEach(td => cells.push(esc(td.textContent.trim())));
+    rows.push(cells.join(','));
+  });
+  const csv = '\ufeff' + rows.join('\n');
+  const a = document.createElement('a');
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.href = url;
+  a.download = filename + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function esc(v) {
+  v = String(v);
+  if (v.includes(',') || v.includes('"') || v.includes('\n')) {
+    return '"' + v.replace(/"/g, '""') + '"';
+  }
+  return v;
+}
+
+function setupSearch(inputId, tableId) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  input.addEventListener('input', () => {
+    const kw = input.value.trim().toLowerCase();
+    const table = document.getElementById(tableId);
+    if (!table) return;
+    table.querySelectorAll('tbody tr').forEach(row => {
+      const text = row.textContent.toLowerCase();
+      if (!kw || text.includes(kw)) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+    const total = table.querySelectorAll('tbody tr').length;
+    const visible = table.querySelectorAll('tbody tr:not([style*="display: none"])').length;
+    const countEl = input.closest('.table-card').querySelector('.toolbar-count');
+    if (countEl) countEl.textContent = kw ? `(${visible}/${total})` : `(${total}条)`;
+  });
+}
+
+// Main tab switching
+document.querySelectorAll('.tab-nav .tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.closest('.tab-nav').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// Sub-tab switching for AI outbound
+document.querySelectorAll('#subtab-nav-ai .subtab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#subtab-nav-ai .subtab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#tab-ai-outbound .subtab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById('subtab-' + btn.dataset.subtab).classList.add('active');
+  });
+});
+
+// Sub-tab switching for precall monitor
+document.querySelectorAll('#tab-precall-monitor .subtab-nav .subtab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const nav = btn.closest('.subtab-nav');
+    nav.querySelectorAll('.subtab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('#tab-precall-monitor .subtab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById('subtab-' + btn.dataset.subtab).classList.add('active');
+  });
+});
+
+// Setup search for all tables
+setupSearch('search-sanwuyou', 'table-sanwuyou');
+setupSearch('search-call-status', 'table-call-status');
+setupSearch('search-outbound-repush', 'table-outbound-repush');
+setupSearch('search-lead-dispatch', 'table-lead-dispatch');
+setupSearch('search-sms-dispatch', 'table-sms-dispatch');
+setupSearch('search-store-cold-lead', 'table-store-cold-lead');
+setupSearch('search-alloc-ratio', 'table-alloc-ratio');
+setupSearch('search-outbound-tag-map', 'table-outbound-tag-map');
+setupSearch('search-precall-overview', 'table-precall-overview');
+setupSearch('search-precall-detail', 'table-precall-detail');
+setupSearch('search-precall-batch', 'table-precall-batch');
+setupSearch('search-precall-alert', 'table-precall-alert');
+setupSearch('search-precall-auto', 'table-precall-auto');
+</script>
+</body>
+</html>
