@@ -1,0 +1,2052 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DCC培育 · SaaS平台</title>
+  <link rel="stylesheet" href="DccLead.assets/css/app.css">
+</head>
+<body class="login-active">
+
+<!-- Login Screen -->
+<section class="login-screen" aria-label="登录页面">
+  <form class="login-card" onsubmit="loginToPlatform(event)">
+    <div class="login-logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 16h14l-1.5-5.2A3 3 0 0 0 14.6 8H9.4a3 3 0 0 0-2.9 2.8L5 16z"/>
+        <path d="M7 16v2"/>
+        <path d="M17 16v2"/>
+        <circle cx="8" cy="18" r="1.6"/>
+        <circle cx="16" cy="18" r="1.6"/>
+        <path d="M9 8V6h6v2"/>
+      </svg>
+    </div>
+    <div class="login-title">DCC培育 · SaaS平台</div>
+    <div class="login-subtitle">企业级线索深度培育系统</div>
+    <div class="login-field">
+      <label class="login-label" for="loginUsername">用户名</label>
+      <input class="login-input" id="loginUsername" type="text" value="admin" autocomplete="username" />
+    </div>
+    <div class="login-field">
+      <label class="login-label" for="loginPassword">密码</label>
+      <input class="login-input" id="loginPassword" type="password" value="12345678" autocomplete="current-password" />
+    </div>
+    <button class="login-btn" type="submit">登 录</button>
+    <div class="login-footer">© 2026 DCC培育 · SaaS平台</div>
+  </form>
+</section>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-section-label">工作台</div>
+  <div class="sidebar-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#1890ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    首页
+  </div>
+
+  <div class="sidebar-section-label">NEV培育</div>
+  <div class="sidebar-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a4 4 0 0 1-4 4H7l-4 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h8"/><path d="M8 13h5"/></svg>
+    线索管理
+  </div>
+  <div class="sidebar-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.4 8.7-8 9-4.6-.3-8-4-8-9V7l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+    培育策略
+  </div>
+  <div class="sidebar-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
+    线索导入
+  </div>
+  <div class="sidebar-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M8 15h.01"/><path d="M12 15h.01"/><path d="M16 15h.01"/></svg>
+    任务排班
+  </div>
+  <div class="sidebar-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    质检管理
+  </div>
+
+  <div class="sidebar-section-label">业务模块</div>
+  <div class="sidebar-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#fa8c16" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+    营销获客
+  </div>
+  <div class="sidebar-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#722ed1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    客户管理
+  </div>
+  <div class="sidebar-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#13c2c2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    统计报表
+  </div>
+
+  <div class="sidebar-section-label">系统设置</div>
+  <div class="sidebar-item" onclick="showSystemSettingsPage('profile')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#8c8c8c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    基础设置
+  </div>
+  <div class="sidebar-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#8c8c8c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/></svg>
+    缓存管理
+  </div>
+
+  <div class="sidebar-section-label">系统运维</div>
+  <div class="sidebar-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><path d="M7 10h3"/><path d="M7 13h6"/></svg>
+    系统监控
+  </div>
+  <div class="sidebar-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><circle cx="6" cy="14" r="1.5"/><circle cx="12" cy="4" r="1.5"/><circle cx="18" cy="10" r="1.5"/></svg>
+    成本统计
+  </div>
+  <div class="sidebar-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-11.74-1.74"/></svg>
+    预警管理
+  </div>
+  <div class="sidebar-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    自动化运维与响应
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main">
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="platform-name">DCC培育 · SaaS平台</span>
+      <span class="sep">|</span>
+      <span class="page-name">培育策略 / 黑名单策略</span>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-action-wrap">
+        <button class="topbar-icon-btn" type="button" onclick="toggleTopbarPopover('noticePopover')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+          <span class="badge">3</span>
+        </button>
+        <div class="topbar-popover" id="noticePopover">
+          <div class="popover-header">通知中心</div>
+          <div class="notice-item" onclick="showToast('已查看：黑名单策略命中提醒', true)">
+            <div class="notice-title">黑名单策略命中提醒</div>
+            <div class="notice-desc">今日新增 12 条拦截记录，请关注高频投诉号码。</div>
+          </div>
+          <div class="notice-item" onclick="showToast('已查看：外呼标签同步完成', true)">
+            <div class="notice-title">外呼标签同步完成</div>
+            <div class="notice-desc">AI外呼、人工外呼标签已完成最新同步。</div>
+          </div>
+          <div class="notice-item" onclick="showToast('已查看：配置待审核', true)">
+            <div class="notice-title">配置待审核</div>
+            <div class="notice-desc">有 1 条策略调整等待管理员确认。</div>
+          </div>
+        </div>
+      </div>
+      <div class="topbar-action-wrap">
+        <div class="topbar-user" onclick="toggleTopbarPopover('userPopover')">
+          <div class="topbar-avatar">A</div>
+          <span class="topbar-user-name">管理员</span>
+          <span class="topbar-user-role">总部超级管理员</span>
+        </div>
+        <div class="topbar-popover" id="userPopover">
+          <div class="user-menu-summary">
+            <div class="user-menu-avatar">A</div>
+            <div>
+              <div class="topbar-user-name">管理员</div>
+              <div class="topbar-user-role">总部超级管理员</div>
+            </div>
+          </div>
+          <div class="user-menu-item" onclick="document.querySelectorAll('.topbar-popover').forEach(p=>p.classList.remove('show'));showSystemSettingsPage('profile')">个人资料 <span>›</span></div>
+          <div class="user-menu-item" onclick="document.querySelectorAll('.topbar-popover').forEach(p=>p.classList.remove('show'));showSystemSettingsPage('security')">帐号安全 <span>›</span></div>
+          <div class="user-menu-item" onclick="document.querySelectorAll('.topbar-popover').forEach(p=>p.classList.remove('show'));showSystemSettingsPage('oplog')">操作日志 <span>›</span></div>
+          <div class="user-menu-item danger" onclick="showLogoutConfirm()">退出登录 <span>›</span></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Strategy level-3 nav -->
+  <nav class="strategy-nav" aria-label="培育策略三级菜单">
+    <button type="button" class="strategy-nav-item active" data-page="blacklist-policy" onclick="switchStrategyNav(this)">黑名单配置</button>
+    <button type="button" class="strategy-nav-item" data-page="lead-assignment" onclick="switchStrategyNav(this)">线索分配规则</button>
+    <button type="button" class="strategy-nav-item" data-page="strategy-config" onclick="switchStrategyNav(this)">AI外呼配置</button>
+    <button type="button" class="strategy-nav-item" data-page="manual-ai-config" onclick="switchStrategyNav(this)">人工外呼配置</button>
+    <button type="button" class="strategy-nav-item" data-page="excellent-config-manage" onclick="switchStrategyNav(this)">优秀配置管理</button>
+  </nav>
+
+  <!-- Leads level-3 nav -->
+  <nav class="strategy-nav leads-nav" aria-label="线索管理三级菜单">
+    <button type="button" class="strategy-nav-item active" onclick="switchLeadsNav(this)">留资线索</button>
+    <button type="button" class="strategy-nav-item" onclick="switchLeadsNav(this)">培育线索</button>
+    <button type="button" class="strategy-nav-item" onclick="switchLeadsNav(this)">留资未满</button>
+    <button type="button" class="strategy-nav-item" onclick="switchLeadsNav(this)">三无忧</button>
+  </nav>
+
+  <!-- Reports level-3 nav (预外呼监控已迁移至系统运维 > 系统监控) -->
+  <nav class="strategy-nav reports-nav" aria-label="统计报表三级菜单">
+  </nav>
+
+  <!-- System Ops level-3 nav -->
+  <nav class="strategy-nav ops-nav" aria-label="系统运维三级菜单">
+    <button type="button" class="strategy-nav-item active" onclick="switchOpsNav(this)">预外呼监控</button>
+    <button type="button" class="strategy-nav-item" onclick="switchOpsNav(this)">其他监控</button>
+  </nav>
+
+  <!-- System Settings level-3 nav -->
+  <nav class="strategy-nav settings-nav" aria-label="系统设置三级菜单">
+    <button type="button" class="strategy-nav-item active" data-sub="profile" onclick="switchSettingsSubPage('profile')">个人资料</button>
+    <button type="button" class="strategy-nav-item" data-sub="security" onclick="switchSettingsSubPage('security')">帐号安全</button>
+    <button type="button" class="strategy-nav-item" data-sub="dictionary" onclick="switchSettingsSubPage('dictionary')">数据字典管理</button>
+    <button type="button" class="strategy-nav-item" data-sub="oplog" onclick="switchSettingsSubPage('oplog')">操作日志</button>
+  </nav>
+
+  <!-- Content -->
+  <div class="content">
+    <div class="strategy-config-tabs" id="strategyConfigTabs">
+      <button type="button" class="strategy-config-tab active" data-tab="call-status-policy" onclick="switchStrategyConfigTab('call-status-policy')">通话状态配置</button>
+      <button type="button" class="strategy-config-tab" data-tab="ai-redial-policy" onclick="switchStrategyConfigTab('ai-redial-policy')">外呼重推配置</button>
+      <button type="button" class="strategy-config-tab" data-tab="lead-dispatch" onclick="switchStrategyConfigTab('lead-dispatch')">线索下发配置</button>
+      <button type="button" class="strategy-config-tab" data-tab="sms-dispatch" onclick="switchStrategyConfigTab('sms-dispatch')">短信下发配置</button>
+      <button type="button" class="strategy-config-tab" data-tab="cold-lead-definition" onclick="switchStrategyConfigTab('cold-lead-definition')">门店冷线索配置</button>
+      <button type="button" class="strategy-config-tab" data-tab="allocation-policy" onclick="switchStrategyConfigTab('allocation-policy')">分配比例配置</button>
+      <button type="button" class="strategy-config-tab" data-tab="outbound-label-mapping" onclick="switchStrategyConfigTab('outbound-label-mapping')">外呼标签映射</button>
+    </div>
+    <div class="strategy-config-tabs" id="manualAiConfigTabs">
+      <button type="button" class="strategy-config-tab active" data-tab="manual-unconnected-config" onclick="switchManualAiConfigTab('manual-unconnected-config')">未接通激活配置</button>
+      <button type="button" class="strategy-config-tab" data-tab="manual-unconverted-config" onclick="switchManualAiConfigTab('manual-unconverted-config')">总部冷线索配置</button>
+      <button type="button" class="strategy-config-tab" data-tab="follow-count-config" onclick="switchManualAiConfigTab('follow-count-config')">跟进次数配置</button>
+      <button type="button" class="strategy-config-tab" data-tab="precall-task-config" onclick="switchManualAiConfigTab('precall-task-config')">推送预外呼配置</button>
+      <button type="button" class="strategy-config-tab" data-tab="return-visit-order-config" onclick="switchManualAiConfigTab('return-visit-order-config')">回访工单配置</button>
+      <button type="button" class="strategy-config-tab" data-tab="amap-map-config" onclick="switchManualAiConfigTab('amap-map-config')">高德地图配置</button>
+    </div>
+    <div class="page-hero" id="excellentConfigManageHero" style="display:none"></div>
+    <div class="strategy-config-tabs" id="excellentConfigManageTabs">
+      <button type="button" class="strategy-config-tab active" data-tab="excellent-sc-config" onclick="switchExcellentConfigManageTab('excellent-sc-config')">SmartCode</button>
+      <button type="button" class="strategy-config-tab" data-tab="excellent-project-config" onclick="switchExcellentConfigManageTab('excellent-project-config')">大项目名</button>
+      <button type="button" class="strategy-config-tab" data-tab="excellent-channel-config" onclick="switchExcellentConfigManageTab('excellent-channel-config')">渠道编码</button>
+    </div>
+    <div class="strategy-config-tabs" id="blacklistPolicyTabs">
+      <button type="button" class="strategy-config-tab active" data-tab="blacklist-policy-rules" onclick="switchBlacklistTab('blacklist-policy-rules')">黑名单策略</button>
+      <button type="button" class="strategy-config-tab" data-tab="blacklist-user-list" onclick="switchBlacklistTab('blacklist-user-list')">用户黑名单</button>
+    </div>
+    <div class="page-hero policy-content" id="blacklistPolicyHero">
+      <div>
+        <div class="page-title">黑名单配置</div>
+        <div class="page-desc">按外呼标签配置黑名单策略，命中规则的电话号码将被拦截，不再推送外呼任务。通过外呼类型、期限和状态快速筛选，保持规则配置清晰可追踪。</div>
+      </div>
+      <div class="summary-strip">
+        <div class="summary-card">
+          <div class="summary-label">规则总数</div>
+          <div class="summary-value" id="summaryTotal">0</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">启用规则</div>
+          <div class="summary-value" id="summaryEnabled">0</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">待审核</div>
+          <div class="summary-value" id="summaryPendingReview">0</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">已审核</div>
+          <div class="summary-value" id="summaryReviewed">0</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">累计拦截</div>
+          <div class="summary-value" id="summaryHits">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="filter-row policy-content unified-filter-query" id="blacklistPolicyFilter">
+      <span class="filter-label">关键字：</span>
+      <input class="lead-input" style="width:130px; margin-right: 12px;" id="blacklistPolicyKeywordFilter" placeholder="请输入" oninput="filterTable()" />
+      <span class="filter-label">外呼类型：</span>
+      <select class="filter-select" id="callTypeFilter" onchange="filterTable()">
+        <option value="">全部</option>
+        <option value="科大讯飞-冷线索">科大讯飞-冷线索</option>
+        <option value="科大讯飞-留资未满">科大讯飞-留资未满</option>
+        <option value="一知-冷线索">一知-冷线索</option>
+        <option value="一知-冷线索（大模型）">一知-冷线索（大模型）</option>
+        <option value="冰兰-新线索">冰兰-新线索</option>
+        <option value="冰兰-保客">冰兰-保客</option>
+        <option value="一知-大模型NEV新线索">一知-大模型NEV新线索</option>
+        <option value="一知-保客">一知-保客</option>
+      </select>
+
+      <span class="filter-label">期限：</span>
+      <select class="filter-select" id="durationFilter" onchange="filterTable()">
+        <option value="">全部</option>
+        <option value="永久">永久</option>
+        <option value="有效期">有效期</option>
+      </select>
+
+      <span class="filter-label">状态：</span>
+      <select class="filter-select" id="statusFilter" onchange="filterTable()">
+        <option value="">全部</option>
+        <option value="启用">启用</option>
+        <option value="停用">停用</option>
+      </select>
+      <button class="btn-secondary" type="button" onclick="resetPolicyFilters()">重置</button>
+    </div>
+
+    <div class="policy-rule-note policy-content" id="blacklistPolicyRuleNote">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 1 21h22L12 2zm1 16h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+      <div>
+        <strong>多策略命中处理：</strong>同一电话号码命中多个黑名单策略时，按权重判定，数字越小越先判定；同权重取更严格期限（永久优先于临时，临时取更长有效期）；最终命中的策略如果需要人工审核，则先进入待审核，审核通过后才加入黑名单。
+      </div>
+    </div>
+
+    <!-- Card Table -->
+    <div class="card policy-content" id="blacklistPolicyCard">
+      <div class="section-header">
+        <div class="section-title">
+          黑名单策略列表
+        </div>
+        <button class="btn-add strategy-add-btn" type="button" onclick="openModal('add')">新增策略</button>
+      </div>
+
+      <div class="policy-table-wrap">
+        <table class="data-table policy-table">
+          <thead>
+            <tr>
+              <th class="col-num">#</th>
+              <th>策略名称</th>
+              <th>权重</th>
+              <th>外呼类型</th>
+              <th>外呼标签</th>
+              <th>黑名单期限</th>
+              <th>审核机制</th>
+              <th>拦截次数</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <span id="paginationInfo">共 0 条记录，当前第 1 / 1 页</span>
+        <div class="pagination-btns">
+          <select class="hit-page-size" id="policyPageSize" onchange="changePolicyPageSize(this.value)">
+            <option value="5">每页 5 条</option>
+            <option value="10">每页 10 条</option>
+            <option value="20">每页 20 条</option>
+            <option value="50">每页 50 条</option>
+          </select>
+          <button class="page-btn" type="button" onclick="changePage(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <select class="hit-page-size" id="policyPageSelect" onchange="selectPolicyPage(this.value)"></select>
+          <button class="page-btn" type="button" onclick="changePage(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div class="lead-page" id="blacklistUserListPage">
+      <div class="page-hero">
+        <div>
+          <div class="page-title">用户黑名单</div>
+          <div class="page-desc">管理因命中黑名单策略或手动添加的拦截用户，被拦截的用户将停止推送任何 AI/人工外呼培育任务。支持按手机号、拉黑原因、来源与期限精准查询及解封移除。</div>
+        </div>
+        <div class="summary-strip">
+          <div class="summary-card">
+            <div class="summary-label">黑名单用户总数</div>
+            <div class="summary-value" id="blacklistUserSummaryTotal">0</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-label">永久封禁</div>
+            <div class="summary-value" id="blacklistUserSummaryPerm">0</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-label">临时封禁</div>
+            <div class="summary-value" id="blacklistUserSummaryTemp">0</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-label">今日新增拉黑</div>
+            <div class="summary-value" id="blacklistUserSummaryToday">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-row" id="blacklistUserFilter">
+        <span class="filter-label">关键字：</span>
+        <input class="lead-input" style="width:140px;" id="blacklistUserKeywordFilter" placeholder="手机号/客户姓名" oninput="filterBlacklistUserTable()" />
+        <span class="filter-label" style="margin-left: 8px;">黑名单来源：</span>
+        <select class="filter-select" id="blacklistUserSourceFilter" onchange="filterBlacklistUserTable()">
+          <option value="">全部</option>
+          <option value="策略自动拉黑">策略自动拉黑</option>
+          <option value="人工手动移入">人工手动移入</option>
+          <option value="审核通过移入">审核通过移入</option>
+        </select>
+        <span class="filter-label" style="margin-left: 8px;">封禁期限：</span>
+        <select class="filter-select" id="blacklistUserDurationFilter" onchange="filterBlacklistUserTable()">
+          <option value="">全部</option>
+          <option value="永久">永久</option>
+          <option value="临时">临时</option>
+        </select>
+        <span class="filter-label" style="margin-left: 8px;">状态：</span>
+        <select class="filter-select" id="blacklistUserStatusFilter" onchange="filterBlacklistUserTable()">
+          <option value="">全部</option>
+          <option value="生效中">生效中</option>
+          <option value="已解封">已解封</option>
+          <option value="已过期">已过期</option>
+        </select>
+        <button class="btn-secondary" type="button" onclick="resetBlacklistUserFilters()">重置</button>
+      </div>
+
+      <div class="card" id="blacklistUserCard">
+        <div class="section-header">
+          <div class="section-title">用户黑名单列表</div>
+          <div class="lead-toolbar-right">
+            <button class="btn-secondary" type="button" onclick="exportBlacklistUsers()">导出数据</button>
+            <button class="btn-add strategy-add-btn" type="button" onclick="openAddBlacklistUserModal()">新增数据</button>
+          </div>
+        </div>
+        <div class="lead-table-wrap" id="blacklistUserTableWrap">
+        <table class="data-table" id="blacklistUserTable">
+          <thead>
+            <tr>
+              <th style="width: 60px;">#</th>
+              <th style="width: 150px;">客户信息</th>
+              <th style="width: 180px;">拉黑原因</th>
+              <th style="width: 130px;">黑名单来源</th>
+              <th style="width: 180px;">关联策略/规则</th>
+              <th style="width: 150px;">封禁期限</th>
+              <th style="width: 150px;">加入时间</th>
+              <th style="width: 140px;">操作人</th>
+              <th style="width: 100px;">状态</th>
+              <th style="width: 130px;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="blacklistUserTableBody">
+          </tbody>
+        </table>
+      </div>
+
+        <div class="pagination" id="blacklistUserPagination">
+        <span id="blacklistUserPageInfo">共 0 条记录，当前第 1 / 1 页</span>
+        <div class="pagination-btns">
+          <select class="hit-page-size" id="blacklistUserPageSize" onchange="changeBlacklistUserPageSize(this.value)">
+            <option value="5">每页 5 条</option>
+            <option value="10">每页 10 条</option>
+            <option value="20">每页 20 条</option>
+            <option value="50">每页 50 条</option>
+          </select>
+          <button class="page-btn" type="button" onclick="changeBlacklistUserPage(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <select class="hit-page-size" id="blacklistUserPageSelect" onchange="selectBlacklistUserPage(this.value)"></select>
+          <button class="page-btn" type="button" onclick="changeBlacklistUserPage(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <div class="lead-page" id="policyDetailPage">
+      <div class="detail-page-header">
+        <div>
+          <div class="detail-page-title">查看策略详情</div>
+          <div class="detail-page-subtitle" id="policyDetailSubtitle">培育策略 / 黑名单策略 / 策略详情</div>
+        </div>
+        <div class="lead-toolbar-right">
+          <button class="btn-secondary" type="button" onclick="backToPolicyList()">返回列表</button>
+          <button class="btn-add" type="button" onclick="editFromView()">编辑策略</button>
+        </div>
+      </div>
+      <div class="lead-summary-grid" id="policyDetailSummary"></div>
+      <div class="lead-detail-content" id="policyDetailPageBody"></div>
+    </div>
+
+    <div class="lead-page" id="resourceLeadPage">
+      <div class="page-hero">
+        <div>
+          <div class="page-title">留资线索</div>
+          <div class="page-desc">支持按留资线索编码、下发状态、客户信息、意向信息、渠道信息和创建时间查询留资线索，并可自定义列表字段与排序。</div>
+        </div>
+      </div>
+
+      <div class="filter-row">
+        <div class="lead-search-panel">
+          <div class="lead-search-title">筛选查询</div>
+          <div class="lead-search-grid compact">
+            <div class="search-field">
+              <label>留资线索编码</label>
+              <input class="lead-input" id="resourceSearchCode" placeholder="请输入留资线索编码" />
+            </div>
+            <div class="search-field">
+              <label>下发状态</label>
+              <select class="lead-select" id="resourceSearchDispatchStatus">
+                <option value="">全部</option>
+                <option value="待下发">待下发</option>
+                <option value="已下发">已下发</option>
+                <option value="下发失败">下发失败</option>
+                <option value="无需下发">无需下发</option>
+              </select>
+            </div>
+            <div class="search-field">
+              <label>客户姓名</label>
+              <input class="lead-input" id="resourceSearchName" placeholder="请输入客户姓名" />
+            </div>
+            <div class="search-field">
+              <label>电话号码</label>
+              <input class="lead-input" id="resourceSearchPhone" placeholder="请输入电话号码" />
+            </div>
+            <div class="search-field">
+              <label>意向车系</label>
+              <select class="lead-select" id="resourceSearchSeries"></select>
+            </div>
+            <div class="lead-search-actions">
+              <button class="btn-add" type="button" onclick="filterResourceLeads()">查询</button>
+              <button class="btn-secondary" type="button" onclick="resetResourceLeadSearch()">重置</button>
+            </div>
+          </div>
+          <details class="lead-search-more">
+            <summary>更多筛选</summary>
+            <div class="lead-search-grid">
+              <div class="search-field">
+                <label>意向专营店</label>
+                <div class="dealer-filter">
+                  <div class="dealer-select-trigger" id="resourceDealerSelectTrigger" onclick="toggleResourceDealerPicker()">暂未选择门店</div>
+                  <div class="dealer-picker-panel" id="resourceDealerPickerPanel">
+                    <div class="dealer-picker-controls">
+                      <input class="lead-input" id="resourceDealerKeyword" placeholder="搜索专营店名称/编码" oninput="renderResourceDealerPicker()" />
+                      <select class="lead-select" id="resourceSearchProvince" onchange="updateResourceDealerCities()"></select>
+                      <select class="lead-select" id="resourceSearchCity" onchange="renderResourceDealerPicker()"></select>
+                    </div>
+                    <div class="dealer-list">
+                      <div class="dealer-list-header">
+                        <label class="field-check">
+                          <input type="checkbox" id="resourceDealerSelectAll" onchange="toggleAllVisibleResourceDealers(this.checked)" />
+                          全选
+                        </label>
+                        <span id="resourceDealerSelectedCount">已选 0 / 0</span>
+                      </div>
+                      <div class="dealer-list-body" id="resourceDealerOptionList"></div>
+                    </div>
+                    <div class="dealer-picker-footer">
+                      <button class="btn-secondary" type="button" onclick="clearSelectedResourceDealers()">清空已选</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="search-field">
+                <label>SmartCode</label>
+                <input class="lead-input" id="resourceSearchSmartCode" placeholder="请输入 SmartCode" />
+              </div>
+              <div class="search-field">
+                <label>渠道编码</label>
+                <select class="lead-select" id="resourceSearchChannelCode"></select>
+              </div>
+              <div class="search-field">
+                <label>来源线索ID</label>
+                <input class="lead-input" id="resourceSearchSourceId" placeholder="请输入来源ID" />
+              </div>
+              <div class="search-field">
+                <label>厂商线索编码</label>
+                <input class="lead-input" id="resourceSearchManufacturerCode" placeholder="请输入厂商线索编码" />
+              </div>
+              <div class="search-field">
+                <label>创建时间</label>
+                <div class="date-range">
+                  <input class="lead-input date-input" id="resourceSearchCreatedStart" type="date" />
+                  <span class="date-range-sep">至</span>
+                  <input class="lead-input date-input" id="resourceSearchCreatedEnd" type="date" />
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="lead-toolbar">
+          <div class="lead-toolbar-left">
+            <div class="section-title">留资线索列表</div>
+          </div>
+          <div class="lead-toolbar-right">
+            <button class="btn-secondary" type="button" onclick="exportResourceLeads()">导出数据</button>
+            <select class="lead-select" id="resourceSortField" onchange="changeResourceLeadSort()"></select>
+            <select class="lead-select" id="resourceSortDirection" onchange="changeResourceLeadSort()">
+              <option value="asc">升序</option>
+              <option value="desc">降序</option>
+            </select>
+            <div class="field-picker">
+              <button class="btn-secondary" type="button" onclick="toggleResourceFieldPicker()">字段显示</button>
+              <div class="field-picker-panel" id="resourceFieldPicker"></div>
+            </div>
+          </div>
+        </div>
+        <div class="lead-table-wrap">
+          <table class="lead-table">
+            <thead id="resourceLeadTableHead"></thead>
+            <tbody id="resourceLeadTableBody"></tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <span id="resourceLeadPageInfo">共 0 条记录，当前第 1 / 1 页</span>
+          <div class="pagination-btns">
+            <select class="hit-page-size" id="resourceLeadPageSize" onchange="changeResourceLeadPageSize(this.value)">
+              <option value="5">每页 5 条</option>
+              <option value="10">每页 10 条</option>
+              <option value="20">每页 20 条</option>
+              <option value="50">每页 50 条</option>
+            </select>
+            <button class="page-btn" type="button" onclick="changeResourceLeadPage(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+            <select class="hit-page-size" id="resourceLeadPageSelect" onchange="selectResourceLeadPage(this.value)"></select>
+            <button class="page-btn" type="button" onclick="changeResourceLeadPage(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lead-page" id="resourceUnfilledPage">
+      <div class="page-hero">
+        <div>
+          <div class="page-title">留资未满</div>
+          <div class="page-desc">统一查看留资未满挖掘与私域线索挖掘的推送情况；冲突重复数据不再下发，时段容量满额的数据自动滚存至下一批次。</div>
+        </div>
+      </div>
+
+      <div class="worry-free-metrics resource-unfilled-summary" id="resourceUnfilledDashboard"></div>
+
+      <div class="card resource-unfilled-rule-card">
+        <div class="resource-unfilled-rule-head">
+          <div>
+            <div class="section-title">规则配置</div>
+            <div class="resource-unfilled-rule-desc">维护人群包标识与SmartCode的映射关系，以及按每 30 分钟维护可推送至 DCC 的容量。</div>
+          </div>
+          <button class="btn-secondary resource-unfilled-config-toggle" type="button" id="resourceUnfilledConfigToggle" aria-expanded="false" onclick="toggleResourceUnfilledConfig()">展开配置</button>
+        </div>
+
+        <div class="resource-unfilled-rule-overview">
+          <div class="resource-unfilled-overview-item"><span>人群包映射</span><strong><b id="crowdMappingCount">0</b> 条</strong><small><b id="crowdSmartCodeCount">0</b> 个 SmartCode</small></div>
+          <div class="resource-unfilled-overview-item"><span>时段容量</span><strong><b id="capacityActiveSlotCount">0</b> 个生效时段</strong><small>日容量 <b id="capacityTotalLimit">0</b></small></div>
+        </div>
+
+        <div id="resourceUnfilledConfigContent" class="resource-unfilled-config-content is-collapsed">
+          <div class="resource-unfilled-config-tabs" id="resourceUnfilledRuleTabs">
+            <button type="button" class="resource-unfilled-config-tab active" data-tab="unfilled-crowd-smartcode" onclick="switchResourceUnfilledRuleTab('unfilled-crowd-smartcode')">人群包映射 <span id="crowdMappingTabCount">0</span></button>
+            <button type="button" class="resource-unfilled-config-tab" data-tab="unfilled-time-capacity" onclick="switchResourceUnfilledRuleTab('unfilled-time-capacity')">时段容量 <span id="capacitySlotTabCount">0</span></button>
+          </div>
+          <!-- Section 1: Crowd Tag & SmartCode Mapping Table -->
+          <div id="unfilledCrowdSmartCodeSection">
+          <div class="resource-unfilled-table-action">
+            <span class="resource-unfilled-table-caption">人群包标签与 SmartCode 一对一关联</span>
+            <button class="btn-add" type="button" id="addCrowdSmartCodeBtn" onclick="openCrowdSmartCodeModal()">新增映射</button>
+          </div>
+
+          <div class="lead-table-wrap">
+            <table class="lead-table policy-table" style="min-width: 760px;">
+              <thead>
+                <tr>
+                  <th style="width: 60px;">序号</th>
+                  <th style="width: 440px;">人群包标签</th>
+                  <th style="width: 220px;">SmartCode</th>
+                  <th style="width: 120px;">操作</th>
+                </tr>
+              </thead>
+              <tbody id="crowdSmartCodeTableBody"></tbody>
+            </table>
+          </div>
+          </div>
+
+          <!-- Section 2: Time Capacity Config -->
+          <div id="unfilledTimeCapacitySection" style="display: none;">
+          <div class="resource-unfilled-section-toolbar">
+            <div>
+              <div class="resource-unfilled-section-title">半小时时段容量</div>
+              <div class="resource-unfilled-section-desc">点击时段卡片可单独调整；容量为 0 表示该时段不推送。</div>
+            </div>
+            <div class="resource-unfilled-capacity-actions">
+              <select class="lead-select" id="resourceUnfilledCapacityRange" onchange="syncResourceUnfilledCapacityRangeSelection()"><option value="08:00-18:29">工作时段 08:00–18:29</option><option value="00:00-23:59">全天</option></select>
+              <input class="lead-input" id="resourceUnfilledCapacityBatchValue" type="number" min="0" step="1" inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'')" placeholder="每时段容量" />
+              <button class="btn-secondary" type="button" onclick="applyResourceUnfilledCapacityBatch()">批量设置</button>
+              <button class="btn-secondary" type="button" onclick="clearResourceUnfilledCapacityBatch()">清空容量</button>
+              <button class="btn-primary" type="button" id="saveResourceUnfilledCapacityBtn" onclick="commitResourceUnfilledCapacityChanges()" disabled>保存</button>
+            </div>
+          </div>
+          <div class="resource-unfilled-capacity-status">
+            <span>配置周期：每 30 分钟</span><span>生效时段：<b id="capacityActiveSlotText">0 个</b></span><span>日可推送容量：<b id="capacityDailyTotalText">0</b></span><span id="resourceUnfilledCapacityDirtyText">暂无待保存变更</span>
+          </div>
+          <div class="resource-unfilled-capacity-grid" id="resourceUnfilledCapacityGrid"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="resourceUnfilledBatchRecordsCard">
+        <div class="lead-toolbar">
+          <div class="lead-toolbar-left">
+            <div class="section-title">批次记录</div>
+          </div>
+          <div class="lead-toolbar-right worry-free-export-controls">
+            <label class="worry-free-export-field">开始日期<input class="lead-input date-input" id="resourceUnfilledBatchStartDate" type="date" value="2026-06-14" onchange="filterResourceUnfilledBatches()" /></label>
+            <label class="worry-free-export-field">结束日期<input class="lead-input date-input" id="resourceUnfilledBatchEndDate" type="date" value="2026-06-16" onchange="filterResourceUnfilledBatches()" /></label>
+            <button class="btn-secondary" type="button" onclick="exportResourceUnfilledBatchDetails()">导出明细</button>
+          </div>
+        </div>
+        <div class="lead-table-wrap">
+          <table class="lead-table">
+            <thead id="resourceUnfilledTableHead"></thead>
+            <tbody id="resourceUnfilledTableBody"></tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <span id="resourceUnfilledPageInfo">共 0 条记录，当前第 1 / 1 页</span>
+          <div class="pagination-btns">
+            <select class="hit-page-size" id="resourceUnfilledPageSize" onchange="changeResourceUnfilledPageSize(this.value)">
+              <option value="5">每页 5 条</option>
+              <option value="10">每页 10 条</option>
+              <option value="20">每页 20 条</option>
+              <option value="50">每页 50 条</option>
+            </select>
+            <button class="page-btn" type="button" onclick="changeResourceUnfilledPage(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+            <select class="hit-page-size" id="resourceUnfilledPageSelect" onchange="selectResourceUnfilledPage(this.value)"></select>
+            <button class="page-btn" type="button" onclick="changeResourceUnfilledPage(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lead-page" id="worryFreePage">
+      <div class="page-hero">
+        <div>
+          <div class="page-title">三无忧</div>
+          <div class="page-desc">面向 N6、N7、NX8 冷线索，统一管理准入、分层、去重、短信预触达和 DCC 任务推送。</div>
+        </div>
+        <div class="summary-strip">
+          <div class="summary-card">
+            <div class="summary-label">活动状态</div>
+            <div class="summary-value">启用</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-label">准入车系</div>
+            <div class="summary-value">3</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-label">每日上限</div>
+            <div class="summary-value">10,000</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-label">外呼开始</div>
+            <div class="summary-value">09:30</div>
+          </div>
+          <div class="summary-card">
+            <div class="summary-label">去重窗口</div>
+            <div class="summary-value">T-30</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="worry-free-dashboard">
+        <div class="worry-free-metrics">
+          <button class="worry-free-metric worry-free-metric-button primary" type="button" onclick="showWorryFreeMetricInfo('累计总量', this)">
+            <div class="metric-label">累计总量</div>
+            <div class="metric-value">42,860</div>
+            <div class="metric-sub">准入数据总量</div>
+          </button>
+          <button class="worry-free-metric worry-free-metric-button" type="button" onclick="showWorryFreeMetricInfo('去重过滤', this)">
+            <div class="metric-label">去重过滤</div>
+            <div class="metric-value">7,218</div>
+            <div class="metric-sub">建联、黑名单、同号</div>
+          </button>
+          <button class="worry-free-metric worry-free-metric-button success" type="button" onclick="showWorryFreeMetricInfo('短信成功率', this)">
+            <div class="metric-label">短信成功率</div>
+            <div class="metric-value">98.6%</div>
+            <div class="metric-sub">失败按规则重试</div>
+          </button>
+          <button class="worry-free-metric worry-free-metric-button success" type="button" onclick="showWorryFreeMetricInfo('DCC培育任务', this)">
+            <div class="metric-label">DCC培育任务</div>
+            <div class="metric-value">8,934</div>
+            <div class="metric-sub">已成功生成培育任务</div>
+          </button>
+          <button class="worry-free-metric worry-free-metric-button danger" type="button" onclick="showWorryFreeMetricInfo('同步失败量', this)">
+            <div class="metric-label">同步失败量</div>
+            <div class="metric-value">76</div>
+            <div class="metric-sub">任务同步异常，待自动重试</div>
+          </button>
+          <button class="worry-free-metric worry-free-metric-button warning" type="button" onclick="showWorryFreeMetricInfo('滚存待推送', this)">
+            <div class="metric-label">滚存待推送</div>
+            <div class="metric-value">32,860</div>
+            <div class="metric-sub">按优先级顺延</div>
+          </button>
+        </div>
+
+        <div class="card worry-free-config-card">
+          <div class="lead-toolbar">
+            <div class="lead-toolbar-left">
+              <div class="section-title">规则配置</div>
+            </div>
+            <div class="lead-toolbar-right">
+              <button class="btn-secondary" id="worryFreeConfigToggleBtn" type="button" onclick="toggleWorryFreeConfig()">展开配置</button>
+            </div>
+          </div>
+          <div class="worry-free-config-summary">
+            <div class="worry-free-summary-chip"><span>每日上限</span>10,000</div>
+            <div class="worry-free-summary-chip"><span>准入车系</span>N6 / N7 / NX8</div>
+            <div class="worry-free-summary-chip"><span>AI去重</span>T-30</div>
+            <div class="worry-free-summary-chip"><span>人工去重</span>T-30</div>
+            <div class="worry-free-summary-chip"><span>同号推送</span>T-30</div>
+            <div class="worry-free-summary-chip"><span>短信模板</span>冷线索-三无忧</div>
+            <div class="worry-free-summary-chip"><span>推送数据时间</span>09:30 - 18:00</div>
+          </div>
+          <div class="worry-free-config-body" id="worryFreeConfigBody">
+          <div class="lead-toolbar">
+            <div class="lead-toolbar-left">
+              <div class="section-title">配置明细</div>
+            </div>
+            <div class="lead-toolbar-right">
+              <button class="btn-secondary" type="button" onclick="saveWorryFreeConfig()">保存</button>
+            </div>
+          </div>
+          <div class="worry-free-config-fields">
+          <div class="worry-free-config-row">
+            <div class="search-field">
+              <label>每日推送上限 <span class="worry-free-required">*</span></label>
+              <input class="lead-input" id="worryFreeDailyLimit" value="10000" />
+            </div>
+            <div class="search-field">
+              <label>准入意向车系 <span class="worry-free-required">*</span></label>
+              <div class="tag-picker">
+                <button class="tag-picker-trigger" id="worryFreeSeriesTrigger" type="button" onclick="toggleWorryFreeSeriesPicker()">N6 / N7 / NX8</button>
+                <div class="tag-picker-panel" id="worryFreeSeriesPanel">
+                  <div class="tag-picker-toolbar">
+                    <div class="tag-picker-actions">
+                      <button class="tag-picker-action" type="button" onclick="selectAllWorryFreeSeries()">全选</button>
+                      <button class="tag-picker-action" type="button" onclick="clearWorryFreeSeries()">清空</button>
+                    </div>
+                  </div>
+                  <div class="tag-picker-list">
+                    <label class="tag-option selected">
+                      <input type="checkbox" name="worryFreeSeries" value="N6" checked onchange="toggleWorryFreeSeriesOption(this)" /> N6
+                    </label>
+                    <label class="tag-option selected">
+                      <input type="checkbox" name="worryFreeSeries" value="N7" checked onchange="toggleWorryFreeSeriesOption(this)" /> N7
+                    </label>
+                    <label class="tag-option selected">
+                      <input type="checkbox" name="worryFreeSeries" value="NX8" checked onchange="toggleWorryFreeSeriesOption(this)" /> NX8
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="search-field">
+              <label>AI去重窗口 T-N <span class="worry-free-required">*</span></label>
+              <input class="lead-input" id="worryFreeAiDedupeWindow" value="30" />
+            </div>
+            <div class="search-field">
+              <label>人工去重窗口 T-N <span class="worry-free-required">*</span></label>
+              <input class="lead-input" id="worryFreeManualDedupeWindow" value="30" />
+            </div>
+          </div>
+          <div class="worry-free-config-row">
+            <div class="search-field">
+              <label>短信模板 <span class="worry-free-required">*</span></label>
+              <div class="tag-picker dispatch-tag-picker sms-template-picker" style="min-width: 200px;">
+                <input type="hidden" id="worryFreeSmsTemplate" value="冷线索-三无忧" />
+                <button class="tag-picker-trigger" id="worryFreeSmsTemplateTrigger" type="button" onclick="toggleWorryFreeSmsTemplatePicker()">冷线索-三无忧</button>
+                <div class="tag-picker-panel" id="worryFreeSmsTemplatePanel">
+                  <div class="tag-picker-toolbar">
+                    <span id="worryFreeSmsTemplateCount">共 0 个模板</span>
+                    <div class="tag-picker-actions">
+                      <button class="tag-picker-action" type="button" onclick="clearWorryFreeSmsTemplate()">清空</button>
+                    </div>
+                  </div>
+                  <div class="tag-picker-search">
+                    <input type="search" placeholder="搜索短信模板" oninput="filterWorryFreeSmsTemplateOptions(this.value)" />
+                  </div>
+                  <div class="tag-picker-list" id="worryFreeSmsTemplateList">
+                  </div>
+                  <div class="tag-picker-empty" id="worryFreeSmsTemplateEmpty" style="display:none">暂无匹配模板</div>
+                </div>
+              </div>
+            </div>
+            <div class="search-field">
+              <label>推送数据时间 <span class="worry-free-required">*</span></label>
+              <input class="lead-input" id="worryFreeCallTime" value="09:30 - 18:00" />
+            </div>
+            <div class="search-field">
+              <label>禁止推送数据时间 <span class="worry-free-required">*</span></label>
+              <input class="lead-input" id="worryFreeQuietTime" value="12:00 - 14:00 / 15:00 - 15:30" />
+            </div>
+            <div class="search-field">
+              <label>同号推送窗口 T-N <span class="worry-free-required">*</span></label>
+              <input class="lead-input" id="worryFreeSinglePhonePushWindow" value="30" />
+            </div>
+          </div>
+          </div>
+          <div class="worry-free-config-panels">
+            <div class="worry-free-config-panel">
+              <div class="worry-free-config-title-row">
+                <div class="worry-free-config-title">分层标签映射权重 <span class="worry-free-required">*</span></div>
+                <div class="worry-free-config-actions">
+                  <button class="btn-secondary" type="button" onclick="addWorryFreeLayerRule()">新增映射</button>
+                </div>
+              </div>
+              <div class="lead-table-wrap">
+                <table class="lead-table">
+                  <thead>
+                    <tr><th>权重</th><th>标签映射</th><th>操作</th></tr>
+                  </thead>
+                  <tbody id="worryFreeLayerRuleBody">
+                    <tr>
+                      <td>
+                        <select class="worry-free-table-select" onchange="syncWorryFreeLayerMapping(this)">
+                          <option selected>P1</option>
+                          <option>P2</option>
+                          <option>P3</option>
+                          <option>P4</option>
+                          <option>P100</option>
+                        </select>
+                      </td>
+                      <td>
+                        <select class="worry-free-table-select">
+                          <option selected>历史试驾过 / 历史到店过</option>
+                          <option>门店跟进次数 ≥ 3 次</option>
+                          <option>休眠未购</option>
+                          <option>休眠失联</option>
+                          <option>历史剩余数据</option>
+                        </select>
+                      </td>
+                      <td><div class="worry-free-table-actions"><button class="action-btn delete" type="button" onclick="deleteWorryFreeRuleRow(this)">删除</button></div></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <select class="worry-free-table-select" onchange="syncWorryFreeLayerMapping(this)">
+                          <option>P1</option>
+                          <option selected>P2</option>
+                          <option>P3</option>
+                          <option>P4</option>
+                          <option>P100</option>
+                        </select>
+                      </td>
+                      <td>
+                        <select class="worry-free-table-select">
+                          <option>历史试驾过 / 历史到店过</option>
+                          <option selected>门店跟进次数 ≥ 3 次</option>
+                          <option>休眠未购</option>
+                          <option>休眠失联</option>
+                          <option>历史剩余数据</option>
+                        </select>
+                      </td>
+                      <td><div class="worry-free-table-actions"><button class="action-btn delete" type="button" onclick="deleteWorryFreeRuleRow(this)">删除</button></div></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <select class="worry-free-table-select" onchange="syncWorryFreeLayerMapping(this)">
+                          <option>P1</option>
+                          <option>P2</option>
+                          <option selected>P3</option>
+                          <option>P4</option>
+                          <option>P100</option>
+                        </select>
+                      </td>
+                      <td>
+                        <select class="worry-free-table-select">
+                          <option>历史试驾过 / 历史到店过</option>
+                          <option>门店跟进次数 ≥ 3 次</option>
+                          <option selected>休眠未购</option>
+                          <option>休眠失联</option>
+                          <option>历史剩余数据</option>
+                        </select>
+                      </td>
+                      <td><div class="worry-free-table-actions"><button class="action-btn delete" type="button" onclick="deleteWorryFreeRuleRow(this)">删除</button></div></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <select class="worry-free-table-select" onchange="syncWorryFreeLayerMapping(this)">
+                          <option>P1</option>
+                          <option>P2</option>
+                          <option>P3</option>
+                          <option selected>P4</option>
+                          <option>P100</option>
+                        </select>
+                      </td>
+                      <td>
+                        <select class="worry-free-table-select">
+                          <option>历史试驾过 / 历史到店过</option>
+                          <option>门店跟进次数 ≥ 3 次</option>
+                          <option>休眠未购</option>
+                          <option selected>休眠失联</option>
+                          <option>历史剩余数据</option>
+                        </select>
+                      </td>
+                      <td><div class="worry-free-table-actions"><button class="action-btn delete" type="button" onclick="deleteWorryFreeRuleRow(this)">删除</button></div></td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <select class="worry-free-table-select" onchange="syncWorryFreeLayerMapping(this)" disabled>
+                          <option>P1</option>
+                          <option>P2</option>
+                          <option>P3</option>
+                          <option>P4</option>
+                          <option selected>P100</option>
+                        </select>
+                      </td>
+                      <td>
+                        <select class="worry-free-table-select" disabled>
+                          <option>历史试驾过 / 历史到店过</option>
+                          <option>门店跟进次数 ≥ 3 次</option>
+                          <option>休眠未购</option>
+                          <option>休眠失联</option>
+                          <option selected>历史剩余数据</option>
+                        </select>
+                      </td>
+                      <td><div class="worry-free-table-actions"><span class="action-btn disabled">锁定</span></div></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="worry-free-config-panel">
+              <div class="worry-free-config-title-row">
+                <div class="worry-free-config-title">意向车系映射话术任务 <span class="worry-free-required">*</span></div>
+              </div>
+              <div class="lead-table-wrap">
+                <table class="lead-table">
+                  <thead>
+                    <tr><th style="width: 50%;">意向车系</th><th style="width: 50%;">外呼类型</th></tr>
+                  </thead>
+                  <tbody id="worryFreeScriptRuleBody">
+                    <tr>
+                      <td style="font-weight: 700; color: #1e293b;">NX8</td>
+                      <td>
+                        <select class="worry-free-table-select">
+                          <option selected>一知-冷线索</option>
+                          <option>一知-冷线索（大模型）</option>
+                          <option>一知-大模型NEV新线索</option>
+                          <option>科大讯飞-冷线索</option>
+                          <option>科大讯飞-留资未满</option>
+                          <option>冰兰-新线索</option>
+                          <option>冰兰-保客</option>
+                          <option>一知-保客</option>
+                        </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 700; color: #1e293b;">N6</td>
+                      <td>
+                        <select class="worry-free-table-select">
+                          <option>一知-冷线索</option>
+                          <option selected>一知-冷线索（大模型）</option>
+                          <option>一知-大模型NEV新线索</option>
+                          <option>科大讯飞-冷线索</option>
+                          <option>科大讯飞-留资未满</option>
+                          <option>冰兰-新线索</option>
+                          <option>冰兰-保客</option>
+                          <option>一知-保客</option>
+                        </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight: 700; color: #1e293b;">N7</td>
+                      <td>
+                        <select class="worry-free-table-select">
+                          <option>一知-冷线索</option>
+                          <option>一知-冷线索（大模型）</option>
+                          <option selected>一知-大模型NEV新线索</option>
+                          <option>科大讯飞-冷线索</option>
+                          <option>科大讯飞-留资未满</option>
+                          <option>冰兰-新线索</option>
+                          <option>冰兰-保客</option>
+                          <option>一知-保客</option>
+                        </select>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+
+        <div class="worry-free-grid">
+          <div class="worry-free-card full">
+            <div class="worry-free-card-title">
+              <span>批次记录</span>
+              <div class="worry-free-export-controls">
+                <label class="worry-free-export-field">开始日期<input class="lead-input date-input" id="worryFreeExportStartDate" type="date" value="2026-06-14" /></label>
+                <label class="worry-free-export-field">结束日期<input class="lead-input date-input" id="worryFreeExportEndDate" type="date" value="2026-06-16" /></label>
+                <button class="btn-secondary" type="button" onclick="exportWorryFreeDetails()">导出明细</button>
+              </div>
+            </div>
+            <div class="lead-table-wrap">
+              <table class="lead-table">
+                <thead id="worryFreeBatchTableHead"></thead>
+                <tbody id="worryFreeBatchTableBody"></tbody>
+              </table>
+            </div>
+            <div class="pagination">
+              <span id="worryFreeBatchPageInfo">共 0 条记录，当前第 1 / 1 页</span>
+              <div class="pagination-btns">
+                <select class="hit-page-size" id="worryFreeBatchPageSize" onchange="changeWorryFreeBatchPageSize(this.value)">
+                  <option value="5">每页 5 条</option>
+                  <option value="10">每页 10 条</option>
+                  <option value="20">每页 20 条</option>
+                  <option value="50">每页 50 条</option>
+                </select>
+                <button class="page-btn" type="button" onclick="changeWorryFreeBatchPage(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+                <select class="hit-page-size" id="worryFreeBatchPageSelect" onchange="selectWorryFreeBatchPage(this.value)"></select>
+                <button class="page-btn" type="button" onclick="changeWorryFreeBatchPage(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lead-page" id="nurtureLeadPage">
+      <div class="page-hero">
+        <div>
+          <div class="page-title">培育线索</div>
+          <div class="page-desc">支持按线索编码、状态、客户信息、意向信息、创建时间等条件查询培育线索，并可自定义列表字段与排序。</div>
+        </div>
+      </div>
+
+      <div class="filter-row">
+        <div class="lead-search-panel">
+          <div class="lead-search-title">筛选查询</div>
+          <div class="lead-search-grid compact">
+            <div class="search-field">
+              <label>总部线索ID</label>
+              <input class="lead-input" id="leadSearchHeadquarterId" placeholder="请输入总部线索ID" />
+            </div>
+            <div class="search-field">
+              <label>线索状态</label>
+              <select class="lead-select" id="leadSearchStatus">
+                <option value="">全部</option>
+                <option value="待培育">待培育</option>
+                <option value="培育中">培育中</option>
+                <option value="已邀约">已邀约</option>
+                <option value="已转化">已转化</option>
+                <option value="无效">无效</option>
+              </select>
+            </div>
+            <div class="search-field">
+              <label>客户姓名</label>
+              <input class="lead-input" id="leadSearchName" placeholder="请输入客户姓名" />
+            </div>
+            <div class="search-field">
+              <label>电话号码</label>
+              <input class="lead-input" id="leadSearchPhone" placeholder="请输入电话号码" />
+            </div>
+            <div class="search-field">
+              <label>意向车系</label>
+              <select class="lead-select" id="leadSearchSeries"></select>
+            </div>
+            <div class="lead-search-actions">
+              <button class="btn-add" type="button" onclick="filterNurtureLeads()">查询</button>
+              <button class="btn-secondary" type="button" onclick="resetNurtureLeadSearch()">重置</button>
+            </div>
+          </div>
+          <details class="lead-search-more">
+            <summary>更多筛选</summary>
+            <div class="lead-search-grid">
+              <div class="search-field">
+                <label>意向专营店</label>
+                <div class="dealer-filter">
+                  <div class="dealer-select-trigger" id="dealerSelectTrigger" onclick="toggleDealerPicker()">暂未选择门店</div>
+                  <div class="dealer-picker-panel" id="dealerPickerPanel">
+                    <div class="dealer-picker-controls">
+                      <input class="lead-input" id="leadDealerKeyword" placeholder="搜索专营店名称/编码" oninput="renderDealerPicker()" />
+                      <select class="lead-select" id="leadSearchProvince" onchange="updateDealerCities()"></select>
+                      <select class="lead-select" id="leadSearchCity" onchange="renderDealerPicker()"></select>
+                    </div>
+                    <div class="dealer-list">
+                      <div class="dealer-list-header">
+                        <label class="field-check">
+                          <input type="checkbox" id="dealerSelectAll" onchange="toggleAllVisibleDealers(this.checked)" />
+                          全选
+                        </label>
+                        <span id="dealerSelectedCount">已选 0 / 0</span>
+                      </div>
+                      <div class="dealer-list-body" id="dealerOptionList"></div>
+                    </div>
+                    <div class="dealer-picker-footer">
+                      <button class="btn-secondary" type="button" onclick="clearSelectedDealers()">清空已选</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="search-field">
+                <label>意向级别</label>
+                <select class="lead-select" id="leadSearchLevel">
+                  <option value="">全部</option>
+                  <option value="H">H</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                </select>
+              </div>
+              <div class="search-field">
+                <label>SmartCode</label>
+                <input class="lead-input" id="leadSearchSmartCode" placeholder="请输入 SmartCode" />
+              </div>
+              <div class="search-field">
+                <label>最新留资车系</label>
+                <select class="lead-select" id="leadSearchLatestSeries"></select>
+              </div>
+              <div class="search-field">
+                <label>来源线索ID</label>
+                <input class="lead-input" id="leadSearchSourceId" placeholder="请输入来源ID" />
+              </div>
+              <div class="search-field">
+                <label>培育线索编码</label>
+                <input class="lead-input" id="leadSearchCode" placeholder="请输入编码" />
+              </div>
+              <div class="search-field" style="grid-column: span 2;">
+                <label>创建时间</label>
+                <div class="date-range">
+                  <input class="lead-input date-input" id="leadSearchCreatedStart" type="date" />
+                  <span class="date-range-sep">至</span>
+                  <input class="lead-input date-input" id="leadSearchCreatedEnd" type="date" />
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="lead-toolbar">
+          <div class="lead-toolbar-left">
+            <div class="section-title">培育线索列表</div>
+          </div>
+          <div class="lead-toolbar-right">
+            <button class="btn-secondary" type="button" onclick="exportNurtureLeads()">导出数据</button>
+            <select class="lead-select" id="leadSortField" onchange="changeNurtureLeadSort()"></select>
+            <select class="lead-select" id="leadSortDirection" onchange="changeNurtureLeadSort()">
+              <option value="asc">升序</option>
+              <option value="desc">降序</option>
+            </select>
+            <div class="field-picker">
+              <button class="btn-secondary" type="button" onclick="toggleLeadFieldPicker()">字段显示</button>
+              <div class="field-picker-panel" id="leadFieldPicker"></div>
+            </div>
+          </div>
+        </div>
+        <div class="lead-table-wrap">
+          <table class="lead-table">
+            <thead id="nurtureLeadTableHead"></thead>
+            <tbody id="nurtureLeadTableBody"></tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <span id="nurtureLeadPageInfo">共 0 条记录，当前第 1 / 1 页</span>
+          <div class="pagination-btns">
+            <select class="hit-page-size" id="nurtureLeadPageSize" onchange="changeNurtureLeadPageSize(this.value)">
+              <option value="5">每页 5 条</option>
+              <option value="10">每页 10 条</option>
+              <option value="20">每页 20 条</option>
+              <option value="50">每页 50 条</option>
+            </select>
+            <button class="page-btn" type="button" onclick="changeNurtureLeadPage(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+            <select class="hit-page-size" id="nurtureLeadPageSelect" onchange="selectNurtureLeadPage(this.value)"></select>
+            <button class="page-btn" type="button" onclick="changeNurtureLeadPage(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lead-page" id="leadDetailPage">
+      <div class="detail-page-header">
+        <div>
+          <div class="detail-page-title" id="leadDetailTitle">查看培育线索详情</div>
+          <div class="detail-page-subtitle" id="leadDetailSubtitle">线索管理 / 培育线索 / 线索详情</div>
+        </div>
+        <button class="btn-secondary" type="button" onclick="backToLeadList()">返回列表</button>
+      </div>
+      <div class="lead-summary-grid" id="leadDetailSummary"></div>
+      <div class="lead-detail-content" id="leadDetailPageBody"></div>
+    </div>
+
+    <div class="lead-page" id="worryFreeBatchDetailPage">
+      <div class="detail-page-header">
+        <div>
+          <div class="detail-page-title" id="worryFreeBatchDetailTitle">三无忧批次详情</div>
+          <div class="detail-page-subtitle" id="worryFreeBatchDetailSubtitle">线索管理 / 三无忧 / 批次详情</div>
+        </div>
+        <button class="btn-secondary" type="button" onclick="backToWorryFreeList()">返回列表</button>
+      </div>
+      <div class="lead-detail-content" id="worryFreeBatchDetailBody"></div>
+    </div>
+
+    <div class="lead-page" id="resourceUnfilledBatchDetailPage">
+      <div class="detail-page-header">
+        <div>
+          <div class="detail-page-title" id="resourceUnfilledBatchDetailTitle">留资未满批次详情</div>
+          <div class="detail-page-subtitle" id="resourceUnfilledBatchDetailSubtitle">线索管理 / 留资未满 / 批次详情</div>
+        </div>
+        <button class="btn-secondary" type="button" onclick="backToResourceUnfilledBatchList()">返回列表</button>
+      </div>
+      <div class="lead-detail-content" id="resourceUnfilledBatchDetailBody"></div>
+    </div>
+
+    <div class="lead-page" id="leadAssignmentConfigPage"></div>
+    <div class="lead-page" id="callStatusPolicyPage"></div>
+    <div class="lead-page" id="aiRedialPolicyPage"></div>
+    <div class="lead-page" id="leadDispatchConfigPage"></div>
+    <div class="lead-page" id="smsDispatchPolicyPage"></div>
+    <div class="lead-page" id="coldLeadDefinitionPage"></div>
+    <div class="lead-page" id="outboundLabelMappingPage"></div>
+    <div class="lead-page" id="followCountConfigPage"></div>
+    <div class="lead-page" id="manualUnconnectedConfigPage"></div>
+    <div class="lead-page" id="manualUnconvertedConfigPage"></div>
+    <div class="lead-page" id="precallTaskConfigPage"></div>
+    <div class="lead-page" id="returnVisitOrderConfigPage"></div>
+    <div class="lead-page" id="amapMapConfigPage"></div>
+    <div class="lead-page" id="excellentProjectConfigPage"></div>
+    <div class="lead-page" id="excellentChannelConfigPage"></div>
+    <div class="lead-page" id="excellentScConfigPage"></div>
+    <div class="lead-page" id="preCallReportPage"></div>
+
+    <div class="design-stage" id="designStage">
+      <div>
+        <div class="design-stage-title">产品设计阶段</div>
+        <div class="design-stage-desc" id="designStageDesc">当前配置页面正在设计中，后续将补充完整的配置内容。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- System Settings Page (sibling of .content, inside .main) -->
+  <div id="systemSettingsPage" class="settings-page-container" style="display:none">
+
+    <!-- 个人资料 -->
+    <div id="settingsProfilePanel" class="settings-panel">
+      <div class="settings-section">
+        <div class="settings-section-title">基本信息</div>
+        <div class="settings-avatar-row">
+          <div class="settings-avatar-preview">A</div>
+          <div class="settings-avatar-hint">
+            <div class="settings-avatar-name">管理员</div>
+            <div class="settings-avatar-role">总部超级管理员</div>
+          </div>
+        </div>
+        <div class="settings-form-grid">
+          <div class="settings-form-item">
+            <label class="settings-label">姓名</label>
+            <input class="form-input" id="profileName" type="text" value="管理员" placeholder="请输入姓名">
+          </div>
+          <div class="settings-form-item">
+            <label class="settings-label">员工号</label>
+            <input class="form-input" id="profileEmpId" type="text" value="EMP-00001" disabled>
+            <div class="form-hint">员工号由系统分配，不可修改</div>
+          </div>
+          <div class="settings-form-item">
+            <label class="settings-label">所属角色</label>
+            <input class="form-input" type="text" value="总部超级管理员" disabled>
+            <div class="form-hint">角色由管理员分配</div>
+          </div>
+          <div class="settings-form-item">
+            <label class="settings-label">所属部门</label>
+            <input class="form-input" id="profileDept" type="text" value="DCC运营中心" placeholder="请输入部门">
+          </div>
+          <div class="settings-form-item">
+            <label class="settings-label">绑定手机号</label>
+            <div class="settings-phone-row">
+              <input class="form-input" id="profilePhone" type="text" value="138****8821" placeholder="请输入手机号">
+              <button class="btn-secondary" type="button" onclick="showToast('短信验证码已发送', true)">发送验证码</button>
+            </div>
+          </div>
+          <div class="settings-form-item">
+            <label class="settings-label">绑定邮箱</label>
+            <input class="form-input" id="profileEmail" type="email" value="admin@dcc-platform.com" placeholder="请输入邮箱">
+          </div>
+        </div>
+        <div class="settings-form-actions">
+          <button class="btn-save" type="button" onclick="saveProfileInfo()">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 帐号安全 -->
+    <div id="settingsSecurityPanel" class="settings-panel" style="display:none">
+      <div class="settings-section">
+        <div class="settings-section-title">登录密码</div>
+        <div class="settings-form-grid">
+          <div class="settings-form-item">
+            <label class="settings-label">当前密码</label>
+            <input class="form-input" id="secOldPassword" type="password" placeholder="请输入当前密码">
+          </div>
+          <div class="settings-form-item">
+            <label class="settings-label">新密码</label>
+            <input class="form-input" id="secNewPassword" type="password" placeholder="至少 8 位，建议包含大小写字母和数字">
+          </div>
+          <div class="settings-form-item">
+            <label class="settings-label">确认新密码</label>
+            <input class="form-input" id="secConfirmPassword" type="password" placeholder="再次输入新密码">
+          </div>
+        </div>
+        <div class="settings-form-actions">
+          <button class="btn-save" type="button" onclick="savePasswordChange()">修改密码</button>
+        </div>
+      </div>
+      <div class="settings-section" style="margin-top:24px">
+        <div class="settings-section-title">登录安全策略</div>
+        <div class="settings-form-grid">
+          <div class="settings-form-item">
+            <label class="settings-label">登录超时时长</label>
+            <select class="form-input" id="secSessionTimeout">
+              <option value="30">30 分钟</option>
+              <option value="60" selected>60 分钟</option>
+              <option value="120">120 分钟</option>
+              <option value="240">4 小时</option>
+              <option value="0">不限制</option>
+            </select>
+            <div class="form-hint">超时后系统将自动退出登录</div>
+          </div>
+          <div class="settings-form-item">
+            <label class="settings-label">密码有效期</label>
+            <select class="form-input" id="secPwdExpiry">
+              <option value="30">30 天</option>
+              <option value="90" selected>90 天</option>
+              <option value="180">180 天</option>
+              <option value="0">不限制</option>
+            </select>
+            <div class="form-hint">到期后需重新设置密码</div>
+          </div>
+          <div class="settings-form-item">
+            <label class="settings-label">连续登录失败锁定</label>
+            <select class="form-input" id="secLockLimit">
+              <option value="3">连续失败 3 次锁定</option>
+              <option value="5" selected>连续失败 5 次锁定</option>
+              <option value="10">连续失败 10 次锁定</option>
+              <option value="0">不锁定</option>
+            </select>
+          </div>
+          <div class="settings-form-item">
+            <label class="settings-label">登录 IP 白名单</label>
+            <input class="form-input" id="secIpWhitelist" type="text" value="192.168.1.0/24" placeholder="多个 IP 段用英文逗号分隔">
+            <div class="form-hint">留空表示不限制 IP 来源</div>
+          </div>
+        </div>
+        <div class="settings-form-actions">
+          <button class="btn-save" type="button" onclick="saveSecurityConfig()">保存</button>
+        </div>
+      </div>
+      <div class="settings-section" style="margin-top:24px">
+        <div class="settings-section-title">第三方绑定</div>
+        <div class="settings-third-party-list">
+          <div class="settings-third-party-item">
+            <div class="settings-tp-left">
+              <div class="settings-tp-icon" style="background:#07c160">W</div>
+              <div>
+                <div class="settings-tp-name">企业微信</div>
+                <div class="settings-tp-status bound">已绑定 · wx_admin_0001</div>
+              </div>
+            </div>
+            <button class="btn-secondary" type="button" onclick="showToast('企业微信解绑确认流程待接入', true)">解绑</button>
+          </div>
+          <div class="settings-third-party-item">
+            <div class="settings-tp-left">
+              <div class="settings-tp-icon" style="background:#1677ff">D</div>
+              <div>
+                <div class="settings-tp-name">钉钉</div>
+                <div class="settings-tp-status unbound">未绑定</div>
+              </div>
+            </div>
+            <button class="btn-save" type="button" style="font-size:12px;padding:5px 14px" onclick="showToast('钉钉绑定流程待接入', true)">去绑定</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 操作日志 -->
+    <div id="settingsOplogPanel" class="settings-panel" style="display:none">
+      <div class="settings-oplog-filter">
+        <input class="form-input" id="oplogKeyword" type="text" placeholder="搜索关键字…" oninput="applyOpLogFilter()" style="width:200px">
+        <select class="filter-select" id="oplogModuleFilter" onchange="applyOpLogFilter()">
+          <option value="">全部模块</option>
+          <option value="培育策略">培育策略</option>
+          <option value="线索管理">线索管理</option>
+          <option value="统计报表">统计报表</option>
+          <option value="系统设置">系统设置</option>
+          <option value="系统运维">系统运维</option>
+        </select>
+        <select class="filter-select" id="oplogActionFilter" onchange="applyOpLogFilter()">
+          <option value="">全部操作</option>
+          <option value="新增">新增</option>
+          <option value="修改">修改</option>
+          <option value="删除">删除</option>
+          <option value="启用">启用</option>
+          <option value="停用">停用</option>
+          <option value="导出">导出</option>
+          <option value="查看">查看</option>
+          <option value="登录">登录</option>
+          <option value="配置">配置</option>
+        </select>
+        <input class="form-input" id="oplogUserFilter" type="text" placeholder="操作人…" oninput="applyOpLogFilter()" style="width:140px">
+        <button class="btn-secondary" type="button" onclick="resetOpLogFilter()">重置</button>
+      </div>
+      <div class="settings-oplog-table-wrap">
+        <table class="settings-oplog-table">
+          <thead>
+            <tr>
+              <th>操作时间</th>
+              <th>操作人</th>
+              <th>模块</th>
+              <th>操作类型</th>
+              <th>操作对象</th>
+              <th>操作详情</th>
+              <th>IP 地址</th>
+              <th>结果</th>
+            </tr>
+          </thead>
+          <tbody id="oplogTbody"></tbody>
+        </table>
+      </div>
+      <div id="oplogPagination" class="oplog-pagination"></div>
+    </div>
+
+    <!-- 数据字典管理 -->
+    <div id="settingsDictionaryPanel" class="settings-panel" style="display:none">
+      <div id="dictionaryManager"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ===== Add / Edit Modal ===== -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal policy-rule-modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">新增黑名单策略</div>
+      <div class="modal-close" onclick="closeModal('editModal')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="section-heading">基础信息</div>
+
+      <div class="form-group">
+        <div class="form-label">策略名称 <span class="required">*</span></div>
+        <input class="form-input" id="formName" type="text" placeholder="例：AI外呼-黑名单-30天" />
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">权重 <span class="required">*</span></div>
+        <input class="form-input" id="formPriority" type="number" min="1" max="255" value="255" />
+        <div class="form-hint">同一电话号码命中多个策略时，权重数字越小越先判定；同权重再按更严格期限兜底</div>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">策略说明</div>
+        <textarea class="form-textarea" id="formDesc" placeholder="填写该策略的适用场景或备注说明…"></textarea>
+      </div>
+
+      <hr class="divider" />
+      <div class="section-heading">外呼类型</div>
+      <div class="form-group">
+        <div class="form-label">外呼类型 <span class="required">*</span></div>
+        <div id="callTypeGrid"></div>
+        <div class="form-hint">请选择一种外呼类型，选后展示对应标签</div>
+      </div>
+
+      <div class="tag-section" id="tagSection">
+        <div class="form-label">外呼标签 <span class="required">*</span></div>
+        <div id="tagGroups"></div>
+        <div class="condition-row">
+          <span class="condition-label">标签判断条件：</span>
+          <div class="condition-toggle">
+            <button type="button" class="condition-btn active" id="condAnd" onclick="switchCondition('and')">且 (AND)</button>
+            <button type="button" class="condition-btn" id="condOr" onclick="switchCondition('or')">或 (OR)</button>
+          </div>
+          <span class="condition-desc" id="conditionDesc">命中所有已选标签才触发策略</span>
+        </div>
+      </div>
+
+      <hr class="divider" />
+      <div class="section-heading">拉黑信息</div>
+      <div class="form-group">
+        <div class="form-label">拉黑原因 <span class="required">*</span></div>
+        <select class="filter-select" style="width: 100%;" id="policyBlacklistReason" onchange="handlePolicyBlacklistReasonChange(this.value)" required>
+          <option value="" selected disabled>请选择</option>
+          <option value="频繁投诉打扰">频繁投诉打扰</option>
+          <option value="主观强拒绝">主观强拒绝（要求停拨）</option>
+          <option value="客观已购车">客观已购车/已下订</option>
+          <option value="空号停机异常">空号停机异常</option>
+          <option value="其它原因">其它原因</option>
+        </select>
+      </div>
+      <div class="form-group" id="policyBlacklistCustomReasonGroup" style="display: none;">
+        <div class="form-label">详细原因 <span class="required">*</span></div>
+        <input class="form-input" id="policyBlacklistCustomReason" placeholder="请输入详细拉黑原因" />
+      </div>
+      <div class="form-group">
+        <div class="form-label">封禁期限 <span class="required">*</span></div>
+        <select class="filter-select" style="width: 100%;" id="policyBlacklistDuration" onchange="handlePolicyBlacklistDurationChange(this.value)" required>
+          <option value="" selected disabled>请选择</option>
+          <option value="perm">永久封禁</option>
+          <option value="30">临时封禁 - 30天</option>
+          <option value="60">临时封禁 - 60天</option>
+          <option value="90">临时封禁 - 90天</option>
+          <option value="180">临时封禁 - 180天</option>
+        </select>
+        <div class="form-hint" id="policyBlacklistDurationHint">请选择封禁期限后，系统将说明生效范围与到期规则。</div>
+      </div>
+
+      <hr class="divider" />
+      <div class="section-heading">策略状态</div>
+      <div class="form-group">
+        <div class="toggle-row">
+          <span class="toggle-label">命中后需要人工审核</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="formManualReview" onchange="syncPolicyNotificationVisibility()" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="form-hint">开启后，命中该策略的数据先进入待审核，审核通过后才最终加入黑名单</div>
+      </div>
+
+      <div class="notification-section" id="policyNotificationSection">
+        <hr class="divider" />
+        <div class="section-heading">审核与通知</div>
+        <div class="form-group">
+          <div class="toggle-row">
+            <span class="toggle-label">开启审核通知</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="formNotifyEnabled" checked onchange="syncPolicyNotificationVisibility()" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="form-hint">产生待审核命中记录时，推送站内通知，并按配置发送审核邮件</div>
+        </div>
+        <div class="notification-fields" id="policyNotificationFields">
+          <div class="form-group">
+            <div class="form-label">审核人员</div>
+            <div class="account-picker">
+              <input type="hidden" id="formReviewUsers" />
+              <div class="account-select-trigger placeholder" id="formReviewUserTrigger" onclick="toggleReviewUserPicker()">请选择审核账号人员</div>
+              <div class="account-picker-panel" id="formReviewUserPanel">
+                <div class="account-picker-tools">
+                  <span id="formReviewUserCount">已选 0 / 0</span>
+                  <div class="account-picker-actions">
+                    <button class="account-picker-action" type="button" onclick="selectAllReviewUsers()">全选</button>
+                    <button class="account-picker-action" type="button" onclick="clearReviewUsers()">清除所选</button>
+                  </div>
+                </div>
+                <div class="account-option-list" id="formReviewUserList"></div>
+              </div>
+            </div>
+            <div class="form-hint">从账号人员中选择审核人，支持多选、全选和清除所选</div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">站内通知人员</div>
+            <div class="account-picker">
+              <input type="hidden" id="formMessageUsers" />
+              <div class="account-select-trigger placeholder" id="formMessageUserTrigger" onclick="toggleMessageUserPicker()">请选择站内通知账号人员</div>
+              <div class="account-picker-panel" id="formMessageUserPanel">
+                <div class="account-picker-tools">
+                  <span id="formMessageUserCount">已选 0 / 0</span>
+                  <div class="account-picker-actions">
+                    <button class="account-picker-action" type="button" onclick="selectAllMessageUsers()">全选</button>
+                    <button class="account-picker-action" type="button" onclick="clearMessageUsers()">清除所选</button>
+                  </div>
+                </div>
+                <div class="account-option-list" id="formMessageUserList"></div>
+              </div>
+            </div>
+            <div class="form-hint">从账号人员中选择站内通知接收人，支持多选、全选和清除所选</div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">邮件通知邮箱</div>
+            <input class="form-input" id="formMailUsers" type="text" placeholder="例：blacklist-review@dcc.example.com, ops-review@dcc.example.com" />
+            <div class="form-hint">支持录入多个邮箱，使用逗号、分号或换行分隔</div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">邮件抄送邮箱</div>
+            <input class="form-input" id="formMailCcUsers" type="text" placeholder="例：dcc-manager@dcc.example.com, operation-owner@dcc.example.com" />
+            <div class="form-hint">支持录入多个邮箱，使用逗号、分号或换行分隔</div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">通知频率</div>
+            <select class="form-input" id="formNotifyFrequency">
+              <option value="实时通知">实时通知</option>
+              <option value="每小时汇总">每小时汇总</option>
+              <option value="每日汇总">每日汇总</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <div class="form-label">超时提醒</div>
+            <select class="form-input" id="formTimeoutReminder">
+              <option value="2小时未处理提醒审核人员">2小时未处理提醒审核人员</option>
+              <option value="4小时未处理提醒审核人员">4小时未处理提醒审核人员</option>
+              <option value="24小时未处理升级通知主管">24小时未处理升级通知主管</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="toggle-row">
+          <span class="toggle-label">启用策略</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="formStatus" checked />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="form-hint">关闭后该策略不再生效，已加入黑名单的号码不受影响</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" type="button" onclick="closeModal('editModal')">取消</button>
+      <button class="btn-save" type="button" onclick="savePolicy()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Lead Dispatch Rule Modal ===== -->
+<div class="modal-overlay" id="leadDispatchRuleModal">
+  <div class="modal config-modal lead-dispatch-rule-modal">
+    <div class="modal-header">
+      <div class="modal-title" id="leadDispatchRuleModalTitle">线索下发规则</div>
+      <button class="modal-close" type="button" onclick="closeModal('leadDispatchRuleModal')">✕</button>
+    </div>
+    <div class="modal-body" id="leadDispatchRuleModalBody"></div>
+    <div class="modal-footer" id="leadDispatchRuleModalFooter"></div>
+  </div>
+</div>
+
+<!-- ===== AI Redial Policy Modal ===== -->
+<div class="modal-overlay" id="aiRedialRuleModal">
+  <div class="modal config-modal lead-dispatch-rule-modal">
+    <div class="modal-header">
+      <div class="modal-title" id="aiRedialRuleModalTitle">外呼重推配置</div>
+      <button class="modal-close" type="button" onclick="closeModal('aiRedialRuleModal')">✕</button>
+    </div>
+    <div class="modal-body" id="aiRedialRuleModalBody"></div>
+    <div class="modal-footer" id="aiRedialRuleModalFooter"></div>
+  </div>
+</div>
+
+<!-- ===== Lead Assignment Import Wizard ===== -->
+<div class="modal-overlay" id="leadAssignmentImportModal">
+  <div class="modal assignment-import-modal">
+    <div class="modal-header">
+      <div class="modal-title" id="leadAssignmentImportTitle">导入线索分配规则</div>
+      <button class="modal-close" type="button" onclick="closeModal('leadAssignmentImportModal')">✕</button>
+    </div>
+    <div class="modal-body" id="leadAssignmentImportBody"></div>
+    <div class="modal-footer" id="leadAssignmentImportFooter"></div>
+  </div>
+</div>
+
+<!-- ===== Precall Task Import Wizard ===== -->
+<div class="modal-overlay" id="precallTaskImportModal">
+  <div class="modal assignment-import-modal">
+    <div class="modal-header">
+      <div class="modal-title" id="precallTaskImportTitle">导入推送预外呼配置</div>
+      <button class="modal-close" type="button" onclick="closeModal('precallTaskImportModal')">✕</button>
+    </div>
+    <div class="modal-body" id="precallTaskImportBody"></div>
+    <div class="modal-footer" id="precallTaskImportFooter"></div>
+  </div>
+</div>
+
+<!-- ===== Excellent Config Import Wizard ===== -->
+<div class="modal-overlay" id="excellentConfigImportModal">
+  <div class="modal assignment-import-modal">
+    <div class="modal-header">
+      <div class="modal-title" id="excellentConfigImportTitle">导入优秀配置</div>
+      <button class="modal-close" type="button" onclick="closeModal('excellentConfigImportModal')">✕</button>
+    </div>
+    <div class="modal-body" id="excellentConfigImportBody"></div>
+    <div class="modal-footer" id="excellentConfigImportFooter"></div>
+  </div>
+</div>
+
+<!-- ===== Payload Viewer Modal ===== -->
+<div class="modal-overlay" id="payloadModal">
+  <div class="modal payload-modal">
+    <div class="modal-header">
+      <div class="modal-title" id="payloadModalTitle">报文详情</div>
+      <button class="modal-close" type="button" onclick="closeModal('payloadModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <pre class="payload-pre" id="payloadModalBody"></pre>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" type="button" onclick="closeModal('payloadModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Pre-dialer Task Detail Modal ===== -->
+<div class="modal-overlay" id="preDialerTaskModal">
+  <div class="modal payload-modal">
+    <div class="modal-header">
+      <div class="modal-title" id="preDialerTaskModalTitle">预外呼任务详情</div>
+      <button class="modal-close" type="button" onclick="closeModal('preDialerTaskModal')">✕</button>
+    </div>
+    <div class="modal-body" id="preDialerTaskModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn-cancel" type="button" onclick="closeModal('preDialerTaskModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Pre-dialer Alert Rule Config Modal ===== -->
+<div class="modal-overlay" id="preDialerAlertRuleModal">
+  <div class="modal config-modal">
+    <div class="modal-header">
+      <div class="modal-title">预警规则配置</div>
+      <button class="modal-close" type="button" onclick="closeModal('preDialerAlertRuleModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-hint" style="margin:0 0 18px">配置预外呼监控的触发阈值、通知对象与未确认升级策略，保存后将在预警管理中生效。</div>
+      <div class="detail-section" style="margin-bottom:16px">
+        <div class="detail-section-title">话单回传超时</div>
+        <div class="rule-config-group-label">触发条件与预警等级</div>
+        <div class="form-row"><div class="form-group"><label class="form-label">超时阈值（小时）</label><input class="form-input" id="alertRuleCallTimeout" type="number" min="1" value="24"></div><div class="form-group"><label class="form-label">预警等级</label><select class="form-input" id="alertRuleCallLevel"><option value="P1">P1</option><option value="P2">P2</option></select></div></div>
+        <div class="rule-config-group-label">处置与通知</div>
+        <div class="form-row"><div class="form-group"><label class="form-label">通知对象</label><div class="account-picker"><input type="hidden" id="alertRuleCallReceivers"><div class="account-select-trigger" id="alertRuleCallReceiverTrigger" onclick="togglePreDialerAlertRecipientPicker('call')"></div><div class="account-picker-panel" id="alertRuleCallReceiverPanel"><div class="account-picker-tools"><span id="alertRuleCallReceiverCount"></span><div class="account-picker-actions"><button class="account-picker-action" type="button" onclick="selectAllPreDialerAlertRecipients('call')">全选</button><button class="account-picker-action" type="button" onclick="clearPreDialerAlertRecipients('call')">清除所选</button></div></div><div class="account-option-list" id="alertRuleCallReceiverList"></div></div></div><div class="form-hint">从账号人员中选择通知接收人，支持多选、全选和清除所选</div></div><div class="form-group"><label class="form-label">未确认升级（分钟）</label><input class="form-input" id="alertRuleCallEscalation" type="number" min="1" value="5"><div class="form-hint">超过设定时长后升级至运维主管</div></div></div>
+      </div>
+      <div class="detail-section" style="margin-bottom:16px">
+        <div class="detail-section-title">同步失败率异常</div>
+        <div class="rule-config-group-label">触发条件与预警等级</div>
+        <div class="form-row rule-config-three-cols"><div class="form-group"><label class="form-label">统计窗口（分钟）</label><input class="form-input" id="alertRuleSyncWindow" type="number" min="1" value="15"></div><div class="form-group"><label class="form-label">失败率阈值（%）</label><input class="form-input" id="alertRuleSyncRate" type="number" min="1" max="100" value="5"></div><div class="form-group"><label class="form-label">预警等级</label><select class="form-input" id="alertRuleSyncLevel"><option value="P1">P1</option><option value="P2" selected>P2</option></select></div></div>
+        <div class="rule-config-group-label">处置与通知</div>
+        <div class="form-row"><div class="form-group"><label class="form-label">通知对象</label><div class="account-picker"><input type="hidden" id="alertRuleSyncReceivers"><div class="account-select-trigger" id="alertRuleSyncReceiverTrigger" onclick="togglePreDialerAlertRecipientPicker('sync')"></div><div class="account-picker-panel" id="alertRuleSyncReceiverPanel"><div class="account-picker-tools"><span id="alertRuleSyncReceiverCount"></span><div class="account-picker-actions"><button class="account-picker-action" type="button" onclick="selectAllPreDialerAlertRecipients('sync')">全选</button><button class="account-picker-action" type="button" onclick="clearPreDialerAlertRecipients('sync')">清除所选</button></div></div><div class="account-option-list" id="alertRuleSyncReceiverList"></div></div></div><div class="form-hint">从账号人员中选择通知接收人，支持多选、全选和清除所选</div></div><div class="form-group"><label class="form-label">未确认升级（分钟）</label><input class="form-input" id="alertRuleEscalation" type="number" min="1" value="30"><div class="form-hint">超过设定时长后升级至业务负责人</div></div></div>
+      </div>
+      <div class="detail-section" style="margin-bottom:16px">
+        <div class="detail-section-title">录音缺失</div>
+        <div class="rule-config-group-label">触发条件与预警等级</div>
+        <div class="form-row"><div class="form-group"><label class="form-label">触发条件</label><div class="form-hint rule-config-condition">已回传话单但未获取到有效录音文件或录音地址。</div></div><div class="form-group"><label class="form-label">预警等级</label><select class="form-input" id="alertRuleRecordingLevel"><option value="P1">P1</option><option value="P2" selected>P2</option></select></div></div>
+        <div class="rule-config-group-label">处置与通知</div>
+        <div class="form-row"><div class="form-group"><label class="form-label">通知对象</label><div class="account-picker"><input type="hidden" id="alertRuleRecordingReceivers"><div class="account-select-trigger" id="alertRuleRecordingReceiverTrigger" onclick="togglePreDialerAlertRecipientPicker('recording')"></div><div class="account-picker-panel" id="alertRuleRecordingReceiverPanel"><div class="account-picker-tools"><span id="alertRuleRecordingReceiverCount"></span><div class="account-picker-actions"><button class="account-picker-action" type="button" onclick="selectAllPreDialerAlertRecipients('recording')">全选</button><button class="account-picker-action" type="button" onclick="clearPreDialerAlertRecipients('recording')">清除所选</button></div></div><div class="account-option-list" id="alertRuleRecordingReceiverList"></div></div></div><div class="form-hint">从账号人员中选择通知接收人，支持多选、全选和清除所选</div></div><div class="form-group"><label class="form-label">未确认升级（分钟）</label><input class="form-input" id="alertRuleRecordingEscalation" type="number" min="1" value="60"><div class="form-hint">超过设定时长后创建人工工单</div></div></div>
+      </div>
+      <div class="detail-section">
+        <div class="detail-section-title">重复告警抑制</div>
+        <div class="form-group"><label class="form-label">同一任务合并窗口（分钟）</label><input class="form-input" id="alertRuleMergeWindow" type="number" min="1" value="30"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" type="button" onclick="closeModal('preDialerAlertRuleModal')">取消</button>
+      <button class="btn-save" type="button" onclick="savePreDialerAlertRuleConfig()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Metric Rule Modal ===== -->
+<div class="modal-overlay" id="metricRuleModal">
+  <div class="modal config-modal" style="max-width: 580px;">
+    <div class="modal-header">
+      <div class="modal-title" id="metricRuleModalTitle">指标口径与规则说明</div>
+      <button class="modal-close" type="button" onclick="closeModal('metricRuleModal')">✕</button>
+    </div>
+    <div class="modal-body" id="metricRuleModalBody">
+      <!-- Dynamic Content -->
+    </div>
+    <div class="modal-footer">
+      <button class="btn-save" type="button" onclick="closeModal('metricRuleModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Modal: Add / Edit Crowd SmartCode Mapping -->
+<div class="modal-overlay" id="addCrowdSmartCodeModal" onclick="if(event.target===this)closeCrowdSmartCodeModal()">
+  <div class="modal" style="max-width: 580px;">
+    <div class="modal-header">
+      <div class="modal-title" id="crowdSmartCodeModalTitle">新增人群包与SmartCode映射</div>
+      <button class="modal-close" type="button" onclick="closeCrowdSmartCodeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="crowdSmartCodeForm" onsubmit="saveCrowdSmartCodeMapping(event)">
+        <input type="hidden" id="crowdSmartCodeMappingId" />
+        <div class="form-group">
+          <label class="form-label required">人群包标签</label>
+          <select id="crowdTagSelect" aria-hidden="true" tabindex="-1" class="resource-unfilled-native-select">
+            <option value="">请选择人群包标签</option>
+          </select>
+          <div class="resource-unfilled-crowd-tag-picker">
+            <button class="resource-unfilled-crowd-tag-trigger placeholder" id="crowdTagTrigger" type="button" onclick="toggleCrowdTagPicker()">请选择人群包标签</button>
+            <div class="resource-unfilled-crowd-tag-dropdown" id="crowdTagDropdown">
+              <div class="resource-unfilled-crowd-tag-dropdown-head"><span id="crowdTagAvailableCount">可选标签</span><span>已关联标签不可重复选择</span></div>
+              <div class="resource-unfilled-crowd-tag-options" id="crowdTagOptionList"></div>
+              <div class="tag-picker-empty" id="crowdTagPickerEmpty">暂无可关联的人群包标签</div>
+            </div>
+          </div>
+          <div class="form-hint">数据来源：数据字段管理 &gt; 人群包标签。</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label required">关联 SmartCode</label>
+          <div class="resource-unfilled-smartcode-combobox">
+            <input class="form-input" id="crowdSmartCodeSearchInput" autocomplete="off" placeholder="请选择或输入 SmartCode" onclick="toggleCrowdSmartCodePicker()" oninput="openCrowdSmartCodePicker();filterCrowdSmartCodeOptions(this.value)" />
+            <div class="resource-unfilled-smartcode-dropdown" id="crowdSmartCodePickerDropdown">
+              <div class="resource-unfilled-smartcode-dropdown-head">
+                <span>可选 SmartCode</span>
+                <button type="button" onclick="clearCrowdSmartCodePicker()">清空选择</button>
+              </div>
+              <div class="resource-unfilled-smartcode-options" id="smartCodeRadioList"></div>
+              <button type="button" class="resource-unfilled-manual-option" id="crowdSmartCodeManualOption" onclick="useCrowdSmartCodeTypedValue()"></button>
+              <div class="tag-picker-empty" id="crowdSmartCodeSearchEmpty">暂无匹配结果，可直接保存输入的 SmartCode</div>
+            </div>
+          </div>
+          <div class="form-hint">可搜索、下拉选择或直接输入；一个人群包标签仅可关联一个 SmartCode。</div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" type="button" onclick="closeCrowdSmartCodeModal()">取消</button>
+          <button class="btn-primary" type="submit">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: View Crowd SmartCode -->
+<div class="modal-overlay" id="viewCrowdSmartCodesModal" onclick="if(event.target===this)closeViewCrowdSmartCodesModal()">
+  <div class="modal" style="max-width: 580px;">
+    <div class="modal-header">
+      <div class="modal-title">关联 SmartCode</div>
+      <button class="modal-close" type="button" onclick="closeViewCrowdSmartCodesModal()">×</button>
+    </div>
+    <div class="modal-body" id="viewCrowdSmartCodesModalBody">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" type="button" onclick="closeViewCrowdSmartCodesModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- Logout confirm modal -->
+<div class="modal-overlay" id="logoutConfirmModal" onclick="if(event.target===this)closeLogoutConfirm()">
+  <div class="modal" style="width:420px;text-align:center">
+    <div class="modal-header">
+      <div class="modal-title">确认退出登录</div>
+      <button class="modal-close" type="button" onclick="closeLogoutConfirm()">✕</button>
+    </div>
+    <div class="modal-body" style="padding:28px 24px 20px">
+      <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:14px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div style="font-size:15px;font-weight:600;color:#1e293b;margin-bottom:8px">确定要退出 DCC培育平台 吗？</div>
+      <div style="font-size:13px;color:#64748b">退出后需重新登录才能使用系统。未保存的配置将会丢失。</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" type="button" onclick="closeLogoutConfirm()">取消</button>
+      <button class="btn-save" type="button" style="background:#ef4444" onclick="confirmLogout()">确认退出</button>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Modal: Add Blacklist User -->
+<div class="modal-overlay" id="addBlacklistUserModal" onclick="if(event.target===this)closeAddBlacklistUserModal()">
+  <div class="modal" style="width:540px; max-width:calc(100vw - 40px);">
+    <div class="modal-header">
+      <div class="modal-title" id="addBlacklistUserModalTitle">新增用户黑名单</div>
+      <button class="modal-close" type="button" onclick="closeAddBlacklistUserModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="addBlacklistUserForm" onsubmit="saveBlacklistUser(event)">
+        <div class="form-group">
+          <label class="form-label required">手机号码</label>
+          <input class="form-input" id="blacklistUserPhoneInput" placeholder="请输入11位手机号码" required pattern="^1[3-9]\d{9}$" maxlength="11" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">客户姓名</label>
+          <input class="form-input" id="blacklistUserNameInput" placeholder="请输入客户姓名（选填）" />
+        </div>
+        <div class="form-group">
+          <label class="form-label required">拉黑原因</label>
+          <select class="filter-select" style="width: 100%;" id="blacklistUserReasonSelect" onchange="handleBlacklistUserReasonChange(this.value)" required>
+            <option value="" selected disabled>请选择</option>
+            <option value="频繁投诉打扰">频繁投诉打扰</option>
+            <option value="主观强拒绝">主观强拒绝（要求停拨）</option>
+            <option value="客观已购车">客观已购车/已下订</option>
+            <option value="空号停机异常">空号停机异常</option>
+            <option value="其它原因">其它原因</option>
+          </select>
+        </div>
+        <div class="form-group" id="blacklistUserCustomReasonGroup" style="display: none;">
+          <label class="form-label required">详细原因</label>
+          <input class="form-input" id="blacklistUserCustomReasonInput" placeholder="请输入详细拉黑原因" />
+        </div>
+        <div class="form-group">
+          <label class="form-label required">封禁期限</label>
+          <select class="filter-select" style="width: 100%;" id="blacklistUserDurationSelect" onchange="handleBlacklistUserDurationChange(this.value)" required>
+            <option value="" selected disabled>请选择</option>
+            <option value="perm">永久封禁</option>
+            <option value="30">临时封禁 - 30天</option>
+            <option value="60">临时封禁 - 60天</option>
+            <option value="90">临时封禁 - 90天</option>
+            <option value="180">临时封禁 - 180天</option>
+          </select>
+          <div class="form-hint" id="blacklistUserDurationHint" style="margin-top: 4px; font-size: 12px; color: #64748b;">
+            电话号码一旦加入黑名单，系统将不再对其下发任何外呼任务。
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">备注说明</label>
+          <textarea class="form-textarea" id="blacklistUserRemarkInput" rows="3" placeholder="请输入备注说明（选填）"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" type="button" onclick="closeAddBlacklistUserModal()">取消</button>
+          <button class="btn-primary" type="submit">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Blacklist User Detail -->
+<div class="modal-overlay" id="blacklistUserDetailModal" onclick="if(event.target===this)closeBlacklistUserDetailModal()">
+  <div class="modal" style="width:600px; max-width:calc(100vw - 40px);">
+    <div class="modal-header">
+      <div class="modal-title">用户黑名单详情</div>
+      <button class="modal-close" type="button" onclick="closeBlacklistUserDetailModal()">×</button>
+    </div>
+    <div class="modal-body" id="blacklistUserDetailModalBody">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" type="button" onclick="closeBlacklistUserDetailModal()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- Logout loading overlay -->
+<div id="logoutLoadingOverlay" class="logout-loading-overlay">
+  <div class="logout-loading-box">
+    <div class="logout-spinner"></div>
+    <div class="logout-loading-text">正在安全退出…</div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+<div class="metric-info-popover" id="metricInfoPopover" role="dialog" aria-live="polite"></div>
+
+  <script src="DccLead.assets/js/00-ui-utils.js"></script>
+  <script src="DccLead.assets/js/00-data.js"></script>
+  <script src="DccLead.assets/js/01a-shell-navigation.js"></script>
+  <script src="DccLead.assets/js/01b-pre-dial-reports.js"></script>
+  <script src="DccLead.assets/js/01c-worry-free-config.js"></script>
+  <script src="DccLead.assets/js/01d-page-routing.js"></script>
+  <script src="DccLead.assets/js/02-strategy-navigation.js"></script>
+  <script src="DccLead.assets/js/03-strategy-configurator.js"></script>
+  <script src="DccLead.assets/js/04a-lead-assignment-core.js"></script>
+  <script src="DccLead.assets/js/04b-outbound-label-mapping.js"></script>
+  <script src="DccLead.assets/js/04c-lead-assignment-rule-forms.js"></script>
+  <script src="DccLead.assets/js/04d-lead-assignment-controls.js"></script>
+  <script src="DccLead.assets/js/04e-lead-assignment-import.js"></script>
+  <script src="DccLead.assets/js/05-sms-dispatch.js"></script>
+  <script src="DccLead.assets/js/06-ai-redial.js"></script>
+  <script src="DccLead.assets/js/07-call-status.js"></script>
+  <script src="DccLead.assets/js/08-cold-lead.js"></script>
+  <script src="DccLead.assets/js/09-lead-dispatch.js"></script>
+  <script src="DccLead.assets/js/10-resource-leads.js"></script>
+  <script src="DccLead.assets/js/11-resource-unfilled.js"></script>
+  <script src="DccLead.assets/js/12a-nurture-lead-list.js"></script>
+  <script src="DccLead.assets/js/12b-nurture-task-snapshots.js"></script>
+  <script src="DccLead.assets/js/12c-nurture-snapshot-data.js"></script>
+  <script src="DccLead.assets/js/12d-nurture-export.js"></script>
+  <script src="DccLead.assets/js/13a-blacklist-policy-list-form.js"></script>
+  <script src="DccLead.assets/js/13b-blacklist-policy-detail-hits.js"></script>
+  <script src="DccLead.assets/js/13c-blacklist-policy-transcript-ui.js"></script>
+  <script src="DccLead.assets/js/13d-unconnected-selectors-init.js"></script>
+  <script src="DccLead.assets/js/13e-blacklist-user-management.js"></script>
+  <script src="DccLead.assets/js/14-precall-task-import.js"></script>
+  <script src="DccLead.assets/js/14a-excellent-config-import.js"></script>
+  <script src="DccLead.assets/js/15-system-settings.js"></script>
+  <script src="DccLead.assets/js/16-data-dictionary.js"></script>
+</body>
+</html>
