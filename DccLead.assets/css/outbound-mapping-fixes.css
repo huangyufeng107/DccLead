@@ -1,0 +1,17 @@
+/* 外呼标签映射：多选回填仅展示前三项，避免长内容撑高选择框。 */
+.outbound-mapping-picker .tag-picker-trigger,
+.unconnected-belong-picker .tag-picker-trigger {
+  height: 36px !important;
+  min-height: 36px !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+}
+
+.outbound-mapping-picker .tag-picker-trigger-text,
+.unconnected-belong-picker .tag-picker-trigger-text {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
