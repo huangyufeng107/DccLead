@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DCC 培育平台 · 试驾排程全生命周期场景旅程开发说明（研发对照）</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --primary-border: #bfdbfe;
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748b;
+      --slate-100: #f1f5f9;
+      --slate-50: #f8fafc;
+      --border: #e2e8f0;
+      --green: #10b981;
+      --green-light: #ecfdf5;
+      --amber: #f59e0b;
+      --amber-light: #fffbeb;
+      --red: #ef4444;
+      --red-light: #fef2f2;
+      --purple: #8b5cf6;
+      --purple-light: #f5f3ff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: #f8fafc;
+      color: var(--slate-700);
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .page-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+      overflow: hidden;
+    }
+    .page-header {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: #ffffff;
+      padding: 28px 36px;
+      border-bottom: 3px solid var(--primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .header-title h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-title p {
+      color: #94a3b8;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+    .badge-ver {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      background: rgba(37, 99, 235, 0.3);
+      color: #93c5fd;
+      border: 1px solid rgba(147, 197, 253, 0.4);
+    }
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .btn-primary { background: #2563eb; color: #fff; border: 1px solid #2563eb; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: rgba(255, 255, 255, 0.1); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.2); }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.2); }
+
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      padding: 24px 36px 16px;
+      background: #fafbfc;
+      border-bottom: 1px solid var(--border);
+    }
+    .summary-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      transition: all 0.2s ease;
+      position: relative;
+      border-top: 3px solid #2563eb;
+    }
+    .summary-card:hover {
+      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
+      transform: translateY(-2px);
+    }
+    .summary-card.s1 { border-top-color: #2563eb; }
+    .summary-card.s2 { border-top-color: #0284c7; }
+    .summary-card.s3 { border-top-color: #059669; }
+    .summary-card.s4 { border-top-color: #d97706; }
+    .summary-card.s5 { border-top-color: #dc2626; }
+    .card-stage-no {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--slate-500);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--slate-800);
+      margin-top: 4px;
+    }
+    .card-desc {
+      font-size: 12px;
+      color: var(--slate-600);
+      margin-top: 6px;
+      line-height: 1.45;
+    }
+    .card-tag {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 2px 7px;
+      background: var(--slate-100);
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--slate-700);
+    }
+
+    .doc-nav {
+      padding: 14px 36px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .nav-pill {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--slate-600);
+      background: #f1f5f9;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+    .nav-pill:hover, .nav-pill.active {
+      background: #2563eb;
+      color: #ffffff;
+    }
+
+    .doc-body {
+      padding: 32px 36px 48px;
+    }
+    .section-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--slate-900);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #eef2f6;
+    }
+
+    /* 流程图卡片 */
+    .flow-diagram-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+    .flow-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      position: relative;
+    }
+    .flow-col {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .flow-node {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      position: relative;
+    }
+    .flow-node.head {
+      background: #1e293b;
+      color: #ffffff;
+      border-color: #1e293b;
+      font-weight: 700;
+      text-align: center;
+    }
+    .flow-node.head.h1 { background: #2563eb; border-color: #2563eb; }
+    .flow-node.head.h2 { background: #0284c7; border-color: #0284c7; }
+    .flow-node.head.h3 { background: #059669; border-color: #059669; }
+    .flow-node.head.h4 { background: #d97706; border-color: #d97706; }
+    .flow-node.head.h5 { background: #dc2626; border-color: #dc2626; }
+    .flow-node b { color: #1e293b; display: block; margin-bottom: 4px; }
+    .flow-node p { color: #64748b; line-height: 1.4; margin: 0; }
+    .flow-node.highlight {
+      border: 2px solid #2563eb;
+      background: #eff6ff;
+    }
+    .flow-node.warn {
+      border: 1px solid #fde68a;
+      background: #fffbeb;
+    }
+    .flow-node.danger {
+      border: 1px solid #fecaca;
+      background: #fef2f2;
+    }
+    .flow-node.success {
+      border: 1px solid #bbf7d0;
+      background: #f0fdf4;
+    }
+
+    /* 阶段详述卡片 */
+    .stage-detail-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      margin-bottom: 24px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+    .stage-detail-head {
+      padding: 14px 20px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .stage-detail-title {
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #0f172a;
+    }
+    .stage-badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+    .sb-blue { background: #dbeafe; color: #1d4ed8; }
+    .sb-sky { background: #e0f2fe; color: #0369a1; }
+    .sb-emerald { background: #d1fae5; color: #047857; }
+    .sb-amber { background: #fef3c7; color: #b45309; }
+    .sb-rose { background: #ffe4e6; color: #be123c; }
+    .stage-detail-body {
+      padding: 20px;
+    }
+    .rule-grid {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 12px 16px;
+      font-size: 13px;
+      align-items: start;
+    }
+    .rule-label {
+      color: #64748b;
+      font-weight: 600;
+      text-align: right;
+      padding-top: 2px;
+    }
+    .rule-content {
+      color: #334155;
+      line-height: 1.6;
+    }
+    .rule-content code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      background: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+    }
+    .rule-alert {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .rule-alert.red {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+    }
+    .rule-alert.amber {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      color: #92400e;
+    }
+    .rule-alert.blue {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+    }
+
+    /* 对照表格 */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      margin-top: 14px;
+    }
+    .compare-table th, .compare-table td {
+      padding: 10px 12px;
+      border: 1px solid #e2e8f0;
+      text-align: left;
+    }
+    .compare-table th {
+      background: #f1f5f9;
+      font-weight: 700;
+      color: #334155;
+    }
+    .compare-table tr:nth-child(even) {
+      background: #fafbfc;
+    }
+    .code-chip {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 600;
+      font-size: 11.5px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #dbe3ee;
+    }
+
+    /* 文档级 TAB：两个研发材料保持独立内容与滚动上下文 */
+    .document-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 16px 36px 0;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+    }
+    .document-tab {
+      appearance: none;
+      border: 1px solid #cbd5e1;
+      border-bottom: 0;
+      border-radius: 8px 8px 0 0;
+      padding: 10px 18px;
+      background: #f8fafc;
+      color: #475569;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .document-tab:hover { color: #1d4ed8; background: #eff6ff; }
+    .document-tab.active {
+      color: #1d4ed8;
+      background: #eff6ff;
+      border-color: #93c5fd;
+      box-shadow: inset 0 -3px 0 #2563eb;
+    }
+    .document-panel[hidden] { display: none; }
+    .solution-frame-wrap {
+      padding: 16px;
+      background: #f8fafc;
+    }
+    .solution-frame {
+      display: block;
+      width: 100%;
+      min-height: 1580px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: #ffffff;
+    }
+    @media (max-width: 900px) {
+      .document-tabs { padding: 12px 20px 0; overflow-x: auto; }
+      .document-tab { white-space: nowrap; }
+      .solution-frame-wrap { padding: 10px; }
+      .solution-frame { min-height: 1800px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-container">
+    <!-- Header -->
+    <header class="page-header">
+      <div class="header-title">
+        <h1>
+          🗺️ 试驾排程全生命周期场景旅程开发说明
+          <span class="badge-ver">v2.1 终审规范（同步效能看板最新口径）</span>
+        </h1>
+        <p>双轨并行 · 直线向下 · 阶段一至阶段五严格时序流转与异常挽回机制（供产品设计与研发 1:1 对照执行）</p>
+      </div>
+
+    </header>
+
+    <nav class="document-tabs" aria-label="试驾排程研发文档切换">
+      <button class="document-tab active" type="button" role="tab" aria-selected="true" aria-controls="journeyPanel" data-document-tab="journeyPanel">场景旅程开发说明</button>
+      <button class="document-tab" type="button" role="tab" aria-selected="false" aria-controls="solutionPanel" data-document-tab="solutionPanel">AI 外呼全自动排程方案</button>
+    </nav>
+
+    <section id="journeyPanel" class="document-panel" role="tabpanel">
+
+    <!-- 阶段概览卡片 -->
+    <div class="summary-cards">
+      <div class="summary-card s1">
+        <div class="card-stage-no">Stage 1 · 意向收敛</div>
+        <div class="card-title">① 意向采集与排程建单</div>
+        <div class="card-desc">AI 外呼与坐席建单双轨，四要素收敛并校验门店配额。</div>
+        <div class="card-tag">颁发：预约单号 (YYTJ...)</div>
+      </div>
+      <div class="summary-card s2">
+        <div class="card-stage-no">Stage 2 · 中台回执</div>
+        <div class="card-title">② 中台中枢传输与回执</div>
+        <div class="card-desc">DCC 异步推送 NEV 中台，异常严格留白并进入重试池。</div>
+        <div class="card-tag">颁发：排程编码 (NEVSP...)</div>
+      </div>
+      <div class="summary-card s3">
+        <div class="card-stage-no">Stage 3 · 专营店直连</div>
+        <div class="card-title">③ 专营店直连最终排程</div>
+        <div class="card-desc">NEV 中台直派专营店顾问，顾问自主致电与排期确认。</div>
+        <div class="card-tag">红线：总部坐席不介入</div>
+      </div>
+      <div class="summary-card s4">
+        <div class="card-stage-no">Stage 4 · 现场接待</div>
+        <div class="card-title">④ 专营店接待与履约核销</div>
+        <div class="card-desc">客户到店试驾体验，专营店核销已履约、逾期未到店或取消。</div>
+        <div class="card-tag">分流：正常流 vs 异常流</div>
+      </div>
+      <div class="summary-card s5">
+        <div class="card-stage-no">Stage 5 · 流失挽回</div>
+        <div class="card-title">⑤ 异常工单分流与挽回</div>
+        <div class="card-desc">人工建单原人直派；AI建单接入【分配规则】智能分派，坐席开展二次激活。</div>
+        <div class="card-tag">闭环：工作台专属表单</div>
+      </div>
+    </div>
+
+    <!-- 快速导航锚点 -->
+    <nav class="doc-nav">
+      <span style="font-size:12px; font-weight:700; color:#475569;">快捷跳转：</span>
+      <a class="nav-pill" href="#overview-flow">🗺️ 全生命周期流程图</a>
+      <a class="nav-pill" href="#stage-1">阶段一：采集建单</a>
+      <a class="nav-pill" href="#stage-2">阶段二：中台回执</a>
+      <a class="nav-pill" href="#stage-3">阶段三：专营店直连</a>
+      <a class="nav-pill" href="#stage-4">阶段四：履约核销</a>
+      <a class="nav-pill" href="#stage-5">阶段五：流失挽回闭环</a>
+      <a class="nav-pill" href="#code-trace">🔢 编码链路溯源表</a>
+    </nav>
+
+    <!-- 正文内容 -->
+    <div class="doc-body">
+      
+      <!-- 流程图区块 -->
+      <section id="overview-flow">
+        <div class="section-title">🗺️ 试驾排程端到端场景旅程全景流程图（阶段一至阶段五）</div>
+        <div class="flow-diagram-box" style="background:#ffffff; border:1px solid #dbe3ee; padding:24px 16px; display:flex; flex-direction:column; align-items:center; overflow-x:auto;">
+          <svg viewBox="0 0 800 2160" style="width:100%; max-width:800px; height:auto; display:block; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="flow-arrow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563eb" />
+              </marker>
+              <marker id="flow-arrow-gray" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#64748b" />
+              </marker>
+            </defs>
+
+            <!-- ============================================================ -->
+            <!-- 1. 阶段容器底层背景层（置于底层，绝对不遮挡任何流转连线与箭头） -->
+            <g id="layer-subgraph-boxes">
+              <!-- 【阶段一】背景 -->
+              <rect x="54" y="20" width="740" height="417" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+              <rect x="62" y="8" width="226" height="26" rx="13" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+              <text x="74" y="25" font-size="12" font-weight="700" fill="#1e293b">【阶段一】意向采集与排程建单</text>
+
+              <!-- 【阶段二】背景  (S2 整体 +32) -->
+              <rect x="54" y="477" width="740" height="305" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+              <rect x="62" y="465" width="226" height="26" rx="13" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+              <text x="74" y="482" font-size="12" font-weight="700" fill="#1e293b">【阶段二】中台中枢传输与回执确立</text>
+
+              <!-- 【阶段三】背景  (S3 整体 +52) -->
+              <rect x="54" y="822" width="740" height="215" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+              <rect x="62" y="810" width="226" height="26" rx="13" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+              <text x="74" y="827" font-size="12" font-weight="700" fill="#1e293b">【阶段三】专营店直连与最终排程确立</text>
+
+              <!-- 【阶段四】背景  (S4 整体 +72) -->
+              <rect x="54" y="1067" width="740" height="295" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+              <rect x="62" y="1055" width="226" height="26" rx="13" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+              <text x="74" y="1072" font-size="12" font-weight="700" fill="#1e293b">【阶段四】专营店现场接待与履约核销</text>
+
+              <!-- 【阶段五】背景  (S5 整体 +92) -->
+              <rect x="54" y="1402" width="740" height="710" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+              <rect x="62" y="1390" width="286" height="26" rx="13" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+              <text x="74" y="1407" font-size="12" font-weight="700" fill="#1e293b">【阶段五】总部工单分流与异常流失挽回（截图入口）</text>
+            </g>
+
+
+            <!-- ============================================================ -->
+            <!-- 2. 节点与判定元素中间层 -->
+            <!-- ============================================================ -->
+            <g id="layer-nodes">
+              <!-- S1 节点  (S1内部 +12) -->
+              <rect x="95" y="70" width="280" height="54" rx="4" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="235" y="93" font-size="12" font-weight="600" fill="#1e293b" text-anchor="middle">渠道 1：AI 智能外呼排程</text>
+              <text x="235" y="113" font-size="11.5" fill="#475569" text-anchor="middle">（策略命中 ➔ 消歧预查 ➔ 口头确认）</text>
+
+              <rect x="465" y="70" width="280" height="54" rx="4" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="605" y="93" font-size="12" font-weight="600" fill="#1e293b" text-anchor="middle">渠道 2：人工坐席日常建单</text>
+              <text x="605" y="113" font-size="11.5" fill="#475569" text-anchor="middle">（电话跟进 ➔ 客户确认试驾）</text>
+
+              <rect x="270" y="160" width="300" height="44" rx="4" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="420" y="187" font-size="12" font-weight="700" fill="#1e293b" text-anchor="middle">收敛四要素：车系 / 门店 / 日期 / 时段</text>
+
+              <!-- Diamond C -->
+              <polygon points="420,228 515,280 420,332 325,280" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="420" y="284" font-size="12" font-weight="600" fill="#1e293b" text-anchor="middle">DCC 目标门店份额校验</text>
+              <rect x="260" y="260" width="40" height="20" rx="3" fill="#ffffff" stroke="#cbd5e1"/>
+              <text x="280" y="274" font-size="11" fill="#15803d" text-anchor="middle">有配额</text>
+              <rect x="540" y="260" width="40" height="20" rx="3" fill="#ffffff" stroke="#cbd5e1"/>
+              <text x="560" y="274" font-size="11" fill="#b45309" text-anchor="middle">约满</text>
+
+              <rect x="95" y="354" width="280" height="56" rx="4" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="235" y="377" font-size="12" font-weight="700" fill="#2563eb" text-anchor="middle">生成【试驾工单】</text>
+              <text x="235" y="397" font-size="12" font-weight="700" fill="#1e293b" text-anchor="middle">预约单号 (YYTJ...)</text>
+
+              <rect x="465" y="354" width="280" height="56" rx="4" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="605" y="377" font-size="12" font-weight="700" fill="#d97706" text-anchor="middle">生成【试驾线索】</text>
+              <text x="605" y="397" font-size="11.5" fill="#475569" text-anchor="middle">（约满保底，店端协商时间）</text>
+
+              <!-- S2 节点  (S2整体 +32) -->
+              <rect x="270" y="490" width="300" height="54" rx="4" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="420" y="513" font-size="12" font-weight="600" fill="#1e293b" text-anchor="middle">DCC 异步推送 NEV 线索中台</text>
+              <text x="420" y="533" font-size="11" fill="#64748b" text-anchor="middle">POST /nev/test-drive-sync</text>
+
+              <!-- Diamond F -->
+              <polygon points="420,566 515,614 420,662 325,614" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="420" y="618" font-size="12" font-weight="600" fill="#1e293b" text-anchor="middle">NEV 中台接收状态</text>
+              <rect x="250" y="594" width="55" height="20" rx="3" fill="#ffffff" stroke="#cbd5e1"/>
+              <text x="277" y="608" font-size="11" fill="#15803d" text-anchor="middle">推送成功</text>
+              <rect x="535" y="594" width="55" height="20" rx="3" fill="#ffffff" stroke="#cbd5e1"/>
+              <text x="562" y="608" font-size="11" fill="#dc2626" text-anchor="middle">失败/超时</text>
+
+              <rect x="95" y="684" width="280" height="56" rx="4" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="235" y="707" font-size="12" font-weight="600" fill="#1e293b" text-anchor="middle">生成中台回执：</text>
+              <text x="235" y="727" font-size="12" font-weight="700" fill="#2563eb" text-anchor="middle">试驾排程编码 (NEVSP...)</text>
+
+              <rect x="465" y="684" width="280" height="56" rx="4" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="605" y="707" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">⚠️ 双单号严格留白展示 (—)</text>
+              <text x="605" y="727" font-size="11.5" fill="#475569" text-anchor="middle">进入台账异常池，支持运营重试</text>
+
+              <!-- S3 节点  (S3整体 +52) -->
+              <rect x="270" y="842" width="300" height="42" rx="4" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="420" y="868" font-size="12" font-weight="600" fill="#1e293b" text-anchor="middle">NEV 中台根据意向门店直派专营店</text>
+
+              <rect x="180" y="906" width="480" height="82" rx="4" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="420" y="930" font-size="12" font-weight="600" fill="#1e293b" text-anchor="middle">专营店销售顾问接单，直接致电客户</text>
+              <text x="420" y="950" font-size="11.5" fill="#475569" text-anchor="middle">确认到店时间、解答车型、整备车辆</text>
+              <text x="420" y="972" font-size="11.5" font-weight="700" fill="#dc2626" text-anchor="middle">⚠️【业务红线】专营店自主闭环，总部坐席完全不参与</text>
+
+              <!-- S4 节点  (S4整体 +72) -->
+              <rect x="230" y="1086" width="380" height="42" rx="4" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="420" y="1112" font-size="12" font-weight="600" fill="#1e293b" text-anchor="middle">客户按约到店，顾问陪同深度试驾体验</text>
+
+              <!-- Diamond K -->
+              <polygon points="420,1150 515,1198 420,1246 325,1198" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="420" y="1202" font-size="12" font-weight="600" fill="#1e293b" text-anchor="middle">专营店核销履约状态</text>
+              <rect x="250" y="1178" width="55" height="20" rx="3" fill="#ffffff" stroke="#cbd5e1"/>
+              <text x="277" y="1192" font-size="11" fill="#15803d" text-anchor="middle">正常试驾</text>
+              <rect x="535" y="1178" width="55" height="20" rx="3" fill="#ffffff" stroke="#cbd5e1"/>
+              <text x="562" y="1192" font-size="11" fill="#dc2626" text-anchor="middle">逾期/取消</text>
+
+              <rect x="95" y="1272" width="280" height="54" rx="4" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="235" y="1295" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">【正常通道】核销为：已履约</text>
+              <text x="235" y="1315" font-size="11.5" fill="#64748b" text-anchor="middle">（专营店线下促订成交）</text>
+
+              <rect x="465" y="1272" width="280" height="54" rx="4" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="605" y="1295" font-size="12" font-weight="700" fill="#dc2626" text-anchor="middle">【异常通道】核销为：逾期未到店 / 临时取消</text>
+              <text x="605" y="1315" font-size="11.5" fill="#64748b" text-anchor="middle">（用户取消 / 门店取消 / 系统超时）</text>
+
+              <!-- S5 节点  (S5整体 +92) -->
+              <rect x="80" y="1432" width="310" height="74" rx="4" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="235" y="1456" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">【已履约跟进】</text>
+              <text x="235" y="1476" font-size="11.5" fill="#475569" text-anchor="middle">现阶段专营店线下闭环促单，总部人工不打扰</text>
+              <text x="235" y="1494" font-size="11" fill="#64748b" text-anchor="middle">（未来规划：AI 外呼轻量化满意度调研 NPS）</text>
+
+              <rect x="415" y="1432" width="350" height="60" rx="4" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="590" y="1455" font-size="12" font-weight="600" fill="#1e293b" text-anchor="middle">12. 触发商机断点，DCC 自动生成【试驾回访工单】</text>
+              <text x="590" y="1475" font-size="11.5" font-weight="700" fill="#dc2626" text-anchor="middle">（工单编码 HF...，启动渠道来源与分派规则识别）</text>
+
+              <!-- Diamond 分派路由判断节点 (S5 +92) -->
+              <polygon points="590,1516 685,1562 590,1608 495,1562" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="590" y="1566" font-size="12" font-weight="600" fill="#1e293b" text-anchor="middle">试驾工单原始来源渠道？</text>
+              <rect x="430" y="1544" width="55" height="20" rx="3" fill="#ffffff" stroke="#cbd5e1"/>
+              <text x="457" y="1558" font-size="11" fill="#15803d" text-anchor="middle">人工建单</text>
+              <rect x="700" y="1544" width="55" height="20" rx="3" fill="#ffffff" stroke="#cbd5e1"/>
+              <text x="727" y="1558" font-size="11" fill="#2563eb" text-anchor="middle">AI 建单</text>
+
+              <!-- 人工建单分派卡片 -->
+              <rect x="350" y="1630" width="165" height="64" rx="4" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="432" y="1652" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">👤 原建单坐席直派</text>
+              <text x="432" y="1670" font-size="11" fill="#475569" text-anchor="middle">谁建单谁回访（Owner）</text>
+              <text x="432" y="1686" font-size="11" fill="#64748b" text-anchor="middle">工单直接绑定原坐席</text>
+
+              <!-- AI建单分派卡片 -->
+              <rect x="545" y="1630" width="220" height="64" rx="4" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="655" y="1652" font-size="12" font-weight="700" fill="#2563eb" text-anchor="middle">🤖 接入【分配规则】引擎</text>
+              <text x="655" y="1670" font-size="11" fill="#475569" text-anchor="middle">校验工作时段与在岗剩余配额</text>
+              <text x="655" y="1686" font-size="11" fill="#64748b" text-anchor="middle">按负载/补齐/业绩/轮流智能派单</text>
+
+              <rect x="415" y="1716" width="350" height="72" rx="4" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="590" y="1738" font-size="12" font-weight="600" fill="#1e293b" text-anchor="middle">13. 坐席工作台【试驾排程】接单，开展流失访谈：</text>
+              <text x="590" y="1758" font-size="11.5" fill="#475569" text-anchor="middle">① 查阅AI沟通纪要/异常事实，排查未到店真实顾虑</text>
+              <text x="590" y="1776" font-size="11.5" font-weight="700" fill="#2563eb" text-anchor="middle">② 核心目标：争取【二次激活，重新预约排程】</text>
+
+              <!-- Diamond P2 挽回访谈结果 -->
+              <polygon points="590,1810 680,1854 590,1898 500,1854" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="590" y="1858" font-size="12" font-weight="600" fill="#1e293b" text-anchor="middle">14. 挽回访谈结果</text>
+              <rect x="440" y="1878" width="80" height="20" rx="3" fill="#ffffff" stroke="#cbd5e1"/>
+              <text x="480" y="1892" font-size="11" fill="#2563eb" text-anchor="middle">同意重新试驾</text>
+              <rect x="650" y="1878" width="80" height="20" rx="3" fill="#ffffff" stroke="#cbd5e1"/>
+              <text x="690" y="1892" font-size="11" fill="#64748b" text-anchor="middle">客户明确放弃</text>
+
+              <rect x="395" y="1926" width="170" height="74" rx="4" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="480" y="1949" font-size="12" font-weight="600" fill="#1e293b" text-anchor="middle">重新录入四要素</text>
+              <text x="480" y="1969" font-size="12" font-weight="700" fill="#2563eb" text-anchor="middle">当场发起二次排程</text>
+              <text x="480" y="1987" font-size="11" fill="#64748b" text-anchor="middle">（返回阶段一建单）</text>
+
+              <rect x="610" y="1926" width="160" height="74" rx="4" fill="#ffffff" stroke="#334155" stroke-width="1.5"/>
+              <text x="690" y="1949" font-size="12" font-weight="600" fill="#1e293b" text-anchor="middle">录入失单归因与纪要</text>
+              <text x="690" y="1969" font-size="12" font-weight="700" fill="#475569" text-anchor="middle">工单闭环归档</text>
+              <text x="690" y="1987" font-size="11" fill="#64748b" text-anchor="middle">（商机战败留痕）</text>
+
+              <!-- 循环回路说明：独立置于回路线下方，避免虚线遮挡文字 -->
+              <rect x="180" y="2054" width="130" height="22" rx="4" fill="#eff6ff" stroke="#93c5fd"/>
+              <text x="245" y="2069" font-size="11" fill="#1d4ed8" text-anchor="middle" font-weight="600">二次激活重入阶段一</text>
+            </g>
+
+
+            <!-- ============================================================ -->
+            <!-- 3. 所有流转连线与箭头最顶层（绝对置于最顶层，无任何背景能遮盖） -->
+            <!-- ============================================================ -->
+            <g id="layer-connections">
+              <!-- S1 内部连线  (S1 +12) -->
+              <!-- 渠道1/渠道2 底部 y=124 → 汇聚点 y=142 → 四要素顶 y=160 -->
+              <path d="M 235 124 L 235 142 L 420 142 L 420 158" fill="none" stroke="#2563eb" stroke-width="1.5"/>
+              <path d="M 605 124 L 605 142 L 420 142 L 420 158" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+              <!-- 四要素底 y=204 → 菱形C顶 y=228 -->
+              <path d="M 420 204 L 420 226" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+              <!-- 菱形C左顶点 x=325,y=280 → 工单左侧 y=354 -->
+              <path d="M 325 280 L 235 280 L 235 352" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+              <!-- 菱形C右顶点 x=515,y=280 → 线索右侧 y=354 -->
+              <path d="M 515 280 L 605 280 L 605 352" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+
+              <!-- 跨阶段：S1 -> S2  (节点底 y=410，汇聚 y=450，S2首节点顶 y=490) -->
+              <path d="M 235 410 L 235 450 L 420 450 L 420 488" fill="none" stroke="#2563eb" stroke-width="1.5"/>
+              <path d="M 605 410 L 605 450 L 420 450 L 420 488" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+
+              <!-- S2 内部连线  (S2 +32) -->
+              <!-- 首节点底 y=544 → 菱形F顶 y=566 -->
+              <path d="M 420 544 L 420 564" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+              <!-- 菱形F左顶点 x=325,y=614 → 回执左侧 y=684 -->
+              <path d="M 325 614 L 235 614 L 235 682" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+              <!-- 菱形F右顶点 x=515,y=614 → 异常右侧 y=684 -->
+              <path d="M 515 614 L 605 614 L 605 682" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+
+              <!-- 跨阶段：S2 -> S3  (S2节点底 y=740，汇聚 y=780，S3首节点顶 y=842) -->
+              <path d="M 235 740 L 235 780 L 420 780 L 420 840" fill="none" stroke="#2563eb" stroke-width="1.5"/>
+              <path d="M 605 740 L 605 780 L 420 780 L 420 840" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+
+              <!-- S3 内部连线  (S3 +52) -->
+              <!-- 首节点底 y=884 → 大卡片顶 y=906 -->
+              <path d="M 420 884 L 420 904" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+
+              <!-- 跨阶段：S3 -> S4  (S3大卡片底 y=988，S4首节点顶 y=1086) -->
+              <path d="M 420 988 L 420 1084" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+
+              <!-- S4 内部连线  (S4 +72) -->
+              <!-- 首节点底 y=1128 → 菱形K顶 y=1150 -->
+              <path d="M 420 1128 L 420 1148" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+              <!-- 菱形K左顶点 x=325,y=1198 → 正常通道左侧 y=1272 -->
+              <path d="M 325 1198 L 235 1198 L 235 1270" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+              <!-- 菱形K右顶点 x=515,y=1198 → 异常通道右侧 y=1272 -->
+              <path d="M 515 1198 L 605 1198 L 605 1270" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+
+              <!-- 跨阶段：S4 -> S5  (S4节点底 y=1326，S5首节点顶 y=1432) -->
+              <path d="M 235 1326 L 235 1430" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+              <path d="M 605 1326 L 605 1392 L 590 1392 L 590 1430" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+
+              <!-- S5 内部连线：生成回访工单 -> 渠道分派判断菱形  (S5 +92) -->
+              <!-- 工单底 y=1492 → 菱形顶 y=1516 -->
+              <path d="M 590 1492 L 590 1514" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+
+              <!-- 分派菱形分支：人工建单 -> 原人直派 -->
+              <path d="M 495 1562 L 432 1562 L 432 1628" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+
+              <!-- 分派菱形分支：AI建单 -> 分配规则引擎（向右绕行后垂直下落） -->
+              <path d="M 685 1562 L 760 1562 L 760 1608 L 655 1608 L 655 1628" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+
+              <!-- 两大分派卡片汇聚 -> 坐席工作台接单访谈 (13) -->
+              <path d="M 432 1694 L 432 1706 L 520 1706 L 520 1714" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+              <path d="M 655 1694 L 655 1706 L 660 1706 L 660 1714" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+
+              <!-- 坐席访谈 (13) -> 挽回结果 (14)  (13底 y=1788 → 菱形顶 y=1810) -->
+              <path d="M 590 1788 L 590 1808" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+
+              <!-- 挽回结果两个分支  (菱形y=1854) -->
+              <path d="M 500 1854 L 480 1854 L 480 1924" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+              <path d="M 680 1854 L 690 1854 L 690 1924" fill="none" stroke="#2563eb" stroke-width="1.5" marker-end="url(#flow-arrow)"/>
+
+              <!-- 阶段五二次激活重入回路（最左侧外围空隙独立走线，x=26） -->
+              <!-- 二次排程卡片底 y=2000 → 药丸 y=2041 → 折回阶段一入口 y=183 -->
+              <path d="M 480 2000 L 480 2041 L 26 2041 L 26 183 L 268 183" fill="none" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#flow-arrow)"/>
+            </g>
+
+          </svg>
+          <details style="width:100%; max-width:760px; margin-top:20px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:6px; padding:10px 14px; font-size:12px;">
+            <summary style="cursor:pointer; font-weight:600; color:#2563eb; outline:none;">📋 查看 Mermaid 流程图源码（可直接复制至 Mermaid Live Editor / Typora / Markdown 编辑器）</summary>
+            <pre style="margin-top:10px; padding:12px; background:#0f172a; color:#e2e8f0; border-radius:6px; overflow-x:auto; font-size:11.5px; line-height:1.5; font-family:monospace;"><code>graph TD
+    %% 阶段一：意向采集与排程建单
+    subgraph S1["【阶段一】意向采集与排程建单"]
+        A1["渠道 1：AI 智能外呼排程&lt;br/&gt;（策略命中 ➔ 消歧预查 ➔ 口头确认）"]
+        A2["渠道 2：人工坐席日常建单&lt;br/&gt;（电话跟进 ➔ 客户确认试驾）"]
+        B["收敛四要素：车系 / 门店 / 日期 / 时段"]
+        C{"DCC 目标门店份额校验"}
+        D1["生成【试驾工单】&lt;br/&gt;&lt;b&gt;预约单号 (YYTJ...)&lt;/b&gt;"]
+        D2["生成【试驾线索】&lt;br/&gt;（约满保底，店端协商时间）"]
+
+        A1 --&gt; B
+        A2 --&gt; B
+        B --&gt; C
+        C -- "有配额" --&gt; D1
+        C -- "约满" --&gt; D2
+    end
+
+    %% 阶段二：中台中枢传输与回执确立
+    subgraph S2["【阶段二】中台中枢传输与回执确立"]
+        E["DCC 异步推送 NEV 线索中台&lt;br/&gt;POST /nev/test-drive-sync"]
+        F{"NEV 中台接收状态"}
+        G1["生成中台回执：&lt;b&gt;试驾排程编码 (NEVSP...)&lt;/b&gt;&lt;br/&gt;回传 DCC 落地存储"]
+        G2["⚠️ 双单号严格留白展示 (—)&lt;br/&gt;进入台账异常池，支持运营重试"]
+
+        D1 --&gt; E
+        D2 --&gt; E
+        E --&gt; F
+        F -- "推送成功" --&gt; G1
+        F -- "失败/超时" --&gt; G2
+    end
+
+    %% 阶段三：专营店直连与最终排程确立
+    subgraph S3["【阶段三】专营店直连与最终排程确立"]
+        H["NEV 中台根据意向门店直派专营店"]
+        I["专营店销售顾问接单，直接致电客户&lt;br/&gt;确认到店时间、解答车型、整备车辆&lt;br/&gt;&lt;b&gt;⚠️【业务红线】专营店自主闭环，总部坐席完全不参与&lt;/b&gt;"]
+
+        G1 --&gt; H
+        H --&gt; I
+    end
+
+    %% 阶段四：专营店现场接待与履约核销
+    subgraph S4["【阶段四】专营店现场接待与履约核销"]
+        J["客户按约到店，顾问陪同深度试驾体验"]
+        K{"专营店核销履约状态"}
+        L1["【正常通道】核销为：已履约&lt;br/&gt;（专营店线下促订成交）"]
+        L2["【异常通道】核销为：逾期未到店 / 临时取消&lt;br/&gt;（用户取消 / 门店取消 / 系统超时）"]
+
+        I --&gt; J
+        J --&gt; K
+        K -- "正常试驾完成" --&gt; L1
+        K -- "逾期或取消" --&gt; L2
+    end
+
+    %% 阶段五：工单分流与流失挽回
+    subgraph S5["【阶段五】总部工单分流与异常流失挽回（截图入口）"]
+        M1["【已履约跟进】&lt;br/&gt;线下闭环，总部人工不打扰&lt;br/&gt;（未来规划：AI 外呼满意度调研 NPS）"]
+        M2["12. 触发商机断点，DCC 自动生成【试驾回访工单】&lt;br/&gt;&lt;b&gt;启动工单归属识别与分派调度机制&lt;/b&gt;"]
+        M3{"试驾工单原始来源渠道？"}
+        M3_Manual["&lt;b&gt;👤 人工坐席建单&lt;/b&gt;&lt;br/&gt;原建单坐席直派（谁建单谁回访）&lt;br/&gt;工单直接绑定建单人工作台"]
+        M3_AI["&lt;b&gt;🤖 AI 外呼排程建单&lt;/b&gt;&lt;br/&gt;接入【分配规则】配置引擎&lt;br/&gt;校验工作时段与在岗可用配额&lt;br/&gt;按负载/补齐/业绩/轮流智能派单"]
+        N["13. 坐席工作台【试驾排程】接单，开展流失访谈：&lt;br/&gt;① 查阅AI沟通纪要/异常事实，排查未到店真实顾虑&lt;br/&gt;&lt;b&gt;② 核心目标：争取【二次激活，重新预约排程】&lt;/b&gt;"]
+        P2{"14. 挽回访谈结果"}
+        Q1["重新录入四要素&lt;br/&gt;&lt;b&gt;当场发起二次排程&lt;/b&gt;"]
+        Q2["录入失单归因与纪要&lt;br/&gt;&lt;b&gt;工单闭环归档&lt;/b&gt;"]
+
+        L1 --&gt; M1
+        L2 --&gt; M2
+        M2 --&gt; M3
+        M3 -- "人工建单" --&gt; M3_Manual
+        M3 -- "AI 建单" --&gt; M3_AI
+        M3_Manual --&gt; N
+        M3_AI --&gt; N
+        N --&gt; P2
+        P2 -- "同意重新试驾" --&gt; Q1
+        P2 -- "客户明确放弃" --&gt; Q2
+        Q1 -. "二次激活重入" .-&gt; B
+    end</code></pre>
+          </details>
+        </div>
+      </section>
+
+      <!-- 阶段详细规则 -->
+      <section id="stage-1">
+        <div class="stage-detail-card">
+          <div class="stage-detail-head">
+            <div class="stage-detail-title">
+              <span>【阶段一】意向采集与排程建单</span>
+              <span class="stage-badge sb-blue">Stage 1</span>
+            </div>
+            <span class="code-chip">预约单号 (YYTJ...) 诞生阶段</span>
+          </div>
+          <div class="stage-detail-body">
+            <div class="rule-grid">
+              <div class="rule-label">业务来源渠道</div>
+              <div class="rule-content">严格支持 <b>🤖 AI 智能外呼排程</b> 与 <b>👤 人工坐席日常跟进建单</b> 双渠道并行。</div>
+
+              <div class="rule-label">意向收敛四要素</div>
+              <div class="rule-content">必须完整收敛并确认四项核心事实：<b>意向车系</b>、<b>试驾专营店</b>、<b>预约日期</b>、<b>预约时段</b>。</div>
+
+              <div class="rule-label">AI 外呼技术特征</div>
+              <div class="rule-content">AI 机器人具备语义消歧能力，在与客户沟通中途异步调用 <code>GET /availability</code> 预查目标时段资源可用性；四要素完整且客户口头确认后调用 <code>POST /orders</code> 幂等建单。</div>
+
+              <div class="rule-label">DCC 配额校验分支</div>
+              <div class="rule-content">
+                DCC 最终校验目标专营店份额：<br>
+                1. <b>有份额</b>：生成【试驾工单】，并颁发官方业务单号 <code>预约单号 (YYTJ...)</code>；<br>
+                2. <b>已约满</b>：保底不漏单，自动分流生成【试驾线索】，由店端顾问电话协商改期。
+              </div>
+            </div>
+            <div class="rule-alert blue">
+              💡 <b>研发对照注意</b>：本阶段预约单号由 DCC 预先分配生成，但此单号仅代表 DCC 侧工单成功录入，不代表中台已确立。
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="stage-2">
+        <div class="stage-detail-card">
+          <div class="stage-detail-head">
+            <div class="stage-detail-title">
+              <span>【阶段二】中台中枢传输与回执确立</span>
+              <span class="stage-badge sb-sky">Stage 2</span>
+            </div>
+            <span class="code-chip">试驾排程编码 (NEVSP...) 诞生阶段</span>
+          </div>
+          <div class="stage-detail-body">
+            <div class="rule-grid">
+              <div class="rule-label">交互接口协议</div>
+              <div class="rule-content">DCC 异步推送 NEV 线索中台接口：<code>POST /nev/test-drive-sync</code>。</div>
+
+              <div class="rule-label">成功回执规则</div>
+              <div class="rule-content">NEV 中台接收成功后，返回中台权威凭证 <b>试驾排程编码 (<code>NEVSP...</code>)</b>，DCC 接收后落库存储并在前台监控看板透出。</div>
+
+              <div class="rule-label">异常处理与留白规范</div>
+              <div class="rule-content">
+                当 NEV 推送状态非成功（<code>待重试</code> / <code>推送超时</code> / <code>推送失败</code>）时：<br>
+                1. <b>凭单留白红线</b>：预约单号与试驾排程编码在前台<b>一律严格展示为留白横杠（<code>—</code>）</b>；<br>
+                2. <b>进入异常队列</b>：自动归入「推送异常」监控池，支持坐席或运维点击「重试推送 NEV」。
+              </div>
+            </div>
+            <div class="rule-alert amber">
+              ⚠️ <b>研发红线</b>：未成功推送至中台前，严禁向前台展示正式预约单号与排程编码，避免客户或门店持无效凭单到店引起客诉。
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="stage-3">
+        <div class="stage-detail-card">
+          <div class="stage-detail-head">
+            <div class="stage-detail-title">
+              <span>【阶段三】专营店直连与最终排程确立</span>
+              <span class="stage-badge sb-emerald">Stage 3</span>
+            </div>
+            <span class="code-chip">线下专营店顾问自主闭环</span>
+          </div>
+          <div class="stage-detail-body">
+            <div class="rule-grid">
+              <div class="rule-label">下发流向</div>
+              <div class="rule-content">NEV 中台根据订单中的专营店编码，直派对应专营店的销售系统。</div>
+
+              <div class="rule-label">顾问线下确认</div>
+              <div class="rule-content">专营店销售顾问接单后，<b>直接致电客户</b>确认具体到店接待时间、解答车型配置问题并提前整备试驾车辆。</div>
+
+              <div class="rule-label">核心业务红线</div>
+              <div class="rule-content"><b>对于已履约试驾，专营店自主闭环，总部坐席不参与二次确认</b>。总部不设二次确认坐席，严禁总部电话反复打扰客户；只有逾期未到店或临时取消等异常履约场景，才进入阶段五生成总部回访工单。</div>
+            </div>
+            <div class="rule-alert red">
+              🚫 <b>业务架构红线</b>：已履约路径由专营店销售团队直营负责，总部系统仅接收中台状态回传，不产生人工回访任务；异常履约路径按阶段五规则生成回访工单。
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="stage-4">
+        <div class="stage-detail-card">
+          <div class="stage-detail-head">
+            <div class="stage-detail-title">
+              <span>【阶段四】专营店现场接待与履约核销</span>
+              <span class="stage-badge sb-amber">Stage 4</span>
+            </div>
+            <span class="code-chip">状态三态分流核销</span>
+          </div>
+          <div class="stage-detail-body">
+            <div class="rule-grid">
+              <div class="rule-label">现场核销三态</div>
+              <div class="rule-content">
+                专营店销售顾问在店内终端核销当前预约的最终履约事实：<br>
+                1. <b>【已履约】</b>：客户如约到店并完成试驾；<br>
+                2. <b>【逾期未到店】</b>：超出预约时间且未取得改期联系；<br>
+                3. <b>【临时取消】</b>：包含用户主动取消、专营店因车源取消、中台超时自动取消。
+              </div>
+
+              <div class="rule-label">系统状态回传</div>
+              <div class="rule-content">专营店核销结果通过 NEV 中台异步回传至 DCC 系统，作为触发后续阶段的事件驱动因子。</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="stage-5">
+        <div class="stage-detail-card">
+          <div class="stage-detail-head">
+            <div class="stage-detail-title">
+              <span>【阶段五】总部工单分流与异常流失挽回</span>
+              <span class="stage-badge sb-rose">Stage 5</span>
+            </div>
+            <span class="code-chip">坐席工作台【试驾排程】专属流失挽回表单</span>
+          </div>
+          <div class="stage-detail-body">
+            <div class="rule-grid">
+              <div class="rule-label">已履约跟进规则</div>
+              <div class="rule-content">现阶段由专营店线下闭环促单，总部人工坐席不介入打扰；未来规划由 AI 外呼进行轻量化满意度（NPS）调研。</div>
+
+              <div class="rule-label">总部回访工单生成判定</div>
+              <div class="rule-content">
+                <b>取消或逾期状态回传，不等于立即生成总部试驾排程回访工单。</b>NEV 中台异步回传履约状态后，系统先根据当前履约状态命中状态映射；对于取消场景，再结合 <code>取消发起方</code> 与 <code>取消原因说明</code> 进行判定。仅当状态映射结果为 <code>是否需总部电销回访 = 是</code> 时，才进入门店补救时限校验。<br>
+                1. <b>不纳入总部回访</b>：因后台判定线索无效而发生的系统取消，映射结果为“不需总部电销回访”，不生成回访工单，也不进入任务分派规则；<br>
+                2. <b>门店优先补救</b>：对于用户取消、门店取消、已逾期等映射为“需总部电销回访”的场景，优先由门店进行补救。系统以状态更新时间 <code>T</code> 为基准进行校验：<code>T+1</code> 后仍未取得有效门店回访记录，或门店已回访但 <code>T+3</code> 后仍未取得完成重排的回传结果时，触发总部兜底；<br>
+                3. <b>总部兜底建单</b>：任一补救时限校验未通过时，系统生成【试驾排程回访工单】（如 <code>HF202609080032</code>），并根据原始预约的创建渠道识别分派路径：人工坐席日常建单进入原人直派；AI 智能外呼排程建单进入分配规则。对于同一预约的同一次异常履约事件，仅保留一张有效回访工单；后续校验仅更新该工单，不重复建单。
+              </div>
+
+              <div class="rule-label">智能分派路由机制</div>
+              <div class="rule-content">
+                针对不同来源渠道，系统采取针对性的分流与智能调度策略：<br>
+                1. <b>【人工坐席建单 ➔ 原人直派机制】</b>：秉持“谁创建、谁回访”原则，工单责任人严格绑定原建单坐席工号，直接派发至该坐席工作台【我的任务 -> 培育任务 -> 试驾排程】，确保服务连续性与客户沟通信任度；<br>
+                2. <b>【AI 外呼建单 ➔ 任务排班分配规则引擎】</b>：由于 AI 建单无归属坐席且不能由 AI 执行回访，系统将该工单推入【任务排班 - 分配规则】引擎：<br>
+                   &nbsp;&nbsp;① <b>工作时段校验</b>：校验当前是否处于设定的工作时间（如 <code>09:00 - 20:55</code>），非工作时段产生的工单自动汇入【人工分配待办池】，由电销主管手工调度；<br>
+                   &nbsp;&nbsp;② <b>在岗与配额前置校验</b>：基于坐席当日排班在岗状态与「剩余可用接待量 &gt; 0」前提条件，过滤出符合接单资格的坐席候选池；若全员满负荷则转入人工分配池兜底；<br>
+                   &nbsp;&nbsp;③ <b>策略算法精准派发</b>：按排班后台配置的策略（负载优先 / 补齐优先 / 业绩优先 / 顺序轮流）自动计算最优坐席并落单，工单实时推入该坐席工作台队列。
+              </div>
+
+              <div class="rule-label">坐席流失挽回表单</div>
+              <div class="rule-content">
+                坐席打开该工单，工作台呈现阶段五专属表单：<br>
+                1. <b>渠道溯源与前序纪要</b>：清晰透出「来源：🤖 AI外呼排程」或「来源：👤 人工坐席建单」。AI渠道展示 AI 外呼通话小结与消歧沟通事实；通话小结来自 AI 外呼结果回传，无回传时显示“暂无AI通话小结”，不以人工纪要代替；<br>
+                2. <b>AI与人工执行主体分离</b>：AI渠道的外呼执行主体固定显示为“AI外呼系统”，不展示人工坐席帐号；人工回访坐席帐号仅记录在后续督导回访记录中，并按每次实际提交人留存；<br>
+                3. <b>排程结果只读回执</b>：试驾排程下发结果来自 NEV 中台/门店系统回执，与 AI 通话小结分开展示，状态可为已成功下发、待回执、推送失败、推送超时、不下发或取消；<br>
+                4. <b>来源过渡提示</b>：AI外呼试驾回访工单首次打开时，表单顶部显示“AI外呼试驾排程回访 · 系统自动分配/主管分配”一次性提示，支持手动关闭并在 10 秒后自动收起；<br>
+                5. <b>履约异常事实卡片</b>：红色边框透出原单号、原车系、原门店及取消/逾期事实；<br>
+                6. <b>流失归因排查</b>：服务态度差 / 时间冲突 / 竞品截流 / 暂无购车需求；<br>
+                7. <b>三大核心决策卡片</b>：<br>
+                   - 【二次激活 · 同意重新排程】（推荐）：动态展开新门店、时段录入，当场生成新排程直推中台；<br>
+                   - 【持续培育 · 保持观察】：移入常规外呼培育流；<br>
+                   - 【确认流失 · 战败归档】：记录纪要并归档闭环。
+              </div>
+            </div>
+            <div class="rule-alert red">
+              🎯 <b>业务终极目标</b>：阶段五的核心不是事后追责，而是由专业电销坐席排查客户真实顾虑，全力争取<b>【二次激活，重新预约排程】</b>，实现商机闭环！
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 编码链路溯源表 -->
+      <section id="code-trace">
+        <div class="section-title">🔢 全链路业务单号与编码追溯对照表</div>
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th style="width:140px;">单号标识</th>
+              <th style="width:160px;">命名格式示例</th>
+              <th style="width:130px;">产生阶段</th>
+              <th style="width:140px;">生成系统</th>
+              <th>业务含义与流转逻辑</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>培育线索编码</b></td>
+              <td><span class="code-chip">PYXS202605280001</span></td>
+              <td>线索清洗留资</td>
+              <td>DCC 培育池</td>
+              <td>潜客在 DCC 系统的全局唯一主线索主键，跨所有任务周期保持不变。</td>
+            </tr>
+            <tr>
+              <td><b>培育任务编码</b></td>
+              <td><span class="code-chip">PYRW202605280128</span></td>
+              <td>外呼策略派发</td>
+              <td>DCC 任务引擎</td>
+              <td>下发给 AI 外呼或人工电销的具体触达任务实例标识。</td>
+            </tr>
+            <tr>
+              <td><b>回访工单编码</b></td>
+              <td><span class="code-chip">HF202605280032</span></td>
+              <td>外呼接通/异常回访</td>
+              <td>DCC 外呼工单</td>
+              <td>外呼接通或阶段五异常流失时生成的回访凭证。<b>研发分派红线：人工建单回访人=原创建坐席；AI建单回访人=通过【分配规则】引擎智能派发或转人工分配池</b>。</td>
+            </tr>
+            <tr>
+              <td><b>预约单号</b></td>
+              <td><span class="code-chip">YYTJ202609080023</span></td>
+              <td>【阶段一】建单</td>
+              <td>DCC 试驾中心</td>
+              <td>客户确认试驾意向后，DCC 系统内部核发的预约流水凭证。推送异常时严格留白（—）。</td>
+            </tr>
+            <tr>
+              <td><b>试驾排程编码</b></td>
+              <td><span class="code-chip">NEVSP202609080023</span></td>
+              <td>【阶段二】中台回执</td>
+              <td>NEV 线索中台</td>
+              <td>中台接收并确认排程后返回的权威业务排程凭证。推送异常时严格留白（—）。</td>
+            </tr>
+            <tr>
+              <td><b>AI外呼通话小结</b></td>
+              <td><span class="code-chip">AI_SUMMARY</span></td>
+              <td>AI 外呼结果回传</td>
+              <td>AI 外呼系统</td>
+              <td>AI 外呼完成后的结构化通话摘要，仅供阶段五坐席查看；无回传时显示“暂无AI通话小结”，不等同于人工回访纪要。</td>
+            </tr>
+            <tr>
+              <td><b>试驾排程下发结果</b></td>
+              <td><span class="code-chip">DISPATCH_RESULT</span></td>
+              <td>【阶段二】中台/门店回执</td>
+              <td>NEV 线索中台 / 门店系统</td>
+              <td>记录排程下发后的系统状态与回执说明，与 AI 通话小结分开存储和展示，可为成功、待回执、失败、超时、不下发或取消。</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+    </div>
+
+    </section>
+
+    <section id="solutionPanel" class="document-panel" role="tabpanel" hidden>
+      <div class="solution-frame-wrap">
+        <iframe
+          class="solution-frame"
+          title="AI 外呼全自动排程评审调整方案"
+          loading="lazy"
+          src="../../../产品方案/AI%20外呼试驾排程产品解决方案/AI外呼试驾全自动排程_评审调整方案.html?v=20260924_scheme_b"></iframe>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (() => {
+      const tabs = Array.from(document.querySelectorAll('[data-document-tab]'));
+      const panels = tabs.map(tab => document.getElementById(tab.dataset.documentTab)).filter(Boolean);
+      tabs.forEach(tab => tab.addEventListener('click', () => {
+        const targetId = tab.dataset.documentTab;
+        tabs.forEach(item => {
+          const active = item === tab;
+          item.classList.toggle('active', active);
+          item.setAttribute('aria-selected', String(active));
+        });
+        panels.forEach(panel => { panel.hidden = panel.id !== targetId; });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }));
+    })();
+  </script>
+</body>
+</html>
