@@ -1,0 +1,270 @@
+/* ==================== 主管培育任务 (supervisor-nurture-task) ==================== */
+#nurtureTaskPage.show {
+  display: flex !important;
+  flex-direction: column !important;
+  height: calc(100vh - 110px) !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  background: #f8fafc;
+}
+.sd-snurture-tabs-wrap { background: #fff; padding: 0 16px; border-bottom: 1px solid #e2e8f0; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,.03); margin-bottom: 0; border-radius: 0; }
+.sd-snurture-tabs { display: flex; gap: 0; border-bottom: none; overflow-x: auto; }
+.sd-snurture-tab { padding: 12px 18px; font-size: 14px; color: #606266; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all .2s; position: relative; display: flex; align-items: center; gap: 6px; user-select: none; }
+.sd-snurture-tab:hover { color: #1890ff; }
+.sd-snurture-tab.active { color: #1890ff; font-weight: 600; border-bottom-color: #1890ff; }
+.sd-tab-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: #f56c6c; color: #fff; font-size: 11px; font-weight: 600; line-height: 1; }
+.sd-snurture-content { flex: 1; min-height: 0; overflow-y: auto; padding: 12px 16px; display: flex; flex-direction: column; gap: 12px; }
+.sd-btn-text { background: transparent; border: none; color: #409eff; cursor: pointer; font-size: 12px; padding: 2px 4px; }
+.sd-btn-text:hover { color: #66b1ff; }
+.sd-text-success { color: #67c23a; }
+.sd-text-success:hover { color: #85ce61; }
+.sd-text-danger { color: #f56c6c; }
+.sd-text-danger:hover { color: #f78989; }
+.sd-text-primary { color: #409eff; }
+.sd-text-primary:hover { color: #66b1ff; }
+.sd-snurture-content { display: flex; flex-direction: column; gap: 12px; }
+
+/* 筛选卡片 */
+.sd-filter-card { background: #fff; border-radius: 10px; padding: 16px 20px 4px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+.sd-filter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px 16px; align-items: end; }
+.sd-filter-grid.expanded { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.sd-filter-item { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.sd-filter-item label { font-size: 13px; color: #606266; white-space: nowrap; }
+.sd-filter-item-range .sd-date-range { display: flex; align-items: center; gap: 6px; }
+.sd-form-input { height: 32px; padding: 0 10px; border: 1px solid #dcdfe6; border-radius: 6px; font-size: 13px; outline: none; transition: border-color .2s; width: 100%; background: #fff; }
+.sd-form-input:focus { border-color: #409eff; }
+.sd-form-select { height: 32px; padding: 0 28px 0 10px; border: 1px solid #dcdfe6; border-radius: 6px; font-size: 13px; outline: none; background: #fff; width: 100%; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23c0c4cc' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; }
+.sd-form-select:focus { border-color: #409eff; }
+.sd-filter-input { }
+.sd-filter-select { }
+
+/* 日期范围 */
+.sd-date-range { display: flex; align-items: center; gap: 6px; }
+.sd-date-input { flex: 1; min-width: 0; }
+.sd-date-sep { color: #909399; font-size: 13px; flex-shrink: 0; }
+
+/* 筛选操作按钮 */
+.sd-filter-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding-bottom: 12px; }
+.sd-btn { height: 32px; padding: 0 16px; border: 1px solid #dcdfe6; border-radius: 6px; font-size: 13px; cursor: pointer; outline: none; transition: all .2s; background: #fff; color: #606266; display: inline-flex; align-items: center; gap: 4px; }
+.sd-btn:hover { color: #409eff; border-color: #c6e2ff; background: #ecf5ff; }
+.sd-btn-primary { background: #409eff; border-color: #409eff; color: #fff; }
+.sd-btn-primary:hover { background: #66b1ff; border-color: #66b1ff; color: #fff; }
+.sd-btn-default { background: #fff; }
+.sd-btn-info { background: #909399; border-color: #909399; color: #fff; }
+.sd-btn-info:hover { background: #a6a9ad; border-color: #a6a9ad; color: #fff; }
+.sd-btn-danger { background: #f56c6c; border-color: #f56c6c; color: #fff; }
+.sd-btn-danger:hover { background: #f78989; border-color: #f78989; color: #fff; }
+.sd-btn-success { background: #67c23a; border-color: #67c23a; color: #fff; }
+.sd-btn-success:hover { background: #85ce61; border-color: #85ce61; color: #fff; }
+.sd-btn-warning { background: #e6a23c; border-color: #e6a23c; color: #fff; }
+.sd-btn-link { border: none; background: transparent; color: #409eff; padding: 0 4px; }
+.sd-btn-link:hover { color: #66b1ff; background: transparent; }
+.sd-btn-text { border: none; background: transparent; color: #409eff; padding: 0 4px; height: auto; }
+.sd-btn-text:hover { color: #66b1ff; background: transparent; }
+.sd-btn.is-disabled, .sd-btn:disabled { opacity: .5; cursor: not-allowed; pointer-events: none; }
+.sd-filter-toggle { color: #409eff; font-size: 13px; gap: 2px; }
+.sd-arrow { font-size: 10px; }
+
+/* 子Tab */
+.sd-subtabs-wrap { background: #fff; border-radius: 10px; padding: 0 16px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+.sd-snurture-subtabs { display: flex; gap: 0; }
+.sd-snurture-subtab { padding: 12px 20px; font-size: 13px; color: #606266; cursor: pointer; border-bottom: 2px solid transparent; transition: all .2s; }
+.sd-snurture-subtab:hover { color: #409eff; }
+.sd-snurture-subtab.active { color: #409eff; font-weight: 600; border-bottom-color: #409eff; }
+
+/* 操作栏 */
+.sd-action-bar { background: #fff; border-radius: 10px; padding: 12px 16px; display: flex; gap: 8px; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+.selected-tip { font-size: 13px; color: #909399; margin-left: 4px; }
+.selected-tip strong { color: #409eff; }
+
+/* 表格 */
+.sd-table-card { background: #fff; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.04); overflow: hidden; }
+.sd-table-wrap { overflow-x: auto; }
+.sd-data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.sd-data-table th { background: #fafafa; padding: 10px 12px; text-align: left; font-weight: 600; color: #1f2937; border-bottom: 1px solid #f0f0f0; white-space: nowrap; }
+.sd-data-table td { padding: 10px 12px; border-bottom: 1px solid #f5f7fa; color: #303133; white-space: nowrap; }
+.sd-data-table tbody tr:hover { background: #f5f7fa; }
+.sd-data-table tbody tr.is-selected { background: #ecf5ff; }
+.sd-table-empty { text-align: center; padding: 40px 0; color: #909399; }
+.is-muted { color: #909399; }
+.is-mono { font-family: "SF Mono", Menlo, monospace; font-size: 12px; }
+.is-small { font-size: 12px; }
+.is-center { text-align: center; }
+.sd-text-success { color: #67c23a !important; }
+.sd-text-danger { color: #f56c6c !important; }
+
+/* 标签Tag */
+.sd-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; line-height: 1.5; }
+.sd-tag-info { background: #ecf5ff; color: #409eff; border: 1px solid #d9ecff; }
+.sd-tag-success { background: #f0f9eb; color: #67c23a; border: 1px solid #e1f3d8; }
+.sd-tag-warning { background: #fdf6ec; color: #e6a23c; border: 1px solid #faecd8; }
+.sd-tag-danger { background: #fef0f0; color: #f56c6c; border: 1px solid #fde2e2; }
+.sd-tag-default { background: #f4f4f5; color: #909399; border: 1px solid #e9e9eb; }
+
+/* 弹窗 */
+.sd-modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+.sd-modal-dialog { background: #fff; border-radius: 12px; width: 90%; max-width: 780px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,.2); }
+.sd-modal-lg { max-width: 800px; }
+.sd-modal-header { padding: 16px 20px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; }
+.sd-modal-title { font-size: 16px; font-weight: 600; color: #303133; }
+.sd-modal-close { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #909399; cursor: pointer; border-radius: 50%; transition: all .2s; }
+.sd-modal-close:hover { background: #f5f7fa; color: #409eff; }
+.sd-modal-body { padding: 20px; flex: 1; overflow-y: auto; }
+.sd-modal-footer { padding: 12px 20px; border-top: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.sd-modal-filter { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; flex-wrap: wrap; }
+.sd-modal-filter label { font-size: 13px; color: #606266; }
+.sd-modal-filter .sd-form-input { width: 180px; }
+.sd-modal-count { margin-left: auto; font-size: 13px; color: #909399; }
+.sd-modal-count strong { color: #409eff; font-size: 15px; }
+.sd-modal-table-wrap { max-height: 360px; overflow-y: auto; }
+.sd-assign-count { width: 80px; text-align: center; }
+.sd-modal-assigned-count { flex: 1; font-size: 13px; color: #909399; }
+.sd-modal-assigned-count strong { color: #67c23a; }
+
+/* ==================== 穿梭框 (Transfer) - 新建坐席 ==================== */
+.sd-transfer-wrap { display: flex; align-items: stretch; gap: 12px; padding: 20px; }
+.sd-transfer-panel { flex: 1; border: 1px solid #ebeef5; border-radius: 8px; display: flex; flex-direction: column; min-width: 0; background: #fff; }
+.sd-transfer-header { padding: 10px 12px; border-bottom: 1px solid #ebeef5; display: flex; align-items: center; gap: 8px; background: #fafafa; border-radius: 8px 8px 0 0; }
+.sd-transfer-checkbox { position: relative; display: inline-flex; align-items: center; cursor: pointer; }
+.sd-transfer-checkbox input { position: absolute; opacity: 0; cursor: pointer; }
+.sd-transfer-checkbox span { width: 16px; height: 16px; border: 1px solid #dcdfe6; border-radius: 3px; background: #fff; display: inline-block; position: relative; transition: all .2s; }
+.sd-transfer-checkbox input:checked + span { background: #409eff; border-color: #409eff; }
+.sd-transfer-checkbox input:checked + span::after { content: ''; position: absolute; left: 4px; top: 1px; width: 5px; height: 9px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.sd-transfer-title { font-size: 13px; font-weight: 600; color: #303133; flex: 1; }
+.sd-transfer-count { font-size: 12px; color: #909399; }
+.sd-transfer-search { padding: 8px 12px; border-bottom: 1px solid #f0f0f0; }
+.sd-transfer-search .form-input { height: 30px; font-size: 12px; }
+.sd-transfer-list { flex: 1; overflow-y: auto; max-height: 300px; padding: 4px 0; }
+.sd-transfer-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; cursor: pointer; transition: background .15s; font-size: 13px; }
+.sd-transfer-item:hover { background: #f5f7fa; }
+.sd-transfer-item.selected { background: #ecf5ff; }
+.sd-transfer-account { font-family: "SF Mono", Menlo, monospace; font-size: 12px; color: #303133; }
+.sd-transfer-name { color: #606266; margin-left: auto; font-size: 12px; }
+.sd-transfer-empty { text-align: center; padding: 40px 0; color: #c0c4cc; font-size: 13px; }
+.sd-transfer-btns { display: flex; flex-direction: column; gap: 8px; justify-content: center; padding: 0 4px; }
+.sd-transfer-btn { width: 32px; height: 32px; border: 1px solid #dcdfe6; border-radius: 6px; background: #fff; color: #606266; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+.sd-transfer-btn:hover:not(:disabled) { border-color: #409eff; color: #409eff; background: #ecf5ff; }
+.sd-transfer-btn:disabled { cursor: not-allowed; opacity: .5; }
+
+/* ==================== 审批弹窗 ==================== */
+.sd-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+.sd-modal-sm { background: #fff; border-radius: 12px; width: 90%; max-width: 480px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,.2); }
+.sd-btn-danger { background: #f56c6c; color: #fff; border: 1px solid #f56c6c; }
+.sd-btn-danger:hover { background: #f78989; border-color: #f78989; }
+.sd-filter-textarea { width: 100%; padding: 8px 12px; border: 1px solid #dcdfe6; border-radius: 6px; font-size: 13px; color: #606266; outline: none; resize: vertical; font-family: inherit; box-sizing: border-box; }
+.sd-filter-textarea:focus { border-color: #409eff; }
+
+/* ==================== 详情弹窗 ==================== */
+.sd-modal-lg { background: #fff; border-radius: 12px; width: 90%; max-width: 900px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,.2); }
+.sd-modal-body { padding: 20px 24px; overflow-y: auto; }
+
+/* 详情头部状态卡 */
+.sd-detail-hero { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: linear-gradient(135deg,#f0f7ff 0%,#e8f4ff 100%); border-radius: 10px; margin-bottom: 20px; }
+.sd-detail-hero-left { flex: 1; }
+.sd-detail-hero-title { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.sd-detail-hero-sub { font-size: 13px; color: #606266; }
+.sd-detail-hero-sub .is-mono { font-family: 'SF Mono', Menlo, monospace; color: #303133; }
+.sd-detail-hero-right { display: flex; gap: 24px; padding-left: 24px; border-left: 1px solid #d4e7fc; }
+.sd-detail-stat { text-align: center; min-width: 70px; }
+.sd-detail-stat-num { font-size: 22px; font-weight: 700; color: #409eff; line-height: 1.2; }
+.sd-detail-stat-label { font-size: 12px; color: #909399; margin-top: 4px; }
+
+.sd-detail-section { margin-bottom: 20px; }
+.sd-detail-section:last-child { margin-bottom: 0; }
+.sd-detail-title { font-size: 14px; font-weight: 600; color: #303133; padding-bottom: 10px; margin-bottom: 14px; border-bottom: 1px solid #ebeef5; padding-left: 10px; position: relative; }
+.sd-detail-title::before { content: ''; position: absolute; left: 0; top: 2px; width: 4px; height: 16px; background: #409eff; border-radius: 2px; }
+.sd-detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px 24px; }
+.sd-detail-item { display: flex; align-items: flex-start; font-size: 13px; line-height: 1.6; }
+.sd-detail-item label { color: #909399; min-width: 120px; flex-shrink: 0; }
+.sd-detail-item span { color: #303133; word-break: break-all; }
+.sd-detail-form { display: grid; gap: 14px; }
+.sd-detail-form-row { display: flex; align-items: flex-start; font-size: 13px; line-height: 1.6; }
+.sd-detail-form-row label { color: #909399; min-width: 120px; flex-shrink: 0; }
+.sd-detail-form-row span { color: #303133; flex: 1; }
+.sd-detail-timeline { position: relative; padding-left: 20px; }
+.sd-detail-timeline::before { content: ''; position: absolute; left: 5px; top: 8px; bottom: 8px; width: 2px; background: #e4e7ed; }
+.sd-timeline-item { position: relative; padding-bottom: 20px; }
+.sd-timeline-item:last-child { padding-bottom: 0; }
+.sd-timeline-dot { position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: #409eff; border: 2px solid #fff; box-shadow: 0 0 0 2px #409eff; }
+.sd-timeline-content { padding-left: 8px; }
+.sd-timeline-time { font-size: 12px; color: #909399; margin-bottom: 4px; }
+.sd-timeline-text { font-size: 13px; color: #606266; line-height: 1.6; }
+
+/* 分页 */
+.sd-pagination { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-top: 1px solid #f0f0f0; }
+.sd-pagination-info { font-size: 13px; color: #909399; }
+.sd-pagination-btns { display: flex; align-items: center; gap: 6px; }
+.sd-page-btn { min-width: 32px; height: 32px; border: 1px solid #dcdfe6; border-radius: 4px; background: #fff; color: #606266; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0 8px; transition: all .2s; }
+.sd-page-btn:hover:not(.is-disabled):not(.is-active) { color: #409eff; border-color: #409eff; }
+.sd-page-btn.is-active { background: #409eff; color: #fff; border-color: #409eff; }
+.sd-page-btn.is-disabled { color: #c0c4cc; cursor: not-allowed; background: #f5f7fa; }
+.sd-page-ellipsis { color: #909399; padding: 0 4px; }
+.sd-page-size { height: 32px; border: 1px solid #dcdfe6; border-radius: 4px; padding: 0 8px; font-size: 13px; color: #606266; margin-left: 8px; cursor: pointer; outline: none; }
+.sd-page-size:focus { border-color: #409eff; }
+
+/* ==================== 填单审核工作台（三栏布局） ==================== */
+.sd-modal-xl { background: #f5f7fa; width: 98%; max-width: 1400px; height: 92vh; max-height: 900px; border-radius: 8px; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,.25); overflow: hidden; }
+.sd-audit-workbench { flex: 1; display: flex; overflow: hidden; }
+.sd-audit-col-left { width: 220px; background: #fff; border-right: 1px solid #ebeef5; display: flex; flex-direction: column; overflow-y: auto; padding: 12px; }
+.sd-audit-col-mid { flex: 1; background: #fff; border-right: 1px solid #ebeef5; overflow-y: auto; padding: 20px 24px; }
+.sd-audit-col-right { width: 280px; background: #fff; display: flex; flex-direction: column; }
+
+/* 左栏：录音 */
+.sd-audio-item { margin-bottom: 10px; }
+.sd-audio-item-title { font-size: 13px; color: #303133; font-weight: 500; margin-bottom: 8px; padding-left: 4px; border-left: 3px solid #409eff; }
+.sd-audio-player { background: #f5f7fa; border-radius: 6px; padding: 10px; display: flex; align-items: center; gap: 8px; }
+.sd-audio-play-btn { width: 28px; height: 28px; border-radius: 50%; background: #409eff; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 10px; flex-shrink: 0; }
+.sd-audio-time { font-size: 12px; color: #606266; font-family: 'SF Mono', Menlo, monospace; }
+.sd-audio-progress { flex: 1; height: 3px; background: #dcdfe6; border-radius: 2px; position: relative; margin: 0 4px; }
+.sd-audio-progress-bar { position: absolute; left: 0; top: 0; height: 100%; background: #409eff; border-radius: 2px; width: 0%; }
+.sd-audio-volume { font-size: 14px; color: #909399; cursor: pointer; }
+.sd-audio-actions { display: flex; gap: 6px; margin-top: 8px; }
+.sd-audio-action-btn { flex: 1; padding: 6px 0; border-radius: 4px; border: 1px solid #dcdfe6; background: #fff; font-size: 12px; cursor: pointer; text-align: center; color: #606266; }
+.sd-audio-action-btn.sd-audio-action-primary { background: #d0e8ff; color: #409eff; border-color: #b3d8ff; }
+
+/* 中栏：客户头部 */
+.sd-audit-customer-header { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+.sd-audit-customer-name { font-size: 18px; font-weight: 600; color: #303133; display: flex; align-items: center; gap: 4px; }
+.sd-audit-gender-icon { width: 20px; height: 20px; border-radius: 4px; background: #409eff; color: #fff; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; }
+.sd-audit-gender-icon.female { background: #f78fb3; }
+.sd-audit-level-tag { background: #f0f7ff; color: #409eff; border: 1px solid #d0e8ff; border-radius: 4px; padding: 2px 8px; font-size: 12px; }
+.sd-audit-section-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; margin-bottom: 16px; cursor: pointer; }
+.sd-audit-section-title { font-size: 14px; font-weight: 600; color: #303133; display: flex; align-items: center; gap: 6px; }
+.sd-audit-section-title::before { content: ''; width: 3px; height: 14px; background: #409eff; border-radius: 2px; }
+.sd-audit-section-arrow { color: #909399; font-size: 12px; }
+
+/* 线索信息网格 */
+.sd-lead-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; margin-bottom: 24px; }
+.sd-lead-info-item { display: flex; align-items: flex-start; font-size: 13px; line-height: 1.8; }
+.sd-lead-info-item label { color: #909399; min-width: 90px; flex-shrink: 0; }
+.sd-lead-info-item span { color: #303133; word-break: break-all; }
+.sd-lead-info-item span.is-link { color: #409eff; cursor: pointer; text-decoration: none; }
+.sd-lead-info-item span.is-mono { font-family: 'SF Mono', Menlo, monospace; }
+
+/* 回访表单 */
+.sd-audit-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 24px; margin-bottom: 16px; }
+.sd-audit-form-item { display: flex; flex-direction: column; gap: 6px; }
+.sd-audit-form-item.full { grid-column: 1 / -1; }
+.sd-audit-form-item label { font-size: 13px; color: #606266; font-weight: 500; }
+.sd-audit-form-item label.required::before { content: '*'; color: #f56c6c; margin-right: 4px; }
+.sd-audit-form-input, .sd-audit-form-select { width: 100%; height: 36px; border: 1px solid #dcdfe6; border-radius: 4px; padding: 0 12px; font-size: 13px; color: #303133; outline: none; background: #fff; box-sizing: border-box; }
+.sd-audit-form-input:focus, .sd-audit-form-select:focus { border-color: #409eff; }
+.sd-audit-form-input[readonly] { background: #f5f7fa; color: #606266; }
+
+/* 右栏：Tab */
+.sd-audit-right-tabs { display: flex; border-bottom: 1px solid #ebeef5; padding: 0 12px; flex-shrink: 0; }
+.sd-audit-right-tab { padding: 12px 16px; font-size: 13px; color: #606266; cursor: pointer; border-bottom: 2px solid transparent; position: relative; }
+.sd-audit-right-tab.active { color: #409eff; border-bottom-color: #409eff; font-weight: 500; }
+.sd-audit-right-tab .sd-tab-badge { position: absolute; top: 8px; right: 4px; }
+.sd-audit-right-content { flex: 1; overflow-y: auto; padding: 16px; }
+.sd-audit-right-search { display: flex; gap: 0; margin-bottom: 12px; }
+.sd-audit-right-search input { flex: 1; height: 32px; border: 1px solid #dcdfe6; border-right: none; border-radius: 4px 0 0 4px; padding: 0 10px; font-size: 12px; outline: none; }
+.sd-audit-right-search button { width: 52px; height: 32px; background: #409eff; color: #fff; border: none; border-radius: 0 4px 4px 0; font-size: 12px; cursor: pointer; }
+.sd-audit-right-more { text-align: center; padding: 12px 0; color: #909399; font-size: 14px; cursor: pointer; }
+
+/* 底部按钮 */
+.sd-audit-footer { padding: 12px 20px; background: #fff; border-top: 1px solid #ebeef5; display: flex; justify-content: flex-end; gap: 10px; flex-shrink: 0; }
+.sd-audit-confirm-btn { padding: 8px 24px; background: #409eff; color: #fff; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; }
+.sd-audit-confirm-btn:hover { background: #66b1ff; }
+.sd-audit-reject-btn { padding: 8px 24px; background: #fff; color: #f56c6c; border: 1px solid #fbc4c4; border-radius: 4px; font-size: 14px; cursor: pointer; }
+.sd-audit-reject-btn:hover { background: #fef0f0; }

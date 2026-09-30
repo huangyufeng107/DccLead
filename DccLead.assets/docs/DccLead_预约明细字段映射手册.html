@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>人工坐席预约明细 · 字段命名具象化与开发数据映射手册</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --primary-border: #bfdbfe;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748b;
+      --slate-100: #f1f5f9;
+      --slate-50: #f8fafc;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: #f8fafc;
+      color: var(--slate-700);
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .page-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+      overflow: hidden;
+    }
+    .page-header {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: #ffffff;
+      padding: 28px 36px;
+      border-bottom: 3px solid var(--primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .header-title h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-title p {
+      color: #94a3b8;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+    .badge-ver {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      background: rgba(37, 99, 235, 0.3);
+      color: #93c5fd;
+      border: 1px solid rgba(147, 197, 253, 0.4);
+    }
+    .header-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .btn-primary { background: #2563eb; color: #fff; border: 1px solid #2563eb; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-secondary { background: rgba(255, 255, 255, 0.1); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.2); }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.2); }
+
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      padding: 24px 36px 12px;
+      background: #fafbfc;
+      border-bottom: 1px solid var(--border);
+    }
+    .summary-card {
+      background: #ffffff;
+      padding: 14px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .summary-card .label { font-size: 12px; color: var(--slate-500); font-weight: 500; }
+    .summary-card .value { font-size: 20px; font-weight: 700; color: var(--slate-800); }
+    .summary-card.c-blue .value { color: #2563eb; }
+    .summary-card.c-purple .value { color: #7c3aed; }
+    .summary-card.c-green .value { color: #15803d; }
+    .summary-card.c-orange .value { color: #c2410c; }
+
+    .toolbar-section {
+      padding: 16px 36px;
+      background: #ffffff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .filter-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--slate-50);
+      color: var(--slate-600);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .filter-btn:hover { background: #e2e8f0; color: var(--slate-800); }
+    .filter-btn.active { background: #2563eb; border-color: #2563eb; color: #ffffff; }
+
+    .search-input {
+      padding: 6px 14px;
+      font-size: 13px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      width: 260px;
+      outline: none;
+    }
+    .search-input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
+
+    .table-container {
+      padding: 24px 36px 36px;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+    th {
+      background: var(--slate-100);
+      color: var(--slate-800);
+      padding: 12px 14px;
+      font-weight: 600;
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+    }
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:hover td {
+      background: #f8fafc;
+    }
+
+    .tag-category {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .cat-booking { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+    .cat-schedule { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+    .cat-execution { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+    .cat-store { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+    .cat-hq { background: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8; }
+    .cat-trace { background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; }
+
+    .old-name {
+      color: #94a3b8;
+      text-decoration: line-through;
+      font-size: 12px;
+      display: block;
+      margin-top: 2px;
+    }
+    .new-name {
+      color: #0f172a;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .field-key {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      color: #2563eb;
+      background: #eff6ff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+      display: inline-block;
+    }
+    .field-type {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+    .intent-text {
+      color: #475569;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .notice-box {
+      margin: 20px 36px;
+      padding: 16px 20px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .notice-icon { font-size: 20px; }
+    .notice-content h4 { font-size: 13px; color: #1e40af; font-weight: 700; margin-bottom: 4px; }
+    .notice-content p { font-size: 12px; color: #1e3a8a; line-height: 1.6; }
+
+    @media print {
+      body { background: #fff; padding: 0; }
+      .page-container { box-shadow: none; border: none; }
+      .header-actions, .toolbar-section { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-container">
+    <header class="page-header">
+      <div class="header-title">
+        <h1>
+          <span>📋 人工坐席预约明细 · 字段具象化映射手册</span>
+          <span class="badge-ver">V2.0 研发对接版</span>
+        </h1>
+        <p>为解决表格字段多（共48项）、命名机械生硬及信息零散问题，按业务生命周期整理为 6 大维度复合表头，并全量具象化字段命名。</p>
+      </div>
+    </header>
+
+    <section class="summary-cards">
+      <div class="summary-card c-blue">
+        <span class="label">字段总数 (严格不删减)</span>
+        <span class="value">48 <span style="font-size:12px; font-weight:normal; color:#64748b;">项</span></span>
+      </div>
+      <div class="summary-card c-purple">
+        <span class="label">业务维度分类</span>
+        <span class="value">6 <span style="font-size:12px; font-weight:normal; color:#64748b;">大组</span></span>
+      </div>
+      <div class="summary-card c-green">
+        <span class="label">表头架构标准</span>
+        <span class="value">方案 A <span style="font-size:12px; font-weight:normal; color:#64748b;">双层复合表头</span></span>
+      </div>
+      <div class="summary-card c-orange">
+        <span class="label">首列固定冻结</span>
+        <span class="value">3 + 1 <span style="font-size:12px; font-weight:normal; color:#64748b;">左3列 + 右操作</span></span>
+      </div>
+    </section>
+
+    <div class="notice-box">
+      <div class="notice-icon">💡</div>
+      <div class="notice-content">
+        <h4>研发与产品设计执行要点</h4>
+        <p>
+          1. <strong>多级复合表头（方案 A）</strong>：表头采用两层结构，上层标注 6 大业务维度色块，下层标注具体具象化名称，左侧冻结【序号、预约单号、客户信息】（其中“客户信息”为复合列，两行垂直堆叠姓名与脱敏电话，兼顾空间与信息完整度），右侧冻结【操作】；<br />
+          2. <strong>取消标签枚举值闭环</strong>：取消发起方已统一规范为 <code>系统取消</code>、<code>用户取消</code>、<code>门店取消</code> 3 种，旧的“时间冲突”等请移入取消原因字段；<br />
+          3. <strong>试驾类型规范</strong>：统一为 <code>'到店试驾'</code>；<br />
+          4. <strong>冗余编码剔除</strong>：已按前期确认，彻底移除“预约试驾编码”与“重排车系编码”，避免与预约单号和车系名称重复；<br />
+          5. <strong>筛选条件与列表字段 100% 命名统一</strong>：上方筛选查询区域（含首行主筛选与“更多筛选”展开区）所有控件标签，均已 1:1 严格对齐本手册中的具象化新名称（如“系统排程建单时间”、“取消发起方”、“门店接待顾问”、“回访工单编码”等），避免开发与用户检索时因字面脱节产生歧义。
+        </p>
+      </div>
+    </div>
+
+    <div class="toolbar-section">
+      <div class="filter-tabs">
+        <button class="filter-btn active" onclick="filterCategory('ALL', this)">全部字段 (49)</button>
+        <button class="filter-btn" onclick="filterCategory('客户与预约基础信息', this)">① 预约基础信息 (10)</button>
+        <button class="filter-btn" onclick="filterCategory('排程提交与改期记录', this)">② 排程改期记录 (7)</button>
+        <button class="filter-btn" onclick="filterCategory('试驾履约与取消归因', this)">③ 履约与取消归因 (5)</button>
+        <button class="filter-btn" onclick="filterCategory('专营店接洽与线索动态', this)">④ 专营店跟进动态 (10)</button>
+        <button class="filter-btn" onclick="filterCategory('总部外呼与回访督导', this)">⑤ 总部外呼回访 (12)</button>
+        <button class="filter-btn" onclick="filterCategory('系统单号链路溯源', this)">⑥ 系统单号溯源 (5)</button>
+
+      </div>
+      <div>
+        <input class="search-input" id="tableSearch" type="text" placeholder="搜索原名称、新名称或键名..." onkeyup="searchTable()" />
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table id="mappingTable">
+        <thead>
+          <tr>
+            <th style="width: 50px;">序号</th>
+            <th style="width: 150px;">所属业务维度</th>
+            <th style="width: 170px;">具象化新名称 / (原名称)</th>
+            <th style="width: 180px;">JS / DTO 字段键名</th>
+            <th style="width: 180px;">数据类型与枚举 / 示例</th>
+            <th>优化意图与业务定义</th>
+          </tr>
+        </thead>
+        <tbody id="mappingTbody">
+          <tr data-cat="客户与预约基础信息">
+            <td>1</td>
+            <td><span class="tag-category cat-booking">① 客户与预约基础信息</span></td>
+            <td><span class="new-name">序号</span><span class="old-name">序号</span></td>
+            <td><span class="field-key">index</span></td>
+            <td><span class="field-type">Number (1, 2...)</span></td>
+            <td class="intent-text">固定首列，方便客服与运营口头沟通定位行号。</td>
+          </tr>
+          <tr data-cat="客户与预约基础信息">
+            <td>2</td>
+            <td><span class="tag-category cat-booking">① 客户与预约基础信息</span></td>
+            <td><span class="new-name">预约单号</span><span class="old-name">预约单号</span></td>
+            <td><span class="field-key">bookingNo</span></td>
+            <td><span class="field-type">String (YYTJ202609080023)</span></td>
+            <td class="intent-text">核心业务单据唯一凭证，左侧第二列固定。<strong>【中台回执规则】</strong>：与试驾排程编码一致，属于NEV线索中台成功接收并落库后返回的权威凭单；若NEV推送状态非成功（待重试/超时/失败），字段显示为空白（—）。</td>
+          </tr>
+          <tr data-cat="客户与预约基础信息">
+            <td>3</td>
+            <td><span class="tag-category cat-booking">① 客户与预约基础信息</span></td>
+            <td><span class="new-name">客户姓名</span><span class="old-name">客户姓名</span></td>
+            <td><span class="field-key">customerName</span></td>
+            <td><span class="field-type">String (张先生)</span></td>
+            <td class="intent-text"><strong>【左侧第3列固定·复合展示】</strong>：在列表UI中与联系电话合并为【客户信息】单一一列（第一行加粗展示客户姓名）。底层DTO保持独立字段。</td>
+          </tr>
+          <tr data-cat="客户与预约基础信息">
+            <td>4</td>
+            <td><span class="tag-category cat-booking">① 客户与预约基础信息</span></td>
+            <td><span class="new-name">联系电话</span><span class="old-name">联系电话</span></td>
+            <td><span class="field-key">phone</span></td>
+            <td><span class="field-type">String (13812345678)</span></td>
+            <td class="intent-text"><strong>【左侧第3列固定·复合展示】</strong>：在列表UI中合并至【客户信息】列（第二行以等宽 monospace 字体展示脱敏手机号 <code>138****5678</code>）。</td>
+          </tr>
+          <tr data-cat="客户与预约基础信息">
+            <td>5</td>
+            <td><span class="tag-category cat-booking">① 客户与预约基础信息</span></td>
+            <td><span class="new-name">试驾类型</span><span class="old-name">试驾类型</span></td>
+            <td><span class="field-key">driveType</span></td>
+            <td><span class="field-type">String ('到店试驾')</span></td>
+            <td class="intent-text">业务规则已规范为单一类型“到店试驾”，保留列以备将来业务拓展。</td>
+          </tr>
+          <tr data-cat="客户与预约基础信息">
+            <td>6</td>
+            <td><span class="tag-category cat-booking">① 客户与预约基础信息</span></td>
+            <td><span class="new-name">预约专营店</span><span class="old-name">试驾专营店</span></td>
+            <td><span class="field-key">driveStore</span></td>
+            <td><span class="field-type">String (广州天河专营店)</span></td>
+            <td class="intent-text">具象化：比“试驾专营店”更具预约服务归属属性。</td>
+          </tr>
+          <tr data-cat="客户与预约基础信息">
+            <td>7</td>
+            <td><span class="tag-category cat-booking">① 客户与预约基础信息</span></td>
+            <td><span class="new-name">预约车系</span><span class="old-name">试驾车系</span></td>
+            <td><span class="field-key">driveSeries</span></td>
+            <td><span class="field-type">String (2026款探陆)</span></td>
+            <td class="intent-text">具象化：与后续改期车系形成清晰对照，明确预约时的初始意向车系。</td>
+          </tr>
+          <tr data-cat="客户与预约基础信息">
+            <td>8</td>
+            <td><span class="tag-category cat-booking">① 客户与预约基础信息</span></td>
+            <td><span class="new-name">预约车型配置</span><span class="old-name">试驾车辆</span></td>
+            <td><span class="field-key">driveVehicle</span></td>
+            <td><span class="field-type">String (探陆 380T 四驱旗舰版)</span></td>
+            <td class="intent-text">具象化：比抽象的“试驾车辆”更明确指代车辆的具体配置版本。</td>
+          </tr>
+          <tr data-cat="客户与预约基础信息">
+            <td>9</td>
+            <td><span class="tag-category cat-booking">① 客户与预约基础信息</span></td>
+            <td><span class="new-name">预约试驾日期</span><span class="old-name">预约试驾日期</span></td>
+            <td><span class="field-key">bookingDate</span></td>
+            <td><span class="field-type">Date (2026-09-20)</span></td>
+            <td class="intent-text">客户初次预约的到店试驾日期。</td>
+          </tr>
+          <tr data-cat="客户与预约基础信息">
+            <td>10</td>
+            <td><span class="tag-category cat-booking">① 客户与预约基础信息</span></td>
+            <td><span class="new-name">预约试驾时段</span><span class="old-name">试驾时间段</span></td>
+            <td><span class="field-key">driveTimeSlot</span></td>
+            <td><span class="field-type">String (10:00-11:30)</span></td>
+            <td class="intent-text">精炼化：“时段”比“时间段”更规范工整。</td>
+          </tr>
+
+          <tr data-cat="排程提交与改期记录">
+            <td>11</td>
+            <td><span class="tag-category cat-schedule">② 排程提交与改期记录</span></td>
+            <td><span class="new-name">排程提交时间</span><span class="old-name">排程提交时间</span></td>
+            <td><span class="field-key">scheduleSubmitTime</span></td>
+            <td><span class="field-type">DateTime (2026-09-16 10:20:15)</span></td>
+            <td class="intent-text">总部人工坐席完成预约外呼后，在系统点击提交排程的精确时间。</td>
+          </tr>
+          <tr data-cat="排程提交与改期记录">
+            <td>12</td>
+            <td><span class="tag-category cat-schedule">② 排程提交与改期记录</span></td>
+            <td><span class="new-name">系统排程建单时间</span><span class="old-name">试驾排程创建时间</span></td>
+            <td><span class="field-key">scheduleCreateTime</span></td>
+            <td><span class="field-type">DateTime (2026-09-16 10:22:00)</span></td>
+            <td class="intent-text">具象化：消除“排程提交”与“排程创建”的混淆，明确是后台系统正式落单时间。</td>
+          </tr>
+          <tr data-cat="排程提交与改期记录">
+            <td>13</td>
+            <td><span class="tag-category cat-schedule">② 排程提交与改期记录</span></td>
+            <td><span class="new-name">是否改期重排</span><span class="old-name">是否重排</span></td>
+            <td><span class="field-key">isRescheduled</span></td>
+            <td><span class="field-type">String ('是' | '否')</span></td>
+            <td class="intent-text">圆润化：业务更习惯称“改期”，“改期重排”表意最全面直观。</td>
+          </tr>
+          <tr data-cat="排程提交与改期记录">
+            <td>14</td>
+            <td><span class="tag-category cat-schedule">② 排程提交与改期记录</span></td>
+            <td><span class="new-name">改期试驾日期</span><span class="old-name">重排日期</span></td>
+            <td><span class="field-key">rescheduleDate</span></td>
+            <td><span class="field-type">Date (2026-09-23 或 '-')</span></td>
+            <td class="intent-text">具象化：点明是改期发生后的新试驾日期。</td>
+          </tr>
+          <tr data-cat="排程提交与改期记录">
+            <td>15</td>
+            <td><span class="tag-category cat-schedule">② 排程提交与改期记录</span></td>
+            <td><span class="new-name">改期试驾时段</span><span class="old-name">重排时间段</span></td>
+            <td><span class="field-key">rescheduleTimeSlot</span></td>
+            <td><span class="field-type">String (14:00-15:00 或 '-')</span></td>
+            <td class="intent-text">具象化：改期后的试驾时间段。</td>
+          </tr>
+          <tr data-cat="排程提交与改期记录">
+            <td>16</td>
+            <td><span class="tag-category cat-schedule">② 排程提交与改期记录</span></td>
+            <td><span class="new-name">改期意向车系</span><span class="old-name">重排车系名称</span></td>
+            <td><span class="field-key">rescheduleSeriesName</span></td>
+            <td><span class="field-type">String (N6 或 '-')</span></td>
+            <td class="intent-text">圆润化：去掉无意义的“名称”二字，与“预约车系”对齐。</td>
+          </tr>
+          <tr data-cat="排程提交与改期记录">
+            <td>17</td>
+            <td><span class="tag-category cat-schedule">② 排程提交与改期记录</span></td>
+            <td><span class="new-name">排程最后更新时间</span><span class="old-name">试驾状态更新时间</span></td>
+            <td><span class="field-key">statusUpdateTime</span></td>
+            <td><span class="field-type">DateTime (2026-09-16 15:30:20)</span></td>
+            <td class="intent-text">具象化：点明是排程或改期状态最后发生变更的时间。</td>
+          </tr>
+
+          <tr data-cat="试驾履约与取消归因">
+            <td>18</td>
+            <td><span class="tag-category cat-execution">③ 试驾履约与取消归因</span></td>
+            <td><span class="new-name">试驾履约状态</span><span class="old-name">试驾状态</span></td>
+            <td><span class="field-key">driveStatus</span></td>
+            <td><span class="field-type">Enum ('已履约' | '待履约' | '已取消')</span></td>
+            <td class="intent-text">具象化：避免与接待状态混淆，直指最终是否到店试驾的履约结果。</td>
+          </tr>
+          <tr data-cat="试驾履约与取消归因">
+            <td>19</td>
+            <td><span class="tag-category cat-execution">③ 试驾履约与取消归因</span></td>
+            <td><span class="new-name">取消原因说明</span><span class="old-name">取消原因</span></td>
+            <td><span class="field-key">cancelReason</span></td>
+            <td><span class="field-type">String (客户行程变动临时出差 或 '-')</span></td>
+            <td class="intent-text">具象化：指明是取消时填写的详细具体原因文本。</td>
+          </tr>
+          <tr data-cat="试驾履约与取消归因">
+            <td>20</td>
+            <td><span class="tag-category cat-execution">③ 试驾履约与取消归因</span></td>
+            <td><span class="new-name">取消发起方</span><span class="old-name">取消标签</span></td>
+            <td><span class="field-key">cancelTag</span></td>
+            <td><span class="field-type">Enum ('系统取消' | '用户取消' | '门店取消' | '-')</span></td>
+            <td class="intent-text">具象化：明确是取消行为的主体划分，与刚确认的 3 项业务枚举 1:1 闭环。</td>
+          </tr>
+          <tr data-cat="试驾履约与取消归因">
+            <td>21</td>
+            <td><span class="tag-category cat-execution">③ 试驾履约与取消归因</span></td>
+            <td><span class="new-name">是否超时取消</span><span class="old-name">是否逾期取消</span></td>
+            <td><span class="field-key">isOverdueCancel</span></td>
+            <td><span class="field-type">String ('是' | '否')</span></td>
+            <td class="intent-text">圆润化：比“逾期取消”更现代通俗，指超过试驾预约时间仍未到店的自动取消判定。</td>
+          </tr>
+          <tr data-cat="试驾履约与取消归因">
+            <td>22</td>
+            <td><span class="tag-category cat-execution">③ 试驾履约与取消归因</span></td>
+            <td><span class="new-name">未到店原因</span><span class="old-name">未履约原因</span></td>
+            <td><span class="field-key">unfulfilledReason</span></td>
+            <td><span class="field-type">String (未履约深度归因 或 '-')</span></td>
+            <td class="intent-text">摆脱公文生硬感，直白指出为何客户未能到店完成试驾。</td>
+          </tr>
+
+          <tr data-cat="专营店接洽与线索动态">
+            <td>23</td>
+            <td><span class="tag-category cat-store">④ 专营店接洽与线索动态</span></td>
+            <td><span class="new-name">门店接待顾问</span><span class="old-name">跟进顾问</span></td>
+            <td><span class="field-key">followAdvisor</span></td>
+            <td><span class="field-type">String (陈伟(资深顾问))</span></td>
+            <td class="intent-text">具象化：消除歧义，明确是专营店负责到店接待的专属销售顾问。</td>
+          </tr>
+          <tr data-cat="专营店接洽与线索动态">
+            <td>24</td>
+            <td><span class="tag-category cat-store">④ 专营店接洽与线索动态</span></td>
+            <td><span class="new-name">门店是否跟进</span><span class="old-name">门店是否跟进</span></td>
+            <td><span class="field-key">isStoreFollowed</span></td>
+            <td><span class="field-type">String ('是' | '否')</span></td>
+            <td class="intent-text">考核专营店在排程下发后是否已主动触达潜客。</td>
+          </tr>
+          <tr data-cat="专营店接洽与线索动态">
+            <td>25</td>
+            <td><span class="tag-category cat-store">④ 专营店接洽与线索动态</span></td>
+            <td><span class="new-name">门店首次跟进时间</span><span class="old-name">门店跟进时间</span></td>
+            <td><span class="field-key">storeFollowTime</span></td>
+            <td><span class="field-type">DateTime (2026-09-16 11:30:00)</span></td>
+            <td class="intent-text">具象化：消除与最新跟进时间的混淆，精准考核首呼时效。</td>
+          </tr>
+          <tr data-cat="专营店接洽与线索动态">
+            <td>26</td>
+            <td><span class="tag-category cat-store">④ 专营店接洽与线索动态</span></td>
+            <td><span class="new-name">门店接待状态</span><span class="old-name">门店跟进状态</span></td>
+            <td><span class="field-key">storeFollowStatus</span></td>
+            <td><span class="field-type">String (已联系邀约 | 到店待试驾)</span></td>
+            <td class="intent-text">具象化：体现店内跟进与接待的当前进度。</td>
+          </tr>
+          <tr data-cat="专营店接洽与线索动态">
+            <td>27</td>
+            <td><span class="tag-category cat-store">④ 专营店接洽与线索动态</span></td>
+            <td><span class="new-name">门店首跟纪要</span><span class="old-name">门店回访描述</span></td>
+            <td><span class="field-key">storeVisitDesc</span></td>
+            <td><span class="field-type">String (客户确认按时到店...)</span></td>
+            <td class="intent-text">专业化：“纪要”比生硬的“描述”更具业务规范性，且点明是首次记录。</td>
+          </tr>
+          <tr data-cat="专营店接洽与线索动态">
+            <td>28</td>
+            <td><span class="tag-category cat-store">④ 专营店接洽与线索动态</span></td>
+            <td><span class="new-name">最新留资车系</span><span class="old-name">最新留资车系</span></td>
+            <td><span class="field-key">latestRetainedSeries</span></td>
+            <td><span class="field-type">String (2026款探陆)</span></td>
+            <td class="intent-text">客户在线上线下各渠道最新留存线索的意向车系。</td>
+          </tr>
+          <tr data-cat="专营店接洽与线索动态">
+            <td>29</td>
+            <td><span class="tag-category cat-store">④ 专营店接洽与线索动态</span></td>
+            <td><span class="new-name">门店累计跟进次数</span><span class="old-name">门店线索跟进总次数</span></td>
+            <td><span class="field-key">storeFollowTotalCount</span></td>
+            <td><span class="field-type">String (3次)</span></td>
+            <td class="intent-text">精炼化：更顺口通顺的统计指标命名。</td>
+          </tr>
+          <tr data-cat="专营店接洽与线索动态">
+            <td>30</td>
+            <td><span class="tag-category cat-store">④ 专营店接洽与线索动态</span></td>
+            <td><span class="new-name">线索当前状态</span><span class="old-name">当前线索最新状态</span></td>
+            <td><span class="field-key">currentLeadLatestStatus</span></td>
+            <td><span class="field-type">String (已到店试驾 | 战败)</span></td>
+            <td class="intent-text">精炼化：精简冗余重叠字，体现线索生命周期的最新进展。</td>
+          </tr>
+          <tr data-cat="专营店接洽与线索动态">
+            <td>31</td>
+            <td><span class="tag-category cat-store">④ 专营店接洽与线索动态</span></td>
+            <td><span class="new-name">门店最后跟进时间</span><span class="old-name">最新门店跟进时间</span></td>
+            <td><span class="field-key">latestStoreFollowTime</span></td>
+            <td><span class="field-type">DateTime (2026-09-16 14:20:00)</span></td>
+            <td class="intent-text">具象化：与“门店首次跟进时间”完美时序闭环。</td>
+          </tr>
+          <tr data-cat="专营店接洽与线索动态">
+            <td>32</td>
+            <td><span class="tag-category cat-store">④ 专营店接洽与线索动态</span></td>
+            <td><span class="new-name">门店最新跟进纪要</span><span class="old-name">最新门店回访描述</span></td>
+            <td><span class="field-key">latestStoreVisitDesc</span></td>
+            <td><span class="field-type">String (试驾体验良好，客户对空间非常满意)</span></td>
+            <td class="intent-text">专业化：明确是店端与客户最近一次沟通过程的详细记录。</td>
+          </tr>
+
+          <tr data-cat="总部外呼与回访督导">
+            <td>33</td>
+            <td><span class="tag-category cat-hq">⑤ 总部外呼与回访督导</span></td>
+            <td><span class="new-name">外呼坐席账号</span><span class="old-name">坐席账号</span></td>
+            <td><span class="field-key">agentAccount</span></td>
+            <td><span class="field-type">String (seat_gz_01)</span></td>
+            <td class="intent-text">具象化：点明是总部外呼呼叫中心坐席人员工号。</td>
+          </tr>
+          <tr data-cat="总部外呼与回访督导">
+            <td>34</td>
+            <td><span class="tag-category cat-hq">⑤ 总部外呼与回访督导</span></td>
+            <td><span class="new-name">总部是否跟进</span><span class="old-name">总部是否跟进</span></td>
+            <td><span class="field-key">isHqFollowed</span></td>
+            <td><span class="field-type">String ('是' | '否')</span></td>
+            <td class="intent-text">总部督导考核指标。</td>
+          </tr>
+          <tr data-cat="总部外呼与回访督导">
+            <td>35</td>
+            <td><span class="tag-category cat-hq">⑤ 总部外呼与回访督导</span></td>
+            <td><span class="new-name">外呼任务派发时间</span><span class="old-name">电销任务激活时间</span></td>
+            <td><span class="field-key">teleTaskActiveTime</span></td>
+            <td><span class="field-type">DateTime (2026-09-16 09:40:00)</span></td>
+            <td class="intent-text">具象化：摆脱抽象“激活”，指任务进入坐席拨号池的时间。</td>
+          </tr>
+          <tr data-cat="总部外呼与回访督导">
+            <td>36</td>
+            <td><span class="tag-category cat-hq">⑤ 总部外呼与回访督导</span></td>
+            <td><span class="new-name">总部首次外呼时间</span><span class="old-name">任务跟进时间</span></td>
+            <td><span class="field-key">taskFollowTime</span></td>
+            <td><span class="field-type">DateTime (2026-09-16 10:45:00)</span></td>
+            <td class="intent-text">具象化：消除“任务跟进”的模糊定义，明确是坐席首次外呼客户的时间。</td>
+          </tr>
+          <tr data-cat="总部外呼与回访督导">
+            <td>37</td>
+            <td><span class="tag-category cat-hq">⑤ 总部外呼与回访督导</span></td>
+            <td><span class="new-name">外呼接通状态</span><span class="old-name">接触状态</span></td>
+            <td><span class="field-key">contactStatus</span></td>
+            <td><span class="field-type">String (正常接通 | 无人接听 | 企微跟进 | 客户拒绝 | 关机/停机)</span></td>
+            <td class="intent-text">标准统一：引用系统公共字典 CONTACT_STATUS，消除“成功接通”混用，与回访接通情况枚举统一。</td>
+          </tr>
+
+          <tr data-cat="总部外呼与回访督导">
+            <td>38</td>
+            <td><span class="tag-category cat-hq">⑤ 总部外呼与回访督导</span></td>
+            <td><span class="new-name">下发确认沟通纪要</span><span class="old-name">试驾排程下发-回访描述</span></td>
+            <td><span class="field-key">scheduleDispatchVisitDesc</span></td>
+            <td><span class="field-type">String (已成功下发至天河专营店排程系统)</span></td>
+            <td class="intent-text">去符号化：彻底消灭生硬的破折号 -，体现预约成功下发前的核对沟通。</td>
+          </tr>
+          <tr data-cat="总部外呼与回访督导">
+            <td>39</td>
+            <td><span class="tag-category cat-hq">⑤ 总部外呼与回访督导</span></td>
+            <td><span class="new-name">电销初始触达状态</span><span class="old-name">电销回访初始状态</span></td>
+            <td><span class="field-key">teleInitialStatus</span></td>
+            <td><span class="field-type">String (待联系 | 首次拨打中)</span></td>
+            <td class="intent-text">具象化：体现电销任务派发后的初始接触进展。</td>
+          </tr>
+          <tr data-cat="总部外呼与回访督导">
+            <td>40</td>
+            <td><span class="tag-category cat-hq">⑤ 总部外呼与回访督导</span></td>
+            <td><span class="new-name">试驾后回访时间</span><span class="old-name">回访-提交时间</span></td>
+            <td><span class="field-key">visitSubmitTime</span></td>
+            <td><span class="field-type">DateTime (2026-09-16 16:00:00)</span></td>
+            <td class="intent-text">去符号化 + 具象化：点明是在试驾发生之后进行的督导回访时刻。</td>
+          </tr>
+          <tr data-cat="总部外呼与回访督导">
+            <td>41</td>
+            <td><span class="tag-category cat-hq">⑤ 总部外呼与回访督导</span></td>
+            <td><span class="new-name">试驾后回访接通情况</span><span class="old-name">回访-接触状态</span></td>
+            <td><span class="field-key">visitContactStatus</span></td>
+            <td><span class="field-type">String (已触达 | 未触达)</span></td>
+            <td class="intent-text">去符号化：明确区分外呼接通，指试驾后回访的电话接通情况。</td>
+          </tr>
+          <tr data-cat="总部外呼与回访督导">
+            <td>42</td>
+            <td><span class="tag-category cat-hq">⑤ 总部外呼与回访督导</span></td>
+            <td><span class="new-name">试驾后回访结果</span><span class="old-name">回访结果</span></td>
+            <td><span class="field-key">visitResult</span></td>
+            <td><span class="field-type">String (意向高-推进购车订金 | 体验良好)</span></td>
+            <td class="intent-text">点明是试驾后的满意度调查与跟进定论。</td>
+          </tr>
+          <tr data-cat="总部外呼与回访督导">
+            <td>43</td>
+            <td><span class="tag-category cat-hq">⑤ 总部外呼与回访督导</span></td>
+            <td><span class="new-name">试驾后回访详细纪要</span><span class="old-name">试驾任务跟进-回访描述</span></td>
+            <td><span class="field-key">taskFollowVisitDesc</span></td>
+            <td><span class="field-type">String (客户反馈试驾静音与动力表现超出预期...)</span></td>
+            <td class="intent-text">去符号化：消灭长破折号拼接，体现试驾后监督回访的完整反馈纪要。</td>
+          </tr>
+          <tr data-cat="总部外呼与回访督导">
+            <td>44</td>
+            <td><span class="tag-category cat-hq">⑤ 总部外呼与回访督导</span></td>
+            <td><span class="new-name">回访闭环状态</span><span class="old-name">试驾回访跟进状态</span></td>
+            <td><span class="field-key">driveVisitFollowStatus</span></td>
+            <td><span class="field-type">String (已办结 | 跟进中)</span></td>
+            <td class="intent-text">具象化：体现总部回访流程是否完结闭环。</td>
+          </tr>
+
+          <tr data-cat="系统单号链路溯源">
+            <td>45</td>
+            <td><span class="tag-category cat-trace">⑥ 系统单号链路溯源</span></td>
+            <td><span class="new-name">回访工单编码</span><span class="old-name">人工任务编码 / 外呼工单号</span></td>
+            <td><span class="field-key">manualTaskCode</span></td>
+            <td><span class="field-type">String (HF202605280032)</span></td>
+            <td class="intent-text">链路统一：与「查看培育线索详情」的【回访工单编码】1:1严格打通，消除跨模块认知脱节。</td>
+          </tr>
+          <tr data-cat="系统单号链路溯源">
+            <td>46</td>
+            <td><span class="tag-category cat-trace">⑥ 系统单号链路溯源</span></td>
+            <td><span class="new-name">培育线索编码</span><span class="old-name">培育线索号</span></td>
+            <td><span class="field-key">leadCode</span></td>
+            <td><span class="field-type">String (PYXS202605280001)</span></td>
+            <td class="intent-text">系统统一：与培育线索模块的【培育线索编码】统一命名规范，全系统主标识一致。</td>
+          </tr>
+          <tr data-cat="系统单号链路溯源">
+            <td>47</td>
+            <td><span class="tag-category cat-trace">⑥ 系统单号链路溯源</span></td>
+            <td><span class="new-name">试驾排程编码</span><span class="old-name">试驾排程号</span></td>
+            <td><span class="field-key">scheduleCode</span></td>
+            <td><span class="field-type">String (NEVSP202609080023)</span></td>
+            <td class="intent-text">系统统一：与AI试驾排程模块的【试驾排程编码】保持一致。<strong>【中台回执规则】</strong>：NEV线索中台排程生成成功后返回；未推送成功前统一展示为空白（—）。</td>
+          </tr>
+          <tr data-cat="系统单号链路溯源">
+            <td>48</td>
+            <td><span class="tag-category cat-trace">⑥ 系统单号链路溯源</span></td>
+            <td><span class="new-name">数据接入通道</span><span class="old-name">数据来源</span></td>
+            <td><span class="field-key">accessChannel</span></td>
+            <td><span class="field-type">String (NEV车系试驾中台 API | 人工坐席回访建单 | AI外呼排程引擎 | 第三方垂媒同步)</span></td>
+            <td class="intent-text">链路溯源：标识排程记录接入通道与上游协议，支持多渠道动态接入与数据血缘穿透。</td>
+          </tr>
+          <tr data-cat="系统单号链路溯源">
+            <td>49</td>
+            <td><span class="tag-category cat-trace">⑥ 系统单号链路溯源</span></td>
+            <td><span class="new-name">操作</span><span class="old-name">操作</span></td>
+            <td><span class="field-key">actions</span></td>
+            <td><span class="field-type">Button (查看)</span></td>
+            <td class="intent-text">右侧末列固定，点击滑出详情抽屉。</td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function filterCategory(cat, btn) {
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const rows = document.querySelectorAll("#mappingTbody tr");
+      rows.forEach(r => {
+        if (cat === "ALL" || r.getAttribute("data-cat") === cat) {
+          r.style.display = "";
+        } else {
+          r.style.display = "none";
+        }
+      });
+    }
+
+    function searchTable() {
+      const q = document.getElementById("tableSearch").value.toLowerCase().trim();
+      const rows = document.querySelectorAll("#mappingTbody tr");
+      rows.forEach(r => {
+        const text = r.textContent.toLowerCase();
+        r.style.display = text.includes(q) ? "" : "none";
+      });
+    }
+  </script>
+</body>
+</html>
