@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>切换天润 · 接口字段对照与改造清单</title>
+<style>
+  body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; max-width:1120px; margin:0 auto; padding:32px 24px; color:#111827; background:#fff; line-height:1.65; }
+  h1 { font-size:22px; margin:0 0 6px; }
+  .meta { font-size:13px; color:#6b7280; margin-bottom:18px; }
+  h2 { font-size:17px; margin:34px 0 10px; padding-left:10px; border-left:4px solid #185FA5; }
+  h3 { font-size:14.5px; margin:22px 0 8px; color:#374151; }
+  .note { background:#E6F1FB; border:1px solid #B5D4F4; border-radius:8px; padding:12px 16px; font-size:13.5px; margin:14px 0; }
+  .good { background:#F0FDF4; border:1px solid #86EFAC; border-radius:8px; padding:12px 16px; font-size:13.5px; margin:14px 0; }
+  .warn { background:#FAEEDA; border:1px solid #FAC775; border-radius:8px; padding:12px 16px; font-size:13.5px; margin:14px 0; }
+  .bad { background:#FEF2F2; border:1px solid #FCA5A5; border-radius:8px; padding:12px 16px; font-size:13.5px; margin:14px 0; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; margin:10px 0 20px; }
+  th { background:#F3F4F6; text-align:left; padding:7px 9px; border:1px solid #E5E7EB; font-weight:600; }
+  td { padding:7px 9px; border:1px solid #E5E7EB; vertical-align:top; }
+  tr:nth-child(even) td { background:#FCFCFD; }
+  code { background:#F3F4F6; border-radius:4px; padding:1px 5px; font-size:11.5px; font-family:Menlo,monospace; }
+  .ok { color:#166534; font-weight:600; }
+  .cond { color:#92400E; font-weight:600; }
+  .no { color:#991B1B; font-weight:600; }
+  .kpi { display:flex; gap:12px; margin:16px 0; flex-wrap:wrap; }
+  .kpi div { flex:1; min-width:130px; border:1px solid #E5E7EB; border-radius:9px; padding:12px 14px; background:#F8FAFC; }
+  .kpi b { display:block; font-size:21px; color:#185FA5; line-height:1.25; }
+  .kpi span { font-size:12.5px; color:#6b7280; }
+  .kpi .r b { color:#991B1B; }
+  .kpi .y b { color:#92400E; }
+  .kpi .g b { color:#166534; }
+  .footer { margin-top:36px; padding-top:12px; border-top:1px solid #E5E7EB; font-size:12px; color:#9ca3af; }
+  .sub { color:#6b7280; font-size:12px; }
+  .grp { background:#F8FAFC !important; font-weight:600; color:#374151; }
+  .tag { display:inline-block; font-size:11px; padding:1px 7px; border-radius:10px; margin-right:5px; font-weight:600; }
+  .tagS1 { background:#E6F1FB; color:#185FA5; border:1px solid #B5D4F4; }
+  .tagS2 { background:#F0FDF4; color:#166534; border:1px solid #86EFAC; }
+  .new { color:#991B1B; font-weight:600; }
+  .anatomy { background:#F5F3FF; border:1px solid #DDD6FE; border-left:4px solid #7C3AED; border-radius:8px; padding:12px 16px; font-size:13.5px; margin:14px 0; }
+  .anatomy .lbl { display:inline-block; font-size:11px; font-weight:700; color:#6D28D9; background:#EDE9FE; border:1px solid #DDD6FE; border-radius:4px; padding:0 7px; margin-right:7px; }
+</style>
+</head>
+<body>
+  <h1>切换天润 · 接口字段对照与改造清单 <span style="font-size:14px;color:#185FA5">（复核与实施版）</span></h1>
+  <div class="meta">
+    整理日期：2026-09-30（第 4 版·复核修订）｜ <b>文档目标：</b>以现有预外呼系统的 7 个接口组、9 个物理接口为基线，逐项说明切换到天润后哪些字段可以承接、哪些需要转换、哪些仍需确认，以及对应的开发动作。<br>
+    A 侧＝<b>我方现在在用的预外呼系统</b>（字段取自它的在线 Swagger 与《NEV线索-接口文档》）｜
+    B 侧＝<b>准备换过去的天润预测外呼</b>（以天润原始接口文档、书面回复与联调 PoC 为准；本表先标候选与待确认项）
+  </div>
+
+  <div class="note">
+    <b>阅读方法：</b>对现有系统每个字段依次回答三个问题：<b>① 天润是否有承接能力；② 对应哪个接口和字段；③ 若不能直接承接，采用什么替代方案。</b><br>
+    <b>判定采用四档，颜色只表示证据状态，不直接代表最终产品结论：</b><br>
+    <span class="ok">✅ 已验证可用</span>＝有天润原始接口/测试响应，并通过 PoC；<br>
+    <span class="cond">⚠️ 候选可映射</span>＝找到可能承接字段，但语义、写入/回传或 PoC 尚未完成；<br>
+    <span class="no">❌ 当前未发现</span>＝当前材料没有找到，不等于天润明确不支持；<br>
+    <span class="new">⛔ 书面确认不支持</span>＝天润明确回复没有该能力或接口。
+  </div>
+
+  <div class="good">
+    <b>本版调整：</b>将通话明细（I2）和录音（I3）按业务场景重新归类，避免同一字段重复统计；每个字段只在一个主场景中判定一次：<br>
+    <span class="tag tagS1">场景一</span><b>人工外呼</b>——工单派给坐席，坐席自己在工作台上拨号（天润管这叫"预览式外呼"）；<br>
+    <span class="tag tagS2">场景二</span><b>预测式外呼</b>——系统批量往外拨，客户接通后再转给坐席。<br>
+    <b>场景分工：</b>场景一的数据走 <b>I2（通话明细）+ I3（录音）</b>，对照天润的「外呼记录」；
+    场景二的数据走 <b>I4（预外呼话单回传）</b>，对着天润的「预测式外呼通话记录」比。
+    场景二的数据走 <b>I4（预外呼话单回传）</b>，对照天润的「预测式外呼通话记录」。因此 I2/I3 不再重复用于场景二统计。
+  </div>
+
+  <div class="kpi">
+    <div><b>待重算</b><span>现有系统待对照字段（I2=43、I3=19）</span></div>
+    <div class="g"><b>待重算</b><span>✅ 已验证可用项</span></div>
+    <div class="y"><b>待重算</b><span>⚠️ 候选可映射项</span></div>
+    <div class="r"><b>待确认</b><span>“当前未发现”与“不支持”分开统计</span></div>
+  </div>
+  <div class="sub" style="margin:-8px 0 18px">
+    统计说明：Excel 直接核对为 I1=3、I2=43、I3=19、I4=24、I5=1；原文漏记 I2 的 <code>tranormeetingno</code>、<code>callendreasoncode</code> 和 I3 的 <code>id</code>，原 109 及 45/36/28 分布需在 V1/V2 字段清单复核后重新计算。
+  </div>
+
+  <h2>一、改造总览（先确定边界，再安排开发）</h2>
+  <div class="note">
+    <b>建议阅读顺序：</b>先看 1.1 的接口替换关系，再看 1.2 的工作包和 1.4 的架构变化，最后看 1.5 的前置材料清单。<br>
+    第二章至第六章是逐字段明细，每张表均标注所属接口和业务场景；第七章集中列出必须向天润确认的问题，第八章给出可执行的后续动作。<br>
+    表格中的“业务解释”用于快速理解，接口名、字段名和判定列用于开发核对与实现。
+  </div>
+
+  <h3>1.1 接口替换关系（7 个接口组 / 9 个物理接口 → 天润）</h3>
+  <div class="warn"><b>统计口径：</b>接口组为 I1～I5、V1-1、V1-2 共 7 组；物理接口为 I1～I5、V1-1、terminate、blacklist、recorddetail 共 9 个。后续字段统计不得混用两种口径。</div>
+  <table>
+    <tr><th style="width:185px">现有接口</th><th style="width:130px">现在干什么</th><th style="width:215px">换成天润的谁</th><th style="width:275px">改造方式</th><th style="width:55px">影响</th><th style="width:52px">明细</th></tr>
+    <tr>
+      <td><code>I1</code> /third-api/clue/<br>list-vcp-accounts</td>
+      <td>给坐席下发登录名、密码、启停</td>
+      <td class="no">当前材料未发现对等接口<br><span class="sub">开户与启停边界待天润确认</span></td>
+      <td><b>先不直接作废。</b>我方可维护「坐席 ↔ 天润工号 cno」映射表；账号开户、启停及状态推送是否可用，需书面确认后再定改造边界</td>
+      <td class="cond">高</td>
+      <td>表 1</td>
+    </tr>
+    <tr>
+      <td><code>I2</code> /third-api/clue/<br>add-record-details</td>
+      <td><span class="tag tagS1">场景一</span>人工外呼的通话明细</td>
+      <td>「外呼记录」<code>list_cdr_ob</code><br>+「外呼记录详情」<code>cdr_ob_details</code></td>
+      <td>字段改名 + 取值翻译（接通状态、呼叫类型等做值字典）+ 少数字段要跨推送取数（话后处理时长 <code>wrapupTime</code> 只在座席状态推送里）</td>
+      <td>中</td>
+      <td>表 2</td>
+    </tr>
+    <tr>
+      <td><code>I3</code> 录音记录<br><span class="sub">原文档这条地址漏填</span></td>
+      <td><span class="tag tagS1">场景一</span>直接给录音文件路径</td>
+      <td>话单里的 <code>recordFile</code>（文件名）<br>+ 换地址接口 <code>record/getUrl</code>（批量 <code>getBatchUrl</code>）</td>
+      <td><b>新增"换地址"环节：</b>话单可能只给文件名，要另调接口换可访问网址；有效期、重新签发、批量上限和频控须以天润书面回复与 PoC 为准，再决定落盘与分发策略</td>
+      <td>中</td>
+      <td>表 3</td>
+    </tr>
+    <tr>
+      <td><code>I4</code> /third-api/clue/<br>pre-call/callback/call-record</td>
+      <td><span class="tag tagS2">场景二</span>预测外呼话单<br><span class="sub">推送/查询方式待确认</span></td>
+      <td>「预测式外呼通话记录」<br><code>predictiveCall/query</code><br><span class="sub">+「任务呼叫记录」兜底</span></td>
+      <td><b>架构边界待确认：</b>采用“推送优先、查询补偿、定时对账”；推送字段、时延、游标、补偿窗口与频控需冻结后再定实现</td>
+      <td class="cond">高</td>
+      <td>表 4</td>
+    </tr>
+    <tr>
+      <td><code>I5</code> /third-api/clue/<br>pre-call/getAgentName</td>
+      <td>按任务反查没接电话的坐席</td>
+      <td class="no">当前未发现等价接口<br><span class="sub">需核对话单是否稳定回传坐席信息</span></td>
+      <td><b>先查实际调用方再决定下线</b>——若话单稳定带 <code>agentName</code>/<code>cno</code>，可评估移除；否则保留兜底方案</td>
+      <td class="sub">低</td>
+      <td>表 5</td>
+    </tr>
+    <tr>
+      <td><code>V1-1</code> /VcpPD/Index/import</td>
+      <td>导入名单、建预外呼任务</td>
+      <td><code>importTaskTel</code><br><span class="sub">+ <code>task/create</code> 建任务</span></td>
+      <td>字段映射；<b>技能组候选对应天润「外呼组」</b>（<code>agentGroup</code>，需确认一对一约束），也可候选使用工号清单（<code>cnos</code>）；号码级优先级的批量、时效和频控需以实测为准</td>
+      <td class="cond">高</td>
+      <td>表 6</td>
+    </tr>
+    <tr>
+      <td><code>V1-2</code> <code>/terminate</code><br><code>/blacklist</code><br><code>/Query/recorddetail</code></td>
+      <td>号码终止、黑名单、话单查询</td>
+      <td>「删除任务内号码」接口（待确认）<br>天润平台黑名单（待确认）<br>话单查询接口族</td>
+      <td>前两条要等天润确认接口名、单次上限、频控；查询这条分页参数要改（<code>page</code>+<code>pageSize</code> → <code>offset</code>+<code>limit</code>）；"库选择"参数消失</td>
+      <td>中</td>
+      <td>表 7</td>
+    </tr>
+  </table>
+
+  <h3>1.2 改造工作包（10 项）</h3>
+  <table>
+    <tr><th style="width:200px">工作包</th><th style="width:430px">具体动什么</th><th style="width:70px">影响</th><th style="width:120px">谁做</th></tr>
+    <tr><td><b>1. 话单接收与落库重构</b></td><td>采用“推送优先、查询补偿、定时对账”；归因键改走 <code>userField</code>的候选方案（槽位、长度、写入/回传待书面确认）；接通状态/呼叫方向/号码类型等做值字典；保留 <code>sourceTime</code> 与 <code>ingestedAt</code>，不把拉取时间冒充源时间</td><td class="cond">高</td><td>DCC</td></tr>
+    <tr><td><b>2. 录音归档链路</b><br><span class="sub">新建</span></td><td>话单只给文件名，要调接口换临时网址；有效期、重新签发能力、批量上限和频控待确认。先建下载、重试、重新申请、落盘和未归档告警框架；双份存储是否取消须以 DCC 实际调用和合规要求复核</td><td>中</td><td>DCC</td></tr>
+    <tr><td><b>3. 坐席账号体系迁移</b></td><td>先确认开户、启停和状态同步边界；再维护「坐席 ↔ 天润工号」映射，并同步调整工作台登录与弹屏逻辑</td><td class="cond">高</td><td>DCC</td></tr>
+    <tr><td><b>4. 名单导入改造</b></td><td>导入报文和落库跟着归因键一起改；号码级优先级分批、注意生效时机（只对未在呼号码生效）</td><td class="cond">高</td><td>DCC</td></tr>
+    <tr><td><b>5. 调度参数适配</b><br><span class="sub">分档倍率 / 任务优先级</span></td><td>先由中间层确认是否继续承接现有参数语义；若能吸收，DCC 只需适配接口，若不能吸收，则需重做参数配置和调度逻辑</td><td class="cond">高</td><td>待中间层表态</td></tr>
+    <tr><td><b>6. 重呼策略</b></td><td>先确认天润是否支持指定时间重呼；未确认前不写成“确定做不了”。若仅支持间隔制，再评估本期降级及人工补打一遍的运营影响</td><td>中</td><td>DCC</td></tr>
+    <tr><td><b>7. 报表页面与口径</b></td><td>监控大屏、话单明细页、坐席工作统计换数据源；跨切换日的新旧历史话单拼接，保证数据不断档</td><td>中</td><td>DCC</td></tr>
+    <tr><td><b>8. 对账与补偿</b><br><span class="sub">新建</span></td><td>若天润不提供批量补推，则建设定时对账与补偿任务：按 <code>requestUniqueId</code>/<code>mainUniqueId</code> 精确补查，并通过滚动查询核对全量数据</td><td>中</td><td>DCC</td></tr>
+    <tr><td><b>9. 风控兜底</b></td><td>若天润未提供单号“每日最大外呼次数”能力，则由 DCC 在导入侧做频次预筛，并根据错误码监控并发和骚扰率异常</td><td>中</td><td>DCC</td></tr>
+    <tr><td><b>10. 下线与清理</b></td><td>I5 接口、话单查询的"库选择"参数；I1 接口相关的账号下发代码</td><td class="sub">低</td><td>DCC</td></tr>
+  </table>
+  <div class="good">
+    <b>以下事项仍依赖天润或中间层的书面确认，当前不能视为已定稿：</b><br>
+    ① <b>客户约定的回电时间</b>——待确认天润是否支持指定时间重呼，再决定本期是否降级；<br>
+    ② <b>归因键槽位</b>——<b>待书面确认</b>数量、长度、写入、回传和反查能力；<br>
+    ③ <b>满意度评分采集</b>——DCC 当前未使用相关字段，暂不纳入本次改造；<br>
+    ④ <b>录音存储与分发</b>——先确认 DCC 实际使用和合规要求，再决定是否接受单份托管；<br>
+    ⑤ <b>技能组映射</b>——需核对坐席是否跨组，并确认外呼组的挂载和回传规则。<br>
+    当前关键外部依赖包括：<b>推送字段、归因字段、录音地址、状态字典、号码终止/黑名单以及工作包 5</b>。
+  </div>
+
+  <h3>1.3 可由中间层吸收的改造项</h3>
+  <div class="good">
+    <b>已验证可用字段的数量待重算。</b>字段名称不同不一定意味着 DCC 要改代码；例如我方使用 <code>dnis</code>、天润使用 <code>customerNumber</code>，若由<b>中间层完成字段转换</b>，DCC 侧可以保持原接口不变。<br>
+    <b>所以开发估工时，请先看证据等级：</b><span class="ok">✅</span> 仅表示已验证可用；<span class="cond">⚠️</span> 和 <span class="no">❌</span> 仍需估工或验证，数量待重算。
+    另外，业务流程（派单、坐席拨打、线索培育策略）、线索与工单的数据模型、坐席排班与绩效口径，这些都不在这份改造范围内。
+  </div>
+
+  <h3>1.4 三项架构级变化</h3>
+  <div class="warn">
+    <b>① 收数模式待确认。</b>先确认天润是否提供实时推送、推送字段与时延；推荐采用“推送优先、查询补偿、定时对账”，若人工外呼没有推送，再采用增量轮询，并明确频控、游标和补偿窗口。<br>
+    <b>② 一条通话记录需要跨来源合并。</b>通话时长来自话单，录音地址需要另调接口，话后处理时长可能来自座席状态推送。系统需要定义数据到达顺序、合并规则、幂等键和重复更新策略。<br>
+    <b>③ 录音需要先验证归档策略。</b>话单可能只返回文件名，换址接口的有效期、重新签发、批量上限和频控尚未冻结。归档程序应先完成“下载—失败重试—重新申请—落盘—未归档告警”的 PoC，再确定正式排期。
+  </div>
+
+  <h3>1.5 开工前必须取得的 4 类材料</h3>
+  <table>
+    <tr><th style="width:44px">#</th><th style="width:330px">要拿到什么</th><th>拿不到会怎样</th></tr>
+    <tr><td>1</td><td><b>天润推送话单（type 40/41）的字段清单</b></td><td>话单接收这块没法定稿——现在手上的字段清单来自天润的<b>查询</b>接口，推送回来的字段和查询是不是同一套，对方还没给答复</td></tr>
+    <tr><td>2</td><td><b>中间层的接口契约（冻结版）</b></td><td>DCC 改造量完全取决于"中间层承诺保留多少接口形态不变"。这份契约不冻结，第一章的改造清单得逐条重估</td></tr>
+    <tr><td>3</td><td><b>天润的对接凭证与接入方式</b><span class="sub">域名、接口版本号、鉴权/签名规则、调用频控上限</span></td><td>开发没法起环境、没法联调。天润接口地址里带 <code>/interface/{version}/</code>，版本怎么取也要对方说明</td></tr>
+    <tr><td>4</td><td><b>DCC 侧现有对接的实现细节</b><span class="sub">哪个服务在接话单、哪个模块在发导入、调用点在哪</span></td><td>这个只有开发自己知道。第一章写的是"要改什么"，具体落在哪个代码模块，需要开发对照现有实现自己填</td></tr>
+  </table>
+
+  <h2>二、对外接口层（Excel 中的 5 个接口）</h2>
+
+  <h3>表 1 ｜ I1 VCP账号信息接口 <span class="sub">POST /third-api/clue/list-vcp-accounts · 3 个字段</span></h3>
+  <table>
+    <tr><th style="width:150px">现有字段</th><th style="width:180px">含义</th><th style="width:250px">天润对应接口</th><th style="width:170px">天润字段</th><th style="width:70px">判定</th><th>备注</th></tr>
+    <tr><td><code>agentName</code></td><td>坐席登录名</td><td class="no">无</td><td class="no">—</td><td class="no">❌</td><td>天润是 <b>cno 工号体系</b>，坐席在天润侧开户、绑分机，无「下发登录名」接口</td></tr>
+    <tr><td><code>password</code></td><td>登录密码</td><td class="no">无</td><td class="no">—</td><td class="no">❌</td><td>天润无密码下发接口，开户走客户经理/后台</td></tr>
+    <tr><td><code>isEnable</code></td><td>是否可用（启停）</td><td class="no">无</td><td class="no">—</td><td class="no">❌</td><td>启停只能在天润后台操作；轮询替代＝坐席状态推送 <code>9</code> 看在线态</td></tr>
+  </table>
+  <div class="bad"><b>结论：这条接口的 3 个字段一个都对不上。</b>天润的坐席不是"我们发个账号给他"，而是天润那边按工号（<code>cno</code>）开户、再把电话分机绑上去。
+    所以坐席账号体系得整体搬过去，这是切换里最费工的一块（详见《现有系统与天润预测外呼兼容性对比分析》第六节·风险 <b>R2「坐席体系与复用模型重建」</b>）。</div>
+
+  <h3>表 2 ｜ I2 VCP通话明细接口 · <span class="tag tagS1">场景一</span>人工手动外呼
+    <span class="sub">POST /third-api/clue/add-record-details · Excel 实际 43 个请求字段（原文漏记 2 个） · 天润侧靠「外呼记录」+「外呼记录详情」两个接口承接</span></h3>
+  <div class="note" style="margin-bottom:6px">
+    <b>这一表在比什么：</b>线索分给人工坐席 → 生成外呼工单 → 坐席在工作台上手动拨号（可以选走哪条线路）。天润把这个动作叫<b>「预览式外呼」</b>。<br>
+    <b>天润这边的候选承接字段：</b>当前材料列出「外呼记录」<code>list_cdr_ob</code> 约 59 个字段、「外呼记录详情」<code>cdr_ob_details</code> 约 22 个字段，仍需以版本化文档、响应样例和 PoC 冻结；
+    上一版标"待核对"的，基本上都把真实字段名落实了。
+  </div>
+
+  <div class="anatomy">
+    <span class="lbl">解剖说明</span><b>「主腿 / 从腿两条通话 ID」是什么意思</b><br>
+    一通电话在天润的记录里会拆成两段来看：一段是"我们打给客户"（主腿，编号 <code>mainUniqueId</code>），
+    另一段是"客户接起来之后接到坐席"（从腿，编号 <code>uniqueId</code>），两个编号成对出现。<br>
+    我方字段 <code>terminationcallIdB</code>（被叫方通话 ID）想要的是"第二段的编号"，语义上很接近，但
+    <b>到底该取哪一个、是不是同一回事，要等联调时对一次</b>——所以这里只给 ⚠️，不给 ✅。
+  </div>
+  <table>
+    <tr><th style="width:150px">现有字段</th><th style="width:170px">含义</th><th style="width:210px">天润对应接口</th><th style="width:230px">天润字段</th><th style="width:60px">判定</th><th>备注</th></tr>
+    <tr><td colspan="6" class="grp">① 标识类（4）</td></tr>
+    <tr><td><code>id</code></td><td>记录主键</td><td>外呼记录 <code>list_cdr_ob</code></td><td><code>mainUniqueId</code>（通话ID）</td><td class="ok">✅</td><td>字段名已实证</td></tr>
+    <tr><td><code>terminationcallId</code></td><td>通话ID（主）</td><td>外呼记录</td><td><code>mainUniqueId</code></td><td class="ok">✅</td><td>与 I3 录音的关联键统一改用 <code>mainUniqueId</code></td></tr>
+    <tr><td><code>terminationcallIdB</code></td><td>被叫方通话ID</td><td>外呼记录详情 <code>cdr_ob_details</code></td><td><code>uniqueId</code>（通话唯一ID），与 <code>mainUniqueId</code> 成对</td><td class="cond">⚠️</td><td><b>候选映射</b>：需联调确认主腿/从腿语义以及人工拨号是否始终产生两条腿</td></tr>
+    <tr><td><code>tranormeetingno</code></td><td>会议号/转接号码</td><td>待确认</td><td>待确认</td><td class="cond">⚠️</td><td>原文漏记；需确认转接/会议场景是否使用以及如何关联</td></tr>
+    <tr><td><code>sequence</code></td><td>序号</td><td class="no">无</td><td class="no">—</td><td class="no">❌</td><td>我方入库自增</td></tr>
+
+    <tr><td colspan="6" class="grp">② 号码与方向类（7）</td></tr>
+    <tr><td><code>direction</code></td><td>呼叫方向</td><td>外呼记录</td><td>无独立字段；可由 <code>callType</code>（4 预览外呼 / 6 主叫外呼）推导</td><td class="cond">⚠️</td><td>人工场景只有外呼方向</td></tr>
+    <tr><td><code>calltype</code></td><td>通话类型</td><td>外呼记录 / 详情</td><td><code>callTypeKey</code> + <code>callType</code> + <code>detailCallType</code>（呼叫类型）</td><td class="ok">✅</td><td>枚举已实证，需做值字典</td></tr>
+    <tr><td><code>callendreasoncode</code></td><td>电话结束原因标识</td><td>待确认</td><td>待确认</td><td class="cond">⚠️</td><td>原文漏记；需与 <code>hangupCode</code>、SIP 原因分层设计，不能直接合并</td></tr>
+    <tr><td><code>phonetype</code></td><td>号码类型</td><td class="no">当前未发现</td><td class="no">—</td><td class="no">❌</td><td>不能简单按号码长度判断；虚拟号、脱敏号和固话格式需另定规则</td></tr>
+    <tr><td><code>dnis</code></td><td>被叫号码</td><td>外呼记录</td><td><code>customerNumber</code></td><td class="ok">✅</td><td>实证</td></tr>
+    <tr><td><code>ani</code></td><td>主叫号码</td><td>外呼记录</td><td><code>leftClid</code>（外显号码）</td><td class="ok">✅</td><td>还附带区号/归属地 5 个字段</td></tr>
+    <tr><td><code>outnum</code></td><td>外线号码</td><td>外呼记录</td><td><code>trunkGroupKey</code>（中继组号）/ <code>numberTrunkAreaCode</code>（中继号码区号）</td><td class="cond">⚠️</td><td>语义偏移：中继组号 ≠ 外线号码</td></tr>
+    <tr><td><code>msgTelnum</code></td><td>留言号码</td><td>「获取留言记录接口」</td><td>待核对</td><td class="cond">⚠️</td><td><b>改判（原 ❌）</b>：天润有独立留言话单接口，字段名待核</td></tr>
+
+    <tr><td colspan="6" class="grp">③ 时间轴类（7）</td></tr>
+    <tr><td><code>callstarttime</code></td><td>呼叫开始</td><td>外呼记录</td><td><code>startTime</code></td><td class="ok">✅</td><td>实证</td></tr>
+    <tr><td><code>acdstarttime</code></td><td>进入队列时间</td><td>无 ACD 模型</td><td>当前未发现</td><td class="no">❌</td><td>时长字段不能直接反推出时间点；人工场景无队列时保留空值或另定义业务时间</td></tr>
+    <tr><td><code>ringstarttime</code></td><td>开始振铃</td><td>外呼记录</td><td><code>calleeRingingTime</code>（客户响铃时间）</td><td class="ok">✅</td><td>实证</td></tr>
+    <tr><td><code>answerstarttime</code></td><td>接通时间</td><td>外呼记录</td><td><code>bridgeTime</code>（客户接听）/ <code>upTime</code>（座席接起）</td><td class="ok">✅</td><td>两个都在，人工场景可分别取</td></tr>
+    <tr><td><code>answerendtime</code></td><td>通话结束</td><td>外呼记录</td><td><code>endTime</code></td><td class="ok">✅</td><td>实证</td></tr>
+    <tr><td><code>aftercalldealfinishedtime</code></td><td>话后处理完成</td><td>座席状态推送 <code>9</code></td><td><code>wrapupTime</code></td><td class="cond">⚠️</td><td>话单里没有，须跨推送类型取数</td></tr>
+    <tr><td><code>createdTime</code></td><td>记录创建</td><td class="no">当前未发现</td><td class="no">—</td><td class="no">❌</td><td>不得把接收时间冒充源创建时间；新增 <code>ingestedAt</code>，源时间未知则保留未知</td></tr>
+
+    <tr><td colspan="6" class="grp">④ 时长类（7）</td></tr>
+    <tr><td><code>calldurationseconds</code></td><td>通话总时长</td><td>外呼记录</td><td><code>totalDuration</code>（总时长）/ <code>bridgeDuration</code>（通话时长）</td><td class="ok">✅</td><td>两个粒度都给了</td></tr>
+    <tr><td><code>linedurationseconds</code></td><td>线路占用时长</td><td>外呼记录</td><td><code>totalDuration</code></td><td class="ok">✅</td><td>按"线路占用口径"取 totalDuration</td></tr>
+    <tr><td><code>durationofivr</code></td><td>IVR 时长</td><td class="no">无</td><td class="no">—</td><td class="no">❌</td><td>人工外呼本无 IVR</td></tr>
+    <tr><td><code>durationofholding</code></td><td>保持时长</td><td class="no">无</td><td class="no">—</td><td class="no">❌</td><td>天润无"保持"动作时长</td></tr>
+    <tr><td><code>durationofworkready</code></td><td>话后整理时长</td><td>座席状态推送 <code>9</code></td><td><code>wrapupTime</code></td><td class="cond">⚠️</td><td>跨推送取数</td></tr>
+    <tr><td><code>acdtimelong</code></td><td>排队时长</td><td>外呼记录</td><td><code>obWaitDuration</code>（外呼等待时长）</td><td class="cond">⚠️</td><td>口径近似，非队列计时</td></tr>
+    <tr><td><code>ringtimelong</code></td><td>振铃时长</td><td>外呼记录</td><td><code>calleeRingingDuration</code>（客户响铃时长）</td><td class="ok">✅</td><td>实证</td></tr>
+
+    <tr><td colspan="6" class="grp">⑤ 坐席与队列类（5）</td></tr>
+    <tr><td><code>agentname</code></td><td>坐席名</td><td>外呼记录</td><td><code>clientName</code>（座席名称）+ <code>cno</code>（座席工号）</td><td class="ok">✅</td><td>姓名与工号都有，无需反查</td></tr>
+    <tr><td><code>queueNo</code></td><td>队列短号（技能组）</td><td class="no">无（人工外呼不挂队列）</td><td class="no">—</td><td class="no">❌</td><td>场景一话单无队列字段；技能组信息人工场景本就弱</td></tr>
+    <tr><td><code>acdname</code></td><td>ACD 名称</td><td class="no">无</td><td class="no">—</td><td class="no">❌</td><td>天润无 ACD 概念</td></tr>
+    <tr><td><code>acdcode</code></td><td>ACD 编码</td><td class="no">无</td><td class="no">—</td><td class="no">❌</td><td>同上</td></tr>
+    <tr><td><code>acdtransname</code></td><td>转接记录</td><td>外呼记录详情</td><td><code>detailCallType</code> / <code>detailCallTypeDesc</code>（呼叫类型）</td><td class="cond">⚠️</td><td><b>改判（原 ❌）</b>：有"呼叫类型"可承接转接语义</td></tr>
+
+    <tr><td colspan="6" class="grp">⑥ 线路与归属类（5）</td></tr>
+    <tr><td><code>trunkID</code></td><td>中继/线路 ID</td><td>外呼记录</td><td><code>trunkGroupKey</code>（中继组号）</td><td class="ok">✅</td><td>实证</td></tr>
+    <tr><td><code>trunkName</code></td><td>线路名称</td><td class="no">无</td><td class="no">—</td><td class="no">❌</td><td>只有组号，无线路中文名</td></tr>
+    <tr><td><code>trunkCallerNumber</code></td><td>线路主叫号码</td><td>外呼记录</td><td><code>leftClid</code> / <code>numberTrunkAreaCode</code></td><td class="ok">✅</td><td>即外显号码</td></tr>
+    <tr><td><code>dlrCode</code></td><td><b>专营店ID</b></td><td class="no">无</td><td>载体 <code>userField</code></td><td class="no">❌</td><td>DCC 业务字段；外呼记录自带自定义字段可承载（上限待确认）</td></tr>
+    <tr><td><code>lineType</code></td><td>热线类型</td><td>无</td><td>可借 <code>trunkGroupKey</code> 近似</td><td class="cond">⚠️</td><td>值需要我方自建字典</td></tr>
+
+    <tr><td colspan="6" class="grp">⑦ 业务扩展类（6）</td></tr>
+    <tr><td><code>customstring1</code></td><td>自定义字段 1</td><td>外呼记录</td><td><code>userField</code>（json），支持 <code>userField</code>+<code>userValue</code> 反查</td><td class="cond">⚠️</td><td><b>改判</b>：不止 <code>callVariables</code>——话单自带自定义字段且可查询</td></tr>
+    <tr><td><code>customstring2</code></td><td>自定义字段 2</td><td>外呼记录</td><td><code>userField</code></td><td class="cond">⚠️</td><td>槽位上限待确认（预期优于 5 个）</td></tr>
+    <tr><td><code>serviceScore</code></td><td>服务评分</td><td>外呼记录</td><td><code>investigationKeys</code>（满意度评价）</td><td class="cond">⚠️</td><td><b>改判（原 ❌）</b>：有满意度评价数值，口径与"服务评分"不同。<b>DCC 未使用该字段，无需处置</b></td></tr>
+    <tr><td><code>isEvaluate</code></td><td>是否已评价</td><td>外呼记录</td><td><code>evaluation</code>（是否邀评 0/1）</td><td class="cond">⚠️</td><td><b>改判（原 ❌）</b>：语义接近，需确认由谁写入。<b>DCC 未使用该字段，无需处置</b></td></tr>
+    <tr><td><code>isPushevaluation</code></td><td>是否推送评价</td><td class="no">无</td><td class="no">—</td><td class="no">❌</td><td><b>DCC 未使用该字段，无需处置</b>（邀评触发在天润侧）</td></tr>
+    <tr><td><code>status</code></td><td>记录状态</td><td>外呼记录</td><td><code>status</code> + <code>statusDesc</code>（1客户未接听/2座席未接听/3客户接听/4座席接听）+ <code>obSipCause</code>（呼叫结果）</td><td class="ok">✅</td><td>状态枚举比现有更细，需做字典</td></tr>
+  </table>
+
+  
+
+  <h3>表 3 ｜ I3 VCP录音记录接口 · <span class="tag tagS1">场景一</span>人工手动外呼
+    <span class="sub">原文档里这条接口的地址漏填了 · Excel 实际 19 个请求字段（原文漏记 <code>id</code>） · 天润侧靠话单里的 <code>recordFile</code> 字段 + 录音地址接口承接</span></h3>
+
+  <div class="anatomy">
+    <span class="lbl">解剖说明</span><b>天润的录音，为什么不直接给一个能点的网址</b><br>
+    现有系统是把录音存在自己服务器上，话单里直接写路径，随时都能取。天润不是这么做的：<br>
+    ① 话单里给的是一个<b>录音文件名</b>，不是网址；<br>
+    ② 想播，得再调一次「获取录音地址」接口，把它换成临时网址；<br>
+    ③ 这个临时网址的有效期、重新签发能力、批量上限和频控<b>必须以天润确认和 PoC 为准</b>；<br>
+    ④ 我方应尽快拉回并存到自己服务器上，同时支持 URL 失效后的重新申请、失败重试和未归档告警。<br>
+    一句话：录音从"随时取"变成了"限时归档"，归档链路必须在切换前完成 PoC。
+  </div>
+  <table>
+    <tr><th style="width:150px">现有字段</th><th style="width:170px">含义</th><th style="width:210px">天润对应接口</th><th style="width:230px">天润字段</th><th style="width:60px">判定</th><th>备注</th></tr>
+    <tr><td><code>recordId</code></td><td>录音ID</td><td>外呼记录 / 详情</td><td><code>recordFile</code>（候选录音标识）</td><td class="cond">⚠️</td><td>录音文件名不能未经验证就当作唯一主键；需确认多段录音、重复文件名和重取规则</td></tr>
+    <tr><td><code>id</code></td><td>录音记录主键</td><td>待确认</td><td>待确认</td><td class="cond">⚠️</td><td>原文漏记；需明确与通话主键、录音文件标识的关联</td></tr>
+    <tr><td><code>recFile</code></td><td>录音文件路径</td><td>外呼记录 <code>recordFile</code> +<br>「获取通话录音地址」<code>record/getUrl</code></td><td>话单给<b>文件名</b>，调接口换可访问 URL</td><td class="cond">⚠️</td><td>URL 有效期、失效后能否重新签发、批量和频控均需确认；系统必须支持重试、重新申请和落盘归档</td></tr>
+    <tr><td><code>webFileName</code></td><td>web 文件名</td><td class="no">无</td><td class="no">—</td><td class="no">❌</td><td>天润无"web 版文件名"概念</td></tr>
+    <tr><td><code>serviceIp</code></td><td>文件服务 IP</td><td class="no">无</td><td class="no">—</td><td class="no">❌</td><td>录音统一托管，无本地文件服务</td></tr>
+    <tr><td><code>dnis</code></td><td>被叫</td><td>外呼记录</td><td><code>customerNumber</code></td><td class="ok">✅</td><td>录音与话单靠 <code>mainUniqueId</code> 关联，更可靠</td></tr>
+    <tr><td><code>ani</code></td><td>主叫</td><td>外呼记录</td><td><code>leftClid</code></td><td class="ok">✅</td><td>—</td></tr>
+    <tr><td><code>customerNum</code></td><td>客户号码</td><td>外呼记录</td><td><code>customerNumber</code></td><td class="ok">✅</td><td>—</td></tr>
+    <tr><td><code>direction</code></td><td>方向</td><td>外呼记录</td><td><code>callTypeKey</code>（4 预览外呼 / 6 主叫外呼）</td><td class="cond">⚠️</td><td>由呼叫类型推导方向</td></tr>
+    <tr><td><code>hqRecFilePath</code></td><td><b>总部录音路径</b></td><td class="no">当前未发现</td><td class="no">—</td><td class="no">❌</td><td rowspan="4"><b>当前材料未发现总部/店端双存储模型</b>；<b>这 4 个字段 DCC 未使用</b>（不做双份存储，是否接受单份托管需确认）。录音取用仍需核验批量、URL 有效期与重新申请规则</td></tr>
+    <tr><td><code>storeRecFilePath</code></td><td><b>店端录音路径</b></td><td class="no">无</td><td class="no">—</td><td class="no">❌</td></tr>
+    <tr><td><code>hqWebFileName</code></td><td>总部 web 地址</td><td class="no">无</td><td class="no">—</td><td class="no">❌</td></tr>
+    <tr><td><code>storeWebPath</code></td><td>店端相对地址</td><td class="no">无</td><td class="no">—</td><td class="no">❌</td></tr>
+    <tr><td><code>calltype</code></td><td>通话类型</td><td>外呼记录</td><td><code>callTypeKey</code> + <code>detailCallType</code></td><td class="ok">✅</td><td>需字典</td></tr>
+    <tr><td><code>agentname</code></td><td>坐席名</td><td>外呼记录</td><td><code>clientName</code> / <code>cno</code></td><td class="ok">✅</td><td>无需再反查</td></tr>
+    <tr><td><code>longer</code></td><td>录音时长</td><td>无单字段</td><td>取 <code>bridgeDuration</code> 或 <code>totalDuration</code></td><td class="cond">⚠️</td><td>天润不单独给"录音时长"，用通话时长近似</td></tr>
+    <tr><td><code>serviceScore</code></td><td>服务评分</td><td>外呼记录</td><td><code>investigationKeys</code></td><td class="cond">⚠️</td><td>改判：有满意度评价，口径不同。<b>DCC 未使用该字段，无需处置</b></td></tr>
+    <tr><td><code>lineType</code></td><td>热线类型</td><td>无</td><td>借 <code>trunkGroupKey</code> 近似</td><td class="cond">⚠️</td><td>—</td></tr>
+    <tr><td><code>dlrCode</code></td><td>专营店ID</td><td class="no">无</td><td>载体 <code>userField</code></td><td class="no">❌</td><td>—</td></tr>
+  </table>
+
+  
+
+  <h3 style="color:#991B1B">表 4 ｜ I4 VCP预外呼话单回传 <span class="sub">POST /third-api/clue/pre-call/callback/call-record · 24 字段 · 只服务<span class="tag tagS2">场景二</span> · 业务价值最高</span></h3>
+  <div class="bad" style="margin-bottom:6px">
+    <b>为什么只给场景二做这一张表：</b>I4 本身就是预测式外呼的专用回传接口（接口名里的 "pre-call" 就是"预外呼"），
+    预测式外呼的结果数据由它送回来；人工外呼走的是 I2/I3、对着天润「外呼记录」比，不在这张表里。<br>
+    <b>这一版的证据：</b>拿天润「预测式外呼通话记录」46 个字段 +「任务呼叫记录」62 个字段逐条核对过，上一版很多"待核对"现在都落定了。<br>
+    <b>从原场景二表里搬过来的一条结论，别丢：</b>预测式外呼的录音是<b>一段一段组成的清单</b>（<code>recordFile</code> 是个数组，一通电话可能有好几段），要一段一段换网址。
+  </div>
+  <table>
+    <tr><th style="width:150px">现有字段</th><th style="width:180px">含义</th><th style="width:250px">天润对应接口</th><th style="width:170px">天润字段</th><th style="width:70px">判定</th><th>备注</th></tr>
+    <tr><td><code>callId</code></td><td>主通话ID</td><td>预测式外呼通话记录</td><td><code>callId</code>（通话唯一标识）/ <code>uniqueId</code> / <code>id</code></td><td class="ok">✅</td><td>三个 ID 都有；幂等键建议用 <code>uniqueId</code>（详情接口入参同名）</td></tr>
+    <tr><td><code>taskCode</code></td><td>预外呼任务分组编码</td><td>预测式外呼通话记录</td><td><code>taskId</code> + <code>taskFileId</code>（批次id）+ <code>taskName</code></td><td class="ok">✅</td><td>任务+批次两级都在</td></tr>
+    <tr><td><code>traceID</code></td><td>预外呼ID</td><td>预测式外呼通话记录</td><td><code>userField</code>（json 自定义字段）</td><td class="cond">⚠️</td><td>新载体；比 callVariables 宽松，可按 <code>userFieldkey</code> 反查</td></tr>
+    <tr><td><code>dccTaskCode</code></td><td><b>总部培育人工任务编码</b></td><td>预测式外呼通话记录</td><td><code>userField</code> / <code>callVariables</code></td><td class="cond">⚠️</td><td><b>DCC 归因命脉</b>；<code>userField</code> 与 <code>callVariables</code> 双通道可用，槽位规划仍要做</td></tr>
+    <tr><td><code>ani</code></td><td>主叫号码</td><td>预测式外呼通话记录</td><td><code>clid</code> / <code>displayNumber</code></td><td class="ok">✅</td><td>—</td></tr>
+    <tr><td><code>dnis</code></td><td>被叫号码</td><td>预测式外呼通话记录</td><td><code>customerNumber</code></td><td class="ok">✅</td><td>已实证</td></tr>
+    <tr><td><code>startTime</code></td><td>呼叫开始</td><td>预测式外呼通话记录</td><td><code>startTime</code>（电话进入系统时间）</td><td class="ok">✅</td><td>—</td></tr>
+    <tr><td><code>ringingTime</code></td><td>振铃时间</td><td>预测式外呼通话记录</td><td><code>calleeRingingTime</code></td><td class="ok">✅</td><td>实证</td></tr>
+    <tr><td><code>answerTime</code></td><td>接通时间</td><td>预测式外呼通话记录</td><td><code>answerTime</code>（系统接听）/ <code>bridgeTime</code>（座席接听）/ <code>realAnswerTime</code>（真人接听）</td><td class="ok">✅</td><td>三档接听时间，按业务口径选</td></tr>
+    <tr><td><code>hangupTime</code></td><td>挂断时间</td><td>预测式外呼通话记录</td><td><code>endTime</code> + <code>endReason</code>（1000主通道挂机/1001非主通道/1002被强拆）</td><td class="ok">✅</td><td>比现有多给挂机方</td></tr>
+    <tr><td><code>postTime</code></td><td>外呼推送时间</td><td class="no">待确认</td><td class="no">—</td><td class="cond">⚠️</td><td>推送能力和字段尚未冻结；另存我方 <code>ingestedAt</code>，不能把拉取时间冒充源推送时间</td></tr>
+    <tr><td><code>callDuration</code></td><td>通话总时长</td><td>预测式外呼通话记录</td><td><code>totalDuration</code></td><td class="ok">✅</td><td>—</td></tr>
+    <tr><td><code>ringDuration</code></td><td>振铃时长</td><td>无单字段</td><td>由 <code>calleeRingingTime</code>−<code>startTime</code> 计算</td><td class="cond">⚠️</td><td><b>改判（原"待核对✅"）</b>：场景二话单不直接给振铃时长</td></tr>
+    <tr><td><code>billDuration</code></td><td>接听时长</td><td>预测式外呼通话记录</td><td><code>bridgeDuration</code>（服务处理时长）</td><td class="ok">✅</td><td>—</td></tr>
+    <tr><td><code>recDuration</code></td><td>录音时长</td><td>录音接口族</td><td>无单字段；取 <code>bridgeDuration</code> 近似</td><td class="cond">⚠️</td><td>跨接口取数</td></tr>
+    <tr><td><code>hangupCode</code></td><td><b>挂机代码</b><br><span class="sub">11空号/12停机/13忙音/14不在服务区/15无人接听/16关机/21坐席接听/22坐席未接</span></td><td>预测式外呼通话记录 + 任务呼叫记录</td><td><code>statusCode</code>（40~43）+ <code>sipCause</code>（-700/710/712~716）+ <code>sipCauseRaw</code>（710~724 共 15 种被叫状态）+ <code>sipCauseStr</code></td><td class="ok">✅</td><td><b>比 v1 更乐观</b>：失败原因在天润是"接听状态 + SIP 原因"两层结构，枚举比现有 8 值更细（空号 713、关机 714、停机 716、占线 710、拒接 712、无人接听 -700/718 全都有）——<b>需做双向对照字典</b>，但能力无缺口</td></tr>
+    <tr><td><code>callRecordType</code></td><td>0-待重呼 / 1-已完成</td><td>任务呼叫记录 <code>list_cdr_auto_task</code></td><td><code>finishRetryFlag</code>（最终呼叫 1/0）+ <code>telRetryRound</code>（重呼次数）+ <code>degradeRound</code>（降级次数）</td><td class="cond">⚠️</td><td><b>改判（升级）</b>：天润有"是否最终呼叫 + 第几次重呼"，比 0/1 两值更细；"待重呼"状态需由我方按重呼策略推导</td></tr>
+    <tr><td><code>planNextCallDate</code></td><td><b>计划下次重呼时间</b></td><td class="no">无</td><td class="no">—</td><td class="no">❌</td><td><b>本轮最终确认</b>：预测式外呼通话记录、详情、任务呼叫记录全部无"计划呼叫时间"，只有重呼<b>次数</b>与间隔。<b>指定时间重呼本期不做</b>（属未来场景）</td></tr>
+    <tr><td><code>lineCode</code></td><td>预外呼线路编码</td><td>预测式外呼通话记录</td><td><code>numberTrunk</code> / <code>trunkGroupKey</code> / <code>clid</code></td><td class="ok">✅</td><td>—</td></tr>
+    <tr><td><code>trunkID</code></td><td>线路号码ID</td><td>预测式外呼通话记录</td><td><code>trunkGroupKey</code> + <code>numberTrunk</code></td><td class="ok">✅</td><td>实证</td></tr>
+    <tr><td><code>trunkName</code></td><td>归属运营商/线路名</td><td class="no">无</td><td class="no">—</td><td class="no">❌</td><td>只有组号，无线路名</td></tr>
+    <tr><td><code>recFile</code></td><td>录音路径</td><td>预测式外呼通话记录 <code>recordFile</code> + <code>record/getBatchUrl</code></td><td>文件名 → URL（批量、有效期、重签待确认）</td><td class="cond">⚠️</td><td>先做重试、重新申请和落盘 PoC</td></tr>
+    <tr><td><code>queueCode</code></td><td>技能组名称</td><td>预测式外呼通话记录</td><td><code>qno</code>（队列号）+ <code>gno</code>（外呼组号）+ <code>taskName</code></td><td class="cond">⚠️</td><td><b>改判（原 ❌）</b>：话单带队列号/外呼组号，技能组链路可承接。我方坐席<b>不跨组</b>，与天润外呼组是一对一关系，只需一张组号 ↔ 组名的对照表</td></tr>
+    <tr><td><code>agent</code></td><td>分配接听的坐席分机号</td><td>预测式外呼通话记录</td><td><code>cno</code>（座席工号）+ <code>calleeNumber</code>（座席电话）</td><td class="ok">✅</td><td>工号与座席话机号都有</td></tr>
+  </table>
+  <div class="warn">
+    <b>这张表带出三条必须记住的结论：</b><br>
+    ① <b>指定时间的重呼待确认。</b>当前候选接口未发现"下次计划什么时候打"字段，但需取得天润书面回复和 PoC 后再决定是否降级为间隔制。
+    我方 <code>planNextCallDate</code>（计划下次重呼时间）没地方放。<br>
+    ② <b>认领线索的业务编号，有新地方放了。</b>除了老的通道变量（只有 5 个槽），天润话单还自带自定义字段 <code>userField</code> 并且能反查，
+    <b>天润侧槽位数量、长度、写入、回传和反查能力待书面确认</b>，在证据到齐前不能承诺 6 个业务编号全部放得下。<br>
+    ③ <b>技能组不是断的，只是"换个名字"。</b>我方说的「技能组」，在天润那边叫「<b>外呼组</b>」（<code>agentGroup</code>）——
+    建任务时能挂上，话单回来也带着队列号 <code>qno</code> 和外呼组号 <code>gno</code>，两头都对得上。
+    唯一要留意的差别是「一座席只能属一个外呼组」，而我方坐席不跨组，所以不构成问题；剩下的活只是维护一张「组号 ↔ 组名」的对照表。
+  </div>
+
+  <div class="anatomy">
+    <span class="lbl">解剖说明</span><b>"排程制"和"间隔制"，差在哪</b><br>
+    <b>现在是排程制：</b>我们能让系统在指定的某一天、某一个时间点再打。客户说"周三下午再联系我"，就把它排到周三下午 3 点。<br>
+    <b>天润是间隔制：</b>只能设"隔多久打一次、最多打几次"，比如"隔 2 天打一次、最多 3 次"，没办法指定落在某个具体时刻。<br>
+    实际影响：客户主动约的回电时间，就排不进去了，只能靠人工到时候再手动补打一遍。
+    这不是数据字段的问题，是运营动作的问题，所以得提前想好怎么补。
+  </div>
+
+  <h3>表 5 ｜ I5 坐席未接查询坐席名称 <span class="sub">POST /third-api/clue/pre-call/getAgentName · 只有 1 个字段</span></h3>
+  <table>
+    <tr><th style="width:150px">现有字段</th><th style="width:180px">含义</th><th style="width:250px">天润对应接口</th><th style="width:170px">天润字段</th><th style="width:70px">判定</th><th>备注</th></tr>
+    <tr><td><code>dccTaskCode</code></td><td>总部培育人工任务编码</td><td class="no">无业务化接口</td><td class="no">—</td><td class="cond">⚠️</td><td>天润无"按任务反查未接坐席"接口。替代：订阅座席状态推送 <code>9</code> + <code>customerNumber</code> 自行匹配，或调座席报表接口。<b>但注意：话单本身已带 <code>agentName</code>/<code>cno</code></b>，此接口在切换后的存在价值本身要重估</td></tr>
+  </table>
+  <div class="note" style="background:#F8FAFC;border-color:#E5E7EB">
+    <b>顺带确认了一件事：</b>这条接口能在现有系统的在线 Swagger 里找到（<code>/third-api/clue/pre-call/getAgentName</code>，归在 MockAgent 分组下），
+    入参 <code>dccTaskCode</code> 与 Excel 文档里写的一模一样——说明 Swagger 和 Excel 讲的是同一套系统，不是两套。<br>
+    但反过来，I1/I2/I3/I4 这四条在 Swagger 里都查不到。所以<b>Swagger 并不等于"全部对外接口"，不能只看它</b>。
+  </div>
+
+  <h2>三、培育中台接口层（在线 Swagger V1 · 5 个接口）</h2>
+
+  <div class="anatomy">
+    <span class="lbl">概念说明</span><b>“归因键”是什么，为什么需要验证槽位</b><br>
+    预测式外呼是系统自己往外拨号的，坐席接起电话那一刻，屏幕上得知道"这通电话属于哪条线索、哪个任务"。
+    这串业务编号——<code>dccTaskCode</code>（总部培育任务编码）、<code>hdClueId</code>（总部线索ID）、<code>traceID</code>（预外呼ID）、<code>dlrCode</code>（专营店）——
+    要跟着号码一起送进天润，再跟着话单一起回来，才能把通话结果对回原来的那条线索。这就是"归因键"。<br>
+    现有方案是通过天润通道变量 <code>callVariables</code>（通话中通过 SIP 头送到坐席屏幕）传递，但材料显示其槽位有限，
+    而我方要送的业务编号有 6 个，塞不下。<br>
+    当前材料显示一条候选路径：<b>天润话单可能带自定义字段 <code>userField</code>（存 JSON），并可能支持按 key 反查</b>；
+    <b>槽位数量、长度、写入、回传和反查规则尚未书面确认</b>，6 个业务编号能否全部落位需用样例和 PoC 验证。
+  </div>
+
+  <h3 style="color:#991B1B">表 6 ｜ 主号码导入 <span class="sub">POST /VcpPD/Index/import · 11 字段 · 对应天润的 <code>importTaskTel</code></span></h3>
+  <table>
+    <tr><th style="width:150px">现有字段</th><th style="width:180px">含义</th><th style="width:250px">天润对应接口</th><th style="width:170px">天润字段</th><th style="width:70px">判定</th><th>备注</th></tr>
+    <tr><td><code>hdClueId</code></td><td>总部线索ID</td><td>通道变量 / 自定义字段</td><td><code>callVariables</code> / <code>userFields</code></td><td class="cond">⚠️</td><td rowspan="3">三个 DCC 业务键共用候选载体，需提前设计槽位；<code>userField</code> 可作为优先验证方案，但写入、回传、长度和反查上限仍待确认</td></tr>
+    <tr><td><code>traceID</code></td><td>预计外呼ID</td><td>通道变量 / 自定义字段</td><td><code>callVariables</code> / <code>userFields</code></td><td class="cond">⚠️</td></tr>
+    <tr><td><code>dccTaskCode</code></td><td>总部培育人工任务编码</td><td>通道变量 / 自定义字段</td><td><code>callVariables</code> / <code>userFields</code></td><td class="cond">⚠️</td></tr>
+    <tr><td><code>taskCode</code></td><td>预外呼任务分组编码</td><td><code>task/create</code></td><td><code>taskId</code></td><td class="ok">✅</td><td>—</td></tr>
+    <tr><td><code>taskName</code></td><td>预外呼任务分组名称</td><td><code>task/create</code></td><td>任务名称</td><td class="ok">✅</td><td>建任务时给</td></tr>
+    <tr><td><code>lineCode</code></td><td>线路ID</td><td><code>task/create</code></td><td><code>trunkId</code> / 中继</td><td class="ok">✅</td><td>天润另有 <code>crnId</code>（外显导航）可对应选线</td></tr>
+    <tr><td><code>trunK_NAME</code></td><td>线路名称</td><td><code>task/create</code></td><td>线路名</td><td class="ok">✅</td><td>仅展示用</td></tr>
+    <tr><td><code>trunK_CALLER_NUMBER</code></td><td>外显号码</td><td><code>crnNodeConfig</code> / 号码池</td><td>待核对</td><td class="cond">⚠️</td><td>天润外显导航由对方人工配置（G8），非自助</td></tr>
+    <tr><td><code>phoneNumber</code></td><td>手机号码</td><td><code>importTaskTel</code></td><td>号码字段 + <code>fileId</code>（批次）</td><td class="ok">✅</td><td>批量导入走文件，单条需确认</td></tr>
+    <tr><td><code>priority</code></td><td>优先级</td><td>仅号码级：<code>update_task_tel_priority</code></td><td>号码优先级</td><td class="no">❌</td><td>天润任务级无优先级；号码级有但 ≤1000 个/次、只对未在呼号码生效</td></tr>
+    <tr><td><code>skillGroup</code></td><td><b>技能组（必填）</b></td><td>天润侧叫「外呼组」</td><td><code>agentGroup</code></td><td class="cond">⚠️</td><td>天润任务可通过 <code>cnos</code>（工号列表）或 <code>agentGroup</code>（外呼组）挂载坐席；是否满足我方技能组模型，需结合坐席主数据验证。话单侧另有 <code>qno</code>/<code>gno</code> 回显，可维护组号与组名的对照表</td></tr>
+  </table>
+
+  <h3>表 7 ｜ 终止 / 黑名单 / 话单查询（V1 其余 4 个接口）</h3>
+  <table>
+    <tr><th style="width:130px">接口</th><th style="width:150px">现有字段</th><th style="width:230px">天润对应接口</th><th style="width:150px">天润字段</th><th style="width:70px">判定</th><th>备注</th></tr>
+    <tr><td rowspan="1"><code>/VcpPD/Index/terminate</code><br>号码终止任务</td><td><code>phoneNumber</code></td><td>「删除任务内号码」接口</td><td>待核对（号码）</td><td class="cond">⚠️</td><td>天润有删除任务内号码的能力（保留已呼记录与录音），但接口名/单次上限/频控未知，已列入确认清单</td></tr>
+    <tr><td rowspan="4"><code>/VcpPD/Index/blacklist</code><br>黑名单操作</td><td><code>phoneNumber</code></td><td>天润黑名单（平台侧）+ 错误码 <code>20031</code></td><td>待核对</td><td class="cond">⚠️</td><td>天润有黑名单拦截能力，但是否开放 API 自助维护未确认</td></tr>
+    <tr><td><code>operationType</code></td><td>同上</td><td>待核对</td><td class="cond">⚠️</td><td>增删改语义需确认</td></tr>
+    <tr><td><code>deadline</code> <span class="sub">截至时间（限时拉黑）</span></td><td class="no">无</td><td class="no">—</td><td class="no">❌</td><td>天润黑名单无"限时自动解禁"概念，只能我方定时任务反向删除</td></tr>
+    <tr><td><code>oldPhoneNumber</code> <span class="sub">旧号码（改号）</span></td><td class="no">无</td><td class="no">—</td><td class="no">❌</td><td>改号属我方业务逻辑，自行实现</td></tr>
+    <tr><td rowspan="6"><code>/VcpPD/Query/recorddetail</code><br>查询通话数据</td><td><code>record_id</code></td><td>通话记录查询接口族</td><td><code>mainUniqueId</code> / <code>uniqueId</code> / <code>requestUniqueId</code></td><td class="cond">⚠️</td><td><b>改判（升级）</b>：天润查询接口族字段已实证（外呼记录 / 预测式外呼通话记录 / 任务呼叫记录 / 导出 / DB 同步），用哪个 ID 做键需定</td></tr>
+    <tr><td><code>startTime</code></td><td>同上</td><td><code>startTime</code></td><td class="ok">✅</td><td>—</td></tr>
+    <tr><td><code>endTime</code></td><td>同上</td><td><code>endTime</code></td><td class="ok">✅</td><td>—</td></tr>
+    <tr><td><code>page</code></td><td>同上</td><td><code>offset</code> + <code>limit</code>（或 <code>start</code>+<code>limit</code>）+ 滚动查询 <code>scrollSearch</code>/<code>scrollId</code></td><td class="ok">✅</td><td><b>改判（原 ⚠️）</b>：分页参数已实证，且大流量对账可用滚动查询（不受 10 万条限制）</td></tr>
+    <tr><td><code>pageSize</code></td><td>同上</td><td><code>limit</code>（10~1000）</td><td class="ok">✅</td><td><b>改判（原 ⚠️）</b></td></tr>
+    <tr><td><code>DB</code> <span class="sub">库选择</span></td><td class="no">无</td><td class="no">—</td><td class="no">❌</td><td>现有系统内部实现（主库/Nev库），切换后消失</td></tr>
+  </table>
+
+  <h2>四、系统内层能力对照（在线 Swagger V2）</h2>
+  <div class="note">
+    <b>本章范围：</b>不统计字段数量，只评估现有系统的 <b>19 项内部能力</b> 在切换后是否保留、转换或需要自建。<br>
+    <b>阅读方式：</b>业务人员重点看“业务解释”和“判定”，开发人员结合接口和字段列进行核对。<br>
+    <b>判定沿用四档证据等级：</b><span class="ok">✅</span> 已验证可用；<span class="cond">⚠️</span> 候选可映射；<span class="no">❌</span> 当前未发现；<span class="new">⛔</span> 书面确认不支持。
+    <b>先说明统计口径：</b>19 项能力的 ✅/⚠️/❌ 分布待字段、响应和 PoC 证据齐全后再冻结，不能把当前未发现直接等同于天润不支持。<br>
+    <b>还有一件事要说清：</b>这一章是"<b>能力清单</b>"，不参与字段统计；字段总数与判定分布须待 I2/I3 漏项和 V1/V2 字段清单复核后冻结。<br>
+    <span class="sub">说明：这些能力多数服务于我方后台或运营流程。若天润没有等价能力，需要明确是由中间层承接、DCC 自建，还是调整业务流程。</span>
+  </div>
+  <table>
+    <tr><th style="width:110px">能力</th><th style="width:210px">说白了，这条管什么</th><th style="width:255px">现有实现（接口 · 字段）</th><th style="width:270px">天润对应接口 · 字段</th><th style="width:70px">判定</th></tr>
+    <tr><td><b>外呼倍率</b></td><td>一次往外放多少条线路去打。调大打得快、调小打得稳。</td><td><code>/VcpPD/Prediction/setmultiple</code> · <code>multiple</code><br><code>/VcpPD/Prediction/getmultiple</code></td><td><code>task/create</code> · <code>quotiety</code>（0~20，默认 1）+ <code>predictAdjust</code>（50~400，默认 100）</td><td class="ok">✅<br><span class="sub">量纲需换算</span></td></tr>
+    <tr><td><b>分档倍率配置</b></td><td>给不同时段／不同任务配不同的倍率，而不是全场一个数。</td><td><code>/VcpPD/Prediction/magnification/update</code> · <code>recordId</code> + <code>magnification</code>(0.1~10) + <code>magRedial</code> + <code>status</code></td><td class="no">无</td><td class="no">❌</td></tr>
+    <tr><td><b>等待客户数</b></td><td>手上攒多少条已接通的电话排着等坐席接，防止坐席空等。</td><td><code>setwaitingcustomers</code> / <code>getwaitingcustomers</code> · <code>waitingCustomers</code></td><td class="no">无直接对等；有 <code>minAvailableAgentCount</code>（可用坐席下限，默认 10）</td><td class="cond">⚠️</td></tr>
+    <tr><td><b>预警电话</b></td><td>系统出故障时，打哪个号码叫人。</td><td><code>setsupervisornumber</code> · <code>supervisorNumber</code></td><td class="no">无</td><td class="no">❌</td></tr>
+    <tr><td><b>任务优先级</b></td><td>两个任务同时跑，先打哪一个。</td><td><code>/api/Task/create</code> · <code>priority</code>（0~99）</td><td class="no">任务级无；仅号码级 <code>update_task_tel_priority</code></td><td class="no">❌</td></tr>
+    <tr><td><b>预警自动提权</b></td><td>谁快超时了，自动把它提到前面先打。</td><td><code>/VcpPD/BillDetail/adjustPriority</code> · <code>alertLevel</code>(1蓝/2橙/3红) + <code>targetPriority</code>(默认100) + <code>back_priority</code> 备份</td><td class="no">无</td><td class="no">❌</td></tr>
+    <tr><td><b>主动重呼／重拨</b></td><td>坐席点一下，让系统立刻再拨一次这个客户。</td><td><code>/VcpPD/BillDetail/recall</code> · <code>id</code> + <code>phone</code></td><td><code>previewOutcall</code>（预览式外呼）</td><td class="ok">✅</td></tr>
+    <tr><td><b>计划重呼时间</b></td><td>约好"下周三下午 3 点再打"，指定到具体时刻。</td><td><code>/VcpPD/BillDetail/updatePlannedRedialTime</code> · <code>recordId</code> + <code>plannedRedialTime</code><br><code>updateAllPendingRedialTime</code>（20+ 筛选条件）</td><td class="no">当前未发现指定时刻接口；<code>retryStrategy</code> 仅为候选承载方式，需书面/PoC确认</td><td class="no">❌</td></tr>
+    <tr><td><b>重呼策略库</b></td><td>预存几套"打不通怎么办"的规则（打几次、隔多久），用时挑一套。</td><td><code>RetryStrategyConfig</code> · <code>strategyName</code> + <code>retryScope</code> + <code>retryCount</code> + <code>totalRetry</code> + <code>retryInterval</code> + <code>status</code>（可建多套）</td><td><code>retryStrategy</code>（任务级，重试次数默认 2 + 间隔天/时/分；高级模式需开通「号码状态识别」）</td><td class="cond">⚠️</td></tr>
+    <tr><td><b>技能组直挂任务</b></td><td>这类电话交给哪一拨人来打。</td><td><code>/api/Task/create</code> · <code>queueCode</code></td><td><code>agentGroup</code>（<b>外呼组</b>，一座席只能属一个组）；<b>话单侧有 <code>qno</code>/<code>gno</code> 回显</b></td><td class="cond">⚠️<br><span class="sub">一对一对得上</span></td></tr>
+    <tr><td><b>批次追加与取消</b></td><td>任务跑起来之后，再补一批号码进去、或撤掉几个。</td><td><code>/api/Task/append</code> · <code>phoneNumbers</code><br><code>/api/Task/cancel-phones</code> · <code>taskId</code> + <code>phoneNumbers</code></td><td><code>importTaskTel</code> · <code>fileId</code> + <code>isRepeat</code> + <code>importTelAutoStart</code>；删除任务内号码接口</td><td class="ok">✅</td></tr>
+    <tr><td><b>任务状态控制</b></td><td>开始 / 暂停 / 停止 这几个按钮。</td><td><code>/api/Task/status</code> · <code>taskId</code> + <code>status</code>(0暂停/1运行/2完成/3停止)</td><td><code>task/start</code> / <code>pause</code> / <code>stop</code>；<code>autoComplete</code>（默认 1，须显式传 0）</td><td class="ok">✅</td></tr>
+    <tr><td><b>话单批量补推</b></td><td>话单丢了，点个按钮让它重推一遍。</td><td><code>/VcpPD/AiCallRecord/batchPushCdr</code> · <code>callIds</code></td><td class="no">无推送补推；<b>但有查询兜底</b>：外呼记录/预测式外呼通话记录均支持按 <code>requestUniqueId</code>/<code>mainUniqueId</code> 精确补查 + 滚动查询全量对账</td><td class="cond">⚠️</td></tr>
+    <tr><td><b>坐席排班</b></td><td>谁哪天几点上班，一张排班表。</td><td><code>/api/agent-schedule/*</code> · <code>scheduleDate</code>(YYYY-MM) + <code>agentCode</code> + <code>scheduleData</code>，支持 Excel 导</td><td class="no">无排班接口</td><td class="no">❌</td></tr>
+    <tr><td><b>工作时间窗口</b></td><td>规定几点到几点可以往外打，工作日／非工作日分开设。</td><td><code>/api/work-time/*</code> · <code>workDays</code>(1-7) + 起止时分 + 多套 + 默认</td><td>企业级「外呼时段」（08:00~20:00，无 API 自助）</td><td class="cond">⚠️</td></tr>
+    <tr><td><b>预警分级</b></td><td>超时到什么程度算橙灯、什么程度算红灯。</td><td><code>/api/alert-config/*</code> · 橙/红两级 + 工作/非工作日两套 + <code>nonWorkDeadlineHour</code></td><td class="no">无</td><td class="no">❌</td></tr>
+    <tr><td><b>坐席状态实时</b></td><td>大屏上"几个在线、几个通话中、几个空闲"。</td><td>大屏 <code>/VcpPD/Home/dashboard</code> + 坐席状态分布</td><td>座席状态推送 <code>9</code> · <code>loginStatus</code> / <code>deviceStatus</code> / <code>wrapupTime</code></td><td class="ok">✅</td></tr>
+    <tr><td><b>语音识别</b></td><td>把通话录音转成文字。</td><td><code>/VcpPD/ASR/*</code> 流式 + 文件 + URL</td><td class="no">无开放接口；<b>但话单有 <code>asrRecord</code> 标识与 <code>vadIn</code>/<code>vadOut</code></b>，说明平台内有 ASR 能力，是否开放待确认</td><td class="no">❌</td></tr>
+    <tr><td><b>系统自检</b></td><td>系统自己体检，28 项检查。</td><td><code>/VcpPD/Verification/verify/*</code>（28 项）</td><td class="no">无</td><td class="no">❌</td></tr>
+  </table>
+
+  <div class="anatomy">
+    <span class="lbl">关系说明</span><b>技能组与外呼组如何对应</b><br>
+    技能组＝"这类电话该由哪一拨人来打"。现有系统的做法是：建任务时就把技能组挂上去，系统自己找人。<br>
+    天润那边对应的概念叫<b>「外呼组」</b>（<code>agentGroup</code>）——<b>建任务时同样能挂上</b>，不用改成工号清单（当然也可以直接给 <code>cnos</code> 工号列表）。<br>
+    唯一要留意的差别：<b>天润一个坐席可能只能属于一个外呼组</b>，而我方现在是能挂多个技能组的。是否存在跨组坐席、能否一对一映射，需以坐席主数据和 PoC 确认。<br>
+    话单回来时天润还带着<b>队列号（<code>qno</code>）和外呼组号（<code>gno</code>）</b>，两头都能对上。
+    剩下要做的只是一张「组号 ↔ 组名」的对照表——建组时登记一次即可。
+  </div>
+
+  <h2>五、当前未发现字段/能力（需要处置或确认）</h2>
+  <div class="warn">
+    <b>一句话：</b>这一章是"<b>当前材料未发现</b>"清单——原分析列出 <b>28 行字段</b>（归并起来约 <b>20 件事</b>），但数量和“不支持”结论须逐项书面确认。<br>
+    <b>阅读方式：</b>重点关注“业务解释”和“处置建议”；字段列用于开发核对。<br>
+    <b>处置原则：</b>每一项都要明确采用自建、降级、保留现状或暂不纳入本期的方案，否则无法准确估算工作量。<br>
+    <b>当前判断：</b>评价字段和总部/店端双份录音字段在 DCC 中暂未发现实际使用，可在确认后标记为无需迁移；其余事项仍需结合调用链和天润能力进一步核验。
+  </div>
+  <table>
+    <tr><th style="width:130px">类别</th><th style="width:240px">业务解释</th><th style="width:290px">未发现对等字段/能力（对照行数）</th><th>建议处置</th></tr>
+    <tr><td><b>账号体系</b>（3）</td><td>坐席的登录名和密码，我方发不过去了，得搬去天润那边开户。</td><td><code>agentName</code> / <code>password</code> / <code>isEnable</code></td><td>整体迁移到天润 cno 工号；开户走对方，我方只维护映射表</td></tr>
+    <tr><td><b>录音存储模型</b>（6）</td><td>我们原来存两份录音（总部一份、门店一份），天润当前材料只看到单份候选模型。</td><td>总部/店端双路径 4 字段（<code>hqRecFilePath</code>/<code>storeRecFilePath</code>/<code>hqWebFileName</code>/<code>storeWebPath</code>）+ <code>webFileName</code> + <code>serviceIp</code></td><td><b>先确认 DCC 实际使用与合规要求</b>；单份托管及临时 URL 的有效期、批量、重签规则待确认</td></tr>
+    <tr><td><b>DCC 专营店</b>（2）</td><td>话单里认不出这通电话属于哪家店，得自己塞个标记带过去。</td><td><code>dlrCode</code> × 2 处（I2 + I3）</td><td>载体确认用 <code>userField</code>（可反查）+ 我方按号码反查兜底</td></tr>
+    <tr><td><b>队列/ACD 模型</b>（3）</td><td>原来的"队列号"天润叫法不一样，但两边要能对上号。</td><td><code>acdname</code>、<code>acdcode</code>、<code>queueNo</code></td><td>话单侧 <code>qno</code>/<code>gno</code> 可承接。我方坐席不跨组，技能组与天润外呼组<b>一对一</b>，只需一张组号 ↔ 组名对照表；ACD 概念天润本无，接受简化</td></tr>
+    <tr><td><b>评价类</b>（1）</td><td>客户满意度评价的那个开关——我们没在用。</td><td><code>isPushevaluation</code>（是否推送评价）</td><td><b>无需处置</b>：DCC 未使用该字段（邀评触发在天润侧）</td></tr>
+    <tr><td><b>通用记录属性</b>（3）</td><td>记录序号、号码类型、创建时间这几样小东西，我们自己记就行。</td><td><code>sequence</code>、<code>phonetype</code>、<code>createdTime</code></td><td>全部我方自记/自算，无迁移成本</td></tr>
+    <tr><td><b>线路名称</b>（2）</td><td>天润只给线路编号，名字要我们自己维护一张对照表。</td><td><code>trunkName</code> × 2 处（I2 + I4）</td><td>天润只给组号；我方维护 trunkGroupKey → 线路名字典</td></tr>
+    <tr><td><b>保持 / IVR 时长</b>（2）</td><td>客户在线上等了多久、听 IVR 听了多久——这两项时长会丢。</td><td><code>durationofholding</code>、<code>durationofivr</code></td><td>保持时长接受丢失；人工场景本无 IVR</td></tr>
+    <tr><td><b>计划重呼/推送</b>（2）</td><td>"约好某个时间再打"这件事本期不做；推送时间我们自己记。</td><td><code>planNextCallDate</code>、<code>postTime</code></td><td><b>指定时间的重呼本期不做</b>（属未来场景），只保留间隔制；<code>postTime</code> 由我方按接收时间自记</td></tr>
+    <tr><td><b>任务优先级</b>（1）</td><td>任务之间谁先打，当前材料未发现等价的任务级能力，号码级优先级只能作为候选替代。</td><td>任务级 <code>priority</code></td><td>先确认任务级能力；若只能使用号码级优先级，再以真实接口响应确认批量、时效、频控和生效范围后设计分批方案</td></tr>
+    <tr><td><b>黑名单时效</b>（2）</td><td>拉黑到某个日期自动解禁、号码改号，天润没有，我们自己定时处理。</td><td>黑名单 <code>deadline</code>（限时拉黑）、<code>oldPhoneNumber</code>（改号）</td><td>我方定时任务反向删除；改号逻辑自建</td></tr>
+    <tr><td><b>其他</b>（1）</td><td>一个内部参数，跟业务无关。</td><td><code>DB</code> 库选择参数</td><td>内部实现，无需迁移</td></tr>
+  </table>
+
+  <h2>六、⚠️ 需要映射或降级的字段（主要改造工作量）</h2>
+  <div class="note">
+    <b>本章范围：</b>天润存在候选承载能力，但字段名称、数据结构、枚举或业务语义不一致，需要转换、拼接或降级处理。<br>
+    <b>与第五章的区别：</b>第五章是“当前未发现或待确认”，本章是“已有候选方案但尚未直接可用”。<br>
+    <b>阅读方式：</b>先看每类的业务解释和映射方案，再结合字段列拆分具体开发任务。
+  </div>
+  <table>
+    <tr><th style="width:170px">映射类型</th><th style="width:320px">涉及的现有字段</th><th>映射方案</th></tr>
+    <tr>
+      <td><b>塞进自定义字段</b><br><span class="sub">说白了：有些业务编号天润没有专门的格子，要找个"自定义格子"塞进去。</span></td>
+      <td><code>dccTaskCode</code>、<code>hdClueId</code>、<code>traceID</code>、<code>customstring1/2</code>、<code>dlrCode</code></td>
+      <td><b>载体候选比原来宽：</b>天润话单可能带自定义字段 <code>userField</code>（存 JSON），按 key 反查的写入、回传、长度和槽位边界待书面确认
+        （人工场景用 <code>userField</code>+<code>userValue</code>，预测场景用 <code>userFieldkey</code>+<code>userFieldValue</code>）。
+        老的通道变量 <code>callVariables</code>（只有 5 个槽，通话中通过 SIP 头送到坐席屏幕）可留作呼中弹屏的候选兜底。<b>天润自定义字段的槽位、长度、写入、回传和反查规则待书面确认</b>，在证据到齐前不承诺 6 个业务编号直接落地。</td>
+    </tr>
+    <tr>
+      <td><b>要跨接口拼起来</b><br><span class="sub">说白了：一条通话记录的完整信息，天润分三个地方给，得自己拼成一条。</span></td>
+      <td><code>recDuration</code>、<code>recFile</code>、<code>aftercalldealfinishedtime</code>、<code>durationofworkready</code></td>
+      <td>这几个字段天润不在一处给，得同时用上"话单查询 + 录音地址接口 + 座席状态推送 <code>9</code>（里面的 <code>wrapupTime</code>）"三边合并入库。
+        <b>要注意谁先到谁后到（时序），以及重复写入时别写乱（幂等）。</b></td>
+    </tr>
+    <tr>
+      <td><b>取值要翻译</b><br><span class="sub">说白了：同样是"打不通"，两边的说法不一样，要做张对照表互译。</span></td>
+      <td><code>hangupCode</code>（8 种值）、<code>calltype</code>、<code>phonetype</code>、<code>status</code>、<code>lineType</code>、<code>direction</code></td>
+      <td>做一张"我方值 ↔ 天润值"的双向对照字典。当前材料出现的候选值包括：接听状态（人工场景 1/2/3/4、预测场景 40~43）、
+        SIP 原因（<code>sipCause</code> -700/710/712~716、<code>sipCauseRaw</code> 710~724）、呼叫类型（4 预览外呼 / 6 主叫外呼）、挂断原因 <code>endReason</code>（1000/1001/1002）。</td>
+    </tr>
+    <tr>
+      <td><b>数值口径要换算</b><br><span class="sub">说白了：两边倍率的尺子不一样，要写换算公式，还得拿真实数据标一次。</span></td>
+      <td>倍率：我方 0.1~10 ↔ 天润 <code>quotiety</code> 0~20 / <code>predictAdjust</code> 50~400</td>
+      <td>两边的倍率不是同一把尺子，要写换算函数，<b>而且得拿真实数据标定一次</b>，不能直接把数字照搬过去。</td>
+    </tr>
+    <tr>
+      <td><b>坐席标识</b><br><span class="sub">说白了：坐席在两边叫法不同，要能认得出是同一个人。</span></td>
+      <td><code>agentname</code>、<code>agent</code>（分机号）</td>
+      <td>比上一版预估的省事：天润话单直接给坐席名（<code>agentName</code>/<code>clientName</code>）+ 工号 <code>cno</code> + 座席电话 <code>calleeNumber</code>。
+        <b>映射表只在"我方建任务发给天润"这个方向才用得上。</b></td>
+    </tr>
+    <tr>
+      <td><b>技能组映射</b><br><span class="sub">说白了：我们的"技能组"和天润的"外呼组"要能对上号。</span></td>
+      <td><code>queueNo</code>、<code>queueCode</code></td>
+      <td>话单回收这一头用 <code>qno</code>（队列号）/ <code>gno</code>（外呼组号）。我方坐席不跨组，<b>技能组与天润外呼组是一对一</b>，只需一张组号 ↔ 组名的对照表（建组时登记即可）。</td>
+    </tr>
+    <tr>
+      <td><b>我方自建替代</b><br><span class="sub">说白了：有几个小功能天润不提供，我们自己用查询接口兜底。</span></td>
+      <td>未接坐席反查（<code>getAgentName</code>——话单已自带坐席名，这条接口的存在价值要重估）、话单补推、预警短信</td>
+      <td>用查询接口兜底（按 <code>requestUniqueId</code> 精确补查 + 滚动查询做全量对账），再加上订阅天润的推送来实现。</td>
+    </tr>
+  </table>
+
+  <h2>七、需向天润书面确认的事项</h2>
+  <div class="bad">
+    以下事项涉及天润产品能力、接口约束或数据口径，不能仅凭现有查询文档推断，需取得书面回复和接口样例。
+    <b>两个场景已有查询字段材料</b>，但推送字段、响应样例、状态枚举和实时性仍需逐项核验。
+  </div>
+  <table>
+    <tr><th style="width:44px">#</th><th style="width:330px">要让天润确认什么</th><th>为什么这件事重要</th></tr>
+    <tr>
+      <td>1</td>
+      <td><b>天润主动推回来的话单，字段和查询接口是不是同一套？</b>通话记录推送（type 40/41）带的字段，跟「外呼记录」「预测式外呼通话记录」查询接口是否一致？<b>两个场景各自有没有实时推送？</b></td>
+      <td>如果两边一致、而且有实时推送，这张映射表就能直接按查询接口的字段定稿；如果人工外呼（预览式外呼）没有推送，我们就得靠定时轮询 <code>list_cdr_ob</code> 去拉增量，实时性能不能接受、多久拉一次，都要谈。</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><b>打不通的原因，两边怎么对应？</b>天润的 <code>statusCode</code>（40~43）、<code>sipCause</code>、<code>sipCauseRaw</code>，跟现有 <code>hangupCode</code>（空号/停机/忙音/不在服务区/无人接听/关机/坐席接听/坐席未接）怎么互转；平台错误码 20031、20051~20055 又怎么并进来。</td>
+      <td>这决定了"为什么没打通"这句话能不能平移过去，直接影响线索培育的状态判定、以及自动重呼什么时候触发。</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><b>请明确「任务呼叫记录」接口（<code>list_cdr_auto_task</code>）的覆盖范围。</b>它是否包含预测式外呼转人工坐席的通话？与「预测式外呼通话记录」分别承担什么职责？</td>
+      <td>它的字段最全（重呼轮次、是否最终呼叫、IVR、机器人、业务标签、工单 ID）。如果它才是预测场景的完整底表，I4 的映射就得改成以它为主。</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><b>录音归档的限制是什么？</b>批量换地址上限、网址有效期、重新签发与频控都需确认——我方要评估是否能在有效期内拉回本地落盘归档。</td>
+      <td>话单只给文件名、天润只给临时网址，要在失效前拉回来才能长期保存。归档链路扛不住就得改方案（例如改成按需现取）。</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td><b>黑名单开不开放接口？</b>能不能通过接口增、删、改？支不支持"拉黑到某个时间点自动解除"？</td>
+      <td>现有系统支持到期自动解禁；如果天润没有接口，运营就只能回到后台手工操作。</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td><b>请确认「删除任务内号码」接口的准确名称、单次上限和调用频控。</b></td>
+      <td>它要接替现在的号码终止接口，也是"任务复用、重新激活再呼"这套打法的关键一环。</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td><b>请确认查询接口的并发与频率限制。</b><code>scrollSearch</code> 滚动查询的并发数、分页规模和调用频率上限分别是多少？</td>
+      <td>天润的话单是"我主动去查"的模式，对账、补数、增量同步全压在查询接口上——频控多少，直接决定这套同步架构怎么设计。</td>
+    </tr>
+  </table>
+
+  <h2>八、下一步行动（确认、验证、开发三条线并行）</h2>
+  <div class="note">
+    前面七章回答“改造范围是什么”和“哪些结论尚未定稿”。本章将后续工作拆为三条并行线：天润确认、中间层契约、DCC 开发验证。<br>
+    三条线可以同时启动，但天润书面确认是决定最终方案和排期的关键路径。
+  </div>
+
+  <h3>8.1 三条并行工作线及其依赖关系</h3>
+  <table>
+    <tr><th style="width:150px">线</th><th style="width:330px">要做什么</th><th>谁在等它 / 卡在哪</th></tr>
+    <tr>
+      <td><b>对外 · 天润</b><br><span class="sub">关键路径</span></td>
+      <td>把第七章的 7 个问题 + 开工前的对接凭证，合成<b>一封书面确认清单</b>发出去</td>
+      <td class="no">全线都在等它。若论拖延切换的真正原因，就是这一封发晚了——对方回复周期最长</td>
+    </tr>
+    <tr>
+      <td><b>对内 · 中间层</b></td>
+      <td>两件事一次谈完：① 分档倍率 / 任务优先级能不能在中间层吸收；② 提供接口契约的<b>冻结版</b></td>
+      <td class="cond">开发估工等它。这两条不定，第一章的改造清单没法定稿</td>
+    </tr>
+    <tr>
+      <td><b>内部 · DCC 开发</b></td>
+      <td>可在外部确认期间并行启动的 5 项准备工作（见 8.3）</td>
+      <td class="ok">不依赖最终字段定稿，可先行排期</td>
+    </tr>
+  </table>
+
+  <h3>8.2 关键路径：向天润发出统一确认清单</h3>
+  <div class="warn">
+    建议将第七章的问题合并为一封编号清晰的确认函，统一要求书面答复、接口样例和限制条件，并在每一项后注明对应的开发解锁范围，减少重复沟通和口径漂移。
+    <b>合成一封、编号列清、要求书面答复</b>——每一条拿到之后能解锁哪块开发工作，也要在信里写明，这样对方才知道为什么急。
+  </div>
+  <table>
+    <tr><th style="width:44px">#</th><th style="width:330px">问什么</th><th style="width:90px">出处</th><th>拿到后解锁什么</th></tr>
+    <tr>
+      <td>1</td>
+      <td><b>推送回来的话单（type 40/41）带哪些字段？</b>跟查询接口是不是同一套？两个场景各自有没有实时推送？</td>
+      <td><span class="sub">第七章 ①</span><br><span class="sub">＋ 1.5-①</span></td>
+      <td>话单接收方案定稿——走"订阅推送"还是"定时轮询"，这是收数架构的分叉点</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><b>打不通的原因怎么互转？</b><code>statusCode</code>（40~43）、<code>sipCause</code>、<code>sipCauseRaw</code>、<code>endReason</code> 跟现有 <code>hangupCode</code> 的对照口径</td>
+      <td><span class="sub">第七章 ②</span></td>
+      <td>重呼什么时候触发、线索培育状态怎么判，都压在这张对照字典上</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><b>「任务呼叫记录」（<code>list_cdr_auto_task</code>）到底管哪一段？</b>跟「预测式外呼通话记录」怎么分工？</td>
+      <td><span class="sub">第七章 ③</span></td>
+      <td>I4 的映射底表用哪张表——它的字段最全，如果它才是预测场景的完整底表，映射要整块换</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><b>录音批量换地址与归档策略能否满足全量要求？</b>批量上限、网址有效期、重新签发和频控待确认，需用真实数据压测调用量。</td>
+      <td><span class="sub">第七章 ④</span></td>
+      <td>归档链路能不能按"全量落盘"做；扛不住就要改成"按需现取"</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td><b>黑名单开不开放接口？</b>能不能增 / 删 / 改、支持不支持"拉黑到某个时间点自动解除"？</td>
+      <td><span class="sub">第七章 ⑤</span></td>
+      <td>运营能不能继续在系统里拉黑；没有接口就只能回后台手工操作</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td><b>「删除任务内号码」接口的确切名字、单次上限、调用频控？</b></td>
+      <td><span class="sub">第七章 ⑥</span></td>
+      <td>号码终止 + "任务复用、重新激活再呼"这套打法能不能实现</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td><b>查询接口的并发与频率上限？</b><code>scrollSearch</code> 滚动查询能多快调一次？</td>
+      <td><span class="sub">第七章 ⑦</span></td>
+      <td>对账、补数、增量同步的架构怎么设计——收数改成"主动查"之后，全压在查询接口上</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td><b>对接凭证与接入方式：</b>接口域名、接口版本号（地址里那一段 <code>/interface/{version}/</code> 怎么取）、鉴权 / 签名规则、调用频控上限</td>
+      <td><span class="sub">1.5-③</span></td>
+      <td><b>没有它开发连环境都起不了、没法联调</b>——这条要跟上面 7 条一起要</td>
+    </tr>
+  </table>
+
+  <h3>8.3 可立即启动的 5 项准备工作（建议纳入开发排期）</h3>
+  <table>
+    <tr><th style="width:70px">优先级</th><th style="width:280px">做什么</th><th>为什么现在就能做</th><th style="width:80px">谁做</th></tr>
+    <tr>
+      <td class="no">P0</td>
+      <td><b>录音归档程序</b><br><span class="sub">拉临时网址 → 落盘归档</span></td>
+      <td>先做归档 PoC：话单可能只给文件名，URL 有效期、重签、批量和频控待确认；验证重试、重新申请、落盘和未归档告警后再冻结排期</td>
+      <td>DCC 开发</td>
+    </tr>
+    <tr>
+      <td class="cond">P1</td>
+      <td><b>状态 / 原因码对照字典</b></td>
+      <td>候选枚举已在材料中出现（40~43、<code>sipCause</code>、<code>sipCauseRaw</code>、<code>endReason</code>），先建草表，再用真实响应和书面口径校准</td>
+      <td>DCC 开发</td>
+    </tr>
+    <tr>
+      <td class="cond">P1</td>
+      <td><b>倍率换算函数</b></td>
+      <td>两边的倍率不是同一把尺子（<code>quotiety</code> 0~20 / <code>predictAdjust</code> 50~400 ↔ 我方 0.1~10），先写换算，再用真实数据标定一次</td>
+      <td>DCC 开发</td>
+    </tr>
+    <tr>
+      <td class="cond">P1</td>
+      <td><b>归因键改走 <code>userField</code></b></td>
+      <td><b>尚未拍板</b>：先验证 <code>userField</code> 的槽位、长度、写入、回传和反查规则，再决定 6 个业务编号的落位方案</td>
+      <td>DCC 开发</td>
+    </tr>
+    <tr>
+      <td>P2</td>
+      <td><b>把第一章"要改什么"落到具体代码模块</b><span class="sub">哪个服务在接话单、哪个模块在发导入、调用点在哪</span></td>
+      <td>这件事只有开发自己知道（1.5-④）。第一章写的是"改什么"，具体落在哪，要靠开发对照现有实现自己填</td>
+      <td>DCC 开发</td>
+    </tr>
+  </table>
+
+  <h3>8.4 中间层需一次确认的两项内容</h3>
+  <table>
+    <tr><th style="width:44px">#</th><th style="width:330px">谈什么</th><th>两种结果分别意味着什么</th></tr>
+    <tr>
+      <td>1</td>
+      <td><b>分档倍率 / 任务优先级能不能在中间层吸收？</b><span class="sub">（工作包 5）</span></td>
+      <td><b>能吸收 →</b> DCC 近似零改造；<b>吸收不了 →</b> 参数配置页和调度逻辑要整块重做。<b>这一条不定，开发就是估不出工时。</b></td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><b>接口契约（冻结版）：承诺保留多少接口形态不变？</b><span class="sub">（1.5-②）</span></td>
+      <td><b>冻结了 →</b> 第一章改造清单可以定稿、直接拿去估工；<b>不冻结 →</b> 这份清单得逐条重估，DCC 改造量完全取决于中间层承诺保留多少。</td>
+    </tr>
+  </table>
+
+  <h3>8.5 材料齐备后的两步收口工作</h3>
+  <div class="good">
+    <b>① 冻结中间层接口契约之后</b>——<b>第一章的改造清单要逐条重估一遍</b>，重估完再拿去估工时（这份文档已写明这个前提，不要拿未冻结的版本去排期）。<br>
+    <b>② 表 7 那四个接口到手之后</b>——号码终止 / 黑名单 / 话单查询 / 删除任务内号码的接口名、单次上限、频控一确认，<b>导入侧与运营侧即可动工</b>。
+  </div>
+
+  <h3>8.6 优先级原则</h3>
+  <div class="bad">
+    <b>回复最慢的先发（天润 8 条），估工最卡的先催（中间层 2 件），不依赖别人的先干（DCC 5 件）。</b><br>
+    三条线可以并行启动；若天润确认函迟迟未发出，最终方案、开发排期和切换日期都会相应后移。
+  </div>
+
+  <div class="good">
+    <b>结论摘要：</b>当前字段总数和分布仍待重算；I2 漏记 <code>tranormeetingno</code>、<code>callendreasoncode</code>，I3 漏记 <code>id</code>；“当前未发现”不能直接等同于“不支持”。<br>
+    与上一版相比，主要有三项调整：<br>
+    <b>① 变好：</b>打不通的原因（空号、关机、停机、占线……）天润给得比我们现在更细，能力不缺，只要做一张对照表就行；<br>
+    <b>② 候选变好：</b>用来认领"这通电话是哪条线索"的业务编号，除了 5 个通道变量外，天润话单可能还有自定义字段（<code>userField</code>）可反查；槽位数量和边界仍需书面确认，不能提前承诺 6 个编号全放得下；<br>
+    <b>③ 待确认：</b>「下周三下午 3 点再打」这种<b>指定时间的重呼</b>当前候选接口未发现对应字段，但须以天润书面回复和 PoC 后再决定是否降级为间隔制。<br>
+    另外一件必须提前干的活：<b>录音从「随时取」变成「限时归档」</b>，有效期、重新签发、批量和频控待确认，归档程序要先完成 PoC。</b>
+  </div>
+
+  <div class="footer">
+    切换天润 · 接口字段对照与改造清单（复核与实施版 · 第 4 版·复核修订）｜ 7 个接口组 / 9 个物理接口；字段统计待重算；四档证据判定＋10 个改造工作包＋待天润/中间层确认清单＋第八章下一步行动｜
+    A 侧：在线 Swagger + 《NEV线索-接口文档》｜ B 侧：天润接口文档、后台材料、书面答复与联调 PoC（以最终核验结果为准）｜ 2026-09-30
+  </div>
+</body>
+</html>
