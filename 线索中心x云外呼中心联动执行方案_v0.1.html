@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>线索中心 × 云外呼中心联动执行方案 v0.1</title>
+<style>
+  :root{
+    --ink:#1f2329; --ink-2:#5a6169; --ink-3:#8a9199;
+    --line:#e6e8eb; --line-2:#f0f1f3;
+    --bg:#f6f7f9; --card:#ffffff;
+    --blue:#185fa5; --blue-bg:#e6f1fb;
+    --amber:#854f0b; --amber-bg:#faeeda;
+    --green:#3b6d11; --green-bg:#eaf3de;
+    --red:#a32d2d; --red-bg:#fcebeb;
+    --gray-bg:#f1efe8;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:14px;line-height:1.7;}
+  .wrap{max-width:1040px;margin:0 auto;padding:32px 24px 80px;}
+  header.doc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:24px 28px;margin-bottom:20px;}
+  header.doc h1{margin:0 0 6px;font-size:22px;font-weight:600;letter-spacing:.2px;}
+  header.doc .sub{color:var(--ink-2);font-size:13px;}
+  header.doc .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px 20px;font-size:12.5px;color:var(--ink-3);border-top:1px solid var(--line-2);padding-top:12px;}
+  section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 28px 26px;margin-bottom:18px;}
+  h2{font-size:16px;font-weight:600;margin:0 0 14px;padding-left:11px;border-left:3px solid var(--blue);line-height:1.2;}
+  h3{font-size:14px;font-weight:600;margin:22px 0 10px;color:var(--ink);}
+  h3:first-of-type{margin-top:6px;}
+  p{margin:0 0 10px;}
+  ul,ol{margin:0 0 10px;padding-left:22px;}
+  li{margin-bottom:5px;}
+  table{width:100%;border-collapse:collapse;margin:10px 0 16px;font-size:13px;}
+  th{background:var(--gray-bg);text-align:left;font-weight:600;padding:9px 10px;border:1px solid var(--line);white-space:nowrap;}
+  td{padding:9px 10px;border:1px solid var(--line);vertical-align:top;}
+  td.c,th.c{text-align:center;}
+  tbody tr:nth-child(even){background:#fcfcfd;}
+  code{background:var(--gray-bg);border-radius:4px;padding:1px 5px;font-size:12.5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+  .tag{display:inline-block;font-size:11.5px;line-height:1.6;padding:0 7px;border-radius:999px;border:1px solid transparent;white-space:nowrap;}
+  .t-done{background:var(--green-bg);color:var(--green);border-color:#c0dd97;}
+  .t-todo{background:var(--amber-bg);color:var(--amber);border-color:#fac775;}
+  .t-risk{background:var(--red-bg);color:var(--red);border-color:#f7c1c1;}
+  .t-info{background:var(--blue-bg);color:var(--blue);border-color:#b5d4f4;}
+  .callout{border-radius:10px;padding:14px 16px;margin:12px 0;font-size:13.5px;}
+  .c-amber{background:var(--amber-bg);border:1px solid #fac775;}
+  .c-blue{background:var(--blue-bg);border:1px solid #b5d4f4;}
+  .c-red{background:var(--red-bg);border:1px solid #f7c1c1;}
+  .callout b{font-weight:600;}
+  .flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0 6px;}
+  .step{background:var(--blue-bg);border:1px solid #b5d4f4;color:#0c447c;border-radius:8px;padding:7px 12px;font-size:13px;}
+  .arw{color:var(--ink-3);font-size:13px;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .box{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#fcfcfd;}
+  .box h4{margin:0 0 8px;font-size:13.5px;font-weight:600;}
+  .box ul{padding-left:18px;margin-bottom:0;}
+  footer{color:var(--ink-3);font-size:12.5px;text-align:center;margin-top:24px;}
+
+  .seqcard{background:#fff;border:1px solid #e6e8eb;border-radius:14px;padding:20px 24px 24px;margin-bottom:14px;}
+  .seqcard .stitle{font-size:17px;font-weight:600;}
+  .seqcard .seq{color:#185fa5;}
+  .seqcard .desc{color:#5a6169;font-size:13px;margin:8px 0 0;}
+  .seqcard .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+  .seqcard .chip{font-size:12px;color:#185fa5;background:#e6f1fb;border:1px solid #b5d4f4;border-radius:999px;padding:2px 10px;}
+  .seqcard .legend{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:12px;padding-top:12px;border-top:1px solid #f0f1f3;font-size:12.5px;color:#5a6169;}
+  .seqcard .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle;}
+  .seqcard .sq{display:inline-block;width:11px;height:11px;border:1.5px solid #ef9f27;background:#fff9f0;border-radius:3px;margin-right:5px;vertical-align:middle;}
+  .seqcard svg{width:100%;height:auto;display:block;margin-top:14px;}
+    @media (max-width:720px){.grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <h1>线索中心 × 云外呼中心 联动执行方案</h1>
+  <div class="sub">需求范围：smartcode 线索推送 · 云外呼自动分派 · 回访工单与结果回流 · 重复留资滞留（含 SEQ-001 全链路协作时序图）</div>
+  <div class="meta">
+    <span>版本：v0.1（草案，待口径确认）</span>
+    <span>日期：2026-10-14</span>
+    <span>涉及系统：线索中心（推送方）、云外呼中心（接收方）</span>
+    <span>状态：<span class="tag t-todo">4 项待确认</span></span>
+  </div>
+</header>
+
+<!-- 1 -->
+<section>
+  <h2>一、项目目标</h2>
+  <p>把线索中心命中的线索自动推给云外呼中心，由坐席完成外呼跟进，跟进结果（通话状态、是否达到下发厂商条件、意向专营店）回流线索中心，再由线索中心执行下发厂商动作。核心目的是<strong>把「线索留资 → 外呼跟进 → 结果回流 → 下发厂商」串成一条闭环，并解决跟进期间重复留资的处理问题</strong>。</p>
+  <div class="flow">
+    <span class="step">客户留资</span><span class="arw">→</span>
+    <span class="step">线索中心命中 smartcode</span><span class="arw">→</span>
+    <span class="step">推送云外呼中心</span><span class="arw">→</span>
+    <span class="step">分派固定坐席</span><span class="arw">→</span>
+    <span class="step">坐席外呼填工单</span><span class="arw">→</span>
+    <span class="step">结果回流线索中心</span><span class="arw">→</span>
+    <span class="step">下发厂商</span>
+  </div>
+</section>
+
+<!-- 2 -->
+<section>
+  <h2>二、全链路协作时序图</h2>
+  <div class="seqcard">
+  <div class="stitle"><span class="seq">SEQ-001</span> · 线索中心 × 云外呼中心 全链路协作时序</div>
+  <p class="desc">展示留资线索命中 smartcode 后经滞留判定推送云外呼中心，固定绑定坐席账号并经 WebSocket 派单至坐席工作台；坐席外呼填写回访工单，经工单状态锁与幂等判重双重防重复回流，最终按「是否下发厂商」完成下发或终结，并联动滞留线索跟随处理的端到端调用闭环。</p>
+  <div class="chips">
+    <span class="chip">主链路：【线索中心】→【云外呼中心】→【坐席工作台】→【厂商下发】</span>
+    <span class="chip">参与方：5 个泳道</span>
+    <span class="chip">消息数：18 条交互</span>
+    <span class="chip">重点：手机号滞留判定 · 幂等防重 · 工单状态锁 · 滞留跟随</span>
+  </div>
+  <div class="legend">
+    <span><span class="dot" style="background:#185fa5"></span>同步请求 / 事件动作（Request / Action）</span>
+    <span><span class="dot" style="background:#3b6d11"></span>业务响应 / 回执（Response / ACK）</span>
+    <span><span class="sq"></span>条件分支（Condition）</span>
+    <span><span class="dot" style="background:#a32d2d"></span>异常 / 滞留分支（Hold / Rejected）</span>
+  </div>
+
+  <svg viewBox="0 0 1240 1230" xmlns="http://www.w3.org/2000/svg" role="img">
+    <title>线索中心与云外呼中心全链路时序图</title>
+    <desc>留资、滞留判定、推送、派单、跟进、回流与下发厂商的完整时序</desc>
+    <defs>
+      <marker id="ab" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M2 1L8 5L2 9" fill="none" stroke="#185fa5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+      <marker id="ag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M2 1L8 5L2 9" fill="none" stroke="#3b6d11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+    </defs>
+
+    <!-- 泳道头部 -->
+    <g font-size="13" font-weight="600">
+      <rect x="45" y="20" width="170" height="44" rx="9" fill="#f1efe8" stroke="#5f5e5a" stroke-width="0.6"/>
+      <text x="130" y="42" text-anchor="middle" dominant-baseline="central" fill="#444441">客户留资（渠道）</text>
+      <rect x="290" y="20" width="220" height="44" rx="9" fill="#e6f1fb" stroke="#185fa5" stroke-width="0.6"/>
+      <text x="400" y="42" text-anchor="middle" dominant-baseline="central" fill="#0c447c">【线索中心】接收·判定·下发</text>
+      <rect x="560" y="20" width="220" height="44" rx="9" fill="#e6f1fb" stroke="#185fa5" stroke-width="0.6"/>
+      <text x="670" y="42" text-anchor="middle" dominant-baseline="central" fill="#0c447c">【云外呼中心】接口·任务·回流</text>
+      <rect x="845" y="20" width="190" height="44" rx="9" fill="#e1f5ee" stroke="#0f6e56" stroke-width="0.6"/>
+      <text x="940" y="42" text-anchor="middle" dominant-baseline="central" fill="#085041">【坐席工作台】固定坐席</text>
+      <rect x="1100" y="20" width="140" height="44" rx="9" fill="#eaf3de" stroke="#3b6d11" stroke-width="0.6"/>
+      <text x="1170" y="42" text-anchor="middle" dominant-baseline="central" fill="#27500a">厂商系统</text>
+    </g>
+
+    <!-- 生命线 -->
+    <g stroke="#c9ccd2" stroke-width="1" stroke-dasharray="5 5">
+      <line x1="130" y1="64" x2="130" y2="1198"/>
+      <line x1="400" y1="64" x2="400" y2="1198"/>
+      <line x1="670" y1="64" x2="670" y2="1198"/>
+      <line x1="940" y1="64" x2="940" y2="1198"/>
+      <line x1="1170" y1="64" x2="1170" y2="1198"/>
+    </g>
+
+    <!-- 1 留资 -->
+    <line x1="130" y1="100" x2="396" y2="100" stroke="#185fa5" stroke-width="1.5" marker-end="url(#ab)"/>
+    <text x="265" y="90" text-anchor="middle" font-size="12.5" fill="#1f2329"><tspan fill="#185fa5" font-weight="600">1.[请求] </tspan>客户提交留资（姓名 / 手机号 / smartcode / 车系 / 专营店）</text>
+
+    <!-- 2 写库 pill -->
+    <rect x="302" y="122" width="196" height="28" rx="14" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+    <text x="400" y="136" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#2c2c2a">2.[写库] 线索落库 · 命中 smartcode 规则</text>
+
+    <!-- 分支1 滞留判定 -->
+    <rect x="280" y="176" width="500" height="120" rx="10" fill="#fff9f0" stroke="#ef9f27" stroke-width="1"/>
+    <text x="305" y="212" font-size="12.5" fill="#a32d2d"><tspan font-weight="600">3a.[异常] </tspan>同手机号已有在途线索 → 标记「滞留」，不推送（超时 7 天兜底解滞）</text>
+    <text x="305" y="254" font-size="12.5" fill="#27500a"><tspan font-weight="600">3b.[正常] </tspan>无在途 → 组装 7 字段推送报文（手机号明文、编码＋名称双传）</text>
+
+    <!-- 4 推送 -->
+    <line x1="400" y1="340" x2="666" y2="340" stroke="#185fa5" stroke-width="1.5" marker-end="url(#ab)"/>
+    <text x="535" y="330" text-anchor="middle" font-size="12.5" fill="#1f2329"><tspan fill="#185fa5" font-weight="600">4.[请求] </tspan>推送线索（HTTP POST，幂等键＝线索编码，重复推送不重复建任务）</text>
+
+    <!-- 5 写库 pill -->
+    <rect x="565" y="362" width="210" height="28" rx="14" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+    <text x="670" y="376" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#2c2c2a">5.[写库] 幂等校验 → 建任务 → 绑定固定坐席</text>
+
+    <!-- 6 响应 -->
+    <line x1="670" y1="418" x2="404" y2="418" stroke="#3b6d11" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#ag)"/>
+    <text x="535" y="408" text-anchor="middle" font-size="12.5" fill="#1f2329"><tspan fill="#3b6d11" font-weight="600">6.[响应] </tspan>受理成功，返回任务 ID</text>
+
+    <!-- 7 WebSocket -->
+    <line x1="670" y1="456" x2="936" y2="456" stroke="#185fa5" stroke-width="1.5" marker-end="url(#ab)"/>
+    <text x="805" y="446" text-anchor="middle" font-size="12.5" fill="#1f2329"><tspan fill="#185fa5" font-weight="600">7.[事件] </tspan>WebSocket 推送新任务至工作台待办（伴随红点提醒）</text>
+
+    <!-- 8 ACK -->
+    <line x1="940" y1="496" x2="674" y2="496" stroke="#3b6d11" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#ag)"/>
+    <text x="805" y="486" text-anchor="middle" font-size="12.5" fill="#1f2329"><tspan fill="#3b6d11" font-weight="600">8.[ACK] </tspan>坐席端确认接收，更新待办数</text>
+
+    <!-- 9 详情 -->
+    <line x1="940" y1="536" x2="674" y2="536" stroke="#185fa5" stroke-width="1.5" marker-end="url(#ab)"/>
+    <text x="805" y="526" text-anchor="middle" font-size="12.5" fill="#1f2329"><tspan fill="#185fa5" font-weight="600">9.[请求] </tspan>坐席打开任务详情，拉取线索 7 字段</text>
+
+    <!-- 10 响应 -->
+    <line x1="670" y1="576" x2="936" y2="576" stroke="#3b6d11" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#ag)"/>
+    <text x="805" y="566" text-anchor="middle" font-size="12.5" fill="#1f2329"><tspan fill="#3b6d11" font-weight="600">10.[响应] </tspan>返回基础信息（门店地址由界面侧另调门店服务接口按编码查询）</text>
+
+    <!-- 11 外呼 pill -->
+    <rect x="852" y="612" width="176" height="28" rx="14" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+    <text x="940" y="626" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#2c2c2a">11.[动作] 坐席外呼客户（明文可拨）</text>
+
+    <!-- 12 工单 pill -->
+    <rect x="802" y="652" width="276" height="28" rx="14" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+    <text x="940" y="666" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#2c2c2a">12.[写库] 填写工单：通话状态 / 车系 / 专营店(多选) / 是否下发</text>
+
+    <!-- 分支2 工单状态 -->
+    <rect x="700" y="700" width="510" height="116" rx="10" fill="#fff9f0" stroke="#ef9f27" stroke-width="1"/>
+    <text x="725" y="736" font-size="12.5" fill="#a32d2d"><tspan font-weight="600">13a.[分支] </tspan>未接通 → 置「待重拨」（不锁定，允许再次跟进）</text>
+    <text x="725" y="778" font-size="12.5" fill="#27500a"><tspan font-weight="600">13b.[正常] </tspan>最终结论 → 必选「是否下发厂商」→ 置「已完成」并锁定</text>
+
+    <!-- 14 回流 -->
+    <line x1="670" y1="856" x2="404" y2="856" stroke="#185fa5" stroke-width="1.5" marker-end="url(#ab)"/>
+    <text x="535" y="846" text-anchor="middle" font-size="12.5" fill="#1f2329"><tspan fill="#185fa5" font-weight="600">14.[请求] </tspan>工单回流上报（线索编码 / 是否下发 / 意向专营店数组 / 意向车系 / 幂等标识）</text>
+
+    <!-- 15 判重 pill -->
+    <rect x="295" y="878" width="210" height="28" rx="14" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+    <text x="400" y="892" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#2c2c2a">15.[写库] 幂等判重（编码＋工单编号）→ 更新状态</text>
+
+    <!-- 分支3 回流结果 -->
+    <rect x="350" y="934" width="860" height="126" rx="10" fill="#fff9f0" stroke="#ef9f27" stroke-width="1"/>
+    <text x="785" y="972" text-anchor="middle" font-size="12.5" fill="#1f2329"><tspan fill="#27500a" font-weight="600">16a.[正常] </tspan>是否下发＝是 → 置「跟进完成」，勾选门店全量下发厂商（多店一起下发）</text>
+    <line x1="400" y1="986" x2="1166" y2="986" stroke="#185fa5" stroke-width="1.5" marker-end="url(#ab)"/>
+    <text x="375" y="1038" font-size="12.5" fill="#a32d2d"><tspan font-weight="600">16b.[否则] </tspan>是否下发＝否 → 置「已跟进 · 不下发」，流程结束（不退回重排）</text>
+
+    <!-- 17 滞留跟随 pill -->
+    <rect x="292" y="1108" width="216" height="28" rx="14" fill="#f1efe8" stroke="#b4b2a9" stroke-width="0.6"/>
+    <text x="400" y="1122" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#2c2c2a">17.[事件] 滞留线索跟随：随单下发 / 解滞重排</text>
+
+    <!-- 18 回执 -->
+    <line x1="400" y1="1166" x2="666" y2="1166" stroke="#3b6d11" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#ag)"/>
+    <text x="535" y="1156" text-anchor="middle" font-size="12.5" fill="#1f2329"><tspan fill="#3b6d11" font-weight="600">18.[响应] </tspan>回流受理成功回执</text>
+  </svg>
+  </div>
+</section>
+
+<!-- 3 -->
+<section>
+  <h2>三、需求点逐条方案</h2>
+  <table>
+    <thead>
+      <tr><th class="c" style="width:44px">#</th><th style="width:200px">需求点</th><th>方案要点</th><th class="c" style="width:96px">状态</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="c">1</td><td>smartcode 命中推送</td>
+        <td>线索中心维护 smartcode 规则配置（配置项支持新增/启停/下线）。线索入库后按规则判定命中，命中即组装推送报文发往云外呼中心。推送以<code>线索编码</code>做幂等键，重复推送不重复建任务。</td>
+        <td class="c"><span class="tag t-done">已定</span></td>
+      </tr>
+      <tr>
+        <td class="c">2</td><td>接收接口 + 自动分派固定坐席</td>
+        <td>云外呼中心新增线索接收接口，校验通过后建外呼任务。<strong>本场景线索统一固定绑定到同一个坐席账号（非抢单池、不轮询）</strong>；该账号不做配置项，<strong>谁登录这个账号，就算谁跟进</strong>，坐席人物归属与追溯走线下管理记录表格，系统内不记录具体跟进人。</td>
+        <td class="c"><span class="tag t-done">已定</span></td>
+      </tr>
+      <tr>
+        <td class="c">3</td><td>坐席看到线索基础信息</td>
+        <td>坐席工作台在任务详情 / 外呼弹屏中展示推送过来的 7 个字段。<strong>手机号明文展示、点击直接可拨，不做界面脱敏</strong>。</td>
+        <td class="c"><span class="tag t-done">已定</span></td>
+      </tr>
+      <tr>
+        <td class="c">4</td><td>非接通状态也可填工单</td>
+        <td>回访工单新增<strong>通话状态</strong>字段，枚举值覆盖全部通话结果；工单提交不再强依赖「已接通」，任一通话状态均可保存提交。</td>
+        <td class="c"><span class="tag t-done">已定</span></td>
+      </tr>
+      <tr>
+        <td class="c">5</td><td>是否达到下发厂商条件</td>
+        <td>工单新增<strong>是否下发厂商</strong>字段（是/否）。选「是」＝该线索跟进完成，随回流报文回传线索中心，由线索中心执行下发厂商；<strong>选「否」＝表达不下发意向，该线索不下发、流程结束</strong>，线索中心置为「已跟进 · 不下发」，不触发下发动作、不退回重新分配。</td>
+        <td class="c"><span class="tag t-done">已定</span></td>
+      </tr>
+      <tr>
+        <td class="c">6</td><td>坐席可勾选意向专营店</td>
+        <td>工单中<strong>意向专营店</strong>支持多选（案例：客户原意向广州店，坐席沟通后确认深圳店 + 东莞店，则两店一起勾选并回传）。回传按数组结构，随回流报文带给线索中心。<strong>已确认：勾选的专营店全部下发厂商（全量下发）。</strong></td>
+        <td class="c"><span class="tag t-done">已定</span></td>
+      </tr>
+      <tr>
+        <td class="c">7</td><td>ICE / NEV 专营店字段</td>
+        <td>ICE 场景专营店展示：<strong>门店编码、门店名称、门店地址</strong>（分数、小组等赛马相关字段不进展示）。NEV 场景沿用现有 DCC 培育系统跟进工单的专营店字段（分数、小组等赛马相关字段不进展示）。</td>
+        <td class="c"><span class="tag t-done">已定</span></td>
+      </tr>
+      <tr>
+        <td class="c">8</td><td>重复留资滞留</td>
+        <td>重复留资线索<strong>停在线索中心不推送</strong>，等原线索回流结果后再跟随判断。详见第六节。</td>
+        <td class="c"><span class="tag t-done">已定</span></td>
+      </tr>
+      <tr>
+        <td class="c">9</td><td>补充建议</td>
+        <td>见第七节。</td>
+        <td class="c"><span class="tag t-info">建议</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 4 -->
+<section>
+  <h2>四、接口字段规范</h2>
+
+  <h3>4.1 推送报文：线索中心 → 云外呼中心（7 个字段）</h3>
+  <table>
+    <thead>
+      <tr><th class="c" style="width:40px">序</th><th style="width:110px">字段</th><th class="c" style="width:52px">必填</th><th>说明与口径</th><th class="c" style="width:88px">状态</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="c">1</td><td>线索编码</td><td class="c">是</td><td>全局唯一；作为推送<strong>幂等键</strong>与回流<strong>匹配键</strong>，两端以此对齐同一线索。</td><td class="c"><span class="tag t-done">已定</span></td></tr>
+      <tr><td class="c">2</td><td>客户姓名</td><td class="c">否</td><td>留资未填时允许为空；<strong>不做脱敏</strong>（与手机号口径一致）。</td><td class="c"><span class="tag t-done">已定</span></td></tr>
+      <tr><td class="c">3</td><td>手机号码</td><td class="c">是</td><td>呼叫对象；同时是滞留判定的比对键。<strong>界面明文展示、不做脱敏</strong>（已确认）；接口传输与日志层面建议仍做加密处理，不影响坐席使用。</td><td class="c"><span class="tag t-done">已定</span></td></tr>
+      <tr><td class="c">4</td><td>smartcode</td><td class="c">是</td><td>命中的来源标识；<strong>编码与中文名称双传</strong>，便于坐席识别线索来源。</td><td class="c"><span class="tag t-done">已定</span></td></tr>
+      <tr><td class="c">5</td><td>意向车系</td><td class="c">是</td><td><strong>只支持单车系（单值）</strong>；<strong>编码与中文名称双传</strong>。</td><td class="c"><span class="tag t-done">已定</span></td></tr>
+      <tr><td class="c">6</td><td>意向专营店</td><td class="c">否</td><td>推送时为<strong>原意向专营店</strong>（门店编码 + 名称）。<strong>业务上原意向专营店必有值</strong>（已确认不存在为空的情况）；报文仍按可缺省处理，仅作为接口层兜底，语义上缺省即代表客户仍想去线索推送时的原意向专营店。<strong>门店地址不进推送报文</strong>，由坐席界面侧通过另外的服务接口按门店编码查询获取。</td><td class="c"><span class="tag t-done">已定</span></td></tr>
+      <tr><td class="c">7</td><td>留资时间</td><td class="c">是</td><td>本次新增。用于任务排序、跟进 SLA 时效计算、以及滞留窗口的时长判定。</td><td class="c"><span class="tag t-done">已定</span></td></tr>
+    </tbody>
+  </table>
+
+  
+
+    <div class="callout c-blue">
+    <b>已确认不加的字段：</b>手机号归属地、来源渠道/活动名称、数据版本号、归属大区/经销商编码、NEV 意向能源类型与试驾需求 —— 以上场景本期不涉及，不进报文。
+  </div>
+
+  <h3>4.2 回流报文：云外呼中心 → 线索中心（5 个字段）</h3>
+  <table>
+    <thead><tr><th class="c" style="width:40px">序</th><th style="width:130px">字段</th><th class="c" style="width:52px">必填</th><th>用途</th><th class="c" style="width:80px">状态</th></tr></thead>
+    <tbody>
+      <tr><td class="c">1</td><td>线索编码</td><td class="c">是</td><td>匹配键，定位线索中心对应的原始线索。</td><td class="c"><span class="tag t-done">已定</span></td></tr>
+      <tr><td class="c">2</td><td>是否下发厂商</td><td class="c">是</td><td>「是」即该线索跟进完成，触发线索中心执行下发厂商动作。</td><td class="c"><span class="tag t-done">已定</span></td></tr>
+      <tr><td class="c">3</td><td>意向专营店（数组）</td><td class="c">是</td><td>坐席勾选结果，多店一起回传（门店编码 + 名称），线索中心据此更新线索意向专营店。</td><td class="c"><span class="tag t-done">已定</span></td></tr>
+      <tr><td class="c">4</td><td>意向车系</td><td class="c">否</td><td>坐席跟进后可修正的意向车系，回流线索中心更新。对应工单上该字段需可编辑。</td><td class="c"><span class="tag t-done">已定</span></td></tr>
+      <tr><td class="c">5</td><td>幂等标识</td><td class="c">是</td><td><strong>主防线在云外呼侧：工单加状态锁</strong>——工单置为「已完成」后不可再做二次跟进，且选择「已完成」时必须先选择是否下发，保证一次跟进只回流一次。线索中心侧按<strong>幂等标识</strong>判重兜底（取值：线索编码 + 工单编号），防的是接口重试、消息重投这类「人没重复操作但请求重复到达」的情况。</td><td class="c"><span class="tag t-done">已定</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout c-red">
+    <b>幂等标识的取值方式需要定死 —— 这是本期最容易出事故的地方。</b><br>
+    一条线索有可能被跟进多次（例如第一次未接通填「否」，第二次接通填「是」），每次都产生一次回流。如果幂等标识只用<code>线索编码</code>，第二次回流会被判成重复而丢弃，「是」的结果传不过来，线索会卡死不下发；反过来若不做防重，「是」的结果重复到达就会重复下发厂商。<br>
+    <b>建议：</b>幂等标识取<code>线索编码 + 回流版本号（或工单编号）</code>，既保证同一工单只生效一次，又允许多次跟进依次回流。若云外呼侧不便提供工单编号，可退化为<code>线索编码 + 本次回流时间戳</code>，但需同步定义「同一线索以最后一次回流为准」的覆盖规则。
+  </div>
+
+  
+<div class="callout c-blue">
+    <b>防重复回流的两道防线（已定）：</b><br>
+    ① <b>云外呼侧工单状态锁（主防线）</b>——工单进入「已完成」后不能再对工单做二次跟进；且选择「已完成」时必须先选择是否下发厂商。这样一次跟进只会产生一次回流。<br>
+    ② <b>线索中心侧幂等判重（兜底）</b>——按<code>线索编码 + 工单编号</code>判重。状态锁挡的是「人重复操作」，接口重试、消息重投这类「人没重复操作但请求重复到达」的情况仍需要线索中心自己判重，否则一样会重复下发厂商。
+  </div>
+</section>
+
+<!-- 5 -->
+<section>
+  <h2>五、回访工单字段设计（需求点 4 / 5 / 6 / 7）</h2>
+  <table>
+    <thead><tr><th style="width:150px">工单字段</th><th class="c" style="width:70px">类型</th><th class="c" style="width:60px">必填</th><th>规则说明</th></tr></thead>
+    <tbody>
+      <tr><td>通话状态</td><td class="c">单选</td><td class="c">是</td><td>覆盖全部通话结果枚举，未接通类状态同样可提交工单；该字段需在回访工单中可见可选。</td></tr>
+      <tr><td>是否下发厂商</td><td class="c">单选</td><td class="c">是</td><td>是/否。选「是」＝跟进完成，回流后由线索中心下发厂商。建议：未接通类状态下限制为「否」，避免未沟通就下发。</td></tr>
+      <tr><td>意向专营店</td><td class="c">多选</td><td class="c">是</td><td>支持勾选多家；ICE 场景展示门店编码、门店名称、门店地址；NEV 沿用 DCC 现有字段（分数、小组等赛马相关字段不进展示）。</td></tr>
+      <tr><td>意向车系</td><td class="c">单选</td><td class="c">否</td><td>只支持单车系（单值，编码 + 名称）。带出时为线索中心推送的原意向车系，坐席跟进后可修正，随回流报文回传线索中心更新。</td></tr>
+      <tr><td>跟进内容 / 备注</td><td class="c">文本</td><td class="c">否</td><td>坐席填写沟通情况（本期不回传线索中心）。</td></tr>
+      <tr><td>线索基础信息区</td><td class="c">只读</td><td class="c">—</td><td>展示推送的字段供坐席查看，不允许修改；其中<strong>意向车系、意向专营店为可编辑项</strong>，是坐席跟进后回传线索中心的两个字段。</td></tr>
+    </tbody>
+  </table>
+  <div class="callout c-blue">
+    <b>「是否下发厂商 = 否」已明确：</b>代表坐席判断该线索没有下发意向。该线索不下发厂商、不退回重新分配，线索中心侧状态置为「已跟进 · 不下发」，流程结束。<br>
+    <span style="color:#5a6169">可选建议：如需后续分析「为什么不下发」，可在工单上加一个非必填的「不下发原因」（客户无意向 / 号码无效 / 重复留资等）。一期不加也不影响流程跑通。</span>
+  </div>
+<h3>5.1 多店下发规则（已定）</h3>
+  <div class="callout c-blue">
+    <b>已确认采用「全量下发」：</b>坐席勾选几家专营店，就随回流把几家一起传给线索中心、全部下发厂商（案例：确认深圳店 + 东莞店，则两店一起下发）。<br>
+    <b>实施注意：</b>需与下发链路确认「同一客户同时下发多家专营店」能否被现有规则接受——若现有为「一线索一店」，需要下游同步放开，此项在接口评审时对齐。
+  </div>
+
+  <h3>5.2 工单状态与状态锁 <span class="tag t-todo">状态边界待确认</span></h3>
+  <p>状态锁要落地，工单状态需要区分「得出结论并锁定」和「还没结论、允许继续打」两类，否则会和「未接通也要能填工单」冲突：</p>
+  <table>
+    <thead><tr><th style="width:130px">工单状态</th><th class="c" style="width:80px">是否锁定</th><th>规则</th></tr></thead>
+    <tbody>
+      <tr><td>待跟进</td><td class="c">否</td><td>任务分派到坐席账号后的初始状态，可正常外呼与填写。</td></tr>
+      <tr><td>待重拨</td><td class="c">否</td><td>坐席已尝试但未接通（关机、停机、拒接等），保存通话状态后不锁定，允许再次跟进与多次拨打。</td></tr>
+      <tr><td>已完成</td><td class="c">是</td><td>坐席给出最终结论。<strong>选择「已完成」时必须先选择是否下发厂商</strong>，提交后触发回流、工单锁定，不可再二次跟进。</td></tr>
+    </tbody>
+  </table>
+  <div class="callout c-amber">
+    <b>这里有个必须定的边界：</b>如果「未接通」也直接置为「已完成」，那这条线索提交后就被锁死，<strong>坐席再也打不了第二次电话</strong>——这和「未接通也要能填工单」的需求直接冲突。<br>
+    <b>建议：</b>未接通类状态走「待重拨」（不锁），只有给出最终结论时才置「已完成」（锁定 + 回流）。<br>
+    <b>另需确认：</b>已完成且已下发后，如果坐席发现填错了（例如意向专营店勾错），是否给主管留一个「作废/撤销」通道？完全没有的话，只能靠线下改数据。
+  </div>
+
+</section>
+
+<!-- 6 -->
+<section>
+  <h2>六、重复留资滞留机制（需求点 8 · 重点）</h2>
+
+  <h3>6.1 已确认的口径</h3>
+  <ul>
+    <li>重复留资线索<strong>停留在线索中心，不推送云外呼中心</strong>（云外呼侧无感知，不产生新任务）。</li>
+    <li>等原线索从云外呼中心回流结果后，滞留线索<strong>跟随该结果一起判断下发</strong>。</li>
+    <li>推送报文不需要携带滞留标识与原线索编码，接口保持简单。</li>
+    <li><strong>判定键＝手机号码</strong>（明文比对，不做脱敏）；不做同车系、同姓名的模糊匹配。</li>
+    <li><strong>滞留期间纯静默</strong>：不新建任务。</li>
+    <li><strong>跟随下发时直接跟随</strong>：原线索判定下发则滞留线索一并下发，不再重新命中 smartcode 规则。</li>
+  </ul>
+
+  <h3>6.2 该方案对线索中心的改造要求</h3>
+  <p>把复杂度全部收敛在线索中心侧，需要新增两样东西：</p>
+  <table>
+    <thead><tr><th style="width:170px">改造项</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>在途索引表</td><td>以手机号为键，维护「该客户当前是否有线索已推送云外呼且未出结果」。这是判定重复留资是否该滞留的唯一依据。</td></tr>
+      <tr><td>定时兜底任务</td><td>滞留线索不能被无限挂起，需要有超时自动解除的定时任务（时长待定，建议 7 个自然日）。</td></tr>
+    </tbody>
+  </table>
+
+  <h3>6.3 滞留状态流转</h3>
+  <div class="flow">
+    <span class="step">客户重复留资</span><span class="arw">→</span>
+    <span class="step">判定：同手机号有在途线索</span><span class="arw">→</span>
+    <span class="step">置为「滞留」不推送</span><span class="arw">→</span>
+    <span class="step">等原线索回流</span><span class="arw">→</span>
+    <span class="step">跟随判断：下发 / 解滞重排</span>
+  </div>
+  <table>
+    <thead><tr><th style="width:190px">原线索回流结果</th><th>滞留线索处理</th></tr></thead>
+    <tbody>
+      <tr><td>是否下发 = 是</td><td>跟随一起下发厂商（客户重复留资代表意向明确，建议随单下发）。</td></tr>
+      <tr><td>是否下发 = 否</td><td>解除滞留，重新走一遍 smartcode 规则判定：命中则推送云外呼进入新一轮跟进，未命中则按常规线索处理。</td></tr>
+      <tr><td>超时兜底</td><td>超过设定时长仍未回流，滞留线索自动解滞，按常规规则重新判定，避免线索黑洞。</td></tr>
+    </tbody>
+  </table>
+
+  <h3>6.4 口径确认结果</h3>
+  <table>
+    <thead><tr><th style="width:170px">确认项</th><th>已定口径</th></tr></thead>
+    <tbody>
+      <tr><td>滞留判定键</td><td>按手机号码判定（明文比对，不做脱敏）；不做同车系、同姓名的模糊匹配。</td></tr>
+      <tr><td>滞留期间坐席是否感知</td><td>采用纯静默：不新建任务。</td></tr>
+      <tr><td>跟随下发是否重判 smartcode</td><td>不重判，原线索判定下发即直接跟随下发，避免两次判定造成口径不一致。</td></tr>
+    </tbody>
+  </table>
+  <div class="callout c-amber">
+    <b>已知影响（纯静默方案的取舍）：</b>滞留期间坐席不感知客户的新留资。若客户这次留资选择的专营店与原意向不同，坐席无从得知，跟进时仍按原信息沟通。此取舍已确认接受。
+  </div>
+
+  <div class="callout c-amber">
+    <b>超时时长建议：</b>7 个自然日（可配置）。依据是与坐席跟进 SLA 对齐 —— 线索下发后应在若干小时内完成首拨与工单提交，回流普遍在 1～3 天内完成，7 天足以覆盖正常回流，又能兜住异常挂起的线索。
+  </div>
+  <h3>6.5 一发多衍生与滞留线索的撞店处理 <span class="tag t-info">部分待确认</span></h3>
+  <p>坐席勾选多家专营店后，线索中心要把一条线索衍生为多条下发（一发多）；而这些衍生出来的门店，可能和本案下滞留线索的意向门店撞上。处理规则如下：</p>
+  <p><strong>去重维度：手机号 + 门店编码</strong> —— 同一客户、同一门店只允许存在一条有效下发，避免客户被同一家店重复联系。</p>
+  <table>
+    <thead><tr><th style="width:220px">场景</th><th>执行规则</th><th class="c" style="width:80px">状态</th></tr></thead>
+    <tbody>
+      <tr><td>滞留线索的意向门店 ∈ 衍生集合</td><td>该滞留线索<strong>不再单独下发</strong>，状态置「已跟随下发（与主线索合并）」，避免同客户同店下发两次。</td><td class="c">建议</td></tr>
+      <tr><td>滞留线索的意向门店 ∉ 衍生集合</td><td>该滞留线索<strong>按自身意向门店单独下发</strong>：跟随的是「下发」这个结果，门店以滞留线索自身的意向为准。</td><td class="c">建议</td></tr>
+      <tr><td>滞留线索无意向门店（字段为空）</td><td><strong>该场景不存在</strong>：原意向专营店必有值，无需空值兜底。</td><td class="c"><span class="tag t-done">已定</span></td></tr>
+      <tr><td>多条滞留线索之间撞店</td><td><strong>不做合并</strong>：各条滞留线索独立按自身信息下发。若意向车系发生变更，以最新一次留资的车系为准<strong>跟随更新</strong>至下发记录，避免下发厂商拿到旧车系。</td><td class="c"><span class="tag t-done">已定</span></td></tr>
+    </tbody>
+  </table>
+  <div class="callout c-blue">
+    <b>执行顺序与幂等（建议）：</b><br>
+    ① 先算出原线索的衍生门店集合 → ② 汇总本案下所有关联滞留线索的意向门店 → ③ 按「手机号 + 门店编码」合并去重 → ④ 在同一批次内统一下发。<br>
+    <b>幂等键需要升级：</b>下发幂等键由「线索编码」改为<code>线索编码 + 门店编码</code>。一发多之后一条线索会变多条下发记录，原来的单一线索编码挡不住重复下发。<br>
+    <b>去重范围：</b>「手机号 + 门店编码」判重<strong>仅用于原线索衍生集合与滞留线索之间的去重</strong>（即上表第一条场景）；多条滞留线索之间已确认不合并、不做拦截。
+  </div>
+</section>
+
+<!-- 7 -->
+<section>
+  <h2>七、意向专营店展示字段（需求点 7）</h2>
+  <div class="grid">
+    <div class="box">
+      <h4>ICE 场景</h4>
+      <ul>
+        <li>门店编码</li>
+        <li>门店名称</li>
+        <li>门店地址（含复制功能）</li>
+        <li style="color:#8a9199">分数、小组等赛马相关字段不进展示</li>
+      </ul>
+    </div>
+    <div class="box">
+      <h4>NEV 场景</h4>
+      <ul>
+        <li>沿用现有 DCC 培育系统跟进工单的专营店字段，保持一致</li>
+        <li>分数、小组等赛马相关字段不进展示</li>
+        <li>需确认：NEV 现有字段具体清单，用于与 ICE 做差异对照</li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout c-blue">
+    <b>已定：</b>推送报文只带<strong>门店编码 + 门店名称</strong>，<strong>门店地址不进报文</strong>；坐席界面展示地址时，由界面侧通过另外的服务接口按门店编码查询获取，保证展示以门店主数据为准、两端不会出现地址不一致。
+  </div>
+</section>
+
+<!-- 8 -->
+<section>
+  <h2>八、补充建议（需求点 9）</h2>
+  <table>
+    <thead><tr><th style="width:170px">建议项</th><th>内容</th><th class="c" style="width:80px">优先级</th></tr></thead>
+    <tbody>
+      <tr><td>回流幂等</td><td>下发厂商接口必须按「线索编码 + 工单编号」防重，重复回流不得重复下发。重复下发属资损级事故，这是本期红线。</td><td class="c"><span class="tag t-risk">高</span></td></tr>
+      <tr><td>接口可靠性</td><td>推送与回流双向都要有失败重试 + 定时对账机制，回流丢一条就等于线索丢失且无人发现。</td><td class="c"><span class="tag t-risk">高</span></td></tr>
+      <tr><td>坐席跟进 SLA</td><td>定义任务下发后首拨时限与未接通重拨次数上限，避免线索积压与重复骚扰投诉。</td><td class="c"><span class="tag t-todo">中</span></td></tr>
+      <tr><td>账号积压监控</td><td>全部线索压在同一个坐席账号上，且不做系统转派。建议保留该账号的待跟进量与超时未跟进提醒，避免无人登录时线索无声堆积。</td><td class="c"><span class="tag t-todo">中</span></td></tr>
+      <tr><td>隐私号政策</td><td>2027-01-04 起抖音新车行业线索不再默认下发真实手机号，需提前确认云外呼中心的呼叫方案（虚拟号/回拨），否则届时拨不出去。</td><td class="c"><span class="tag t-todo">中</span></td></tr>
+      <tr><td>一期埋点报表</td><td>滞留量、跟进结果分布、下发转化率三项建议一期就埋，后续申诉与优化都需要数据支撑。</td><td class="c"><span class="tag t-info">建议</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 9 -->
+<section>
+  <h2>九、待确认清单</h2>
+  <table>
+    <thead><tr><th class="c" style="width:44px">#</th><th style="width:210px">事项</th><th>需明确的内容</th><th class="c" style="width:80px">归属</th></tr></thead>
+    <tbody>
+      <tr><td class="c">1</td><td>账号积压监控</td><td>固定账号不配置、不转派已确认；需明确系统侧是否提供该账号的待跟进量与超时未跟进提醒（不做则完全依赖线下管理）。</td><td class="c">运营 + 云外呼</td></tr>
+      <tr><td class="c">2</td><td>工单状态锁边界</td><td>未接通类状态是否置「待重拨」不锁定、允许重拨（建议如此，否则未接通线索提交后被锁死、无法再打第二次）；已完成且已下发后是否需要主管「作废/撤销」通道。</td><td class="c">业务 + 云外呼</td></tr>
+      <tr><td class="c">3</td><td>NEV 专营店字段清单</td><td>取现有 DCC 工单字段的实际清单，用于与 ICE 做差异对照。</td><td class="c">产品</td></tr>
+      <tr><td class="c">4</td><td>一发多衍生去重口径</td><td>见 6.5 节前两条场景：滞留线索意向门店命中衍生集合时不再单独下发、未命中时按自身意向门店单独下发——请确认是否按此执行。</td><td class="c">业务</td></tr>
+    </tbody>
+  </table>
+  <p style="color:#5a6169;font-size:13px;margin-top:12px;">以上 6 项确认后，本方案升级为 v1.0 定稿版，可直接进入接口评审。</p>
+</section>
+
+<footer>线索中心 × 云外呼中心 联动执行方案 v0.1 · 2026-10-14 · 内部使用</footer>
+
+</div>
+</body>
+</html>
