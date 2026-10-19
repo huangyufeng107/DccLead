@@ -1,0 +1,1819 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DCC培育 · SaaS平台 - 业务时序交互图集</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg: #faf8ff;
+  --panel: #ffffff;
+  --text: #191b23;
+  --muted: #434654;
+  --border: #c3c6d6;
+  --accent: #003594;
+  --accent-soft: #dbe1ff;
+  --accent-light: #eef2ff;
+  --success: #15803d;
+  --success-bg: #f0fdf4;
+  --warning: #b45309;
+  --warning-bg: #fffbeb;
+  --danger: #b91c1c;
+  --danger-bg: #fef2f2;
+  --info: #0284c7;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --header-gradient: linear-gradient(135deg, #00174b 0%, #003594 50%, #004ac6 100%);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+}
+.page {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 20px 24px 60px;
+}
+
+/* 顶部头部 */
+.doc-header, .seq-header {
+  background: var(--header-gradient);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px 32px 22px;
+  margin-bottom: 18px;
+  color: #fff;
+}
+.doc-type-badge, .seq-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  backdrop-filter: blur(4px);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+  letter-spacing: 0.5px;
+}
+.doc-header h1, .seq-header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.5px;
+  color: #fff;
+}
+.doc-subtitle, .seq-subtitle {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 14px;
+  margin-top: 10px;
+  line-height: 1.6;
+}
+
+/* 页面主布局：左侧导航 + 右侧时序内容 */
+.seq-layout {
+  display: grid;
+  grid-template-columns: 290px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 1024px) {
+  .seq-layout { grid-template-columns: 1fr; }
+}
+
+/* 左侧目录侧边栏 */
+.seq-sidebar {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  position: sticky;
+  top: 20px;
+}
+.sidebar-heading {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sidebar-search {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 14px;
+  outline: none;
+}
+.sidebar-search:focus {
+  border-color: var(--accent);
+}
+.seq-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.seq-nav-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  color: #334155;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  transition: all 0.15s;
+  display: block;
+  border-left: 3px solid transparent;
+}
+.seq-nav-item:hover {
+  background: #f1f5f9;
+  color: var(--accent);
+}
+.seq-nav-item.is-active {
+  background: var(--accent-light);
+  color: var(--accent);
+  font-weight: 700;
+  border-left-color: var(--accent);
+}
+.seq-nav-code {
+  font-size: 11px;
+  font-weight: 700;
+  display: block;
+  color: #64748b;
+  margin-bottom: 2px;
+}
+.seq-nav-item.is-active .seq-nav-code {
+  color: var(--accent);
+}
+
+/* 时序卡片 */
+.seq-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 26px 30px;
+  margin-bottom: 30px;
+  scroll-margin-top: 20px;
+}
+.seq-card-header {
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.seq-card-title {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.seq-badge-tag {
+  background: #eef2ff;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 6px;
+  border: 1px solid #c7d2fe;
+}
+.seq-badge-tag.highlight {
+  background: #f0fdf4;
+  color: #15803d;
+  border-color: #86efac;
+}
+.seq-card-desc {
+  font-size: 13px;
+  color: #475569;
+  margin-top: 8px;
+  line-height: 1.6;
+}
+.seq-meta-chips {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+.chip {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: #475569;
+}
+.chip.proto {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+/* 图形工具条与画布 */
+.seq-diagram-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: auto;
+  margin: 18px 0;
+  padding: 16px;
+}
+.seq-diagram-box svg {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
+}
+.seq-legend {
+  display: flex;
+  gap: 18px;
+  font-size: 12px;
+  color: #475569;
+  margin: 12px 0 18px;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.legend-dot.req { background: #003594; }
+.legend-dot.resp { background: #15803d; }
+.legend-dot.event { background: #7c3aed; }
+.legend-dot.err { background: #b91c1c; }
+
+/* 消息数据说明表格 */
+.seq-table-wrap {
+  overflow-x: auto;
+  margin-top: 20px;
+}
+table.seq-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+table.seq-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  padding: 9px 12px;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+}
+table.seq-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: top;
+  line-height: 1.5;
+}
+table.seq-table tr:hover td {
+  background: #f8fafc;
+}
+.pill {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.pill.request { background: #dbeafe; color: #1e40af; }
+.pill.response { background: #dcfce7; color: #166534; }
+.pill.event { background: #ede9fe; color: #6b21a8; }
+.pill.error { background: #fee2e2; color: #991b1b; }
+
+.rule-note-box {
+  background: #f8fafc;
+  border-left: 3px solid var(--accent);
+  padding: 12px 16px;
+  border-radius: 0 6px 6px 0;
+  margin-top: 18px;
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.6;
+}
+.rule-note-box strong { color: var(--accent); }
+.rule-note-box.success {
+  border-left-color: var(--success);
+}
+.rule-note-box.success strong {
+  color: var(--success);
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+  <!-- 顶部头部 -->
+  <div class="doc-header seq-header">
+    <div class="doc-type-badge seq-badge">业务时序图（HTML 阅读版 · v2.8）</div>
+    <h1>DCC培育 · SaaS平台</h1>
+    <div class="doc-subtitle seq-subtitle">端到端业务时序与工程交互图集 — 详细定义界面、服务、数据库、外部中台与通信引擎之间的调用协议、异步消息与事务一致性，指导服务端设计与联调测试。</div>
+  </div>
+
+  <!-- 布局 -->
+  <div class="seq-layout">
+    <!-- 侧边目录 -->
+    <aside class="seq-sidebar" aria-label="时序目录">
+      <div class="sidebar-heading">
+        <span>时序目录</span>
+        <small style="color:#64748b; font-weight:normal;">7 个核心场景</small>
+      </div>
+      <input type="search" class="sidebar-search" id="seqSearch" placeholder="搜索时序编号或场景名称...">
+      <nav class="seq-nav-list" id="seqNavList">
+        <a href="#SEQ-001" class="seq-nav-item is-active">
+          <span class="seq-nav-code">SEQ-001</span>
+          多渠道线索接入、下发审核与 7 维度规则引擎派单时序
+        </a>
+        <a href="#SEQ-002" class="seq-nav-item">
+          <span class="seq-nav-code">SEQ-002</span>
+          AI 智能外呼任务下发、机器人通话与话单回执时序
+        </a>
+        <a href="#SEQ-003" class="seq-nav-item">
+          <span class="seq-nav-code">SEQ-003</span>
+          坐席软电话外呼、通话中记录与确认保存时序
+        </a>
+        <a href="#SEQ-004" class="seq-nav-item">
+          <span class="seq-nav-code">SEQ-004</span>
+          ★ 高意向试驾排程预约、定位短信下发与反哺集团CRM闭环时序
+        </a>
+        <a href="#SEQ-005" class="seq-nav-item">
+          <span class="seq-nav-code">SEQ-005</span>
+          线索滞留超时告警、自动回收公海与重新分配时序
+        </a>
+        <a href="#SEQ-006" class="seq-nav-item">
+          <span class="seq-nav-code">SEQ-006</span>
+          预外呼实时监听、主管耳语指导与通话录音质检抽检时序
+        </a>
+        <a href="#SEQ-007" class="seq-nav-item">
+          <span class="seq-nav-code">SEQ-007</span>
+          ★ AI策略工作台：评分建议、人工审核与分步回滚发布时序
+        </a>
+      </nav>
+    </aside>
+
+    <!-- 时序主体卡片 -->
+    <main class="seq-main">
+
+      <!-- ==================== SEQ-001 ==================== -->
+      <article class="seq-card" id="SEQ-001">
+        <header class="seq-card-header">
+          <div class="seq-card-title">
+            <span>SEQ-001 · 多渠道线索接入、下发审核与 7 维度规则引擎派单时序</span>
+            <span class="seq-badge-tag">线索流入与分配</span>
+          </div>
+          <p class="seq-card-desc">展示三无忧冷线索、天网集客与线下批次文件接入 DCC 接入网关，经排重校验与下发审核入库，联动【任务排班】读取在线坐席负荷配额，触发【培育策略】7 维度规则引擎匹配，最终通过 WebSocket 实时派单至【培育任务】坐席工作台的端到端调用闭环。</p>
+          <div class="seq-meta-chips">
+            <span class="chip proto">对应原型：【线索管理】➔【三无忧/下发审核】+【培育策略】➔【线索分配规则】(紧凑胶囊/Hover溯源 · v2.8)</span>
+            <span class="chip">参与方：5 个泳道</span>
+            <span class="chip">消息数：15 条交互</span>
+            <span class="chip">重点：分布式排它锁 · 幂等落库 · 负荷配额熔断</span>
+          </div>
+        </header>
+
+        <div class="seq-legend">
+          <span class="legend-item"><i class="legend-dot req"></i>同步/异步请求 (Request)</span>
+          <span class="legend-item"><i class="legend-dot resp"></i>业务响应 (Response)</span>
+          <span class="legend-item"><i class="legend-dot event"></i>消息事件 (Event / MQ)</span>
+          <span class="legend-item"><i class="legend-dot err"></i>异常/拒绝分支 (Error / Rejected)</span>
+        </div>
+
+        <div class="seq-diagram-box">
+          <svg viewBox="0 0 1000 880" width="1000" height="880" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="arr-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 9 5 L 0 9 z" fill="#003594"/>
+              </marker>
+              <marker id="arr-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 9 5 L 0 9 z" fill="#15803d"/>
+              </marker>
+              <marker id="arr-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 9 5 L 0 9 z" fill="#b91c1c"/>
+              </marker>
+              <marker id="arr-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 9 5 L 0 9 z" fill="#7c3aed"/>
+              </marker>
+            </defs>
+
+            <!-- 泳道头部 -->
+            <!-- 1. 上游多渠道数据源 -->
+            <rect x="20" y="20" width="160" height="42" rx="6" fill="#f0f9ff" stroke="#0284c7" stroke-width="1.5"/>
+            <text x="100" y="46" font-size="13" font-weight="700" fill="#0369a1" text-anchor="middle">上游数据源 (三无忧/天网)</text>
+            <line x1="100" y1="62" x2="100" y2="860" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <!-- 2. 【线索管理】服务 -->
+            <rect x="220" y="20" width="160" height="42" rx="6" fill="#f8fafc" stroke="#003594" stroke-width="1.5"/>
+            <text x="300" y="46" font-size="13" font-weight="700" fill="#003594" text-anchor="middle">【线索管理】接入与审核</text>
+            <line x1="300" y1="62" x2="300" y2="860" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <!-- 3. 【培育策略】规则引擎 -->
+            <rect x="420" y="20" width="160" height="42" rx="6" fill="#eef2ff" stroke="#003594" stroke-width="1.5"/>
+            <text x="500" y="46" font-size="13" font-weight="700" fill="#003594" text-anchor="middle">【培育策略】7维度规则引擎</text>
+            <line x1="500" y1="62" x2="500" y2="860" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <!-- 4. DCC 数据库/Redis -->
+            <rect x="620" y="20" width="160" height="42" rx="6" fill="#f8fafc" stroke="#475569" stroke-width="1.5"/>
+            <text x="700" y="46" font-size="13" font-weight="700" fill="#334155" text-anchor="middle">DCC 数据库 (MySQL/Redis)</text>
+            <line x1="700" y1="62" x2="700" y2="860" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <!-- 5. 【培育任务】坐席工作台 (UI) -->
+            <rect x="820" y="20" width="160" height="42" rx="6" fill="#f0fdf4" stroke="#15803d" stroke-width="1.5"/>
+            <text x="900" y="46" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">【培育任务】工作台 (UI)</text>
+            <line x1="900" y1="62" x2="900" y2="860" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <!-- 消息 1: 中台推送批次 -->
+            <line x1="100" y1="95" x2="300" y2="95" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="200" y="87" font-size="12" fill="#003594" text-anchor="middle">1. [请求] 批量下发冷线索/活动名单 (HTTP POST /batch)</text>
+
+            <!-- 消息 2: 校验排重并落库 -->
+            <line x1="300" y1="140" x2="700" y2="140" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="500" y="132" font-size="12" fill="#003594" text-anchor="middle">2. [写库] 校验批次号唯一性，手机MD5排重，批量插入待审核池</text>
+
+            <!-- 消息 3: 数据库返回受影响行数 -->
+            <line x1="700" y1="180" x2="300" y2="180" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+            <text x="500" y="172" font-size="12" fill="#15803d" text-anchor="middle">3. [响应] 返回入库成功数量与排重过滤记录数</text>
+
+            <!-- 消息 4: 立即响应中台 -->
+            <line x1="300" y1="220" x2="100" y2="220" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+            <text x="200" y="212" font-size="12" fill="#15803d" text-anchor="middle">4. [响应] 返回批次受理成功回执 (包含批次ID与时间戳)</text>
+
+            <!-- 消息 5: 下发审核通过，触发异步分配 -->
+            <line x1="300" y1="270" x2="500" y2="270" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="400" y="262" font-size="12" fill="#003594" text-anchor="middle">5. [事件] 审核通过，触发 7 维度分单任务 (异步 MQ 消息)</text>
+
+            <!-- 消息 6: 规则引擎读规则与【任务排班】可用坐席 -->
+            <line x1="500" y1="320" x2="700" y2="320" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="600" y="312" font-size="12" fill="#003594" text-anchor="middle">6. [读库] 联合查询排班在岗坐席、技能专长与当前工单负荷</text>
+
+            <!-- 消息 7: 返回规则与坐席列表 -->
+            <line x1="700" y1="360" x2="500" y2="360" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+            <text x="600" y="352" font-size="12" fill="#15803d" text-anchor="middle">7. [响应] 返回在岗坐席星级、专长、今日分配计数与配额上限</text>
+
+            <!-- 条件框: 校验坐席配额与容量 -->
+            <rect x="420" y="400" width="560" height="150" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.2"/>
+            <text x="435" y="420" font-size="11" font-weight="700" fill="#b45309">[条件分支: 当前是否有可用且未达上限的坐席?]</text>
+
+            <!-- 分支 A: 无可用坐席 (错误分支) -->
+            <line x1="500" y1="455" x2="700" y2="455" stroke="#b91c1c" stroke-width="1.8" marker-end="url(#arr-red)"/>
+            <text x="600" y="447" font-size="12" fill="#b91c1c" text-anchor="middle">8a. [异常] 全部满额或触发熔断 ➔ 标记“公海等待”，写入容量预警</text>
+
+            <!-- 分支 B: 命中规则 (通过分支) -->
+            <line x1="500" y1="510" x2="700" y2="510" stroke="#15803d" stroke-width="1.8" marker-end="url(#arr-green)"/>
+            <text x="600" y="502" font-size="12" fill="#15803d" text-anchor="middle">8b. [正常] 命中规则 (轮询/专长/在线优先) ➔ 加 Redis 分布式排它锁</text>
+
+            <!-- 消息 9: 锁定并持久化分配流水 -->
+            <line x1="500" y1="590" x2="700" y2="590" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="600" y="582" font-size="12" fill="#003594" text-anchor="middle">9. [事务写库] 更新线索归属坐席 ID，写入分配流水历史表</text>
+
+            <!-- 消息 10: 数据库提交事务 -->
+            <line x1="700" y1="630" x2="500" y2="630" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+            <text x="600" y="622" font-size="12" fill="#15803d" text-anchor="middle">10. [响应] 事务提交成功，释放分布式锁</text>
+
+            <!-- 消息 11: 触发 WebSocket 推送 -->
+            <line x1="500" y1="680" x2="300" y2="680" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="400" y="672" font-size="12" fill="#003594" text-anchor="middle">11. [请求] 通知网关向目标坐席推送新任务</text>
+
+            <!-- 消息 12: 实时推送到坐席工作台 -->
+            <line x1="300" y1="730" x2="900" y2="730" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="600" y="722" font-size="12" fill="#003594" text-anchor="middle">12. [WebSocket 事件] 派单推送到【我的任务】待办列表 (伴随提示音与红点)</text>
+
+            <!-- 消息 13: 坐席端静默应答 -->
+            <line x1="900" y1="780" x2="300" y2="780" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+            <text x="600" y="772" font-size="12" fill="#15803d" text-anchor="middle">13. [客户端 ACK] 坐席端确认收到消息，更新待办计数</text>
+          </svg>
+        </div>
+
+        <div class="seq-table-wrap">
+          <table class="seq-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>发送方</th>
+                <th>接收方</th>
+                <th>消息 / 接口调用</th>
+                <th>类型</th>
+                <th>触发条件</th>
+                <th>技术实现约束</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>上游数据源 (三无忧/天网)</td>
+                <td>【线索管理】服务</td>
+                <td>POST /api/leads/sync/batch (批量下发名单)</td>
+                <td><span class="pill request">request</span></td>
+                <td>每天凌晨定时批处理或业务手动同步推单</td>
+                <td>请求体包含批次号 batchNo、签名 sign、加密线索数组</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>【线索管理】服务</td>
+                <td>DCC 数据库</td>
+                <td>INSERT INTO dcc_lead (状态: 待审核/待分配)</td>
+                <td><span class="pill request">request</span></td>
+                <td>批次签名校验合法且批次号未处理过</td>
+                <td>手机号唯一排重索引，30 天重复线索自动合并老潜客档案</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>DCC 数据库</td>
+                <td>【线索管理】服务</td>
+                <td>返回受影响行数与排重过滤统计</td>
+                <td><span class="pill response">response</span></td>
+                <td>数据库操作完成</td>
+                <td>记录插入数、更新数、跳过数，形成入库对账流水</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>【线索管理】服务</td>
+                <td>上游数据源</td>
+                <td>HTTP 200 OK (包含接收总数与受理批次ID)</td>
+                <td><span class="pill response">response</span></td>
+                <td>数据安全持久化后立即响应</td>
+                <td>不等待后续耗时分配逻辑，避免外部网关超时</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>【线索管理】服务</td>
+                <td>【培育策略】规则引擎</td>
+                <td>发布 MQ 消息 topic: dcc_lead_alloc_event</td>
+                <td><span class="pill event">event</span></td>
+                <td>【下发审核】人工/自动审核通过</td>
+                <td>使用 RocketMQ 顺序消费，携带批次 ID 与白名单门店标签</td>
+              </tr>
+              <tr>
+                <td>6-7</td>
+                <td>【培育策略】规则引擎</td>
+                <td>DCC 数据库</td>
+                <td>查询在线坐席、班次日历、当前分配负荷与规则配置</td>
+                <td><span class="pill request">request</span></td>
+                <td>分配引擎开始计算</td>
+                <td>联动【任务排班】，只选取状态为 ONLINE 且未达单日上限坐席</td>
+              </tr>
+              <tr>
+                <td>8a</td>
+                <td>【培育策略】规则引擎</td>
+                <td>DCC 数据库</td>
+                <td>更新线索为“待分配公海”，写入告警日志</td>
+                <td><span class="pill error">error</span></td>
+                <td>无符合条件的在线坐席或全部坐席满负荷</td>
+                <td>触发站内信和企业微信通知班长，提示增加在岗排班</td>
+              </tr>
+              <tr>
+                <td>8b-10</td>
+                <td>【培育策略】规则引擎</td>
+                <td>DCC 数据库</td>
+                <td>加锁更新 dcc_lead.owner_id 并写入分配历史</td>
+                <td><span class="pill request">request</span></td>
+                <td>匹配到 7 维度加权最优坐席</td>
+                <td>Redis 分布式锁 lock:seat:${agentId}，防止并发超配</td>
+              </tr>
+              <tr>
+                <td>11-13</td>
+                <td>【线索管理】服务</td>
+                <td>【培育任务】工作台 (UI)</td>
+                <td>WebSocket 发送事件 LEAD_ALLOCATED</td>
+                <td><span class="pill event">event</span></td>
+                <td>事务落库成功</td>
+                <td>前端监听到事件后无刷新向【我的任务】顶部追加卡片并播放提示音</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="rule-note-box">
+          <strong>架构一致性说明：</strong>多渠道线索接入采用“先落库持久化、即时应答上游、异步排队分配”的削峰填谷模式。分配计算失败不影响线索的物理存储，未分配线索自动保存在公海池中，班长可通过工作台随时一键重分配。
+        </div>
+      </article>
+
+      <!-- ==================== SEQ-002 ==================== -->
+      <article class="seq-card" id="SEQ-002">
+        <header class="seq-card-header">
+          <div class="seq-card-title">
+            <span>SEQ-002 · AI 智能外呼任务下发、机器人通话与话单回执时序</span>
+            <span class="seq-badge-tag">AI外呼与通信</span>
+          </div>
+          <p class="seq-card-desc">定义排程任务触发、向第三方 AI 外呼引擎 (AliCti) 下发名单、机器人拨打意向识别、Webhook 异步接收话单、回写通话记录与触发未接通波次重呼的端到端调用时序。</p>
+          <div class="seq-meta-chips">
+            <span class="chip proto">对应原型：【培育策略】➔【AI外呼配置】+【统计报表】➔【AI试驾排程效能看板】</span>
+            <span class="chip">参与方：5 个泳道</span>
+            <span class="chip">消息数：15 条交互</span>
+            <span class="chip">重点：Webhook 签名防刷 · 话单幂等性 · A/B级高意向直派人工</span>
+          </div>
+        </header>
+
+        <div class="seq-diagram-box">
+          <svg viewBox="0 0 1000 840" width="1000" height="840" xmlns="http://www.w3.org/2000/svg">
+            <!-- 泳道头部 -->
+            <rect x="20" y="20" width="160" height="42" rx="6" fill="#f8fafc" stroke="#003594" stroke-width="1.5"/>
+            <text x="100" y="46" font-size="13" font-weight="700" fill="#003594" text-anchor="middle">【培育策略】调度中心</text>
+            <line x1="100" y1="62" x2="100" y2="820" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <rect x="220" y="20" width="160" height="42" rx="6" fill="#eef2ff" stroke="#003594" stroke-width="1.5"/>
+            <text x="300" y="46" font-size="13" font-weight="700" fill="#003594" text-anchor="middle">DCC 接入网关/服务</text>
+            <line x1="300" y1="62" x2="300" y2="820" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <rect x="420" y="20" width="160" height="42" rx="6" fill="#f8fafc" stroke="#475569" stroke-width="1.5"/>
+            <text x="500" y="46" font-size="13" font-weight="700" fill="#334155" text-anchor="middle">DCC 数据库 (MySQL)</text>
+            <line x1="500" y1="62" x2="500" y2="820" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <rect x="620" y="20" width="160" height="42" rx="6" fill="#faf5ff" stroke="#7c3aed" stroke-width="1.5"/>
+            <text x="700" y="46" font-size="13" font-weight="700" fill="#6b21a8" text-anchor="middle">AI外呼引擎 (AliCti)</text>
+            <line x1="700" y1="62" x2="700" y2="820" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <rect x="820" y="20" width="160" height="42" rx="6" fill="#f0fdf4" stroke="#15803d" stroke-width="1.5"/>
+            <text x="900" y="46" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">潜客电话 / 运营商线路</text>
+            <line x1="900" y1="62" x2="900" y2="820" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <!-- 消息 1: 触发外呼任务启动 -->
+            <line x1="100" y1="95" x2="300" y2="95" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="200" y="87" font-size="12" fill="#003594" text-anchor="middle">1. [触发] 达到外呼时段 (09:00-20:00，严格夜间勿扰)，启动波次任务</text>
+
+            <!-- 消息 2: 提取待呼叫名单 -->
+            <line x1="300" y1="140" x2="500" y2="140" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="400" y="132" font-size="12" fill="#003594" text-anchor="middle">2. [读库] 筛选待呼叫线索 (重呼次数 &lt; 3、非勿扰黑名单、白名单门店)</text>
+
+            <!-- 消息 3: 下发任务给 AI 外呼平台 -->
+            <line x1="300" y1="190" x2="700" y2="190" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="500" y="182" font-size="12" fill="#003594" text-anchor="middle">3. [API] 下发批次任务 POST /task/create (传 enterpriseId, 话术, 号码池)</text>
+
+            <!-- 消息 4: AI 平台确认接收 -->
+            <line x1="700" y1="235" x2="300" y2="235" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+            <text x="500" y="227" font-size="12" fill="#15803d" text-anchor="middle">4. [响应] 返回供应商 taskId，本地任务状态置为 RUNNING</text>
+
+            <!-- 消息 5: AI 机器人呼叫客户 -->
+            <line x1="700" y1="285" x2="900" y2="285" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#arr-purple)"/>
+            <text x="800" y="277" font-size="12" fill="#6b21a8" text-anchor="middle">5. [信令] SIP 中继发起振铃与外呼拨打</text>
+
+            <!-- 消息 6: 客户接听与机器人对话 -->
+            <path d="M 900 330 L 700 330" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#arr-purple)"/>
+            <text x="800" y="322" font-size="12" fill="#6b21a8" text-anchor="middle">6. [通话] 潜客接听，AI 执行 ASR/NLP 语音交互与意图识别</text>
+
+            <!-- 消息 7: 通话结束，推送实时话单 -->
+            <line x1="700" y1="380" x2="300" y2="380" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#arr-purple)"/>
+            <text x="500" y="372" font-size="12" fill="#6b21a8" text-anchor="middle">7. [Webhook] 挂机推单 (带签名: 通话时长, 录音URL, 意向标签 A/B/C/D/N)</text>
+
+            <!-- 消息 8: DCC 鉴权并保存通话记录 -->
+            <line x1="300" y1="430" x2="500" y2="430" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="400" y="422" font-size="12" fill="#003594" text-anchor="middle">8. [写库] 记录通话记录流水表 `dcc_call_record`，更新线索意向为 B 级</text>
+
+            <!-- 消息 9: 应答 Webhook -->
+            <line x1="300" y1="475" x2="700" y2="475" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+            <text x="500" y="467" font-size="12" fill="#15803d" text-anchor="middle">9. [响应] 返回 200 OK 确认话单已成功持久化 (避免重推)</text>
+
+            <!-- 条件分支: 接通情况处理 -->
+            <rect x="220" y="515" width="560" height="170" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+            <text x="235" y="535" font-size="11" font-weight="700" fill="#334155">[通话结果分支处理]</text>
+
+            <!-- 分支 A: 意向明确 (A/B级) -->
+            <line x1="300" y1="570" x2="500" y2="570" stroke="#15803d" stroke-width="1.8" marker-end="url(#arr-green)"/>
+            <text x="400" y="562" font-size="12" fill="#15803d" text-anchor="middle">10a. [高意向] A/B 级意向 ➔ 立即生成待办直派人工坐席跟进</text>
+
+            <!-- 分支 B: 未接通/忙音 -->
+            <line x1="300" y1="620" x2="500" y2="620" stroke="#b45309" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="400" y="612" font-size="12" fill="#b45309" text-anchor="middle">10b. [未接通] 次数未满 ➔ 写入重呼队列 (2小时后再次预外呼)</text>
+
+            <!-- 分支 C: 超过最大重呼 -->
+            <line x1="300" y1="665" x2="500" y2="665" stroke="#b91c1c" stroke-width="1.8" marker-end="url(#arr-red)"/>
+            <text x="400" y="657" font-size="12" fill="#b91c1c" text-anchor="middle">10c. [最终未接] 超过3次 ➔ 标记“AI触达失败”，移入滞留治理并下发短信</text>
+
+            <!-- 消息 11: 更新配置大屏统计 -->
+            <line x1="300" y1="730" x2="100" y2="730" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+            <text x="200" y="722" font-size="12" fill="#15803d" text-anchor="middle">11. [响应] 更新外呼任务实时接通率与转化计数大屏</text>
+          </svg>
+        </div>
+
+        <div class="seq-table-wrap">
+          <table class="seq-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>发送方</th>
+                <th>接收方</th>
+                <th>消息 / 接口调用</th>
+                <th>类型</th>
+                <th>触发条件</th>
+                <th>技术实现约束</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>【培育策略】调度中心</td>
+                <td>DCC 接入网关</td>
+                <td>检查外呼时间窗口与可用坐席阈值</td>
+                <td><span class="pill request">request</span></td>
+                <td>定时排程触发 (如每天 09:30)</td>
+                <td>非工作时段禁止外呼，若可用坐席低于阈值自动挂起任务</td>
+              </tr>
+              <tr>
+                <td>2-3</td>
+                <td>DCC 接入网关</td>
+                <td>AI外呼引擎</td>
+                <td>POST /task/create (提交名单与模板)</td>
+                <td><span class="pill request">request</span></td>
+                <td>批次名单检查通过</td>
+                <td>接口传 enterpriseId、customerClidsGroup、名单数组</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>AI外呼引擎</td>
+                <td>DCC 接入网关</td>
+                <td>返回 JSON { code: 0, taskId: "TASK-8910" }</td>
+                <td><span class="pill response">response</span></td>
+                <td>供应商受理成功</td>
+                <td>记录外部 taskId 并绑定到本地外呼批次</td>
+              </tr>
+              <tr>
+                <td>5-6</td>
+                <td>AI外呼引擎</td>
+                <td>潜客电话</td>
+                <td>线路呼叫与双向音频流建立</td>
+                <td><span class="pill event">event</span></td>
+                <td>调度发起拨打</td>
+                <td>机器人语音对答，实时提取意向关键词与意图标签</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>AI外呼引擎</td>
+                <td>DCC 接入网关</td>
+                <td>POST /webhook/call-result (通话话单推送)</td>
+                <td><span class="pill event">event</span></td>
+                <td>通话挂机后 3 秒内推送</td>
+                <td>携带 callId、duration、recordUrl、intentGrade (A/B/C/D/N)</td>
+              </tr>
+              <tr>
+                <td>8-9</td>
+                <td>DCC 接入网关</td>
+                <td>DCC 数据库</td>
+                <td>写入通话事实表，以 callId 建立唯一索引</td>
+                <td><span class="pill request">request</span></td>
+                <td>验签通过</td>
+                <td>严格防止 Webhook 连续重试造成重复插入流水</td>
+              </tr>
+              <tr>
+                <td>10a-c</td>
+                <td>DCC 接入网关</td>
+                <td>DCC 数据库</td>
+                <td>意向自动打标与后续任务流转</td>
+                <td><span class="pill request">request</span></td>
+                <td>根据 intentGrade 规则判定</td>
+                <td>A/B级意向直派人工坐席；未接通自动规划下一轮定时呼叫</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="rule-note-box">
+          <strong>接口契约要点：</strong>话单接收接口必须保证**幂等性**。外部引擎在网络超时情况下会重试推送，DCC 服务端根据 `callId` 查询本地已存在则直接返回 `200 OK`，坚决不二次重复触发后续的意向变更与短信下发。
+        </div>
+      </article>
+
+      <!-- ==================== SEQ-003 ==================== -->
+      <article class="seq-card" id="SEQ-003">
+        <header class="seq-card-header">
+          <div class="seq-card-title">
+            <span>SEQ-003 · 坐席软电话外呼、通话中记录与确认保存时序</span>
+            <span class="seq-badge-tag">工作台人工操作</span>
+          </div>
+          <p class="seq-card-desc">展示坐席在【培育任务】工作台【我的任务】发起人工外呼、WebRTC 软电话通话、弹屏填写、通话中草稿每 5 秒暂存、挂机进入话后整理保护锁、跟进提交并置闲的闭环时序。</p>
+          <div class="seq-meta-chips">
+            <span class="chip proto">对应原型：【培育任务】➔【我的任务】+ 软电话工具条 + 客户详情弹屏</span>
+            <span class="chip">参与方：5 个泳道</span>
+            <span class="chip">消息数：14 条交互</span>
+            <span class="chip">重点：通话中防丢草稿 · 挂机话后锁保护 · 状态置闲</span>
+          </div>
+        </header>
+
+        <div class="seq-diagram-box">
+          <svg viewBox="0 0 1000 820" width="1000" height="820" xmlns="http://www.w3.org/2000/svg">
+            <!-- 泳道头部 -->
+            <rect x="20" y="20" width="160" height="42" rx="6" fill="#f8fafc" stroke="#475569" stroke-width="1.5"/>
+            <text x="100" y="46" font-size="13" font-weight="700" fill="#334155" text-anchor="middle">DCC 坐席人员</text>
+            <line x1="100" y1="62" x2="100" y2="800" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <rect x="220" y="20" width="160" height="42" rx="6" fill="#f0fdf4" stroke="#15803d" stroke-width="1.5"/>
+            <text x="300" y="46" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">【培育任务】工作台 (UI)</text>
+            <line x1="300" y1="62" x2="300" y2="800" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <rect x="420" y="20" width="160" height="42" rx="6" fill="#faf5ff" stroke="#7c3aed" stroke-width="1.5"/>
+            <text x="500" y="46" font-size="13" font-weight="700" fill="#6b21a8" text-anchor="middle">软电话通信条 (WebRTC)</text>
+            <line x1="500" y1="62" x2="500" y2="800" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <rect x="620" y="20" width="160" height="42" rx="6" fill="#eef2ff" stroke="#003594" stroke-width="1.5"/>
+            <text x="700" y="46" font-size="13" font-weight="700" fill="#003594" text-anchor="middle">DCC 后端服务</text>
+            <line x1="700" y1="62" x2="700" y2="800" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <rect x="820" y="20" width="160" height="42" rx="6" fill="#f8fafc" stroke="#475569" stroke-width="1.5"/>
+            <text x="900" y="46" font-size="13" font-weight="700" fill="#334155" text-anchor="middle">DCC 数据库 (MySQL)</text>
+            <line x1="900" y1="62" x2="900" y2="800" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <!-- 消息 1: 点击呼叫 -->
+            <line x1="100" y1="95" x2="300" y2="95" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="200" y="87" font-size="12" fill="#003594" text-anchor="middle">1. [操作] 点击任务行的“拨打电话”按钮</text>
+
+            <!-- 消息 2: 调起通信条 -->
+            <line x1="300" y1="140" x2="500" y2="140" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="400" y="132" font-size="12" fill="#003594" text-anchor="middle">2. [信令] 调起电话条 SDK 发起呼叫 (传脱敏手机号与鉴权Token)</text>
+
+            <!-- 消息 3: 呼通事件回传前端 -->
+            <line x1="500" y1="185" x2="300" y2="185" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#arr-purple)"/>
+            <text x="400" y="177" font-size="12" fill="#6b21a8" text-anchor="middle">3. [事件] 潜客接通，状态切为 TALKING (通话计时启动)</text>
+
+            <!-- 消息 4: 自动弹出通话中跟进抽屉 -->
+            <line x1="300" y1="230" x2="100" y2="230" stroke="#15803d" stroke-width="1.8" marker-end="url(#arr-green)"/>
+            <text x="200" y="222" font-size="12" fill="#15803d" text-anchor="middle">4. [UI交互] 自动滑出跟进录入抽屉，展示客户全貌与意向标签</text>
+
+            <!-- 消息 5: 通话中草稿自动暂存 -->
+            <line x1="100" y1="280" x2="300" y2="280" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="200" y="272" font-size="12" fill="#003594" text-anchor="middle">5. [输入] 坐席边听边录入沟通纪要与意向评级</text>
+
+            <line x1="300" y1="320" x2="700" y2="320" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="500" y="312" font-size="12" fill="#003594" text-anchor="middle">6. [自动暂存] 每 5 秒自动暂存草稿到后端与 LocalStorage (防丢保护)</text>
+
+            <!-- 消息 7: 通话挂断事件 -->
+            <line x1="500" y1="375" x2="300" y2="375" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#arr-purple)"/>
+            <text x="400" y="367" font-size="12" fill="#6b21a8" text-anchor="middle">7. [事件] 挂断通话，工具条强制置为“话后整理中 (Wrap-up)” (禁止新派单打断)</text>
+
+            <!-- 消息 8: 完善跟进信息 -->
+            <line x1="100" y1="430" x2="300" y2="430" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="200" y="422" font-size="12" fill="#003594" text-anchor="middle">8. [操作] 坐席完善意向级别 (A/B/C/D/N) 与跟进说明，点击“正式保存”</text>
+
+            <!-- 消息 9: 提交正式保存 -->
+            <line x1="300" y1="480" x2="700" y2="480" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="500" y="472" font-size="12" fill="#003594" text-anchor="middle">9. [请求] POST /api/leads/follow-up/commit (提交完整跟进流水)</text>
+
+            <!-- 消息 10: 事务写库 -->
+            <line x1="700" y1="530" x2="900" y2="530" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="800" y="522" font-size="12" fill="#003594" text-anchor="middle">10. [事务写库] 写入跟进日志、更新线索状态为“跟进中”、清除暂存草稿</text>
+
+            <!-- 消息 11: 数据库返回成功 -->
+            <line x1="900" y1="575" x2="700" y2="575" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+            <text x="800" y="567" font-size="12" fill="#15803d" text-anchor="middle">11. [响应] 事务提交完成，返回成功回执</text>
+
+            <!-- 消息 12: 响应前端并释放坐席 -->
+            <line x1="700" y1="620" x2="300" y2="620" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+            <text x="500" y="612" font-size="12" fill="#15803d" text-anchor="middle">12. [响应] 提示保存成功，关闭抽屉，刷新任务行状态为“已跟进”</text>
+
+            <!-- 消息 13: 工具条解除锁定 -->
+            <line x1="300" y1="670" x2="500" y2="670" stroke="#15803d" stroke-width="1.8" marker-end="url(#arr-green)"/>
+            <text x="400" y="662" font-size="12" fill="#15803d" text-anchor="middle">13. [指令] 话后完成，指令工具条自动解除整理锁，切回“置闲 (Ready)”</text>
+
+            <!-- 消息 14: 准备接听/拨打下一单 -->
+            <line x1="300" y1="720" x2="100" y2="720" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+            <text x="200" y="712" font-size="12" fill="#15803d" text-anchor="middle">14. [UI反馈] 状态指示灯变绿，坐席可继续处理下一条待办</text>
+          </svg>
+        </div>
+
+        <div class="seq-table-wrap">
+          <table class="seq-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>发送方</th>
+                <th>接收方</th>
+                <th>消息 / 接口调用</th>
+                <th>类型</th>
+                <th>触发条件</th>
+                <th>技术实现约束</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1-2</td>
+                <td>【培育任务】工作台 (UI)</td>
+                <td>软电话通信条</td>
+                <td>Agent.makeCall(targetPhone)</td>
+                <td><span class="pill request">request</span></td>
+                <td>坐席点击拨打按钮</td>
+                <td>校验当前坐席处于空闲状态，号码执行脱敏加密传输</td>
+              </tr>
+              <tr>
+                <td>3-4</td>
+                <td>软电话通信条</td>
+                <td>【培育任务】工作台 (UI)</td>
+                <td>onCallEstablished 事件回调</td>
+                <td><span class="pill event">event</span></td>
+                <td>潜客接听成功</td>
+                <td>自动滑出录入抽屉，防止坐席忘记记录核心沟通纪要</td>
+              </tr>
+              <tr>
+                <td>5-6</td>
+                <td>【培育任务】工作台 (UI)</td>
+                <td>DCC 后端服务</td>
+                <td>PUT /api/leads/{id}/follow-up/draft (暂存草稿)</td>
+                <td><span class="pill request">request</span></td>
+                <td>通话中输入防抖 5 秒自动触发</td>
+                <td>草稿按坐席工号隔离，意外刷新或掉线重新打开自动回显</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>软电话通信条</td>
+                <td>【培育任务】工作台 (UI)</td>
+                <td>onCallHungUp 事件回调</td>
+                <td><span class="pill event">event</span></td>
+                <td>通话挂断</td>
+                <td>通信条强制置为 Wrap-up 状态，防止被分配新通话打断填写</td>
+              </tr>
+              <tr>
+                <td>8-11</td>
+                <td>【培育任务】工作台 (UI)</td>
+                <td>DCC 数据库</td>
+                <td>POST /api/leads/{id}/follow-up/commit</td>
+                <td><span class="pill request">request</span></td>
+                <td>坐席手动点击确认保存按钮</td>
+                <td>必填项校验（意向等级、沟通纪要）；事务写入流水</td>
+              </tr>
+              <tr>
+                <td>12-14</td>
+                <td>【培育任务】工作台 (UI)</td>
+                <td>软电话通信条</td>
+                <td>Agent.setReady()</td>
+                <td><span class="pill request">request</span></td>
+                <td>正式提交接口返回 200</td>
+                <td>自动解除锁定，坐席恢复空闲 Ready 接听状态</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="rule-note-box">
+          <strong>前端容灾设计：</strong>坐席在通话中记录的文本与选项**同时保存在浏览器 LocalStorage 与服务端草稿表**。即便浏览器意外崩溃或断电，坐席重新登录后点击该线索，系统将精准恢复未提交的内容。
+        </div>
+      </article>
+
+      <!-- ==================== SEQ-004 ==================== -->
+      <article class="seq-card" id="SEQ-004">
+        <header class="seq-card-header">
+          <div class="seq-card-title">
+            <span>SEQ-004 · ★ 高意向试驾排程预约、定位短信下发与反哺集团CRM闭环时序</span>
+            <span class="seq-badge-tag highlight">★ 核心转化终态</span>
+          </div>
+          <p class="seq-card-desc">定义当潜客表达明确到店意向后，坐席在【试驾排程】录入试驾车型、意向门店与排班专属顾问，下发带到店定位指引的短信与企微通知，并将正式试驾工单反哺推送至集团营销 CRM 的全链路闭环时序。</p>
+          <div class="seq-meta-chips">
+            <span class="chip proto">对应原型：【试驾排程】➔【试驾排程工单】+【中台推送监控】+【任务排班】➔【短信模板】</span>
+            <span class="chip">参与方：5 个泳道</span>
+            <span class="chip">消息数：15 条交互</span>
+            <span class="chip">重点：门店顾问日历锁定 · 定位指引短信 · CRM 反哺闭环 · 推送重试补发</span>
+          </div>
+        </header>
+
+        <div class="seq-diagram-box">
+          <svg viewBox="0 0 1000 860" width="1000" height="860" xmlns="http://www.w3.org/2000/svg">
+            <!-- 泳道头部 -->
+            <rect x="20" y="20" width="160" height="42" rx="6" fill="#f8fafc" stroke="#475569" stroke-width="1.5"/>
+            <text x="100" y="46" font-size="13" font-weight="700" fill="#334155" text-anchor="middle">坐席人员 / 潜客</text>
+            <line x1="100" y1="62" x2="100" y2="840" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <rect x="220" y="20" width="160" height="42" rx="6" fill="#f0fdf4" stroke="#15803d" stroke-width="1.5"/>
+            <text x="300" y="46" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">【试驾排程】录入端 (UI)</text>
+            <line x1="300" y1="62" x2="300" y2="840" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <rect x="420" y="20" width="160" height="42" rx="6" fill="#eef2ff" stroke="#003594" stroke-width="1.5"/>
+            <text x="500" y="46" font-size="13" font-weight="700" fill="#003594" text-anchor="middle">DCC 排程引擎 / 服务</text>
+            <line x1="500" y1="62" x2="500" y2="840" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <rect x="620" y="20" width="160" height="42" rx="6" fill="#faf5ff" stroke="#10b981" stroke-width="1.5"/>
+            <text x="700" y="46" font-size="13" font-weight="700" fill="#047857" text-anchor="middle">统一短信/企微网关</text>
+            <line x1="700" y1="62" x2="700" y2="840" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <rect x="820" y="20" width="160" height="42" rx="6" fill="#f0f9ff" stroke="#0284c7" stroke-width="1.5"/>
+            <text x="900" y="46" font-size="13" font-weight="700" fill="#0369a1" text-anchor="middle">集团营销 CRM / 推送监控</text>
+            <line x1="900" y1="62" x2="900" y2="840" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <!-- 消息 1: 坐席发起试驾排程 -->
+            <line x1="100" y1="95" x2="300" y2="95" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="200" y="87" font-size="12" fill="#003594" text-anchor="middle">1. [操作] 跟进沟通锁定意向，点击“发起试驾排程”</text>
+
+            <!-- 消息 2: 查询门店与顾问可用日历 -->
+            <line x1="300" y1="140" x2="500" y2="140" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="400" y="132" font-size="12" fill="#003594" text-anchor="middle">2. [API] GET /testdrive/calendar (查目标门店、车型与顾问日历)</text>
+
+            <!-- 消息 3: 排程引擎返回可用资源 -->
+            <line x1="500" y1="185" x2="300" y2="185" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+            <text x="400" y="177" font-size="12" fill="#15803d" text-anchor="middle">3. [响应] 返回门店专属顾问在岗时段与试驾车辆配额余量</text>
+
+            <!-- 消息 4: 坐席选定时段提交排程 -->
+            <line x1="100" y1="230" x2="300" y2="230" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="200" y="222" font-size="12" fill="#003594" text-anchor="middle">4. [操作] 选择试驾车系、意向门店与预约时间，点击“提交试驾预约”</text>
+
+            <!-- 消息 5: 创建正式排程单 -->
+            <line x1="300" y1="275" x2="500" y2="275" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="400" y="267" font-size="12" fill="#003594" text-anchor="middle">5. [请求] POST /testdrive/booking (创建正式试驾单，锁定名额)</text>
+
+            <!-- 消息 6: 数据库事务持久化 -->
+            <line x1="500" y1="320" x2="500" y2="350" stroke="#003594" stroke-width="1.8"/>
+            <line x1="500" y1="350" x2="540" y2="350" stroke="#003594" stroke-width="1.8"/>
+            <line x1="540" y1="350" x2="540" y2="320" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="600" y="342" font-size="11" fill="#003594">6. [事务写库] 生成工单、锁定线索归属(防回收公海)</text>
+
+            <!-- 消息 7: 触发短信与企微网关下发到店指引 -->
+            <line x1="500" y1="390" x2="700" y2="390" stroke="#047857" stroke-width="1.8" marker-end="url(#arr-green)"/>
+            <text x="600" y="382" font-size="12" fill="#047857" text-anchor="middle">7. [触达] 下发模板短信 (含门店导航定位链接、顾问联系方式)</text>
+
+            <!-- 消息 8: 潜客收到短信 -->
+            <line x1="700" y1="435" x2="100" y2="435" stroke="#047857" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+            <text x="400" y="427" font-size="12" fill="#047857" text-anchor="middle">8. [短信送达] 潜客手机收到试驾确认短信与微信服务通知</text>
+
+            <!-- 消息 9: 异步反哺推送集团营销 CRM -->
+            <line x1="500" y1="485" x2="900" y2="485" stroke="#003594" stroke-width="2.2" marker-end="url(#arr-blue)"/>
+            <text x="700" y="477" font-size="12" font-weight="700" fill="#003594" text-anchor="middle">9. [★反哺闭环] MQ/HTTP 异步推送试驾工单至集团 CRM (传预约ID、车型、顾问)</text>
+
+            <!-- 条件分支: CRM 受理与回执监控 -->
+            <rect x="420" y="520" width="560" height="170" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+            <text x="435" y="540" font-size="11" font-weight="700" fill="#334155">[CRM 推送与中台监控分支]</text>
+
+            <!-- 分支 A: CRM 受理成功 -->
+            <line x1="900" y1="575" x2="500" y2="575" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+            <text x="700" y="567" font-size="12" fill="#15803d" text-anchor="middle">10a. [成功] CRM 返回商机编号 ➔ 更新状态为“已同步CRM”，大屏亮绿灯</text>
+
+            <!-- 分支 B: CRM 超时或失败 -->
+            <line x1="900" y1="625" x2="500" y2="625" stroke="#b91c1c" stroke-width="1.8" marker-end="url(#arr-red)"/>
+            <text x="700" y="617" font-size="12" fill="#b91c1c" text-anchor="middle">10b. [异常] 网络超时或拒绝 ➔ 标记“待补推”，自动定时重试或人工补推</text>
+
+            <!-- 消息 11: 返回前端成功 -->
+            <line x1="500" y1="720" x2="300" y2="720" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+            <text x="400" y="712" font-size="12" fill="#15803d" text-anchor="middle">11. [响应] 返回排程成功提示，生成试驾工单卡片</text>
+
+            <!-- 消息 12: 刷新中台推送监控大屏 -->
+            <line x1="500" y1="770" x2="900" y2="770" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="700" y="762" font-size="12" fill="#003594" text-anchor="middle">12. [刷新大屏] 更新“今日预约到店量”与“中台推送监控”指标大屏</text>
+          </svg>
+        </div>
+
+        <div class="seq-table-wrap">
+          <table class="seq-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>发送方</th>
+                <th>接收方</th>
+                <th>消息 / 接口调用</th>
+                <th>类型</th>
+                <th>触发条件</th>
+                <th>技术实现约束</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1-3</td>
+                <td>【试驾排程】录入端 (UI)</td>
+                <td>DCC 排程引擎</td>
+                <td>GET /api/testdrive/calendar (查询日历与顾问)</td>
+                <td><span class="pill request">request</span></td>
+                <td>坐席选定目标门店与意向车系</td>
+                <td>联动【任务排班】，返回门店可用试驾车配额与在岗顾问时段</td>
+              </tr>
+              <tr>
+                <td>4-6</td>
+                <td>【试驾排程】录入端 (UI)</td>
+                <td>DCC 排程引擎</td>
+                <td>POST /api/testdrive/booking (创建试驾排程工单)</td>
+                <td><span class="pill request">request</span></td>
+                <td>坐席点击确认提交排程</td>
+                <td>事务落库：状态流转为 APPOINTED，锁定线索归属，防止进入公海</td>
+              </tr>
+              <tr>
+                <td>7-8</td>
+                <td>DCC 排程引擎</td>
+                <td>统一短信/企微网关</td>
+                <td>POST /api/sms/send-template (下发到店定位短信)</td>
+                <td><span class="pill event">event</span></td>
+                <td>试驾单成功落库</td>
+                <td>包含门店真实 GPS 定位导航链接、专属顾问姓名与联系方式</td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td>DCC 排程引擎</td>
+                <td>集团营销 CRM</td>
+                <td>POST /crm/open/lead/testdrive-sync (数据反哺)</td>
+                <td><span class="pill request">request</span></td>
+                <td>MQ 异步触发推单</td>
+                <td>通过 Topic: dcc_crm_sync 发布，携带预约单号、车系、门店编码</td>
+              </tr>
+              <tr>
+                <td>10a</td>
+                <td>集团营销 CRM</td>
+                <td>DCC 排程引擎</td>
+                <td>HTTP 200 OK { crmOppId: "OPP-9981" }</td>
+                <td><span class="pill response">response</span></td>
+                <td>CRM 校验写入成功</td>
+                <td>更新试驾单 crm_sync_status=SUCCESS，中台推送监控记录回执</td>
+              </tr>
+              <tr>
+                <td>10b</td>
+                <td>集团营销 CRM</td>
+                <td>DCC 排程引擎</td>
+                <td>HTTP 500 / Timeout 错误回执</td>
+                <td><span class="pill error">error</span></td>
+                <td>CRM 宕机或网络抖动</td>
+                <td>记录重试次数，在中台推送监控大屏展示“失败”，支持一键补发</td>
+              </tr>
+              <tr>
+                <td>11-12</td>
+                <td>DCC 排程引擎</td>
+                <td>中台推送监控大屏</td>
+                <td>更新实时指标与推送状态大屏</td>
+                <td><span class="pill event">event</span></td>
+                <td>排程闭环完成</td>
+                <td>刷新预约到店转化漏斗与跨门店履约统计</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="rule-note-box success">
+          <strong>★ 核心商业价值闭环：</strong>【试驾排程】是 DCC 培育链路的核心转化终点。一旦生成排程单，系统立即解除 24h 滞留倒计时威胁并锁定销售归属，同时通过多渠道到店短信与反哺集团营销 CRM，构建起线上培育与线下门店试驾交付的完整闭环。
+        </div>
+      </article>
+
+      <!-- ==================== SEQ-005 ==================== -->
+      <article class="seq-card" id="SEQ-005">
+        <header class="seq-card-header">
+          <div class="seq-card-title">
+            <span>SEQ-005 · 线索滞留超时告警、自动回收公海与重新分配时序</span>
+            <span class="seq-badge-tag">数据治理与防怠工</span>
+          </div>
+          <p class="seq-card-desc">展示定时任务巡检、线索滞留阶梯预警（剩余 2 小时企微强催促）、超期 24 小时未跟进强制剥夺归属并回收至【线索管理】公海池、下发客户兜底关怀短信以及触发主管告警通知的完整治理时序。</p>
+          <div class="seq-meta-chips">
+            <span class="chip proto">对应原型：【培育任务】➔【我的任务】(24h滞留倒计时) + 【线索管理】➔【公海池】</span>
+            <span class="chip">参与方：5 个泳道</span>
+            <span class="chip">消息数：14 条交互</span>
+            <span class="chip">重点：两段式阶梯治理 · 企微催促 · 自动清空归属 · 公海重新流转</span>
+          </div>
+        </header>
+
+        <div class="seq-diagram-box">
+          <svg viewBox="0 0 1000 800" width="1000" height="800" xmlns="http://www.w3.org/2000/svg">
+            <!-- 泳道头部 -->
+            <rect x="20" y="20" width="160" height="42" rx="6" fill="#f8fafc" stroke="#003594" stroke-width="1.5"/>
+            <text x="100" y="46" font-size="13" font-weight="700" fill="#003594" text-anchor="middle">滞留巡检 Worker</text>
+            <line x1="100" y1="62" x2="100" y2="780" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <rect x="220" y="20" width="160" height="42" rx="6" fill="#eef2ff" stroke="#003594" stroke-width="1.5"/>
+            <text x="300" y="46" font-size="13" font-weight="700" fill="#003594" text-anchor="middle">滞留治理引擎</text>
+            <line x1="300" y1="62" x2="300" y2="780" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <rect x="420" y="20" width="160" height="42" rx="6" fill="#f8fafc" stroke="#475569" stroke-width="1.5"/>
+            <text x="500" y="46" font-size="13" font-weight="700" fill="#334155" text-anchor="middle">DCC 数据库 (MySQL)</text>
+            <line x1="500" y1="62" x2="500" y2="780" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <rect x="620" y="20" width="160" height="42" rx="6" fill="#f0fdf4" stroke="#15803d" stroke-width="1.5"/>
+            <text x="700" y="46" font-size="13" font-weight="700" fill="#15803d" text-anchor="middle">统一短信/企微网关</text>
+            <line x1="700" y1="62" x2="700" y2="780" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <rect x="820" y="20" width="160" height="42" rx="6" fill="#f8fafc" stroke="#475569" stroke-width="1.5"/>
+            <text x="900" y="46" font-size="13" font-weight="700" fill="#334155" text-anchor="middle">坐席与主管端</text>
+            <line x1="900" y1="62" x2="900" y2="780" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <!-- 消息 1: 定时轮询 -->
+            <line x1="100" y1="95" x2="300" y2="95" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="200" y="87" font-size="12" fill="#003594" text-anchor="middle">1. [定时触发] 每 10 分钟运行滞留超时巡检任务</text>
+
+            <!-- 消息 2: 查询滞留规则配置与线索 -->
+            <line x1="300" y1="140" x2="500" y2="140" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="400" y="132" font-size="12" fill="#003594" text-anchor="middle">2. [读库] 扫描分配时间已超过阈值 (如 24h) 且尚未产生有效跟进的线索</text>
+
+            <!-- 消息 3: 数据库返回滞留清单 -->
+            <line x1="500" y1="185" x2="300" y2="185" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+            <text x="400" y="177" font-size="12" fill="#15803d" text-anchor="middle">3. [响应] 返回命中的滞留线索列表与责任坐席工号</text>
+
+            <!-- 条件框: 滞留阶段判断 -->
+            <rect x="220" y="225" width="760" height="230" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.2"/>
+            <text x="235" y="245" font-size="11" font-weight="700" fill="#b45309">[阶段判定: 超时等级判断]</text>
+
+            <!-- 分支 A: 临期预警 (剩余 2 小时) -->
+            <line x1="300" y1="285" x2="700" y2="285" stroke="#b45309" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="500" y="277" font-size="12" fill="#b45309" text-anchor="middle">4a. [预警催促] 发送企微催办通知：“线索还有 2 小时即将超时回收”</text>
+
+            <line x1="700" y1="325" x2="900" y2="325" stroke="#b45309" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="800" y="317" font-size="12" fill="#b45309" text-anchor="middle">5a. [推送] 坐席手机收到应用消息提醒，进入催单列表 (支持一键拨号)</text>
+
+            <!-- 分支 B: 已彻底超时 -->
+            <line x1="300" y1="380" x2="500" y2="380" stroke="#b91c1c" stroke-width="1.8" marker-end="url(#arr-red)"/>
+            <text x="400" y="372" font-size="12" fill="#b91c1c" text-anchor="middle">4b. [强制回收] 清空 owner_id，状态置为 STAGNANT_PUBLIC (滞留公海池)</text>
+
+            <line x1="500" y1="420" x2="300" y2="420" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+            <text x="400" y="412" font-size="12" fill="#15803d" text-anchor="middle">5b. [响应] 写入滞留违章流水表，扣减坐席分配权重积分</text>
+
+            <!-- 消息 6: 下发客户兜底关怀短信 -->
+            <line x1="300" y1="485" x2="700" y2="485" stroke="#15803d" stroke-width="1.8" marker-end="url(#arr-green)"/>
+            <text x="500" y="477" font-size="12" fill="#15803d" text-anchor="middle">6. [短信兜底] 向客户下发品牌服务问候与官方展厅邀约短信</text>
+
+            <!-- 消息 7: 推送主管怠工报表 -->
+            <line x1="300" y1="535" x2="900" y2="535" stroke="#b91c1c" stroke-width="1.8" marker-end="url(#arr-red)"/>
+            <text x="600" y="527" font-size="12" fill="#b91c1c" text-anchor="middle">7. [告警报告] 向班长/主管推送《今日线索滞留违章通报汇总》</text>
+
+            <!-- 消息 8: 重新进入分配池 -->
+            <line x1="300" y1="590" x2="500" y2="590" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="400" y="582" font-size="12" fill="#003594" text-anchor="middle">8. [重新入池] 将公海线索重新交由规则引擎分发或坐席主动捞取</text>
+          </svg>
+        </div>
+
+        <div class="seq-table-wrap">
+          <table class="seq-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>发送方</th>
+                <th>接收方</th>
+                <th>消息 / 接口调用</th>
+                <th>类型</th>
+                <th>触发条件</th>
+                <th>技术实现约束</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1-3</td>
+                <td>滞留巡检 Worker</td>
+                <td>DCC 数据库</td>
+                <td>SELECT * FROM dcc_lead WHERE ... (扫描超时未跟进)</td>
+                <td><span class="pill request">request</span></td>
+                <td>定时 Worker 轮询 (每10分钟)</td>
+                <td>走专用只读索引 idx_allocated_followup_status，批量分段处理</td>
+              </tr>
+              <tr>
+                <td>4a-5a</td>
+                <td>滞留治理引擎</td>
+                <td>企微网关 / 坐席端</td>
+                <td>POST /wechat/send-warning (发送滞留预警)</td>
+                <td><span class="pill event">event</span></td>
+                <td>距离最终超时小于 2 小时</td>
+                <td>通知卡片附带一键拨打直接跳转链接，强化催办效果</td>
+              </tr>
+              <tr>
+                <td>4b-5b</td>
+                <td>滞留治理引擎</td>
+                <td>DCC 数据库</td>
+                <td>UPDATE dcc_lead SET owner_id=NULL, status='STAGNANT'</td>
+                <td><span class="pill error">error</span></td>
+                <td>达到滞留配置阈值 (24 小时未产生通话记录)</td>
+                <td>清空责任人，写入 dcc_stagnant_log 审计记录，扣减坐席积分</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>滞留治理引擎</td>
+                <td>统一短信网关</td>
+                <td>POST /sms/send-template (兜底短信触达)</td>
+                <td><span class="pill request">request</span></td>
+                <td>配置启用了“滞留自动短信关怀”</td>
+                <td>检查是否处于夜间勿扰时段，避免违规客诉</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>滞留治理引擎</td>
+                <td>主管端</td>
+                <td>推送站内通报与大屏违章角标</td>
+                <td><span class="pill event">event</span></td>
+                <td>有线索发生实际滞留回收</td>
+                <td>计入坐席 KPI 报表，降低后续轮询权重</td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td>滞留治理引擎</td>
+                <td>【线索管理】公海池</td>
+                <td>线索转入公共资源池供重新流转</td>
+                <td><span class="pill request">request</span></td>
+                <td>回收成功</td>
+                <td>支持班长批量指派，或坐席在公海列表主动捞取</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="rule-note-box">
+          <strong>业务价值说明：</strong>通过严格的滞留超时与两段式（预警 ➔ 强制回收）时序设计，从机制上杜绝销售顾问“占着优质线索不跟进”的怠工行为，保障潜客在黄金 24 小时内必定得到有效触达。
+        </div>
+      </article>
+
+      <!-- ==================== SEQ-006 ==================== -->
+      <article class="seq-card" id="SEQ-006">
+        <header class="seq-card-header">
+          <div class="seq-card-title">
+            <span>SEQ-006 · 预外呼实时监听、主管耳语指导与通话录音质检抽检时序</span>
+            <span class="seq-badge-tag">运营监控与质检</span>
+          </div>
+          <p class="seq-card-desc">展示班长在【系统运维 ➔ 预外呼监控】大屏查看在岗通话状态、通过 WebRTC 信令实时旁听坐席对话、发起耳语指导或紧急强拆，以及通话归档后质检员在【统计报表与质检 ➔ 质检管理】调听录音、对照对话文本评分与打标敏感词的完整质控时序。</p>
+          <div class="seq-meta-chips">
+            <span class="chip proto">对应原型：【系统运维】➔【预外呼监控】+【统计报表】➔【质检管理/人工坐席工单】</span>
+            <span class="chip">参与方：5 个泳道</span>
+            <span class="chip">消息数：14 条交互</span>
+            <span class="chip">重点：无感实时监听 · 耳语指导 · OSS 录音归档 · ASR 文本质检</span>
+          </div>
+        </header>
+
+        <div class="seq-diagram-box">
+          <svg viewBox="0 0 1000 840" width="1000" height="840" xmlns="http://www.w3.org/2000/svg">
+            <!-- 泳道头部 -->
+            <rect x="20" y="20" width="160" height="42" rx="6" fill="#f8fafc" stroke="#475569" stroke-width="1.5"/>
+            <text x="100" y="46" font-size="13" font-weight="700" fill="#334155" text-anchor="middle">班长 / 质检主管端 (UI)</text>
+            <line x1="100" y1="62" x2="100" y2="820" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <rect x="220" y="20" width="160" height="42" rx="6" fill="#eef2ff" stroke="#003594" stroke-width="1.5"/>
+            <text x="300" y="46" font-size="13" font-weight="700" fill="#003594" text-anchor="middle">监控与质检服务</text>
+            <line x1="300" y1="62" x2="300" y2="820" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <rect x="420" y="20" width="160" height="42" rx="6" fill="#faf5ff" stroke="#7c3aed" stroke-width="1.5"/>
+            <text x="500" y="46" font-size="13" font-weight="700" fill="#6b21a8" text-anchor="middle">WebRTC 通信网关</text>
+            <line x1="500" y1="62" x2="500" y2="820" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <rect x="620" y="20" width="160" height="42" rx="6" fill="#f0f9ff" stroke="#0284c7" stroke-width="1.5"/>
+            <text x="700" y="46" font-size="13" font-weight="700" fill="#0369a1" text-anchor="middle">录音转写引擎 (ASR/OSS)</text>
+            <line x1="700" y1="62" x2="700" y2="820" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <rect x="820" y="20" width="160" height="42" rx="6" fill="#f8fafc" stroke="#475569" stroke-width="1.5"/>
+            <text x="900" y="46" font-size="13" font-weight="700" fill="#334155" text-anchor="middle">DCC 数据库 (MySQL)</text>
+            <line x1="900" y1="62" x2="900" y2="820" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <!-- 消息 1: 班长查看在岗通话监控 -->
+            <line x1="100" y1="95" x2="300" y2="95" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="200" y="87" font-size="12" fill="#003594" text-anchor="middle">1. [操作] 打开【预外呼监控】，查看在岗通话列表</text>
+
+            <!-- 消息 2: 班长发起实时监听 -->
+            <line x1="100" y1="140" x2="300" y2="140" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="200" y="132" font-size="12" fill="#003594" text-anchor="middle">2. [操作] 点击某坐席卡片上的“实时监听”按钮</text>
+
+            <!-- 消息 3: 监控服务调起 WebRTC 网关音频流订阅 -->
+            <line x1="300" y1="185" x2="500" y2="185" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#arr-purple)"/>
+            <text x="400" y="177" font-size="12" fill="#6b21a8" text-anchor="middle">3. [信令] 订阅该分机通话音频流 (单向推流模式，双方无感知)</text>
+
+            <!-- 消息 4: 推送音频流给班长端 -->
+            <line x1="500" y1="230" x2="100" y2="230" stroke="#7c3aed" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-purple)"/>
+            <text x="300" y="222" font-size="12" fill="#6b21a8" text-anchor="middle">4. [媒体流] 班长耳机实时收听坐席与潜客即时对话</text>
+
+            <!-- 条件分支: 现场干预 (耳语或强拆) -->
+            <rect x="20" y="270" width="560" height="150" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.2"/>
+            <text x="35" y="290" font-size="11" font-weight="700" fill="#b45309">[现场辅导与干预分支]</text>
+
+            <!-- 分支 A: 耳语指导 -->
+            <line x1="100" y1="330" x2="500" y2="330" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="300" y="322" font-size="12" fill="#003594" text-anchor="middle">5a. [耳语指导] 班长讲话仅推向坐席耳机，潜客完全听不到</text>
+
+            <!-- 分支 B: 强拆挂断 -->
+            <line x1="100" y1="380" x2="500" y2="380" stroke="#b91c1c" stroke-width="1.8" marker-end="url(#arr-red)"/>
+            <text x="300" y="372" font-size="12" fill="#b91c1c" text-anchor="middle">5b. [紧急强拆] 发现严重违规，班长点击“强拆挂断”强制切断该路通话</text>
+
+            <!-- 消息 6: 通话结束，录音归档 OSS -->
+            <line x1="500" y1="460" x2="700" y2="460" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#arr-purple)"/>
+            <text x="600" y="452" font-size="12" fill="#6b21a8" text-anchor="middle">6. [归档] 通话挂机，双向录音文件上传企业 OSS 并生成访问 URL</text>
+
+            <!-- 消息 7: ASR 语音转写与敏感词质检 -->
+            <line x1="700" y1="510" x2="900" y2="510" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="800" y="502" font-size="12" fill="#003594" text-anchor="middle">7. [转写] ASR 转写全量对话文本，自动扫描合规红线与违规词</text>
+
+            <!-- 消息 8: 质检主管打开抽检页面 -->
+            <line x1="100" y1="565" x2="300" y2="565" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="200" y="557" font-size="12" fill="#003594" text-anchor="middle">8. [操作] 质检员进入【质检管理】，抽取录音工单</text>
+
+            <!-- 消息 9: 加载录音播放凭证与转写文本 -->
+            <line x1="300" y1="610" x2="100" y2="610" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+            <text x="200" y="602" font-size="12" fill="#15803d" text-anchor="middle">9. [响应] 加载波形播放器、逐字对话轴与预警标签</text>
+
+            <!-- 消息 10: 质检评分提交 -->
+            <line x1="100" y1="660" x2="300" y2="660" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="200" y="652" font-size="12" fill="#003594" text-anchor="middle">10. [操作] 按评分卡输入礼貌规范、车型介绍、试驾邀约评分与扣分项</text>
+
+            <!-- 消息 11: 写入质检事实表 -->
+            <line x1="300" y1="710" x2="900" y2="710" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue)"/>
+            <text x="600" y="702" font-size="12" fill="#003594" text-anchor="middle">11. [写库] 写入 `dcc_qc_record`，更新坐席服务星级与月度质检报表</text>
+
+            <!-- 消息 12: 响应质检提交成功 -->
+            <line x1="900" y1="760" x2="100" y2="760" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green)"/>
+            <text x="500" y="752" font-size="12" fill="#15803d" text-anchor="middle">12. [响应] 提示打分成功，更新坐席业绩看板质检平均分</text>
+          </svg>
+        </div>
+
+        <div class="seq-table-wrap">
+          <table class="seq-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>发送方</th>
+                <th>接收方</th>
+                <th>消息 / 接口调用</th>
+                <th>类型</th>
+                <th>触发条件</th>
+                <th>技术实现约束</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1-2</td>
+                <td>主管端 (UI)</td>
+                <td>监控与质检服务</td>
+                <td>GET /api/monitor/agents-live (查询通话列表)</td>
+                <td><span class="pill request">request</span></td>
+                <td>班长打开【预外呼监控】大屏</td>
+                <td>WebSocket 或 SSE 每 3 秒推送在岗状态与实时通话时长</td>
+              </tr>
+              <tr>
+                <td>3-4</td>
+                <td>监控与质检服务</td>
+                <td>WebRTC 通信网关</td>
+                <td>POST /gateway/call/monitor-listen (发起单向旁听)</td>
+                <td><span class="pill event">event</span></td>
+                <td>班长点击“实时监听”</td>
+                <td>仅复制音频流到班长分机，坐席与潜客界面无任何声音或提示</td>
+              </tr>
+              <tr>
+                <td>5a</td>
+                <td>主管端 (UI)</td>
+                <td>WebRTC 通信网关</td>
+                <td>POST /gateway/call/whisper (耳语指导)</td>
+                <td><span class="pill request">request</span></td>
+                <td>班长开启耳语功能</td>
+                <td>网关将班长声音仅混音推流到坐席耳机，潜客端混音静音</td>
+              </tr>
+              <tr>
+                <td>5b</td>
+                <td>主管端 (UI)</td>
+                <td>WebRTC 通信网关</td>
+                <td>POST /gateway/call/force-hangup (紧急强拆)</td>
+                <td><span class="pill error">error</span></td>
+                <td>发现严重违规或客诉风险</td>
+                <td>网关立即发送 SIP BYE 信令，强行终止两端通话并标记强拆日志</td>
+              </tr>
+              <tr>
+                <td>6-7</td>
+                <td>WebRTC 通信网关</td>
+                <td>录音引擎 (ASR/OSS)</td>
+                <td>上传录音并调用语音转写 API</td>
+                <td><span class="pill event">event</span></td>
+                <td>通话正常或异常挂断</td>
+                <td>生成带有时效校验的 OSS 访问签名；ASR 识别敏感词并标红</td>
+              </tr>
+              <tr>
+                <td>8-9</td>
+                <td>质检主管端 (UI)</td>
+                <td>监控与质检服务</td>
+                <td>GET /api/qc/tasks/draw (抽取抽检工单)</td>
+                <td><span class="pill request">request</span></td>
+                <td>质检员进入【质检管理】</td>
+                <td>加载录音播放器波形、ASR 转写时间轴、预置质检评分标准卡</td>
+              </tr>
+              <tr>
+                <td>10-12</td>
+                <td>质检主管端 (UI)</td>
+                <td>DCC 数据库</td>
+                <td>POST /api/qc/evaluations/commit (提交质检打分)</td>
+                <td><span class="pill request">request</span></td>
+                <td>质检员核验完成点击提交</td>
+                <td>写入质检事实表，按权重计算综合得分，联动【坐席业绩看板】扣分</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="rule-note-box">
+          <strong>质量与合规闭环：</strong>通过【预外呼监控】的事中监听/耳语指导，与【质检管理】的事后录音抽检查听，形成覆盖通话全生命周期的质量防线。质检结果直接反哺坐席服务星级，进而影响 7 维度分单规则中的星级加权，促使坐席保持高质量沟通。
+        </div>
+      </article>
+
+      <!-- ==================== SEQ-007 ==================== -->
+      <article class="seq-card" id="SEQ-007">
+        <header class="seq-card-header">
+          <div class="seq-card-title">
+            <span>SEQ-007 · ★ AI策略工作台：评分建议、人工审核与分步回滚发布时序</span>
+            <span class="seq-badge-tag highlight">AI策略与动态调配 · v2.8</span>
+          </div>
+          <p class="seq-card-desc">本图把原型交互与目标系统时序放在同一链路中。原型当前仅以本地演示数据呈现 Agent 评分/比例建议、人工配置与审核、版本详情和回滚预览/分步发布；Agent、存储、审批服务、Redis 热加载及生产部署均待技术联调，图中的接口、库表和消息广播属于目标架构示意，不代表已实现。</p>
+          <div class="seq-meta-chips">
+            <span class="chip proto">对应原型：【培育策略】➔【AI策略工作台】+【培育策略】➔【线索分配规则】</span>
+            <span class="chip">参与方：6 个泳道</span>
+            <span class="chip">消息数：17 条交互</span>
+            <span class="chip">重点：T+1 样例数据 · Agent评分与比例建议 · 人工审核配置 · 版本快照与回滚预览/发布</span>
+          </div>
+        </header>
+
+        <div class="seq-legend">
+          <span class="legend-item"><i class="legend-dot req"></i>同步/异步请求 (Request)</span>
+          <span class="legend-item"><i class="legend-dot resp"></i>业务响应 (Response)</span>
+          <span class="legend-item"><i class="legend-dot event"></i>消息事件 (Event / MQ)</span>
+          <span class="legend-item"><i class="legend-dot err"></i>异常/回滚/告警 (Error / Rollback)</span>
+        </div>
+
+        <div class="seq-diagram-box">
+          <svg viewBox="0 0 1000 960" width="1000" height="960" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="arr-blue-7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 9 5 L 0 9 z" fill="#003594"/>
+              </marker>
+              <marker id="arr-green-7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 9 5 L 0 9 z" fill="#15803d"/>
+              </marker>
+              <marker id="arr-red-7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 9 5 L 0 9 z" fill="#b91c1c"/>
+              </marker>
+              <marker id="arr-purple-7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 9 5 L 0 9 z" fill="#7c3aed"/>
+              </marker>
+            </defs>
+
+            <!-- 泳道头部 -->
+            <!-- 1. 运营/策略主管端 (UI) -->
+            <rect x="20" y="20" width="145" height="42" rx="6" fill="#f8fafc" stroke="#475569" stroke-width="1.5"/>
+            <text x="92" y="46" font-size="12" font-weight="700" fill="#334155" text-anchor="middle">运营 / 策略主管端 (UI)</text>
+            <line x1="92" y1="62" x2="92" y2="940" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <!-- 2. AI策略工作台服务 -->
+            <rect x="180" y="20" width="145" height="42" rx="6" fill="#eef2ff" stroke="#003594" stroke-width="1.5"/>
+            <text x="252" y="46" font-size="12" font-weight="700" fill="#003594" text-anchor="middle">AI策略工作台服务</text>
+            <line x1="252" y1="62" x2="252" y2="940" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <!-- 3. 数仓离线计算 (Hive/Spark) -->
+            <rect x="340" y="20" width="145" height="42" rx="6" fill="#f0f9ff" stroke="#0284c7" stroke-width="1.5"/>
+            <text x="412" y="46" font-size="12" font-weight="700" fill="#0369a1" text-anchor="middle">数仓离线引擎 (T+1)</text>
+            <line x1="412" y1="62" x2="412" y2="940" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <!-- 4. AI Agent 算法引擎 -->
+            <rect x="500" y="20" width="145" height="42" rx="6" fill="#faf5ff" stroke="#7c3aed" stroke-width="1.5"/>
+            <text x="572" y="46" font-size="12" font-weight="700" fill="#6b21a8" text-anchor="middle">AI Agent 算法引擎</text>
+            <line x1="572" y1="62" x2="572" y2="940" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <!-- 5. DCC 数据库 & 版本快照库 -->
+            <rect x="660" y="20" width="145" height="42" rx="6" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+            <text x="732" y="46" font-size="12" font-weight="700" fill="#334155" text-anchor="middle">数据库 & 版本快照库</text>
+            <line x1="732" y1="62" x2="732" y2="940" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <!-- 6. 在线 7 维度规则引擎 -->
+            <rect x="820" y="20" width="155" height="42" rx="6" fill="#f0fdf4" stroke="#15803d" stroke-width="1.5"/>
+            <text x="897" y="46" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">【培育策略】7维度在线引擎</text>
+            <line x1="897" y1="62" x2="897" y2="940" stroke="#cbd5e1" stroke-dasharray="4 4"/>
+
+            <!-- 阶段 1: 离线 T+1 计算与 Agent 策略推导 -->
+            <!-- 消息 1: 离线任务定时启动 -->
+            <rect x="360" y="80" width="105" height="24" rx="4" fill="#e0f2fe" stroke="#0284c7" stroke-width="1"/>
+            <text x="412" y="96" font-size="11" fill="#0369a1" text-anchor="middle">每日 02:00 定时调度</text>
+
+            <!-- 消息 2: 同步特征宽表落库 -->
+            <line x1="412" y1="125" x2="732" y2="125" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue-7)"/>
+            <text x="572" y="117" font-size="12" fill="#003594" text-anchor="middle">1. [特征同步] 产出 T+1 坐席通话转化、健康分与低效名单并写入策略离线缓存</text>
+
+            <!-- 消息 3: 策略服务调用 Agent 算法 -->
+            <line x1="252" y1="165" x2="572" y2="165" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#arr-purple-7)"/>
+            <text x="412" y="157" font-size="12" fill="#6b21a8" text-anchor="middle">2. [策略调用] 触发 Agent 生成调配方案 (入参：7级漏斗转化率、行业标杆)</text>
+
+            <!-- 消息 4: Agent 返回评分与比例建议 -->
+            <line x1="572" y1="205" x2="252" y2="205" stroke="#7c3aed" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-purple-7)"/>
+            <text x="412" y="197" font-size="12" fill="#6b21a8" text-anchor="middle">3. [算法推理] 返回对象评分、建议比例及规则维度信息</text>
+
+            <!-- 消息 5: 策略服务将建议落库 (待审核) -->
+            <line x1="252" y1="245" x2="732" y2="245" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue-7)"/>
+            <text x="492" y="237" font-size="12" fill="#003594" text-anchor="middle">4. [写入草案] 策略建议写入待审核池，更新看板 T+1 概况缓存</text>
+
+            <!-- 阶段 2: 运营主管查看看板与配置调整 -->
+            <!-- 消息 6: 主管打开工作台 -->
+            <line x1="92" y1="290" x2="252" y2="290" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue-7)"/>
+            <text x="172" y="282" font-size="12" fill="#003594" text-anchor="middle">5. [操作] 打开【AI策略工作台】，加载概况看板</text>
+
+            <!-- 消息 7: 返回看板指标与建议对比 -->
+            <line x1="252" y1="330" x2="92" y2="330" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green-7)"/>
+            <text x="172" y="322" font-size="12" fill="#15803d" text-anchor="middle">6. [响应] 返回低效关联数、直派标识数、待审核建议数和当前生效版本等概况卡片</text>
+
+            <!-- 消息 8: 主管微调并提交审批 -->
+            <line x1="92" y1="375" x2="252" y2="375" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue-7)"/>
+            <text x="172" y="367" font-size="12" fill="#003594" text-anchor="middle">7. [操作] 待审核行手动选择按比例/不按比例及对应配置，并执行单条或批量审核</text>
+
+            <!-- 消息 9: 策略服务推送待办审批 -->
+            <line x1="252" y1="415" x2="92" y2="415" stroke="#003594" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-blue-7)"/>
+            <text x="172" y="407" font-size="12" fill="#003594" text-anchor="middle">8. [流转] 审核结果写入演示状态；通知配置含审核人员与邮件选项；站内通知人员本期不上线</text>
+
+            <!-- 阶段 3: 审批通过、原子化发布与快照留痕 -->
+            <rect x="20" y="445" width="960" height="200" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1.2"/>
+            <text x="35" y="465" font-size="11" font-weight="700" fill="#15803d">[审批通过与原子化发布留痕阶段]</text>
+
+            <!-- 消息 10: 总监审核通过 -->
+            <line x1="92" y1="500" x2="252" y2="500" stroke="#15803d" stroke-width="1.8" marker-end="url(#arr-green-7)"/>
+            <text x="172" y="492" font-size="12" fill="#15803d" text-anchor="middle">9. [审批操作] 业务总监在线核验预计线索留存与调配比例，点击“审核通过”</text>
+
+            <!-- 消息 11: 冻结当前配置并生成快照 -->
+            <line x1="252" y1="545" x2="732" y2="545" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue-7)"/>
+            <text x="492" y="537" font-size="12" fill="#003594" text-anchor="middle">10. [原子发布] 冻结当前配置，生成全量 v2.8 版本快照 (含 7 维度全参数、操作人)</text>
+
+            <!-- 消息 12: 快照写入数据库与审计记录 -->
+            <line x1="732" y1="585" x2="252" y2="585" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green-7)"/>
+            <text x="492" y="577" font-size="12" fill="#15803d" text-anchor="middle">11. [写库] 写入 `dcc_strategy_version`，生成唯一版本指纹与发布日志</text>
+
+            <!-- 消息 13: 广播热加载事件 -->
+            <line x1="252" y1="625" x2="897" y2="625" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue-7)"/>
+            <text x="574" y="617" font-size="12" fill="#003594" text-anchor="middle">12. [待联调] 生产发布后如何通知在线引擎需由技术方案确定</text>
+
+            <!-- 阶段 4: 在线引擎热切换与规则生效 -->
+            <line x1="897" y1="675" x2="897" y2="675"/>
+            <rect x="830" y="665" width="135" height="30" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="1.2"/>
+            <text x="897" y="685" font-size="11" font-weight="700" fill="#15803d" text-anchor="middle">动态切换内存指针</text>
+            <text x="897" y="710" font-size="11" fill="#475569" text-anchor="middle">13. [生效] 进单立即应用新策略</text>
+
+            <!-- 阶段 5: 历史版本 7 维度 Diff 对比与安全回滚 -->
+            <rect x="20" y="730" width="960" height="195" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-width="1.2"/>
+            <text x="35" y="750" font-size="11" font-weight="700" fill="#b45309">[历史版本回滚差异预览与分步发布]</text>
+
+            <!-- 消息 14: 主管发起版本对比 -->
+            <line x1="92" y1="780" x2="252" y2="780" stroke="#003594" stroke-width="1.8" marker-end="url(#arr-blue-7)"/>
+            <text x="172" y="772" font-size="12" fill="#003594" text-anchor="middle">14. [差异预览] 选择单个历史版本，选定回滚范围并填写原因后点击预览</text>
+
+            <!-- 消息 15: 返回差异数据 -->
+            <line x1="252" y1="815" x2="92" y2="815" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#arr-green-7)"/>
+            <text x="172" y="807" font-size="12" fill="#15803d" text-anchor="middle">15. [响应] 返回配置差异高亮 (低效阈值、分派比例红绿标色差异项)</text>
+
+            <!-- 消息 16: 主管点击一键回滚 -->
+            <line x1="92" y1="855" x2="252" y2="855" stroke="#b91c1c" stroke-width="1.8" marker-end="url(#arr-red-7)"/>
+            <text x="172" y="847" font-size="12" fill="#b91c1c" text-anchor="middle">16. [一键回滚] 发现线上业务波动，主管确认回滚至 v2.7 稳定版本</text>
+
+            <!-- 消息 17: 回滚版本热加载生效 -->
+            <line x1="252" y1="895" x2="897" y2="895" stroke="#b91c1c" stroke-width="1.8" marker-end="url(#arr-red-7)"/>
+            <text x="574" y="887" font-size="12" fill="#b91c1c" text-anchor="middle">17. [原型交互] 确认发布待发布回滚版本；生产热加载与恢复时效待联调</text>
+          </svg>
+        </div>
+
+        <div class="seq-table-wrap">
+          <table class="seq-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>发送方</th>
+                <th>接收方</th>
+                <th>消息 / 接口调用</th>
+                <th>类型</th>
+                <th>触发条件</th>
+                <th>技术实现约束</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>数仓离线引擎</td>
+                <td>数据库 (MySQL/Redis)</td>
+                <td>T+1 样例数据准备（目标数据链路待联调）</td>
+                <td><span class="pill event">event</span></td>
+                <td>每日凌晨 02:00 定时 Cron 触发</td>
+                <td>统计近 7 天/30 天通话转化率、健康分与低效坐席名单，写入 `dcc_strategy_metric_daily` 宽表</td>
+              </tr>
+              <tr>
+                <td>2-3</td>
+                <td>策略工作台服务</td>
+                <td>AI Agent 算法引擎</td>
+                <td>POST /agent/v1/strategy/recommend (推导调配策略)</td>
+                <td><span class="pill request">request</span></td>
+                <td>T+1 特征清洗完毕后触发，或运营主管手动“重新分析”</td>
+                <td>传入 7 级转化漏斗、线索流入分布及行业基准参数；Agent 输出评分和建议比例；原因说明由页面生成，不代表 Agent 返回原因、风险或收益预测</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>策略工作台服务</td>
+                <td>DCC 数据库</td>
+                <td>UPDATE `dcc_strategy_draft` (暂存草案与建议)</td>
+                <td><span class="pill request">request</span></td>
+                <td>Agent 推理完成</td>
+                <td>暂存为待审核草案态，不影响线上运行规则；异步刷新工作台概况指标 Redis 缓存</td>
+              </tr>
+              <tr>
+                <td>5-6</td>
+                <td>运营/主管端 (UI)</td>
+                <td>策略工作台服务</td>
+                <td>GET /api/v1/ai-strategy/overview (加载看板与低效对象)</td>
+                <td><span class="pill request">request</span></td>
+                <td>运营主管打开【AI策略工作台】</td>
+                <td>原型展示四项概况卡片、低效对象配置、直派名单、策略建议和版本记录；具体聚合接口待联调</td>
+              </tr>
+              <tr>
+                <td>6a</td>
+                <td>运营/主管端 (UI)</td>
+                <td>策略工作台服务</td>
+                <td>POST /api/v1/ai-strategy/audit-rules (配置审核与通知规则)</td>
+                <td><span class="pill request">request</span></td>
+                <td>运营人员在策略建议与审核页点击【审核规则设置】并保存</td>
+                <td>配置审核与通知开关（默认关闭、按需开启，关闭仍生成待审核记录但不发提醒）；配置审核人员、审核通知邮箱、抄送邮箱、通知频率及超时提醒；站内通知人员本期不提供；保存写入 `dcc_strategy_audit_rule` 并留痕，操作反馈条 3 秒自动淡出</td>
+              </tr>
+              <tr>
+                <td>7-8</td>
+                <td>运营/主管端 (UI)</td>
+                <td>策略工作台服务</td>
+                <td>原型：审核建议行</td>
+                <td><span class="pill request">request</span></td>
+                <td>审核人员在列表执行单条审核、审核选中或批量审核通过</td>
+                <td>AI&gt;0%时操作人员必须选择按比例或不按比例并完成对应方案/外呼类型配置；AI=0%时内部配置锁定。建议行审核完成后，由产品负责人或管理员确认发布</td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td>运营/主管端 (UI)</td>
+                <td>策略工作台服务</td>
+                <td>原型：逐条/批量审核建议</td>
+                <td><span class="pill request">request</span></td>
+                <td>业务总监完成方案评估并点击“审核通过”</td>
+                <td>双人复核权限校验 (RBAC: dcc:strategy:approve)，记录审批人工号、意见与审批时间戳</td>
+              </tr>
+              <tr>
+                <td>10-11</td>
+                <td>策略工作台服务</td>
+                <td>数据库 & 快照库</td>
+                <td>生成策略版本快照（当前为原型演示状态）</td>
+                <td><span class="pill request">request</span></td>
+                <td>具备发布权限的产品负责人或管理员确认发布</td>
+                <td>记录策略版本来源、建议 ID、正式策略 ID、规则快照与操作者；真实持久化和签名方式待技术联调</td>
+              </tr>
+              <tr>
+                <td>12-13</td>
+                <td>策略工作台服务</td>
+                <td>【培育策略】7维度在线引擎</td>
+                <td>PUBLISH channel: `dcc:strategy:reload` (热加载广播)</td>
+                <td><span class="pill event">event</span></td>
+                <td>发布事务提交成功后立即广播</td>
+                <td>集群所有在线节点监听到 Pub/Sub 事件后，从 Redis/MySQL 读取最新 v2.8 快照，采用原子指针替换内存配置，零停机毫秒级生效</td>
+              </tr>
+              <tr>
+                <td>14-15</td>
+                <td>运营/主管端 (UI)</td>
+                <td>策略工作台服务</td>
+                <td>原型：预览整套或单维度回滚差异</td>
+                <td><span class="pill request">request</span></td>
+                <td>选择一个历史有效版本，选择整套或单个规则维度，填写原因并点击「预览回滚差异」</td>
+                <td>原型按回滚范围展示当前值、历史目标值、新版本结果和处理方式；技术差异接口待联调</td>
+              </tr>
+              <tr>
+                <td>16-17</td>
+                <td>运营/主管端 (UI)</td>
+                <td>策略工作台服务 / 在线引擎</td>
+                <td>原型：生成待发布回滚版本后确认发布</td>
+                <td><span class="pill error">error</span></td>
+                <td>线上出现异常波动，主管确认一键回滚</td>
+                <td>先生成待发布版本，线上版本暂不变化；由产品负责人或管理员确认发布后才切换当前版本。生产热加载实现待联调</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="rule-note-box">
+          <strong>架构与可用性保障：</strong>
+          1. <strong>T+1 与在线解耦：</strong>复杂的漏斗转化与健康分计算完全剥离至数仓 T+1 离线跑批，在线分单链路仅需读取预热的低效直派清单与规则内存指针，保证 20ms 内极速派单响应；<br>
+          2. <strong>发布双事务与不可篡改快照：</strong>任何生效策略必须经过“草案 ➔ 审批 ➔ 快照 ➔ 热加载”闭环，快照以 JSON 原样封存并计算防篡改哈希，杜绝热更新导致的线上配置不一致；<br>
+          3. <strong>秒级容灾回滚：</strong>发生不可预期客诉或进单偏斜时，主管可随时一键回滚至任意历史版本，系统自动以补丁版本方式生效，既能秒级止损，又能完整保留每一次调优的操作轨迹与责任留痕。
+        </div>
+      </article>
+
+    </main>
+  </div>
+</div>
+
+<script>
+// 侧边栏高亮与平滑滚动监听
+document.addEventListener('DOMContentLoaded', () => {
+  const navItems = document.querySelectorAll('.seq-nav-item');
+  const sections = document.querySelectorAll('.seq-card');
+  const searchInput = document.getElementById('seqSearch');
+
+  // 滚动高亮
+  window.addEventListener('scroll', () => {
+    let currentId = '';
+    sections.forEach(sec => {
+      const top = sec.offsetTop - 100;
+      if (window.scrollY >= top) {
+        currentId = sec.id;
+      }
+    });
+
+    if (currentId) {
+      navItems.forEach(item => {
+        if (item.getAttribute('href') === '#' + currentId) {
+          item.classList.add('is-active');
+        } else {
+          item.classList.remove('is-active');
+        }
+      });
+    }
+  });
+
+  // 搜索过滤
+  searchInput.addEventListener('input', (e) => {
+    const val = e.target.value.toLowerCase().trim();
+    navItems.forEach(item => {
+      const text = item.textContent.toLowerCase();
+      item.style.display = text.includes(val) ? 'block' : 'none';
+    });
+  });
+});
+</script>
+
+</body>
+</html>
