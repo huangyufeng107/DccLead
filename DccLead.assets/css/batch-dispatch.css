@@ -1,0 +1,97 @@
+#opsBatchDispatchPage .mw-report-container { padding: 0 !important; color: #334155; }
+#opsBatchDispatchPage .mw-report-summary { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }
+#opsBatchDispatchPage .batch-summary-card { display: flex; flex-direction: column; gap: 5px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 9px; background: #fff; }
+#opsBatchDispatchPage .batch-summary-card span { color: #64748b; font-size: 12px; }
+#opsBatchDispatchPage .batch-summary-card strong { font-size: 24px; line-height: 1.2; }
+#opsBatchDispatchPage .batch-summary-card small { color: #94a3b8; font-size: 11px; }
+#opsBatchDispatchPage .batch-primary,
+#opsBatchDispatchPage .batch-secondary,
+.batch-dialog .batch-primary,
+.batch-dialog .batch-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 34px; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; line-height: 20px; cursor: pointer; }
+#opsBatchDispatchPage .batch-primary,
+.batch-dialog .batch-primary { border: 1px solid #1554d1 !important; background: #1554d1 !important; color: #fff !important; }
+#opsBatchDispatchPage .batch-primary:hover:not(:disabled),
+.batch-dialog .batch-primary:hover:not(:disabled) { background: #1047b6 !important; }
+#opsBatchDispatchPage .batch-secondary,
+.batch-dialog .batch-secondary { border: 1px solid #d5deea !important; background: #fff !important; color: #334155 !important; }
+#opsBatchDispatchPage .batch-secondary:hover:not(:disabled),
+.batch-dialog .batch-secondary:hover:not(:disabled) { border-color: #a8b9d3 !important; background: #f8fafc !important; }
+#opsBatchDispatchPage button:disabled { opacity: .5; cursor: not-allowed !important; }
+#opsBatchDispatchPage .mw-report-table-toolbar { flex-wrap: wrap; gap: 12px; }
+#opsBatchDispatchPage .mw-report-table-toolbar > div { flex-wrap: wrap; }
+#opsBatchDispatchPage .mw-report-table-toolbar > div:last-child { position: relative; }
+#opsBatchDispatchPage .mw-report-filter-card .form-input,
+#opsBatchDispatchPage .mw-report-table-toolbar select { min-height: 34px; border-color: #d5deea !important; border-radius: 6px !important; color: #334155; }
+#opsBatchDispatchPage .batch-filter-title { margin-bottom: 12px; color: #0f172a; font-size: 15px; font-weight: 700; }
+#opsBatchDispatchPage .batch-filter-layout { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: start; }
+#opsBatchDispatchPage .batch-filter-grid { display: grid !important; grid-template-columns: repeat(5, minmax(0, 1fr)) !important; gap: 12px 14px !important; }
+#opsBatchDispatchPage .batch-filter-grid:not(.is-expanded) > :nth-child(n+6) { display: none !important; }
+#opsBatchDispatchPage .batch-filter-grid > label { min-width: 0; color: #475569 !important; font-size: 12px !important; font-weight: 600 !important; }
+#opsBatchDispatchPage .batch-filter-grid .form-input { box-sizing: border-box; width: 100%; }
+#opsBatchDispatchPage .batch-filter-grid label > div > input[type="date"] { flex: 1 1 0 !important; min-width: 0; width: 0 !important; }
+#opsBatchDispatchPage .batch-filter-actions { display: flex; gap: 8px; justify-content: flex-end; align-items: center; margin-top: 24px; }
+#opsBatchDispatchPage .batch-filter-actions button { white-space: nowrap; }
+#opsBatchDispatchPage .batch-filter-bottom { border-top: 1px solid #e8eef7; margin-top: 14px; padding-top: 12px; }
+#opsBatchDispatchPage .batch-filter-toggle { padding: 0; border: 0; background: none; color: #2563eb; font-size: 13px; font-weight: 600; cursor: pointer; }
+#opsBatchDispatchPage .batch-filter-toggle span { margin-left: 5px; color: #64748b; font-size: 12px; font-weight: 600; }
+#opsBatchDispatchPage .mw-report-table-scroll { max-height: 520px; overflow: auto !important; border: 1px solid #e5ebf3; border-radius: 6px 6px 0 0; }
+#opsBatchDispatchPage .mw-report-table-scroll table { min-width: max-content; }
+#opsBatchDispatchPage .mw-report-table-scroll thead { position: sticky; top: 0; z-index: 2; }
+#opsBatchDispatchPage .mw-report-table-scroll thead th { background: #f1f5f9; }
+#opsBatchDispatchPage .mw-report-table-scroll tbody tr.batch-selected { background: #eff6ff !important; }
+#opsBatchDispatchPage .mw-report-table-scroll tbody tr[hidden] { display: none !important; }
+#opsBatchDispatchPage .batch-empty td { padding: 34px 20px; text-align: center; color: #94a3b8; }
+#opsBatchDispatchPage .batch-pagination { margin: 0 -16px -16px; border-radius: 0 0 10px 10px; }
+#opsBatchDispatchPage .batch-fields-popover { position: absolute; top: calc(100% + 7px); z-index: 10; width: 260px; max-height: 320px; overflow: auto; padding: 14px; border: 1px solid #d5deea; border-radius: 8px; background: #fff; box-shadow: 0 8px 28px rgba(15, 23, 42, .14); }
+#opsBatchDispatchPage .batch-fields-popover strong { display: block; color: #1e293b; font-size: 14px; }
+#opsBatchDispatchPage .batch-fields-popover p { margin: 3px 0 9px; color: #64748b; font-size: 12px; }
+#opsBatchDispatchPage .batch-fields-popover label { display: flex; align-items: center; gap: 7px; padding: 5px 0; color: #334155; font-size: 12px; white-space: nowrap; }
+#opsBatchDispatchModal.modal-backdrop,
+#opsBatchLogModal.modal-backdrop,
+#opsBatchDetailModal.batch-detail-modal,
+#opsBatchAiDetailModal.batch-detail-modal { position: fixed; inset: 0; z-index: 2500; display: none; align-items: center; justify-content: center; box-sizing: border-box; padding: 24px; background: rgba(15, 23, 42, .45); }
+#opsBatchDispatchModal.modal-backdrop.show,
+#opsBatchLogModal.modal-backdrop.show,
+#opsBatchDetailModal.batch-detail-modal.show,
+#opsBatchAiDetailModal.batch-detail-modal.show { display: flex; }
+.batch-detail-modal .batch-detail-panel { box-sizing: border-box; width: min(900px, calc(100vw - 48px)) !important; max-width: 100% !important; max-height: calc(100vh - 48px) !important; margin: 0 !important; overflow: auto; }
+body.dcc-docs-ready .batch-detail-modal .batch-detail-panel { max-height: calc(100vh - var(--dcc-docs-header-height) - 48px) !important; }
+.batch-detail-modal .batch-detail-panel > div:first-child { position: sticky; top: -24px; z-index: 1; margin: -24px -24px 16px !important; padding: 20px 24px 14px !important; border-bottom: 1px solid #e8eef7; border-radius: 14px 14px 0 0; background: #fff; }
+.batch-detail-modal .batch-detail-panel > div:first-child > span { flex-wrap: wrap; min-width: 0; }
+.batch-detail-modal .batch-detail-panel > div:nth-child(2) > div > div { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+.batch-detail-modal .batch-detail-panel > div:nth-child(2) > div > div > div { min-width: 0; overflow-wrap: anywhere; }
+.batch-detail-modal .batch-detail-panel > div:last-child { position: sticky; bottom: -24px; z-index: 1; margin: 16px -24px -24px !important; padding: 14px 24px !important; border-top: 1px solid #e8eef7; border-radius: 0 0 14px 14px; background: #fff; }
+.batch-detail-modal .batch-detail-panel button { min-height: 34px; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; }
+.batch-detail-modal .batch-detail-panel button:disabled { opacity: .5; cursor: not-allowed !important; }
+.batch-detail-modal .batch-detail-panel .btn-secondary { border: 1px solid #d5deea; background: #fff; color: #334155; }
+.batch-detail-modal .batch-detail-panel .btn-blue-primary { border: 1px solid #1554d1; background: #1554d1; color: #fff; }
+.batch-dialog { width: min(560px, 100%); max-height: min(80vh, 760px); overflow: auto; border-radius: 10px; background: #fff; box-shadow: 0 24px 60px rgba(15, 23, 42, .24); }
+.batch-log-dialog { width: min(940px, 100%); }
+.batch-dialog-header,
+.batch-dialog-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid #e8eef7; }
+.batch-dialog-header strong { color: #1e293b; font-size: 17px; }
+.batch-dialog-header button { border: 0; background: transparent; color: #64748b; font-size: 26px; line-height: 1; cursor: pointer; }
+.batch-dialog-body { padding: 20px; color: #475569; font-size: 13px; line-height: 1.6; }
+.batch-dialog-body p { margin: 10px 0; }
+.batch-dialog-body label { display: block; margin-top: 16px; color: #334155; font-weight: 500; }
+.batch-dialog-body label > input,
+.batch-dialog-body label > select { display: block; box-sizing: border-box; width: 100%; height: 36px; margin-top: 7px; padding: 6px 10px; }
+.batch-dialog-body textarea { display: block; box-sizing: border-box; width: 100%; margin-top: 8px; padding: 8px 10px; }
+.batch-dispatch-count { padding: 12px 14px; border: 1px solid #bfdbfe; border-radius: 6px; background: #eff6ff; color: #1e40af; }
+.batch-dispatch-count strong { font-size: 18px; }
+.batch-dialog-footer { justify-content: flex-end; border-top: 1px solid #e8eef7; border-bottom: 0; }
+.batch-log-wrap { overflow: auto; }
+.batch-log-wrap table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+.batch-log-wrap th,
+.batch-log-wrap td { padding: 10px 12px; border-bottom: 1px solid #e8eef7; text-align: left; }
+.batch-log-wrap th { background: #f1f5f9; color: #475569; }
+@media (max-width: 1200px) {
+  #opsBatchDispatchPage .batch-filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 1450px) { #opsBatchDispatchPage .batch-filter-layout { grid-template-columns: 1fr; } #opsBatchDispatchPage .batch-filter-actions { margin-top: 0; } }
+@media (max-width: 680px) { #opsBatchDispatchPage .batch-filter-grid { grid-template-columns: 1fr !important; } }
+@media (max-width: 900px) { #opsBatchDispatchPage .mw-report-summary { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
+@media (max-width: 700px) {
+  .batch-detail-modal .batch-detail-panel > div:nth-child(2) > div > div { grid-template-columns: 1fr !important; }
+  .batch-detail-modal .batch-detail-panel > div:last-child { flex-wrap: wrap; }
+}

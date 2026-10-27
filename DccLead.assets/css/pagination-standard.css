@@ -1,0 +1,85 @@
+/* 统一列表分页：左侧记录信息，右侧每页条数、上一页、页码、下一页。 */
+body .prototype-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 56px;
+  padding: 10px 20px;
+  box-sizing: border-box;
+  border-top: 1px solid #e8eef7;
+  background: #fff;
+  color: #64748b;
+  font-size: 13px;
+}
+body .prototype-pagination .prototype-pagination-summary { margin-right: auto; white-space: nowrap; }
+body .prototype-pagination .prototype-pagination-controls { display: flex; align-items: center; gap: 8px; }
+body .prototype-pagination .prototype-pagination-select {
+  height: 34px;
+  min-width: 96px;
+  padding: 0 30px 0 11px;
+  box-sizing: border-box;
+  border: 1px solid #d5deea;
+  border-radius: 6px;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238c8c8c' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 8px center;
+  appearance: none;
+  color: #334155;
+  font-size: 13px;
+  cursor: pointer;
+}
+body .prototype-pagination .prototype-pagination-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid #d5deea;
+  border-radius: 6px;
+  background: #fff;
+  color: #475569;
+  cursor: pointer;
+}
+body .prototype-pagination .prototype-pagination-arrow:hover:not(:disabled) { border-color: #2563eb; background: #eff6ff; color: #1d4ed8; }
+body .prototype-pagination .prototype-pagination-arrow:disabled { border-color: #e2e8f0; background: #f8fafc; color: #b8c2d1; cursor: not-allowed; }
+body .pagination:not(.prototype-pagination) { min-height: 56px; padding: 10px 20px; color: #64748b; font-size: 13px; }
+body .pagination:not(.prototype-pagination) .pagination-btns { gap: 8px; }
+body .pagination:not(.prototype-pagination) .hit-page-size { height: 34px; }
+body .pagination:not(.prototype-pagination) .page-btn { width: 34px; min-width: 34px; height: 34px; padding: 0; }
+body .pagination:not(.prototype-pagination) .page-btn:disabled { border-color: #e2e8f0; background: #f8fafc; color: #b8c2d1; cursor: not-allowed; }
+/* 历史页面有各自的字号和颜色；分页信息与控件以这一套参数为准。 */
+body .prototype-pagination .prototype-pagination-summary,
+body .pagination:not(.prototype-pagination) > span {
+  color: #64748b !important;
+  font-family: var(--font-family), -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 20px !important;
+  letter-spacing: 0 !important;
+}
+body .prototype-pagination .prototype-pagination-select,
+body .pagination:not(.prototype-pagination) .hit-page-size {
+  color: #334155 !important;
+  font-family: var(--font-family), -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+body .prototype-pagination .prototype-pagination-arrow,
+body .pagination:not(.prototype-pagination) .page-btn {
+  color: #475569;
+  font-family: var(--font-family), -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 13px;
+}
+body .ai-strategy-pagination.prototype-pagination { margin-top: 0; }
+#leadImportPage .nli-pager.prototype-pagination,
+#opsDownloadListPage .nld-pager.prototype-pagination { min-height: 56px; padding: 10px 20px; gap: 12px; color: #64748b; font-size: 13px; }
+#leadImportPage .nli-pager.prototype-pagination .nli-pager-controls { gap: 8px; }
+body .prototype-pagination .prototype-pagination-select:focus-visible,
+body .prototype-pagination .prototype-pagination-arrow:focus-visible { outline: 2px solid #60a5fa; outline-offset: 2px; }
+@media (max-width: 650px) {
+  body .prototype-pagination { flex-wrap: wrap; }
+  body .prototype-pagination .prototype-pagination-summary { flex-basis: 100%; }
+  body .prototype-pagination .prototype-pagination-controls { flex-wrap: wrap; }
+}
