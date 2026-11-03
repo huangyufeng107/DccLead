@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>天网付费线索自动下发｜后台配置设计说明</title>
+  <style>
+    :root{--blue:#1677ff;--ink:#182230;--muted:#667085;--line:#e4e7ec;--bg:#f5f7fb;--card:#fff;--green:#12b76a;--red:#f04438}
+    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.65,-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+    .topbar{position:sticky;top:0;z-index:10;height:64px;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);backdrop-filter:blur(10px)}
+    .topbar-inner{max-width:1440px;height:100%;margin:auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between}.brand{font-size:18px;font-weight:700}.tag{margin-left:10px;padding:2px 8px;border-radius:4px;background:#eaf3ff;color:#175cd3;font-size:12px;font-weight:600}.version{color:var(--muted);font-size:13px}
+    .layout{max-width:1440px;margin:0 auto;padding:28px 32px 56px;display:grid;grid-template-columns:220px minmax(0,1fr);gap:24px}.aside{position:sticky;top:88px;align-self:start;padding:14px;background:#fff;border:1px solid var(--line);border-radius:10px}.aside-title{margin:0 10px 8px;color:#98a2b3;font-size:12px;font-weight:700}.aside a{display:block;padding:8px 10px;border-radius:6px;color:#475467;text-decoration:none;font-size:13px}.aside a:hover{background:#eff6ff;color:#175cd3}.main{min-width:0}.hero{padding:28px 32px;background:linear-gradient(135deg,#eef6ff 0%,#fff 65%);border:1px solid #d9e9ff;border-radius:12px}.hero h1{margin:0;font-size:28px;letter-spacing:-.3px}.hero p{margin:8px 0 0;color:var(--muted)}.meta{display:flex;gap:20px;margin-top:18px;color:#667085;font-size:13px}.meta b{color:#344054}
+    .section{margin-top:18px;padding:28px 32px;background:var(--card);border:1px solid var(--line);border-radius:12px}.section h2{margin:0 0 16px;font-size:20px}.section h3{margin:26px 0 12px;font-size:16px}.section h3:first-of-type{margin-top:0}.section p{margin:8px 0;color:#475467}.callout{margin:16px 0;padding:12px 14px;border:1px solid #b2ddff;border-radius:8px;background:#eff8ff;color:#175cd3}.callout b{color:#0b4fb3}.flow-wrap{overflow:auto;padding:18px;border:1px solid #d0d5dd;border-radius:8px;background:#fbfdff}.flow-note{margin-top:12px!important;color:#667085!important}
+    table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:11px 12px;border:1px solid var(--line);vertical-align:top;text-align:left}th{background:#f9fafb;color:#344054;font-weight:700}td{color:#475467}code{padding:1px 5px;border-radius:4px;background:#f2f4f7;color:#344054;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em}.list{padding-left:20px;color:#475467}.list li{margin:7px 0}.pill{display:inline-block;padding:2px 7px;border-radius:4px;background:#ecfdf3;color:#027a48;font-size:12px;font-weight:700}.footer{padding:20px 0;text-align:center;color:#98a2b3;font-size:12px}
+    @media(max-width:900px){.layout{grid-template-columns:1fr;padding:18px}.aside{display:none}.topbar-inner{padding:0 18px}.hero,.section{padding:22px 18px}.hero h1{font-size:23px}.meta{display:block}.meta span{display:block;margin-top:4px}table{min-width:680px}.section{overflow:hidden}}
+  </style>
+</head>
+<body>
+  <header class="topbar"><div class="topbar-inner"><div><span class="brand">天网付费线索自动下发</span><span class="tag">后台配置设计说明</span></div><span class="version">V1.4 · 2026-09-14</span></div></header>
+  <div class="layout">
+    <nav class="aside" aria-label="文档目录"><p class="aside-title">目录</p><a href="#summary">1. 一句话结论</a><a href="#flow">1.1 功能逻辑流程</a><a href="#permission">2. 页面与权限</a><a href="#common">3. 页面结构与交互</a><a href="#manual">4. 人工外呼配置</a><a href="#ai">5. AI 外呼配置</a><a href="#boundary">6. 生效与运行边界</a><a href="#impact">7. 研发影响面</a><a href="#acceptance">8. 验收标准</a><a href="#review">9. 评审结论</a></nav>
+    <main class="main">
+      <section class="hero"><h1>天网付费线索自动下发后台配置设计说明</h1><p>将人工客服与 AI 自动下发规则从代码中抽离，改由后台配置维护，并持续复用现有批量下发流程。</p><div class="meta"><span><b>关联需求：</b>天网付费线索人工与 AI 未接通自动批量下发</span><span><b>适用范围：</b>培育策略－人工外呼配置 / AI 外呼配置</span></div></section>
+
+      <section class="section" id="summary"><h2>1. 一句话结论</h2><p>人工与 AI 自动下发均由后台维护。系统在每次触发判断开始时读取当前启用配置；命中后调用既有批量下发流程，保存配置不回算历史任务。</p></section>
+
+      <section class="section" id="flow"><h2>1.1 功能逻辑流程图</h2><div class="flow-wrap"><pre class="mermaid">
+flowchart TD
+    A[触发判断] --> B{smartcode 命中天网字典}
+    B -- 否 --> Z[不自动下发]
+    B -- 是 --> C{触发来源}
+    C -- 人工回访 --> D[保存人工回访记录]
+    D --> E{人工规则已启用}
+    E -- 否 --> Z
+    E -- 是 --> F{同一任务累计次数达标}
+    F -- 否 --> Z
+    F -- 是 --> G{末次接触状态命中}
+    G -- 否 --> Z
+    G -- 是 --> M[调用配置的批量下发流程]
+    C -- AI 外呼 --> H[保存整轮最终结果]
+    H --> I{AI 规则已启用}
+    I -- 否 --> Z
+    I -- 是 --> J{外呼类型命中配置}
+    J -- 否 --> Z
+    J -- 是 --> K{最终通话状态命中}
+    K -- 否 --> Z
+    K -- 是 --> M
+    M --> N{既有下发流程成功}
+    N -- 是 --> O[线索下发门店]
+    O --> P[按所选流程更新任务]
+    N -- 否 --> Q[任务保持原状态]
+    Q --> R[后续可人工手动下发]
+      </pre></div><p class="flow-note">人工分支只统计同一回访任务下的有效人工回访记录，达到累计次数后判断最近一次接触状态；AI 分支仅使用整轮外呼结束后推送并持久化的最终结果，不累计重呼中间结果。</p></section>
+
+      <section class="section" id="permission"><h2>2. 页面与权限</h2><table><thead><tr><th>页面</th><th>菜单路径</th><th>页面名称</th><th>访问与编辑</th></tr></thead><tbody><tr><td>人工配置</td><td>培育策略 ＞ 人工外呼配置</td><td>天网付费线索自动下发</td><td>沿用人工外呼配置的查看、编辑权限。</td></tr><tr><td>AI 配置</td><td>培育策略 ＞ AI 外呼配置</td><td>天网付费线索自动下发</td><td>沿用 AI 外呼配置的查看、编辑权限。</td></tr></tbody></table><p>不新增独立权限点；无编辑权限的用户仅可查看当前配置与最后更新时间。</p></section>
+
+      <section class="section" id="common"><h2>3. 共同页面结构与交互</h2><ol class="list"><li><b>页面标题：</b>天网付费线索自动下发。</li><li><b>适用范围：</b>仅对培育线索 smartcode 命中“天网 smartcode”数据字典的天网付费线索生效。</li><li><b>启用开关：</b>关闭后不自动调用下发流程；下方全部配置项及“保存配置”同步禁用，人工手动下发入口保留。</li><li><b>可配置范围：</b>人工的“统计对象”固定只读；AI 的“判断记录”“触发时机”为固定规则，只读展示；其他字段可配置。</li><li><b>生效范围：</b>保存后仅影响后续新产生的人工回访记录或 AI 最终通话结果，不回算历史任务。</li><li><b>反馈：</b>保存成功提示“配置已生效”；校验失败定位至对应字段；展示最后更新时间与更新人。</li></ol></section>
+
+      <section class="section" id="manual"><h2>4. 人工外呼配置</h2><h3>4.1 页面内容</h3><table><thead><tr><th>区域</th><th>字段</th><th>控件与默认值</th><th>说明</th></tr></thead><tbody><tr><td>规则状态</td><td>启用自动下发</td><td>开关；默认启用</td><td>关闭后不再自动判断或调用人工下发流程。</td></tr><tr><td>适用范围</td><td>天网付费线索</td><td>只读说明</td><td>smartcode 命中字典才适用。</td></tr><tr><td>统计对象</td><td>统计对象</td><td>只读；人工回访任务记录</td><td>固定统计同一回访任务下的有效人工记录，不读取 AI 外呼结果。</td></tr><tr><td>累计条件</td><td>累计次数</td><td>正整数；默认 5；范围 1～99</td><td>同一回访任务下需累计的有效人工回访记录次数。</td></tr><tr><td>末次条件</td><td>接触状态</td><td>单选；默认无人接听</td><td>仅判断最近一次人工回访记录；选项与接触状态数据字典一致。</td></tr><tr><td>执行动作</td><td>执行动作</td><td>单选下拉</td><td>可选“批量下发－无人接听下发”或“批量下发－意向线索下发”。</td></tr></tbody></table><h3>4.2 校验规则</h3><ul class="list"><li>启用时，累计次数、接触状态、执行动作必填。</li><li>累计次数仅允许 1～99 的正整数；空值、0、负数、小数、非数字或大于 99 时不允许保存。</li><li>接触状态必须为现有接触状态数据字典值。</li><li>保存时服务端复核执行动作是否被当前人工下发流程支持。</li></ul></section>
+
+      <section class="section" id="ai"><h2>5. AI 外呼配置</h2><h3>5.1 页面内容</h3><table><thead><tr><th>区域</th><th>字段</th><th>控件与默认值</th><th>说明</th></tr></thead><tbody><tr><td>规则状态</td><td>启用自动下发</td><td>开关；默认启用</td><td>关闭后不自动判断或调用 AI 下发流程。</td></tr><tr><td>外呼类型</td><td>外呼类型</td><td>多选；默认新线索</td><td>可选新线索、门店冷线索、总部冷线索。</td></tr><tr><td>判断记录</td><td>判断记录</td><td>只读；整轮外呼最终结果</td><td>不累计次数，不读取重呼过程中的中间结果。</td></tr><tr><td>触发时机</td><td>触发时机</td><td>只读；最终结果保存后立即触发</td><td>确保先保存最终结果，再执行自动下发判断。</td></tr><tr><td>通话状态</td><td>通话状态</td><td>多选；显示已选 X/8</td><td>支持全选、清空与逐项勾选，使用 AI 平台原始状态值。</td></tr><tr><td>执行动作</td><td>执行动作</td><td>单选下拉</td><td>可选既有“无人接听下发”或“意向线索下发”流程。</td></tr></tbody></table><h3>5.2 校验规则</h3><ul class="list"><li>启用时，外呼类型、通话状态、执行动作必填。</li><li>外呼类型及通话状态均至少选择一项；通话状态按已选的原始状态值提交。</li><li>服务端固定使用整轮外呼最终结果，且仅在最终结果持久化完成后触发。</li><li>保存时服务端校验外呼类型、通话状态与执行动作的有效性。</li></ul></section>
+
+      <section class="section" id="boundary"><h2>6. 生效、审计与运行边界</h2><table><thead><tr><th>项目</th><th>规则</th></tr></thead><tbody><tr><td>生效时点</td><td>保存成功后，对后续新产生的人工回访记录或 AI 最终结果生效。</td></tr><tr><td>历史数据</td><td>不回算、不补发、不改变已关闭或进行中的历史任务。</td></tr><tr><td>一次判断</td><td>触发服务在一次判断开始时读取一份启用配置快照；判断过程中的保存不影响本次。</td></tr><tr><td>审计</td><td>记录配置版本、配置内容、更新人、更新时间；自动下发技术日志记录命中的配置版本。</td></tr><tr><td>并发与防重</td><td>沿用既有人工/AI 下发接口的重复下发保护。</td></tr><tr><td>失败处理</td><td>未命中、配置关闭、配置无效或既有下发流程失败时，任务保持原状态；不产生运营提醒或失败待办。</td></tr></tbody></table></section>
+
+      <section class="section" id="impact"><h2>7. 研发影响面</h2><table><thead><tr><th>范围</th><th>改动</th></tr></thead><tbody><tr><td>前端</td><td>在两处既有外呼配置菜单下新增配置入口、编辑控件、保存校验与生效提示。</td></tr><tr><td>配置服务</td><td>按人工/AI 渠道保存启用配置，提供读取当前配置、保存新版本和查询最后更新信息能力。</td></tr><tr><td>人工触发服务</td><td>读取累计次数、接触状态与执行动作，不再固化在判断代码中。</td></tr><tr><td>AI 触发服务</td><td>读取外呼类型、通话状态与执行动作；固定使用最终结果与结果保存后时机。</td></tr><tr><td>数据与审计</td><td>保存配置版本和变更审计，并在自动判断日志关联配置版本。</td></tr></tbody></table></section>
+
+      <section class="section" id="acceptance"><h2>8. 验收标准</h2><table><thead><tr><th>编号</th><th>场景</th><th>预期结果</th></tr></thead><tbody><tr><td>CFG-M01</td><td>进入人工配置</td><td>可编辑启用状态、累计次数、接触状态、执行动作；统计对象固定只读。</td></tr><tr><td>CFG-M05</td><td>累计次数输入非法值</td><td>不允许保存，并提示“请输入 1～99 的正整数”。</td></tr><tr><td>CFG-A01</td><td>进入 AI 配置</td><td>可编辑启用状态、外呼类型、通话状态、执行动作；判断记录与触发时机固定只读。</td></tr><tr><td>CFG-A02</td><td>打开通话状态下拉</td><td>显示“已选 X/8”、全选、清空及 8 个原始状态选项；勾选数量实时更新。</td></tr><tr><td>CFG-C03</td><td>命中任一配置规则</td><td>系统按保存的动作调用对应既有批量下发流程，不写死任一流程。</td></tr><tr><td>CFG-C04</td><td>人工或 AI 配置关闭</td><td>下方全部配置项及保存按钮禁用；重新启用后恢复编辑。</td></tr><tr><td>CFG-C01</td><td>保存与自动判断并发发生</td><td>本次按开始时读取的配置快照完成；新配置仅影响后续事件。</td></tr></tbody></table></section>
+
+      <section class="section" id="review"><h2>9. 评审结论</h2><p><span class="pill">通过</span></p><ul class="list"><li><b>产品：</b>人工与 AI 规则均有清晰入口、配置边界、保存反馈和验收口径。</li><li><b>研发：</b>配置按渠道独立存储，运行服务仅读取当前启用配置；不改变既有下发接口、状态机、下游同步与幂等边界。</li></ul></section>
+      <div class="footer">天网付费线索自动下发 · 后台配置设计说明</div>
+    </main>
+  </div>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#eff8ff',primaryBorderColor:'#1677ff',primaryTextColor:'#182230',lineColor:'#667085',fontFamily:'PingFang SC, Microsoft YaHei, sans-serif'}});
+  </script>
+</body>
+</html>
