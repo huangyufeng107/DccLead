@@ -1,0 +1,38 @@
+/* 总部 NEV 日报与邮件模板：使用与报表页一致的按钮和弹窗控件。 */
+#opsHqNevDailyPage .nev-daily-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+#opsHqNevDailyPage .nev-daily-preset { display: flex; gap: 6px; flex-wrap: wrap; }
+#opsHqNevDailyPage .nev-daily-preset button { min-height: 34px; padding: 0 12px; border: 1px solid #d5deeb; border-radius: 5px; background: #fff; color: #475569; font-family: inherit; font-size: 12px; font-weight: 600; line-height: 1; cursor: pointer; }
+#opsHqNevDailyPage .nev-daily-preset button:hover { border-color: #93c5fd; color: #1d4ed8; }
+#opsHqNevDailyPage .nev-daily-preset button.is-active { border-color: #1d4ed8; background: #eff6ff; color: #1d4ed8; }
+#opsHqNevDailyPage .nev-daily-help { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; margin-left: 2px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #2563eb; font-family: inherit; font-size: 14px; font-weight: 600; line-height: 1; vertical-align: middle; cursor: pointer; }
+#opsHqNevDailyPage .nev-daily-help:hover, #opsHqNevDailyPage .nev-daily-help[aria-expanded="true"] { background: #dbeafe; }
+#opsHqNevDailyPage .nev-daily-help:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+#opsHqNevDailyPage .btn-blue-primary, #opsHqNevDailyPage .btn-outline-blue,
+#nevDailyEmailModal .btn-blue-primary, #nevDailyEmailModal .btn-secondary, #nevDailyEmailModal .btn-outline-blue, #nevDailyEmailModal .btn-save { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 0 14px; box-sizing: border-box; border-radius: 5px; font-family: inherit; font-size: 13px; font-weight: 600; line-height: 1; cursor: pointer; }
+#opsHqNevDailyPage .btn-blue-primary, #nevDailyEmailModal .btn-blue-primary, #nevDailyEmailModal .btn-save { border: 1px solid #1d4ed8; background: #1d4ed8; color: #fff; }
+#opsHqNevDailyPage .btn-blue-primary:hover, #nevDailyEmailModal .btn-blue-primary:hover, #nevDailyEmailModal .btn-save:hover { border-color: #1e40af; background: #1e40af; }
+#nevDailyEmailModal .btn-secondary { border: 1px solid #d5deeb; background: #fff; color: #475569; }
+#nevDailyEmailModal .btn-secondary:hover { border-color: #93c5fd; color: #1d4ed8; }
+#opsHqNevDailyPage .btn-outline-blue, #nevDailyEmailModal .btn-outline-blue { border: 1px solid #bfdbfe; background: #eff6ff; color: #1d4ed8; }
+#opsHqNevDailyPage .btn-outline-blue:hover, #nevDailyEmailModal .btn-outline-blue:hover { border-color: #93c5fd; background: #dbeafe; }
+#opsHqNevDailyPage button:focus-visible, #nevDailyEmailModal button:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+#nevDailyEmailModal .nev-email-dialog { width: min(760px, 94vw); max-height: min(86vh, 820px); margin: 6vh auto; display: flex; flex-direction: column; border-radius: 10px; background: #fff; box-shadow: 0 20px 45px rgba(15,23,42,.22); overflow: hidden; }
+#nevDailyEmailModal .nev-email-header { display: flex; flex: none; align-items: center; justify-content: space-between; min-height: 58px; padding: 0 20px; border-bottom: 1px solid #e8eef7; color: #1f2937; font-size: 16px; font-weight: 700; }
+#nevDailyEmailModal .nev-email-close { width: 30px; height: 30px; border: 0; border-radius: 5px; background: transparent; color: #64748b; font-size: 18px; cursor: pointer; }
+#nevDailyEmailModal .nev-email-close:hover { background: #f1f5f9; }
+#nevDailyEmailModal .nev-email-body { min-height: 0; overflow: auto; padding: 20px; }
+#nevDailyEmailModal .nev-email-table-wrap { width: 100%; overflow-x: auto; border: 1px solid #e4eaf3; border-radius: 6px; }
+#nevDailyEmailModal .nev-email-table { min-width: 690px; width: 100%; border-collapse: collapse; font-size: 12px; }
+#nevDailyEmailModal .nev-email-table th { padding: 10px; background: #f8fafc; color: #475569; text-align: left; white-space: nowrap; }
+#nevDailyEmailModal .nev-email-table td { padding: 10px; border-top: 1px solid #edf2f7; color: #334155; }
+#nevDailyEmailModal .nev-email-table td:last-child { white-space: nowrap; }
+#nevDailyEmailModal .nev-email-table td:last-child button { min-height: 30px; padding: 0 8px; font-size: 12px; }
+#nevDailyEmailModal .nev-email-footer { display: flex; flex: none; align-items: center; justify-content: flex-end; gap: 8px; min-height: 62px; padding: 10px 20px; border-top: 1px solid #e8eef7; }
+#nevDailyEmailModal .nev-email-form { display: flex; flex-direction: column; gap: 14px; color: #334155; font-size: 13px; }
+#nevDailyEmailModal .nev-email-form > label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; }
+#nevDailyEmailModal .nev-email-form > label:has(input[type="checkbox"]) { flex-direction: row; align-items: center; }
+#nevDailyEmailModal .nev-email-form .form-input { width: 100%; box-sizing: border-box; font-weight: 400; }
+#nevDailyEmailModal .nev-email-form-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+#nevDailyEmailModal .nev-email-test-row { display: flex; gap: 8px; }
+#nevDailyEmailModal .nev-email-test-row .form-input { min-width: 0; flex: 1; }
+@media (max-width: 650px) { #nevDailyEmailModal .nev-email-dialog { width: calc(100vw - 24px); margin: 12px auto; max-height: calc(100vh - 24px); } #nevDailyEmailModal .nev-email-header, #nevDailyEmailModal .nev-email-footer { padding-left: 16px; padding-right: 16px; } #nevDailyEmailModal .nev-email-body { padding: 16px; } }

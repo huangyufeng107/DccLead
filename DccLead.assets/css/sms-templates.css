@@ -1,0 +1,28 @@
+/* 任务排班 / 短信模板：与站内列表页保持一致的筛选、表格及操作层级。 */
+#smsTemplatePage .sms-filter-card { padding: 18px 20px; margin-bottom: 14px; }
+#smsTemplatePage .sms-filter-title { margin-bottom: 14px; color: #1f2937; font-size: 14px; font-weight: 700; }
+#smsTemplatePage .sms-filter-grid { display: grid; grid-template-columns: minmax(180px, 1.4fr) minmax(150px, 1fr) minmax(140px, 1fr) auto; gap: 14px; align-items: end; }
+#smsTemplatePage .sms-filter-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; color: #475569; font-size: 12px; font-weight: 600; }
+#smsTemplatePage .sms-filter-field .form-input { width: 100%; min-width: 0; box-sizing: border-box; }
+#smsTemplatePage .sms-filter-actions { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+#smsTemplatePage .sms-result-count { margin-left: 8px; color: #94a3b8; font-size: 12px; font-weight: 500; }
+#smsTemplatePage .policy-table-wrap { overflow-x: auto; }
+#smsTemplatePage .data-table { min-width: 850px; table-layout: fixed; }
+#smsTemplatePage .data-table th:nth-child(1) { width: 54px; }
+#smsTemplatePage .data-table th:nth-child(2) { width: 17%; }
+#smsTemplatePage .data-table th:nth-child(3) { width: 12%; }
+#smsTemplatePage .data-table th:nth-child(4) { width: 30%; }
+#smsTemplatePage .data-table th:nth-child(5) { width: 9%; }
+#smsTemplatePage .data-table th:nth-child(6) { width: 115px; }
+#smsTemplatePage .data-table th:nth-child(7) { width: 190px; }
+#smsTemplatePage .sms-content-snippet { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #475569; }
+#smsTemplatePage .sms-create-time { color: #64748b; white-space: nowrap; }
+#smsTemplatePage .sms-template-actions { gap: 3px; }
+#smsTemplatePage .sms-action { padding: 5px 6px; border: 0; border-radius: 4px; background: transparent; color: #1d4ed8; font: inherit; font-weight: 600; cursor: pointer; }
+#smsTemplatePage .sms-action:hover, #smsTemplatePage .sms-action:focus-visible { background: #eff6ff; outline: none; }
+#smsTemplatePage .sms-action-danger { color: #dc2626; }
+#smsTemplatePage .sms-action-danger:hover, #smsTemplatePage .sms-action-danger:focus-visible { background: #fef2f2; }
+#smsTemplatePage .sms-empty { padding: 48px 16px; text-align: center; color: #94a3b8; }
+#smsTemplatePage .sms-list-footer { padding: 12px 20px; border-top: 1px solid #e8eef7; color: #64748b; font-size: 12px; }
+@media (max-width: 900px) { #smsTemplatePage .sms-filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { #smsTemplatePage .page-hero { flex-direction: column; } #smsTemplatePage .sms-filter-grid { grid-template-columns: 1fr; } #smsTemplatePage .sms-filter-actions { justify-content: flex-end; } }

@@ -1,0 +1,42 @@
+/* 总部培育报表：沿用平台卡片、筛选、按钮与表格的统一尺度。 */
+#opsHqNurtureReportPage .hq-nurture-report { color:#334155; }
+#opsHqNurtureReportPage .hq-nurture-report .mw-sub-tabs { gap:4px!important; padding-bottom:0!important; margin-bottom:16px!important; }
+#opsHqNurtureReportPage .hq-nurture-report .mw-sub-tabs .btn-sub-tab { background:transparent!important; color:#475569!important; border:0!important; border-radius:6px 6px 0 0!important; padding:10px 16px!important; font-size:13px!important; position:relative; }
+#opsHqNurtureReportPage .hq-nurture-report .mw-sub-tabs .btn-sub-tab:hover { color:#1d4ed8!important; background:#f1f5f9!important; }
+#opsHqNurtureReportPage .hq-nurture-report .mw-sub-tabs .btn-sub-tab.active { color:#1d4ed8!important; background:#eff6ff!important; }
+#opsHqNurtureReportPage .hq-nurture-report .mw-sub-tabs .btn-sub-tab.active:after { content:""; position:absolute; left:12px; right:12px; bottom:0; height:2px; background:#2563eb; border-radius:2px; }
+#opsHqNurtureReportPage .hq-nurture-report .mw-report-filter-card,
+#opsHqNurtureReportPage .hq-nurture-report .mw-report-table-card { border:1px solid #e2e8f0!important; border-radius:8px!important; box-shadow:0 2px 8px rgba(15,23,42,.035)!important; }
+#opsHqNurtureReportPage .hq-nurture-report .mw-report-filter-card { padding:18px 20px!important; }
+#opsHqNurtureReportPage .hq-nurture-report .mw-report-table-card { padding:0!important; overflow:hidden; }
+#opsHqNurtureReportPage .hq-nurture-report .mw-report-table-card > div:first-child:not([style*="overflow-x"]) { padding:16px 20px 12px; margin:0!important; border-bottom:1px solid #e8eef7; }
+#opsHqNurtureReportPage .hq-nurture-report .mw-report-table-card > div[style*="overflow-x"] { overflow-x:auto!important; }
+#opsHqNurtureReportPage .hq-nurture-report .hq-list-toolbar { display:flex; align-items:center; justify-content:flex-end; flex-wrap:wrap; gap:8px; }
+#opsHqNurtureReportPage .hq-nurture-report .hq-list-count { margin-right:8px; color:#94a3b8; font-size:12px; }
+#opsHqNurtureReportPage .hq-nurture-report .hq-list-toolbar button { height:34px; padding:0 13px; border:1px solid #d5deea; border-radius:6px; background:#fff; color:#334155; font-size:13px; cursor:pointer; }
+#opsHqNurtureReportPage .hq-nurture-report .hq-list-toolbar button:hover { border-color:#2563eb; color:#1d4ed8; background:#eff6ff; }
+#opsHqNurtureReportPage .hq-nurture-report .hq-filter-title { margin-bottom:12px; color:#1f2937; font-size:15px; font-weight:700; }
+#opsHqNurtureReportPage .hq-nurture-report .hq-filter-bottom { margin-top:14px; padding-top:12px; border-top:1px solid #e8eef7; }
+#opsHqNurtureReportPage .hq-nurture-report .hq-filter-expand { padding:0; border:0; background:transparent; color:#2563eb; font-size:13px; font-weight:600; cursor:pointer; }
+#opsHqNurtureReportPage .hq-nurture-report .hq-filter-expand span span { margin-left:5px; color:#64748b; font-size:12px; }
+#opsHqNurtureReportPage .hq-nurture-report .hq-filter-layout { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:16px; align-items:start; }
+#opsHqNurtureReportPage .hq-nurture-report .hq-filter-grid:not(.is-expanded) > :nth-child(n+6) { display:none!important; }
+#opsHqNurtureReportPage .hq-nurture-report .hq-filter-grid label { color:#475569!important; font-size:12px!important; font-weight:600!important; }
+#opsHqNurtureReportPage .hq-nurture-report .hq-filter-grid .form-input { min-height:34px!important; height:34px!important; width:100%; border:1px solid #d5deea!important; border-radius:6px!important; background-color:#fff!important; color:#334155!important; font-size:13px!important; }
+#opsHqNurtureReportPage .hq-nurture-report .hq-filter-grid .form-input:focus { border-color:#2563eb!important; outline:2px solid #bfdbfe!important; outline-offset:0; }
+#opsHqNurtureReportPage .hq-nurture-report .hq-filter-actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-top:24px; white-space:nowrap; }
+#opsHqNurtureReportPage .hq-nurture-report .hq-filter-actions button { height:34px!important; min-width:68px; padding:0 14px!important; border:1px solid #d5deea!important; border-radius:6px!important; background:#fff!important; color:#334155!important; font-size:13px!important; font-weight:500!important; cursor:pointer; }
+#opsHqNurtureReportPage .hq-nurture-report .hq-filter-actions button:first-child { border-color:#2563eb!important; background:#2563eb!important; color:#fff!important; }
+#opsHqNurtureReportPage .hq-nurture-report .hq-filter-actions button:hover { border-color:#2563eb!important; color:#1d4ed8!important; background:#eff6ff!important; }
+#opsHqNurtureReportPage .hq-nurture-report .hq-filter-actions button:first-child:hover { color:#fff!important; background:#1d4ed8!important; }
+#opsHqNurtureReportPage .hq-nurture-report .mw-report-summary > div { border:1px solid #e2e8f0!important; border-radius:8px!important; box-shadow:none!important; }
+#opsHqNurtureReportPage .hq-nurture-report .hq-summary-note { margin:0 0 10px; color:#94a3b8; font-size:12px; line-height:1.5; }
+#opsHqNurtureReportPage .hq-nurture-report .mw-report-table { min-width:max-content; font-size:13px!important; }
+#opsHqNurtureReportPage .hq-nurture-report .mw-report-table th { background:#f1f4fa!important; color:#475569!important; border-bottom:1px solid #dfe6f1!important; white-space:nowrap; font-size:12px!important; font-weight:600!important; }
+#opsHqNurtureReportPage .hq-nurture-report .mw-report-table td { border-bottom:1px solid #edf1f7!important; color:#334155; white-space:nowrap; }
+#opsHqNurtureReportPage .hq-nurture-report .mw-report-table tbody tr:hover td { background:#f8fbff!important; }
+#opsHqNurtureReportPage .hq-nurture-report .mw-report-table .hq-filter-empty td { padding:28px 16px!important; text-align:center; color:#94a3b8!important; background:#fff!important; }
+#opsHqNurtureReportPage .hq-nurture-report .pagination { border-top:1px solid #e8eef7; margin:0; }
+@media(max-width:1450px) { #opsHqNurtureReportPage .hq-nurture-report .hq-filter-layout { grid-template-columns:1fr; } #opsHqNurtureReportPage .hq-nurture-report .hq-filter-actions { margin-top:0; } }
+@media(max-width:1100px) { #opsHqNurtureReportPage .hq-nurture-report .hq-filter-grid { grid-template-columns:repeat(2,minmax(0,1fr))!important; } #opsHqNurtureReportPage .hq-nurture-report .mw-report-summary { grid-template-columns:repeat(2,minmax(0,1fr))!important; } }
+@media(max-width:680px) { #opsHqNurtureReportPage .hq-nurture-report .hq-filter-grid { grid-template-columns:1fr!important; } #opsHqNurtureReportPage .hq-nurture-report .hq-filter-actions { flex-wrap:wrap; } #opsHqNurtureReportPage .hq-nurture-report .mw-report-summary { grid-template-columns:1fr!important; } }
