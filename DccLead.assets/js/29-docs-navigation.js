@@ -5,7 +5,7 @@
   if (document.getElementById('dccDocsHeader')) return;
   const tabs = [
     ['prototype', '产品原型', './DccLead.html'],
-    ['requirements', '需求说明', 'DccLead.assets/docs/需求说明/index.html?v=20261102-acceptance'],
+    ['requirements', '需求说明', 'DccLead.assets/docs/需求说明/index.html?v=20261103-prototype-entry'],
     ['blueprint', '系统蓝图', 'DccLead.assets/docs/核心文档/DccLead_系统蓝图.html?v=20261026-v29-integrated'],
     ['manual', '功能文档', 'DccLead.assets/docs/核心文档/DccLead_功能文档.html?v=20261102-acceptance'],
     ['interaction', '页面交互图', 'DccLead.assets/docs/核心文档/DccLead_交互流程图.html?v=20261026-v29-integrated'],
