@@ -11,10 +11,8 @@
     ['interaction', '页面交互图', 'DccLead.assets/docs/核心文档/DccLead_交互流程图.html?v=20261026-v29-integrated'],
     ['sequence', '业务流程图', 'DccLead.assets/docs/核心文档/DccLead_业务流程图.html?v=20261102-confirmed-closeout'],
     ['features', '功能点清单', 'DccLead.assets/docs/核心文档/DccLead_功能清单.html?v=20261030-v30'],
-    ['versions', '版本号日志', 'DccLead.assets/docs/核心文档/DccLead_版本日志.html?v=20261030-v30'],
-    ['logic', '逻辑流程图', '']
+    ['versions', '版本号日志', 'DccLead.assets/docs/核心文档/DccLead_版本日志.html?v=20261030-v30']
   ];
-  const logicUrl = 'https://www.processon.com/f/6a3100099b73415e9e4ecd14#%E4%B8%89%E6%97%A0%E5%BF%A7%E5%86%B7%E7%BA%BF%E7%B4%A2%E5%90%8C%E6%AD%A5DCC%E5%9F%B9%E8%82%B2';
   const header = document.createElement('header');
   header.id = 'dccDocsHeader';
   header.className = 'dcc-docs-header';
@@ -25,11 +23,6 @@
   view.className = 'dcc-docs-view';
   view.hidden = true;
   view.setAttribute('aria-label', '文档内容');
-  const logic = document.createElement('div');
-  logic.className = 'dcc-docs-logic';
-  logic.hidden = true;
-  logic.innerHTML = `<h2>三无忧</h2><a href="${logicUrl}" target="_blank" rel="noopener">三无忧冷线索同步DCC培育<small>ProcessOn · 逻辑流程图 ↗</small></a>`;
-  view.append(logic);
   document.body.prepend(header, view);
   document.body.classList.add('dcc-docs-ready');
   const resize = () => document.documentElement.style.setProperty('--dcc-docs-header-height', `${header.getBoundingClientRect().height}px`);
@@ -50,15 +43,11 @@
     view.hidden = key === 'prototype';
     document.body.classList.toggle('dcc-docs-viewing', key !== 'prototype');
     frames.forEach(frame => { frame.hidden = true; });
-    logic.hidden = key !== 'logic';
     const refresh = header.querySelector('.dcc-docs-refresh');
-    refresh.disabled = key === 'logic';
-    refresh.title = key === 'logic' ? '逻辑流程图为内置链接，无需刷新' : '重新加载当前内容';
-    header.querySelector('#dccDocsNewWindow').href = key === 'logic'
-      ? logicUrl
-      : (key === 'prototype' ? './DccLead.html?standalone=1' : path);
+    refresh.disabled = false;
+    refresh.title = '重新加载当前内容';
+    header.querySelector('#dccDocsNewWindow').href = key === 'prototype' ? './DccLead.html?standalone=1' : path;
     if (key === 'prototype') { window.scrollTo(0, prototypeScroll); return; }
-    if (key === 'logic') return;
     if (!frames.has(key)) {
       const frame = document.createElement('iframe');
       frame.className = 'dcc-docs-frame';
@@ -82,7 +71,6 @@
   });
   header.querySelector('.dcc-docs-refresh').addEventListener('click', () => {
     if (current === 'prototype') { location.reload(); return; }
-    if (current === 'logic') { select('logic'); return; }
     const url = new URL(tabs.find(tab => tab[0] === current)[2], location.href);
     url.searchParams.set('_refresh', Date.now());
     frames.get(current).src = url.href;
