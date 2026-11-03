@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>DCC培育 · 需求说明</title>
+  <style>
+    :root{--bg:#faf8ff;--line:#e2e8f0;--text:#182230;--muted:#64748b;--blue:#003594}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.7 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}main{max-width:1680px;margin:auto;padding:20px 24px 60px}.hero{padding:26px 30px;border-radius:10px;background:linear-gradient(120deg,#003594,#2246ad);color:#fff}.hero h1{margin:0 0 8px;font-size:25px}.hero p{margin:0;color:#dbeafe}.panel{margin-top:18px;background:#fff;border:1px solid var(--line);border-radius:9px;overflow:hidden}.search{padding:18px 22px}.search label{display:block;margin-bottom:7px;color:#475569;font-size:12px;font-weight:600}.search-row{display:flex;gap:8px;max-width:580px}input{flex:1;min-width:0;height:36px;padding:0 12px;border:1px solid #cbd5e1;border-radius:6px;font:inherit;font-size:13px}button{height:36px;padding:0 16px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#334155;font:inherit;font-size:13px;cursor:pointer}input:focus,button:focus-visible,a:focus-visible{outline:2px solid #bfdbfe;outline-offset:2px}.list-head{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--line)}h2{margin:0;font-size:16px}.count{color:var(--muted);font-size:12px}.table-wrap{overflow:auto}table{width:100%;min-width:850px;border-collapse:collapse}th,td{padding:14px 18px;border-bottom:1px solid #edf1f7;vertical-align:top;text-align:left}th{background:#f6f8fc;color:#475569;font-size:12px;font-weight:600}td{font-size:13px}.name{font-weight:600;color:#1e293b}.description{display:block;max-width:560px;margin-top:5px;color:var(--muted);font-size:12px}.status{display:inline-block;padding:2px 8px;background:#ecfdf3;color:#027a48;border-radius:4px;font-size:12px;white-space:nowrap}.technical{display:block;margin-top:5px;color:#9a6700;font-size:12px}.read{display:inline-flex;padding:5px 12px;border:1px solid #bfdbfe;border-radius:5px;background:#eff6ff;color:#175cd3;font-weight:600;text-decoration:none;white-space:nowrap}.read:hover{background:#dbeafe}.empty{text-align:center;padding:32px;color:var(--muted)}[hidden]{display:none!important}.note{margin:16px 0 0;padding:14px 18px;border:1px solid #d5e4fb;border-radius:8px;background:#eff6ff;color:#475569;font-size:13px}.note strong{color:#175cd3}.footer{padding:14px 22px;color:var(--muted);font-size:12px}a{color:#175cd3}@media(max-width:700px){main{padding:16px}.hero{padding:22px}.hero h1{font-size:22px}.search,.list-head{padding:16px}}
+  </style>
+</head>
+<body>
+  <main>
+    <header class="hero"><h1>DCC培育 · 需求说明</h1><p>集中阅读业务诉求、已确认规则、操作流程及验收条件，作为产品、研发与测试的评审依据。</p></header>
+    <section class="panel search" aria-label="搜索需求"><label for="requirementSearch">需求名称／业务模块</label><div class="search-row"><input id="requirementSearch" type="search" placeholder="搜索需求名称或业务模块" autocomplete="off"><button id="requirementReset" type="button">重置</button></div></section>
+    <section class="panel" aria-labelledby="listTitle">
+      <div class="list-head"><h2 id="listTitle">需求目录</h2><span class="count" id="requirementCount" role="status" aria-live="polite">共 1 份需求说明</span></div>
+      <div class="table-wrap"><table><thead><tr><th style="width:45%">需求名称</th><th>业务模块</th><th>确认状态</th><th>更新时间</th><th>阅读入口</th></tr></thead><tbody>
+        <tr data-requirement><td><span class="name">预评分驱动的线索状态转换</span><span class="description">v3.0 · 六类入口共用低分区间与转换动作，覆盖人工确认、后台逐条处理、配置保存确认及记录追溯。</span></td><td>培育策略／培育任务／统计报表</td><td><span class="status">业务规则已确认</span><span class="technical">技术事项待核对</span></td><td><time datetime="2026-10-30">2026-10-30</time></td><td><a class="read" href="无人接收下发场景_线索状态转换_需求说明.html?v=20261030-v30">阅读需求 →</a></td></tr>
+        <tr id="requirementEmpty" hidden><td colspan="5" class="empty">没有找到相关需求，请更换关键词。</td></tr>
+      </tbody></table></div>
+      <div class="footer">业务确认表示需求口径已整理明确；技术事项、原型实现与接口联调状态请以文档中的具体记录为准。</div>
+    </section>
+    <aside class="note"><strong>阅读顺序：</strong>先看需求的目标与业务规则，再结合产品原型核对交互；开发和测试重点阅读字段映射、失败反馈、实现边界及验收场景。功能落地后，现行规则合入功能文档，版本日志保留变更及追溯入口。</aside>
+  </main>
+  <script>
+    (() => {
+      'use strict';
+      const search = document.getElementById('requirementSearch');
+      const rows = Array.from(document.querySelectorAll('[data-requirement]'));
+      function update() {
+        const keyword = search.value.trim().toLocaleLowerCase();
+        let count = 0;
+        rows.forEach(row => {
+          const text = `${row.cells[0].textContent} ${row.cells[1].textContent}`.toLocaleLowerCase();
+          row.hidden = !text.includes(keyword);
+          if (!row.hidden) count += 1;
+        });
+        document.getElementById('requirementCount').textContent = `共 ${count} 份需求说明`;
+        document.getElementById('requirementEmpty').hidden = count !== 0;
+      }
+      search.addEventListener('input', update);
+      document.getElementById('requirementReset').addEventListener('click', () => { search.value = ''; update(); search.focus(); });
+    })();
+  </script>
+</body>
+</html>
