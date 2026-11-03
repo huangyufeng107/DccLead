@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DCC培育 · SaaS平台 - 业务流程图</title>
+<style>
+:root{--bg:#f8fafc;--panel:#fff;--text:#172033;--muted:#52627a;--line:#dbe3ef;--blue:#2463d4;--green:#15803d;--red:#b91c1c;--amber:#a85c00;--blue-bg:#eff6ff;--shadow:0 2px 8px rgba(15,23,42,.05);--radius:10px}
+*{box-sizing:border-box}html{scroll-behavior:auto}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.65 Inter,-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}.page{max-width:1680px;margin:auto;padding:20px 24px 60px}.hero{padding:26px 30px;margin-bottom:18px;border-radius:var(--radius);color:#fff;background:linear-gradient(135deg,#00174b 0%,#003594 52%,#1557be 100%);box-shadow:var(--shadow)}.hero .eyebrow{font-size:12px;font-weight:750;letter-spacing:.08em;color:#dce8ff}.hero h1{font-size:26px;line-height:1.35;margin:6px 0}.hero p{max-width:1120px;margin:0;color:#e4ecfb}.layout{display:grid;grid-template-columns:264px minmax(0,1fr) 210px;gap:16px;align-items:start}.sidebar,.outline,.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}.sidebar,.outline{position:sticky;top:16px;padding:14px;max-height:calc(100vh - 32px);overflow:auto}.sidebar h2,.outline h2{font-size:14px;margin:0 0 9px;padding-bottom:9px;border-bottom:1px solid var(--line)}.sidebar .subtle{margin:0 0 11px;color:#64748b;font-size:11px}.scene-nav,.outline-nav{display:grid;gap:6px}.scene-link{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;padding:9px;border:1px solid #e2e8f0;border-radius:7px;color:#334155;text-decoration:none;font-size:12px}.scene-link:hover,.scene-link.active{border-color:#93b4ff;background:var(--blue-bg);color:var(--blue)}.nav-code{grid-row:1/3;color:#64748b;font-size:10px;font-weight:750}.scene-name{font-weight:700}.scene-state{font-size:10px;color:#64748b}.scene-link.active .scene-state{color:var(--blue)}.nav-hint{margin:12px 0 0;padding-top:10px;border-top:1px solid var(--line);color:#64748b;font-size:11px}.outline-subtitle{margin:-3px 0 9px;color:#64748b;font-size:11px}.outline-nav a{padding:7px 8px;border-left:2px solid transparent;border-radius:4px;color:#52627a;text-decoration:none;font-size:12px}.outline-nav a:hover,.outline-nav a.active{background:#f1f5f9;border-left-color:#64748b;color:#0f172a;font-weight:650}.scene-content[hidden],.scene-outline[hidden]{display:none!important}.main{min-width:0}.card{padding:21px 23px;margin-bottom:15px;scroll-margin-top:14px}.card h2{margin:0 0 10px;padding-bottom:10px;border-bottom:1px solid #e2e8f0;font-size:18px}.lead{margin:0;color:var(--muted)}.chips,.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.chip{padding:3px 9px;border:1px solid #e2e8f0;border-radius:999px;background:#f8fafc;color:#475569;font-size:11px}.chip.review{background:#fff7ed;border-color:#fed7aa;color:#9a3412;font-weight:650}.section-note{margin-top:10px;padding:11px 13px;border:1px solid #e2e8f0;border-radius:7px;background:#f8fafc;color:#475569;font-size:12px;line-height:1.7}.section-note strong{color:#172033}.legend{gap:16px;margin:12px 0;color:#52627a;font-size:11px}.legend span{display:inline-flex;align-items:center;gap:6px}.key{width:20px;height:3px;border-radius:4px;background:var(--blue)}.key.response{background:var(--green)}.key.reject{background:var(--red)}.key.note{height:10px;background:#f59e0b}.diagram-wrap{overflow:auto;border:1px solid #e2e8f0;border-radius:8px;background:#fff;padding:18px 10px;min-height:240px}.mermaid{display:flex;justify-content:center;min-width:880px;margin:0;font:13px/1.5 "Microsoft YaHei",sans-serif}.mermaid svg{max-width:none!important;height:auto}.footer{margin:14px 3px 0;color:#64748b;font-size:11px;text-align:right}
+@media(max-width:1180px){.layout{grid-template-columns:205px minmax(0,1fr)}.outline{position:static;grid-column:1/-1;max-height:none}.outline-nav{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:760px){.page{padding:12px}.layout{grid-template-columns:1fr}.sidebar,.outline{position:static;max-height:none}.scene-nav{grid-template-columns:repeat(2,minmax(0,1fr))}.outline-nav{grid-template-columns:repeat(3,minmax(0,1fr))}.card{padding:16px}.hero{padding:20px}.hero h1{font-size:22px}}@media(max-width:520px){.scene-nav,.outline-nav{grid-template-columns:1fr}.diagram-wrap{padding:10px 4px}}
+
+/* 页头间距与功能点清单保持一致 */
+.hero { padding: 28px 32px 22px; border-radius: 8px; }
+.hero .eyebrow { display: block; margin-bottom: 6px; }
+.hero h1 { margin: 0; }
+.hero p { max-width: none; margin: 10px 0 0; color: rgba(255,255,255,.88); font-size: 14px; line-height: 1.6; }
+@media (max-width: 760px) { .hero { padding: 20px 16px 18px; } }
+
+/* 六个文档页统一的顶部系统标题规格 */
+.hero h1 { font-family: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; font-size: 26px; font-weight: 700; line-height: 1.3; letter-spacing: 0.5px; color: #fff; }
+@media (max-width: 768px) { .hero h1 { font-size: 20px; } }
+.side-heading { display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:9px; padding-bottom:9px; border-bottom:1px solid var(--line); }
+.side-heading h2 { display:flex; align-items:center; gap:6px; margin:0; padding:0; border:0; }
+.side-count { padding:1px 6px; border-radius:999px; background:#e8f0ff; color:#003594; font-size:10px; font-weight:700; white-space:nowrap; }
+.side-toggle { padding:2px 6px; border:1px solid #cbd5e1; border-radius:4px; background:#fff; color:#64748b; font-family:inherit; font-size:11px; cursor:pointer; white-space:nowrap; }
+.side-toggle:hover { color:#003594; border-color:#003594; }
+.sidebar .subtle { display:none; }
+.layout.left-collapsed { grid-template-columns:minmax(0,1fr) 210px; }
+.layout.right-collapsed { grid-template-columns:264px minmax(0,1fr); }
+.layout.left-collapsed.right-collapsed { grid-template-columns:minmax(0,1fr); }
+.layout.left-collapsed .sidebar,.layout.right-collapsed .outline { display:none; }
+.side-reopen { display:none; position:fixed; top:80px; z-index:10; padding:7px 12px; border:1px solid #003594; border-radius:18px; background:#fff; color:#003594; box-shadow:0 4px 16px rgba(0,23,75,.18); cursor:pointer; }
+.side-reopen.left { left:16px; }.side-reopen.right { right:16px; }
+.layout.left-collapsed ~ .side-reopen.left,.layout.right-collapsed ~ .side-reopen.right { display:block; }
+@media(max-width:1180px){.layout.left-collapsed,.layout.right-collapsed{grid-template-columns:minmax(0,1fr)}.layout.right-collapsed:not(.left-collapsed){grid-template-columns:205px minmax(0,1fr)}}
+@media(max-width:760px){.layout.left-collapsed,.layout.right-collapsed,.layout.left-collapsed.right-collapsed{grid-template-columns:1fr}}
+.flow7-rules table{width:100%;border-collapse:collapse;font-size:12px}.flow7-rules th,.flow7-rules td{padding:12px;border:1px solid #dbe3ef;text-align:left;vertical-align:top}.flow7-rules th{background:#eff6ff}.flow7-rules th:first-child{width:16%}
+
+/* 与 D客连文档统一的顶部标题卡片 */
+.dcc-unified-hero {
+  box-sizing: border-box !important;
+  min-height: 136px !important;
+  padding: 32px 36px !important;
+  margin-bottom: 18px !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, #003594 0%, #1e40af 100%) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 53, 148, .2) !important;
+  color: #fff !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+.dcc-unified-hero h1 {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  letter-spacing: 0 !important;
+  color: #fff !important;
+  margin: 0 0 10px !important;
+}
+.dcc-unified-hero .doc-subtitle, .dcc-unified-hero > p:not(.doc-subtitle) {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.6 !important;
+  color: rgba(255,255,255,.9) !important;
+  opacity: 1 !important;
+  margin: 0 !important;
+  max-width: none !important;
+}
+@media (max-width: 768px) {
+  .dcc-unified-hero { min-height: 0 !important; padding: 24px 22px !important; }
+  .dcc-unified-hero h1 { font-size: 20px !important; }
+  .dcc-unified-hero .doc-subtitle, .dcc-unified-hero > p:not(.doc-subtitle) { font-size: 13px !important; }
+}
+
+/* 文档左侧栏的统一收起按钮 */
+.sidebar-collapse-unified {
+  box-sizing: border-box;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  border: 1px solid #c3c6d6;
+  border-radius: 5px;
+  background: #fff;
+  color: #63748b;
+  padding: 3px 6px;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.sidebar-collapse-unified:hover {
+  color: #003594;
+  border-color: #9db8f3;
+  background: #f5f8ff;
+}
+</style>
+</head>
+<body>
+<div class="page">
+<header class="hero dcc-unified-hero"><h1>DCC培育 · 业务流程图</h1><p>以业务场景为索引，呈现 DCC 培育平台各项业务流程中的关键判断、处理路径与结果，帮助产品、业务和研发快速理解并核对业务规则。</p></header>
+<div class="layout">
+<aside class="sidebar"><div class="side-heading"><h2>业务场景 <span class="side-count" id="scene-count"></span></h2><button class="sidebar-collapse-unified side-toggle" type="button" id="hide-scenes">收起侧栏</button></div><nav class="scene-nav" aria-label="业务场景"><a class="scene-link active" href="#FLOW-002-overview" data-scene-link="FLOW-002" aria-current="page"><span class="nav-code">FLOW-002</span><span class="scene-name">AI 智能外呼与结果处理</span><span class="scene-state">业务主链路</span></a>
+<a class="scene-link" href="#FLOW-003-overview" data-scene-link="FLOW-003" aria-current="false"><span class="nav-code">FLOW-003</span><span class="scene-name">人工外呼与跟进记录</span><span class="scene-state">坐席处理流程</span></a>
+<a class="scene-link" href="#FLOW-004-overview" data-scene-link="FLOW-004" aria-current="false"><span class="nav-code">FLOW-004</span><span class="scene-name">AI试驾排程工单生成</span><span class="scene-state">预约转化流程</span></a>
+<a class="scene-link" href="#FLOW-005-overview" data-scene-link="FLOW-005" aria-current="false"><span class="nav-code">FLOW-005</span><span class="scene-name">AI外呼滞留队列与处理时段</span><span class="scene-state">队列时段控制</span></a>
+<a class="scene-link" href="#FLOW-007-overview" data-scene-link="FLOW-007" aria-current="false"><span class="nav-code">FLOW-007</span><span class="scene-name">AI 策略建议、审核与发布</span><span class="scene-state">策略版本流程</span></a>
+<a class="scene-link" href="#FLOW-008-overview" data-scene-link="FLOW-008" aria-current="false"><span class="nav-code">FLOW-008</span><span class="scene-name">预测外呼话单生成回访工单</span><span class="scene-state">规则映射流程</span></a><a class="scene-link" href="#FLOW-009-overview" data-scene-link="FLOW-009" aria-current="false"><span class="nav-code">FLOW-009</span><span class="scene-name">预评分转换判定与处理</span><span class="scene-state">全局转换流程</span></a></nav><p class="nav-hint">左侧切换业务场景；右侧目录定位场景内容。</p></aside>
+<main class="main"><div class="scene-content" data-scene-content="FLOW-002">
+  <section class="card" id="FLOW-002-overview">
+    <h2>场景说明</h2><p class="lead">AI外呼结果返回后，依据通话状态配置、外呼重推配置和线索下发配置分别判断后续动作。具体匹配条件以各配置为准，不固定用某个意向等级决定转人工。</p>
+    <div class="chips"><span class="chip">流程编号：FLOW-002</span><span class="chip">关键判断：通话状态配置、优先转换、重推与下发配置</span><span class="chip">业务范围：结果回传 → 配置匹配 → 转换与原动作 → 后续配置处理</span><span class="chip review">状态：已按现有页面核对，业务边界见下文</span></div>
+    <div class="section-note"><strong>阅读约定：</strong>蓝色表示处理步骤，绿色表示通过或正常结果，红色表示拒绝或未通过，橙色表示人工处理、提醒或需要关注；菱形表示业务判断。流程图表达业务规则，不表示系统服务拆分或技术调用顺序。</div>
+  </section>
+  <article class="card" id="FLOW-002-flow">
+    <h2>FLOW-002 · AI 智能外呼与结果处理</h2>
+    <p class="lead">按现有页面和配置展示主干；未确认的业务分支不预设执行结果。</p>
+    <div class="legend"><span><i class="key"></i>处理路径</span><span><i class="key response"></i>通过 / 正常结果</span><span><i class="key reject"></i>拒绝 / 未通过</span><span><i class="key note"></i>提醒 / 人工处理</span></div>
+    <div class="diagram-wrap"><pre class="mermaid">flowchart TB
+ A([AI外呼结果返回]) --> B[关联当前线索与任务，读取返回结果]
+ B --> C[匹配通话状态配置]
+ C --> D{本地规则命中且开启优先预评分转换?}
+ D -->|是| CV[按 FLOW-009 判断，命中转换用统一字段，未转换用原动作]
+ D -->|否| E[按命中配置的原动作处理]
+ CV --> F[依据外呼重推与线索下发配置判断后续动作]
+ E --> F
+ F --> G([记录本次处理结果，按实际命中配置继续])
+ class A,B,C,CV,E,F main; class D decision; class G ok;
+ classDef main fill:#eff6ff,stroke:#2563eb,color:#172033,stroke-width:2px;
+ classDef ok fill:#f0fdf4,stroke:#22c55e,color:#14532d;
+ classDef decision fill:#fff,stroke:#64748b,color:#172033,stroke-width:2px;
+ classDef warn fill:#fffbeb,stroke:#f59e0b,color:#92400e;
+</pre></div>
+  </article>
+  <section class="card" id="FLOW-002-decisions">
+    <h2>现有页面依据与待核对边界</h2><div class="section-note"><strong>页面依据：</strong>AI外呼配置下的通话状态配置、外呼重推配置、线索下发配置。三项是配置能力，图中连线不代替服务端真实执行顺序。</div><div class="section-note"><strong>已确认转换：</strong>通话状态配置本地命中且选择优先转换时直接判断共享低分区间，不额外要求回访结果；未转换执行原动作。<a href="#FLOW-009-flow">查看统一转换流程 →</a></div><div class="section-note"><strong>待联调：</strong>回传字段、三类配置的调用顺序及任务状态写入需核对服务链路；未确认固定A/B级转人工规则。</div></section>
+</div>
+<div class="scene-content" data-scene-content="FLOW-003" hidden>
+  <section class="card" id="FLOW-003-overview">
+    <h2>场景说明</h2><p class="lead">坐席在「培育任务 → 我的任务」选择客户，在原三栏工作台填写回访工单并通过工具栏拨号。打开时查分；选择无人接听下发时提示但不覆盖，提交时复核，命中后由坐席确认字段覆盖再保存。</p>
+    <div class="chips"><span class="chip">流程编号：FLOW-003</span><span class="chip">关键判断：选客查分、选择提示、暂存或提交、字段校验、覆盖确认</span><span class="chip">业务范围：选客填单 → 选择提示 → 暂存或提交 → 评分复核 → 保存反馈</span><span class="chip review">状态：已按现有页面核对，业务边界见下文</span></div>
+    <div class="section-note"><strong>阅读约定：</strong>蓝色表示处理步骤，绿色表示通过或正常结果，红色表示拒绝或未通过，橙色表示人工处理、提醒或需要关注；菱形表示业务判断。流程图表达业务规则，不表示系统服务拆分或技术调用顺序。</div>
+  </section>
+  <article class="card" id="FLOW-003-flow">
+    <h2>FLOW-003 · 人工外呼与跟进记录</h2>
+    <p class="lead">按现有页面和配置展示主干；未确认的业务分支不预设执行结果。</p>
+    <div class="legend"><span><i class="key"></i>处理路径</span><span><i class="key response"></i>通过 / 正常结果</span><span><i class="key reject"></i>拒绝 / 未通过</span><span><i class="key note"></i>提醒 / 人工处理</span></div>
+    <div class="diagram-wrap"><pre class="mermaid">flowchart TB
+ A([在我的任务选择客户]) --> B[打开回访工单并查询本次预评分，不阻塞填写或拨号]
+ B --> C[填写回访结果及其他工单字段]
+ C --> D{选择无人接听下发且当前评分命中?}
+ D -->|是| E[提示原因，保留全部填写与选择，不自动覆盖]
+ D -->|否| F[继续填写]
+ E --> F
+ F --> G{坐席选择的操作?}
+ G -->|回访暂存| H([沿用现有回访暂存功能])
+ G -->|回访提交| I{原工单必填校验通过?}
+ I -->|否| J[提示补充，保留输入，不自动暂存]
+ J --> C
+ I -->|是| CV[按 FLOW-009 提交复核，命中时确认覆盖，否则沿用原填写]
+ CV --> K([按保存结果反馈，失败保留输入])
+ class A,B,C,E,F,CV main; class D,G,I decision; class J warn; class H,K ok;
+ classDef main fill:#eff6ff,stroke:#2563eb,color:#172033,stroke-width:2px;
+ classDef ok fill:#f0fdf4,stroke:#22c55e,color:#14532d;
+ classDef decision fill:#fff,stroke:#64748b,color:#172033,stroke-width:2px;
+ classDef warn fill:#fffbeb,stroke:#f59e0b,color:#92400e;
+</pre></div>
+  </article>
+  <section class="card" id="FLOW-003-decisions">
+    <h2>现有页面依据与待核对边界</h2><div class="section-note"><strong>页面依据：</strong>培育任务三栏工作台、外呼工具栏、回访暂存与回访提交入口。回访暂存为既有功能，本次保持现状，不新增草稿保存与恢复需求。</div><div class="section-note"><strong>已确认交互：</strong>选择提示后保留全部输入；提交命中时可返回修改或确认覆盖五项字段。<a href="#FLOW-009-manual">查看人工两次校验与覆盖确认 →</a></div><div class="section-note"><strong>边界：</strong>不把必填校验失败当作自动存草稿，不把通话结束当作自动提交。后续任务生成、归属变更与拨号工具状态联动须按已有规则及真实服务核对。</div></section>
+</div>
+<div class="scene-content" data-scene-content="FLOW-004" hidden>
+<section class="card" id="FLOW-004-overview"><h2>场景说明</h2><p class="lead">AI外呼返回数据带「试驾排程」标识时，创建试驾排程工单。返回数据一般已带试驾日期；时段无可用空档时，按该日期下最新有空档的时段，或下个工作日最早有空档的时段处理。</p><div class="chips"><span class="chip">流程编号：FLOW-004</span><span class="chip">关键判断：试驾排程标识、可用时段</span><span class="chip">业务范围：AI回传 → 标识判断 → 时段处理 → 建单与同步</span><span class="chip review">状态：标识建单与时段补位规则已确认</span></div></section>
+<article class="card" id="FLOW-004-flow"><h2>FLOW-004 · AI试驾排程工单生成</h2><p class="lead">采集完整率用于观察数据质量，不作为本图新增的建单拦截条件。</p><div class="diagram-wrap"><pre class="mermaid">flowchart TB
+ A([收到AI外呼返回数据]) --> B{带试驾排程标识?}
+ B -->|否| C([沿用其他外呼结果的既有处理])
+ B -->|是| D[读取返回的试驾日期与时段]
+ D --> E{返回时段可用?}
+ E -->|是| F[采用返回时段]
+ E -->|否| G[采用该日期下最新有空档的时段
+或下个工作日最早有空档的时段]
+ F --> H[创建试驾排程工单]
+ G --> H
+ H --> I[按现有链路同步，分别记录建单与同步结果]
+ I --> J([查看排程工单与同步状态])
+ class A,D,F,G,H,I main; class B,E decision; class C,J ok;
+ classDef main fill:#eff6ff,stroke:#2563eb,color:#172033,stroke-width:2px;
+ classDef ok fill:#f0fdf4,stroke:#22c55e,color:#14532d;
+ classDef decision fill:#fff,stroke:#64748b,color:#172033,stroke-width:2px;
+</pre></div></article>
+<section class="card" id="FLOW-004-decisions"><h2>已确认规则与实施边界</h2><div class="section-note"><strong>已确认：</strong>带「试驾排程」标识就创建排程工单；不再将弱意向、缺项或无份额自动转线索作为此场景的默认分支。返回数据一般包含日期，本次不新增缺日期处置规则。</div><div class="section-note"><strong>时段补位：</strong>保留业务原话「该日期下最新有空档的时段，或者下个工作日最早有空档的时段」。不将“最新”擅自改为“最早”；具体排序、工作日历及两者均无空档时的处理，由既有排程服务契约核对，不擅自转线索或丢弃任务。</div><div class="section-note"><strong>范围：</strong>通知规则沿用现状，本次不新增。建单成功与同步成功分别记录；真实排程与同步接口仍需联调验证。</div></section>
+</div>
+<div class="scene-content" data-scene-content="FLOW-005" hidden>
+<section class="card" id="FLOW-005-overview"><h2>场景说明</h2><p class="lead">对应「培育策略 → AI外呼配置 → 滞留数据配置」。发起 AI 外呼请求时，若通道因并发问题暂不能承接，任务进入滞留队列。此处的「滞留数据处理设置（包含重拨数据）」定义允许处理的星期与时段；非合法时段保持等待，进入合法时段后再按通道可用情况继续处理。</p><div class="chips"><span class="chip">流程编号：FLOW-005</span><span class="chip">关键判断：通道并发可用性、合法处理星期与时段</span><span class="chip">AI外呼请求 → 并发受限入队 → 时段判断 → 通道可用后处理</span><span class="chip review">状态：业务口径已确认；真实队列调度待服务验证</span></div><div class="section-note"><strong>配置含义：</strong>合法处理时间是队列任务允许执行的时间窗口，并不承诺进入时段即全部处理成功。通道仍受并发限制时，任务继续等待。</div></section>
+<article class="card" id="FLOW-005-flow"><h2>FLOW-005 · AI外呼滞留队列与处理时段</h2><p class="lead">下图说明并发受限后的排队与处理时间约束；重拨数据同样受合法处理时段控制，重拨产生条件沿用已有外呼规则。</p><div class="legend"><span><i class="key"></i>处理路径</span><span><i class="key response"></i>允许继续执行</span><span><i class="key note"></i>队列等待</span></div><div class="diagram-wrap"><pre class="mermaid">flowchart TB
+ A([发起AI外呼请求]) --> B{当前AI外呼通道可承接?}
+ B -->|是| C([沿用正常AI外呼流程])
+ B -->|否，因并发受限| D[任务进入滞留队列]
+ D --> E{当前处于配置的合法处理星期与时段?}
+ R([已有规则产生的待重拨数据]) --> E
+ E -->|否| F[保持队列等待，不执行本次处理]
+ F -->|进入合法处理时段| E
+ E -->|是| G{当前通道可用且可承接?}
+ G -->|否| H[继续等待通道可用]
+ H -->|有可用通道时再次核对处理时段| E
+ G -->|是| I([继续处理滞留任务或执行重拨])
+ classDef main fill:#eff6ff,stroke:#2563eb,color:#172033,stroke-width:2px;
+ classDef ok fill:#f0fdf4,stroke:#22c55e,color:#14532d;
+ classDef decision fill:#fff,stroke:#64748b,color:#172033,stroke-width:2px;
+ classDef warn fill:#fffbeb,stroke:#f59e0b,color:#92400e;
+ class A,D,R main; class B,E,G decision; class F,H warn; class C,I ok;</pre></div></article>
+<section class="card" id="FLOW-005-decisions"><h2>已确认规则与实施边界</h2><div class="section-note"><strong>滞留原因：</strong>AI外呼请求因通道并发问题暂时无法执行，任务进入滞留队列。</div><div class="section-note"><strong>时段控制：</strong>「滞留数据处理设置（包含重拨数据）」维护合法处理的星期与时间段；非合法时段不处理，任务继续等待。进入合法时段后仍须满足通道可用条件。</div><div class="section-note"><strong>处理范围：</strong>滞留任务与已有规则产生的重拨数据共用本设置的时间窗口；本设置不新增重拨触发条件。</div><div class="section-note"><strong>实施边界：</strong>图中等待与继续处理表达业务条件，不规定调度轮询频率、队列优先顺序或并发额度。真实排队、通道状态读取及调度恢复须由服务端实现并验证；本次仅修正文档及界面说明。</div></section>
+</div><div class="scene-content" data-scene-content="FLOW-007" hidden>
+<section class="card" id="FLOW-007-overview"><h2>场景说明</h2><p class="lead">普通对象由 Agent 生成建议，系统按接收时生效的来源形成执行方案；运营保留原始建议作对照，可调整最终分配并逐条审核发布。只有收到 DCC 成功回执后才切换生效规则，每次成功发布留存独立正式版本及整套快照。</p><div class="chips"><span class="chip">流程编号：FLOW-007</span><span class="chip">业务范围：对象分流 → 接收建议 → 形成执行方案 → 审核发布 → 版本回滚</span><span class="chip review">状态：业务规则已确认</span></div><div class="section-note"><strong>阅读约定：</strong>主图描述建议如何进入审核；发布与回滚、驳回后重审分别展开，避免混淆“收到建议”“保存执行方案”和“正式生效”。蓝色为处理，绿色为正常结果，红色为阻止或失败，橙色为需人工补齐。图不代表系统服务拆分。</div></section>
+<article class="card" id="FLOW-007-flow"><h2>FLOW-007 · AI 策略建议、审核与发布</h2><p class="lead">① 对象分流、建议接收与执行方案调整。来源使用已保存生效配置，已接收建议保留当时的方案快照。</p><div class="diagram-wrap"><pre class="mermaid">flowchart TB
+  A([准备已结算业务数据]) --> B{命中特殊对象?}
+  B -->|直派名单| C[走直派路径，不进入 Agent 评分审核]
+  B -->|有效低效关联| D[沿用关联策略当前分派动作，不进入 Agent 评分审核]
+  B -->|普通对象或关联已失效| E[Agent 评分并生成建议]
+  E --> F{成功收到新的有效建议?}
+  F -->|否| G[保留旧建议及当前已发布策略]
+  F -->|是| H[记录批次、对象、接收时间及 Agent 原始建议]
+  H --> I[同对象旧未发布建议失效，保留原审核记录；其他对象不受影响]
+  I --> J{接收时生效的执行方案来源?}
+  J -->|默认预设补齐| K[保留人工与 AI 总比例；快照默认预设补齐 AI 分配]
+  J -->|Agent 完整方案| L[采用 Agent 完整分配；不自动读取默认预设]
+  K --> M{执行方案完整有效?}
+  L --> M
+  M -->|否| N[标记待补齐，禁止发布；运营人工调整]
+  N --> O
+  M -->|是| O[进入待审核列表，展示原始建议与最终执行分配]
+  O --> P{运营操作?}
+  P -->|调整方案| Q[调整人工占比及 AI 分配；实时展示最终结果]
+  Q --> R{人工占比为 100%?}
+  R -->|是| S[隐藏 AI 配置，无需填写 AI 部分]
+  R -->|否| T[AI 份额可指定单一类型或按内部比例拆分]
+  S --> U[保存至本条执行方案；Agent 原始建议不变]
+  T --> U
+  U --> O
+  P -->|驳回| V[页面内填写原因并确认；保留驳回记录与当前已发布规则]
+  V --> X([后续重新提交见下方第三部分])
+  P -->|通过并发布| W([进入下方审核发布流程])
+  class A,E,H,I,K,L,O,Q,U main;
+  class B,F,J,M,P,R decision;
+  class C,D,G,S,T ok;
+  class N warn;
+  class V stop;
+  class X main;
+
+  classDef main fill:#eff6ff,stroke:#2563eb,color:#172033,stroke-width:2px;
+  classDef ok fill:#f0fdf4,stroke:#22c55e,color:#14532d;
+  classDef decision fill:#fff,stroke:#64748b,color:#172033,stroke-width:2px;
+  classDef warn fill:#fffbeb,stroke:#f59e0b,color:#92400e;
+  classDef stop fill:#fef2f2,stroke:#ef4444,color:#991b1b;
+</pre></div></article>
+<article class="card" id="FLOW-007-publish"><h2>② 审核发布、版本记录与回滚</h2><p class="lead">逐条审核立即发布；一批建议可以产生多个正式版本，每个版本同时保留本次变更与完整规则快照。</p><div class="diagram-wrap"><pre class="mermaid">flowchart TB
+  A([提交单条或批量通过并发布]) --> B[页面内展示本次每条最终分配并确认；取消不发布]
+  B --> C{有审核权限、未归档、仍为最新有效待审且方案与确认内容一致?}
+  C -->|否| D[阻止提交，提示更新或补齐]
+  C -->|是| E{存在内容完全相同且启用的分配比例配置?}
+  E -->|是| F[复用已有配置，不修改原配置]
+  E -->|否| G[自动创建分配比例配置并记录创建来源]
+  F --> H[关联分配配置，提交 DCC 发布；防止重复提交]
+  G --> H
+  H --> I{收到 DCC 成功回执及规则 ID、版本号?}
+  I -->|失败或结果未确认| J[不切换生效规则，保留原规则；核实结果后重试]
+  I -->|成功| K[本条标记已发布，记录审核人、时间、回执及独立正式版本]
+  K --> L[保存发布后的整套规则快照；其他待审条目继续保留]
+  L --> M{是否需要回滚?}
+  M -->|否| N([仅对后续新线索按生效版本分派])
+  M -->|是| O{回滚入口?}
+  O -->|列表选择回滚| P[自动带入历史版本，默认恢复整套快照]
+  O -->|详情回滚此规则| Q[自动带入历史版本及指定规则，仅恢复该条]
+  P --> R[核对范围、填写原因，统一计算并预览差异]
+  Q --> R
+  R --> S[生成待发布回滚版本；未涉及规则沿用当前配置]
+  S --> T{发布前基准版本及关联配置仍有效?}
+  T -->|否| U[阻止发布，重新读取当前版本并预览差异]
+  U --> R
+  T -->|是| V[确认并提交 DCC；收到成功回执后形成新正式版本]
+  V --> N
+  class A,B,F,G,H,K,L,P,Q,R,S,V main;
+  class C,E,I,M,O,T decision;
+  class N ok;
+  class D,J,U stop;
+
+  classDef main fill:#eff6ff,stroke:#2563eb,color:#172033,stroke-width:2px;
+  classDef ok fill:#f0fdf4,stroke:#22c55e,color:#14532d;
+  classDef decision fill:#fff,stroke:#64748b,color:#172033,stroke-width:2px;
+  classDef warn fill:#fffbeb,stroke:#f59e0b,color:#92400e;
+  classDef stop fill:#fef2f2,stroke:#ef4444,color:#991b1b;
+</pre></div><div class="section-note"><strong>回滚失败处理：</strong>回滚发布同样以 DCC 成功回执为准；失败或结果未确认时保留当前生效版本，核实结果后重试。自动创建与复用配置遵循同一去重规则。</div></article>
+<article class="card" id="FLOW-007-resubmit"><h2>③ 驳回后重新提交、建议替代与归档</h2><p class="lead">被驳回的建议没有发布生效，后续操作称“重新提交审核”。只有恢复已经成功发布的历史规则才使用“版本回滚”。同一对象按规则维度与对应规则对象识别，其他对象的新建议不影响本条。</p><div class="diagram-wrap"><pre class="mermaid">flowchart TB
+  A([查看一条已驳回的建议]) --> B{按业务日期已满六个自然月?}
+  B -->|是| C[显示已归档、只读；可查看原建议和审核记录]
+  C --> D[禁止调整、重审和发布；有更新记录时可查看最新建议]
+  B -->|否| E{同一对象已有更新的有效建议?}
+  E -->|是| F[旧建议显示已失效、原审核已驳回；保留原驳回原因]
+  F --> G[显示最新建议批次；按钮跳转同一批次的对应对象]
+  G --> H([按目标建议的当前状态处理；可审时调整方案再审核])
+  E -->|否| I[显示重新提交审核入口]
+  I --> J[页面内展示原驳回原因；填写重新提交原因]
+  J --> K{确认提交?}
+  K -->|取消或关闭| L([保持已驳回；不改变记录和现行策略])
+  K -->|原因未填| M[显示必填提示，留在弹窗]
+  M --> J
+  K -->|确认且原因已填| N{再次校验未归档、未被替代且仍为已驳回?}
+  N -->|否| O[阻止提交，提示归档、更新或已处理；不恢复旧建议]
+  N -->|是| P[保留原驳回记录，新增本轮提交原因、操作人与时间]
+  P --> Q[恢复待审核；保留 Agent 原始建议、接收时间和执行方案]
+  Q --> R[可调整执行方案；再次通过发布前复核最新状态与最终结果]
+  R --> S([进入第二部分审核发布；DCC 成功前现行策略不变])
+  class A,F,G,I,J,P,Q,R main;
+  class B,E,K,N decision;
+  class C,D,L,O stop;
+  class M warn;
+  class H,S ok;
+  classDef main fill:#eff6ff,stroke:#2563eb,color:#172033,stroke-width:2px;
+  classDef ok fill:#f0fdf4,stroke:#22c55e,color:#14532d;
+  classDef decision fill:#fff,stroke:#64748b,color:#172033,stroke-width:2px;
+  classDef warn fill:#fffbeb,stroke:#f59e0b,color:#92400e;
+  classDef stop fill:#fef2f2,stroke:#ef4444,color:#991b1b;
+</pre></div><div class="section-note"><strong>连续新批次示例：</strong>10月25日建议被驳回，10月26日先收到 <code>REC-20261026-0001</code>，之后又收到 <code>REC-20261026-0002</code>。旧记录的“最新建议批次”和“查看最新建议”都必须指向 <code>REC-20261026-0002</code> 中同一对象。首次被哪个批次替代的历史关系仍保留，不用于充当“最新建议”的提示编号。</div><div class="section-note"><strong>归档示例：</strong>业务日期为2026-04-01的建议于2026-10-01满六个自然月，只读归档。即使没有更新建议，也不能重新提交；可查看历史，有更新建议时可跳转并按其状态处理。归档不删除审核记录，也不撤销已发布策略。</div></article>
+<section class="card flow7-rules" id="FLOW-007-decisions"><h2>已确认业务规则与操作结果</h2><table><thead><tr><th>环节</th><th>操作与判断</th><th>结果与边界</th></tr></thead><tbody><tr><td><strong>执行方案来源切换</strong></td><td>选择卡片只形成未保存修改；点击“保存并生效”并确认后才更新接收模式。取消修改或取消确认均保留原模式。</td><td>仅影响保存后新接收的建议；已有建议及已发布策略保留原来源与快照。Agent 模式页头不显示新增方案，备用预设仅在展开维护区域新增。</td></tr><tr><td><strong>默认预设补齐</strong></td><td>新建议自动快照默认预设，按执行 AI 总占比匹配区间，再拆分 AI 份额。</td><td>人工60%／AI40%，AI 内部一知20%／科大讯飞80%，最终为人工60%＋一知8%＋科大讯飞32%。默认配置后续修改不自动覆盖已有建议。</td></tr><tr><td><strong>Agent 完整方案</strong></td><td>直接采用 Agent 返回的具体外呼类型及最终比例。</td><td>明细缺失、类型不可用或比例不合法时提示人工补齐；不能静默回退默认预设，未补齐不得发布。</td></tr><tr><td><strong>运营调整</strong></td><td>Agent 原始建议只读；运营在“执行分配方案”调整人工占比及 AI 分配，仅保存到当前条目。</td><td>人工比例为0–100整数，AI 自动取余；人工100%不展示或校验 AI 配置。AI100%仍可按比例或不按比例；内部比例合计100%，换算后的全部线索比例合计100%。</td></tr><tr><td><strong>接收与跨日审核</strong></td><td>接收时间是本系统成功接收到该条 Agent 建议的时间，不随修改或审核变化。批次内逐条处理，支持筛选和导出。</td><td>跨日不自动失效；同对象新有效建议成功接收才替代旧未发布建议。数据未结算或生成失败不替代；六个自然月后只读归档。</td></tr><tr><td><strong>驳回后重新提交</strong></td><td>未归档、同对象无更新建议且仍为已驳回时，展示“重新提交审核”。页面内弹窗显示原驳回原因，重新提交原因必填；确认前再次校验，取消或关闭不修改状态。</td><td>保留历次驳回记录，新增每轮提交原因、操作人和时间；恢复待审核，原始建议、接收时间及执行方案不变，可调整方案后审核。重新提交本身不产生正式发布版本。</td></tr><tr><td><strong>替代提示与跳转</strong></td><td>旧未发布建议被同对象新有效建议替代后禁止重审，保留“原审核：已驳回”等历史状态。列表提示与按钮共用同一最新建议目标。</td><td>连续出现0001、0002等批次时，提示与跳转同时更新到最新0002，并定位对应对象；保留首次替代关系。目标已发布、驳回或归档时按其当前状态处理，不能直接恢复旧建议。</td></tr><tr><td><strong>六个月只读归档</strong></td><td>以业务日期增加六个日历月确定归档日，月末无对应日期时取目标月末；到达归档日即只读。批次选项和页面标识“已归档”。</td><td>不允许调整执行方案、重新提交或审核发布；仍可查看原建议、审核记录及最新建议入口。即使无更新建议也不能绕过归档限制。</td></tr><tr><td><strong>审核弹窗与留痕</strong></td><td>单条发布、批量发布、驳回和重审使用页面内弹窗；审核记录使用时间线。发布确认展示每条最终执行结果，原因填写有必填校验。</td><td>提交前复核状态、方案和引用配置；弹窗期间出现新建议、归档或方案变化时阻止旧内容提交。取消不发布、不驳回、不重审；防重复提交并保留每轮记录。</td></tr><tr><td><strong>建议批次与版本号</strong></td><td>原型建议批次统一为REC-业务日期-当日流水号；同日递增、跨日重新计数，已存在的批次和发布引用参与查重。</td><td>重新提交沿用原建议批次，新增审核轮次。建议批次用于定位建议，正式发布版本以DCC成功回执为准；两者不得混用。</td></tr><tr><td><strong>分配配置去重</strong></td><td>按最终分配的依据、条件、外呼类型及比例等实际内容判断等价，仅复用启用配置。</td><td>没有等价配置才自动创建并记录来源、批次及对象；打开弹窗、调整或保存执行方案不创建分配配置。复用保留原配置来源。</td></tr><tr><td><strong>审核与发布</strong></td><td>有权限的人员逐条审核；通过即提交 DCC 发布，每条成功形成一个独立正式版本，同一建议批次可对应多个版本。</td><td>提交前复核最新有效建议、配置和最终分配；重复提交不能重复发布。失败或回执未确认不得显示已发布或切换生效版本，核实回执后重试。</td></tr><tr><td><strong>版本与回滚</strong></td><td>正式版本保存本次变更和发布后的完整快照。列表“选择回滚”默认整套，详情“回滚此规则”仅单条；两种选择方式共用差异预览。</td><td>自动带入版本、范围及规则，不重复手选；也可改选维度范围。发布前复核当前基准版本及低效关联，变化后重新预览。回滚成功形成新版本，不改写历史。</td></tr><tr><td><strong>通知与权限</strong></td><td>通知开关只控制邮件，不控制审核权限、列表操作和发布。</td><td>实时通知针对新增待审；每小时／每日汇总全部有效待审，包含历史遗留。超时从首次通知起计，跨日不重置；处理、失效或归档后停止提醒。</td></tr><tr><td><strong>生效边界</strong></td><td>直派名单命中走直派；低效关联有效时继承当前动作；关联策略停用或删除后回到普通匹配。</td><td>新建议、保存方案和生成回滚草稿均不改变已发布策略。仅 DCC 成功发布后切换；只影响后续新线索，已分派任务不重新分派，并记录命中规则及版本。</td></tr></tbody></table></section>
+</div>
+<div class="scene-content" data-scene-content="FLOW-008" hidden>
+<section class="card" id="FLOW-008-overview"><h2>场景说明</h2><p class="lead">对应「培育策略 → 人工外呼配置 → 回访工单配置」。接收预测外呼返回的话单，根据已启用的工单生成规则判断是否生成回访工单；命中后按配置映射工单字段和指派规则，再执行统一预评分转换判断，校验保存后生成工单。</p><div class="chips"><span class="chip">流程编号：FLOW-008</span><span class="chip">关键判断：系统状态、通话状态、匹配维度、补充条件、权重</span><span class="chip">话单回传 → 规则匹配 → 字段映射 → 工单生成</span><span class="chip review">状态：原型规则与生成链路模拟，真实话单接口待联调</span></div><div class="section-note"><strong>范围：</strong>本流程说明系统如何依据话单自动生成回访工单；坐席打开后填写、提交回访的操作见人工外呼流程。预评分转换仅处理候选字段，不能替代本页的工单生成规则匹配。</div></section>
+<article class="card" id="FLOW-008-flow"><h2>FLOW-008 · 预测外呼话单生成回访工单</h2><p class="lead">先决定是否生成，再决定生成内容。未命中规则不生成本次回访工单，不将“任务已完成”直接等同于配置的“已处理”。</p><div class="legend"><span><i class="key"></i>处理路径</span><span><i class="key response"></i>生成结果</span><span><i class="key note"></i>未命中 / 待核对</span></div><div class="diagram-wrap"><pre class="mermaid">flowchart TB
+ A([预测外呼话单回传]) --> B[关联线索与预测外呼任务，读取话单判定数据]
+ B --> C{关联信息及规则所需状态可用?}
+ C -->|否| X[记录待核对，本次不生成工单]
+ C -->|是| D[读取人工外呼配置中的启用回访工单规则]
+ D --> E{系统状态、通话状态及所配匹配维度命中?}
+ E -->|否| Y[记录未命中，本次不生成工单]
+ E -->|是| F{已配置的时长与返回次数条件均满足?}
+ F -->|否| Y
+ F -->|是，未配置的条件不限制| G[汇总命中规则，按权重由小到大选择]
+ G --> H[按选中规则映射候选工单字段]
+ H --> I[带入下次回访时间、指派坐席规则和描述模板]
+ I --> CV[按 FLOW-009 执行统一预评分转换判断]
+ CV --> J[校验最终工单字段并保存]
+ J --> K{保存成功?}
+ K -->|否| Z[记录失败，未生成成功工单，可核对后重试]
+ K -->|是| L([生成回访工单，记录话单、命中规则及处理结果])
+ classDef main fill:#eff6ff,stroke:#2563eb,color:#172033,stroke-width:2px;
+ classDef ok fill:#f0fdf4,stroke:#22c55e,color:#14532d;
+ classDef decision fill:#fff,stroke:#64748b,color:#172033,stroke-width:2px;
+ classDef warn fill:#fffbeb,stroke:#f59e0b,color:#92400e;
+ class A,B,D,G,H,I,CV,J main; class C,E,F,K decision; class X,Y,Z warn; class L ok;</pre></div></article>
+<section class="card" id="FLOW-008-mapping"><h2>工单生成字段映射</h2><p>映射值读取本次命中的「回访工单配置」，不是固定示例值。话单上的通话状态用于匹配，配置中的接触状态与回访结果用于生成，二者不能直接混用。</p><table><thead><tr><th>配置执行动作</th><th>生成工单内容</th><th>处理说明</th></tr></thead><tbody>
+<tr><td>回访结果</td><td>回访结果</td><td>读取配置选项；为无人接听下发时进入统一转换的结果条件判断。</td></tr>
+<tr><td>接触状态</td><td>接触状态</td><td>按配置映射，不直接将话单通话状态原值写入。</td></tr>
+<tr><td>异常原因</td><td>异常原因</td><td>按配置及已有字段联动校验，不自行推定其他原因。</td></tr>
+<tr><td>意向级别</td><td>意向级别</td><td>读取配置的级别动作；低分转换命中时以统一配置的最终值为准。</td></tr>
+<tr><td>下次回访时间</td><td>下次回访计划</td><td>按所选时间规则计算；涉及的业务时间基准按接口及现有计划规则落实。</td></tr>
+<tr><td>指派坐席规则</td><td>工单归属／指派依据</td><td>如原始归属人或系统默认分配；实际指派成功需服务验证。</td></tr>
+<tr><td>回访描述模板</td><td>回访描述</td><td>按模板及可用话单参数生成描述，不将示例文案视为固定生产内容。</td></tr>
+</tbody></table><div class="section-note"><strong>转换优先级：</strong>本页先产生候选字段；若命中预评分转换，则采用统一配置中的五项最终值，原映射不得再次覆盖。未转换则保留本页映射值，最终校验通过后才保存。</div></section>
+<section class="card" id="FLOW-008-decisions"><h2>生成规则与实施边界</h2><div class="section-note"><strong>匹配规则：</strong>仅启用配置参与。按「预外呼系统状态」「预外呼通话状态」及配置的匹配维度判断；初始线索状态、渠道编码、媒体名称依所选维度和实际配置取值参与。各已配置条件共同成立；同一多选字段命中任一值即可。已处理状态下可配置接通时长、当前批次话单返回次数；留空不限制，配置后缺少对应数据不命中。</div><div class="section-note"><strong>选取与不生成：</strong>命中多条时按权重从小到大优先，不为每条命中配置各生成一张工单。未命中不生成本次工单；保存失败不能显示生成成功。</div><div class="section-note"><strong>接口与重复回传：</strong>系统状态读取配置器对应业务字段，不凭“任务已完成”推断为“已处理”。真实状态映射、同权重取舍、重复话单幂等和实际指派需服务联调确认；原型生成模拟按线索与话单关联防止重复生成，不据此声明生产服务已接入。</div><div class="section-note"><a href="#FLOW-009-flow">查看 FLOW-009 · 预评分转换判定与处理 →</a></div></section>
+</div><div class="scene-content" data-scene-content="FLOW-009" hidden>
+<section class="card" id="FLOW-009-overview"><h2>场景说明</h2><p class="lead">六类入口共用预评分低分区间与五项转换动作，既保留人工选择与确认，又让批量、话单生成和通话状态配置在保存前执行统一判定。</p><div class="chips"><span class="chip">流程编号：FLOW-009</span><span class="chip">配置 → 人工选择提示 → 提交或自动处理 → 保存与同步 → 记录</span><span class="chip review">状态：原型规则与模拟逻辑，真实服务待联调</span></div><div class="section-note"><strong>关键区别：</strong>人工回访、人工／AI批量、预测话单生成须满足回访结果为「无人接听下发」；AI通话状态配置命中且开启优先转换时，直接判断低分，不要求回访结果。天网付费自动下发归入对应人工或AI批量链路。</div></section>
+<article class="card" id="FLOW-009-config"><h2>① 统一配置与保存确认</h2><p class="lead">低分区间默认留空，配置 0–100 整数闭区间。线索状态、异常原因、意向级别需共同核对；不擅自设定固定级别映射。清空区间也需确认，仅保留已保存动作。</p><div class="diagram-wrap"><pre class="mermaid">flowchart TB
+  A([管理员打开预评分转换规则]) --> B[填写低分区间和五项处理值]
+  B --> C[异常原因按线索状态联动，核对意向级别]
+  C --> D{区间、字典适用关系与必填校验通过?}
+  D -->|否| E[提示原因，保留填写内容]
+  E --> B
+  D -->|是| F[展示已保存值与本次保存值对照]
+  F --> G{核对三项关系并确认保存?}
+  G -->|返回修改| B
+  G -->|勾选后确认| H{确认期间配置版本未变化?}
+  H -->|否| E
+  H -->|是| I([保存共享配置，对后续操作生效])
+
+  classDef main fill:#eff6ff,stroke:#2563eb,color:#172033,stroke-width:2px;
+  classDef ok fill:#f0fdf4,stroke:#22c55e,color:#14532d;
+  classDef decision fill:#fff,stroke:#64748b,color:#172033,stroke-width:2px;
+  classDef warn fill:#fffbeb,stroke:#f59e0b,color:#92400e;
+  class A,B,C,F main; class D,G,H decision; class E warn; class I ok;</pre></div></article>
+<article class="card" id="FLOW-009-manual"><h2>② 人工回访：选择提示与提交复核</h2><p class="lead">选择阶段使用当前打开工单时的评分结果提示，始终保留填写；提交时重新查询，以当次判定为准。切换客户或关闭工单后，旧查询不得影响新工单。</p><div class="diagram-wrap"><pre class="mermaid">flowchart TB
+  A([坐席选择客户并打开回访工单]) --> B[异步查询一次当前预评分，不阻塞填写或拨号]
+  B --> C[坐席填写工单，选择回访结果]
+  C --> D{结果为无人接听下发且当前评分命中低分?}
+  D -->|是| E[提示原因，保留当前选项和全部填写，不覆盖]
+  E --> F[关闭提示后继续编辑或保留当前结果]
+  D -->|否或查询尚未返回| F
+  F --> G[点击提交，固定本次配置版本]
+  G --> H[按下方统一判定流程重新查询评分并复核]
+  H --> I{命中低分并需转换?}
+  I -->|否| J[沿用填写值，进入最终校验与保存]
+  I -->|是| K[展示五项字段处理前后值，等待坐席选择]
+  K -->|返回修改| F
+  K -->|按系统规则处理并提交| L[采用确认框展示的五项处理值]
+  L --> J
+
+  classDef main fill:#eff6ff,stroke:#2563eb,color:#172033,stroke-width:2px;
+  classDef ok fill:#f0fdf4,stroke:#22c55e,color:#14532d;
+  classDef decision fill:#fff,stroke:#64748b,color:#172033,stroke-width:2px;
+  classDef warn fill:#fffbeb,stroke:#f59e0b,color:#92400e;
+  class A,B,C,F,G,H,L,J main; class D,I decision; class E,K warn;</pre></div></article>
+<article class="card" id="FLOW-009-flow"><h2>③ 六类入口统一判定、保存与结果记录</h2><p class="lead">批量逐条判断，单条失败不阻断整批；先生成候选字段，再转换并保存，后续原动作不得覆盖已转换字段。</p><div class="diagram-wrap"><pre class="mermaid">flowchart TB
+  A[人工批量或AI批量：逐条读取候选字段] --> D{属于AI通话状态处理入口?}
+  B[人工预览外呼：提交回访工单] --> D
+  C[人工预测外呼：先匹配工单配置并生成候选字段] --> D
+  X[AI话单回传：匹配通话状态配置] --> D
+  V[厂商回流同步：同步前兜底] --> W{本次操作已完成转换?}
+  W -->|是，沿用已保存数据| Q
+  W -->|否| F
+  D -->|是| E{本配置命中且选择优先执行预评分转换规则?}
+  E -->|否| N[沿用该入口原有动作，不进入本次转换]
+  E -->|是，不要求回访结果| G{统一低分区间已配置?}
+  D -->|否| F{本次回访结果为无人接听下发?}
+  F -->|否| N
+  F -->|是| G
+  G -->|否| N
+  G -->|是| H[本次读取有效预评分，不等待无分完成，不轮询]
+  H --> I{评分已取得且落入低分区间?}
+  I -->|无分、异常或未命中| N
+  I -->|是| J{员工手动提交回访工单?}
+  J -->|是| K{坐席确认覆盖五项字段?}
+  K -->|返回修改| R([返回工单，保留填写，本次不保存不同步])
+  K -->|确认| L[采用五项配置转换值，跳过原字段更新动作]
+  J -->|后台批量或自动处理| L
+  L --> M[校验最终数据后保存]
+  N --> M
+  M --> O{最终校验与保存成功?}
+  O -->|否| P[保留处理前数据，记录失败，批量其他条继续]
+  O -->|是| Y[命中转换时登记本次操作的线索转换标记]
+  Y --> Q[按既有流程同步主机厂]
+  Q --> S[分别记录保存和同步结果，写入预评分转换记录]
+  P --> T([保留失败原因，可按既有规则重试])
+  S --> U([完成本次操作，不因之后出分补改或重新同步])
+
+  classDef main fill:#eff6ff,stroke:#2563eb,color:#172033,stroke-width:2px;
+  classDef ok fill:#f0fdf4,stroke:#22c55e,color:#14532d;
+  classDef decision fill:#fff,stroke:#64748b,color:#172033,stroke-width:2px;
+  classDef warn fill:#fffbeb,stroke:#f59e0b,color:#92400e;
+  class A,B,C,X,V,Y,H,L,M,Q,S main; class D,E,F,G,I,J,K,O,W decision; class N,R,P,T warn; class U ok;</pre></div></article>
+<section class="card" id="FLOW-009-decisions"><h2>已确认规则与实施边界</h2><div class="section-note"><strong>五项动作：</strong>线索状态、回访结果、异常原因、回访描述、意向级别，均读取本次已保存配置快照。默认值分别为休眠失联、休眠失联、三天四次无法接通、多次联系无人接听、L；实际值以管理员确认保存的配置为准。</div><div class="section-note"><strong>正常放行：</strong>未配置区间、无有效评分、读取异常、未命中时沿用原流程；无等待六分钟、无轮询、无历史补改。合法零分按有效评分参与判断。仅人工选择提示或返回修改不产生保存成功记录。</div><div class="section-note"><strong>厂商回流同步：</strong>厂商回流同步在同步前兜底：本次操作已完成转换的线索沿用已保存结果，不重复查分或覆盖；其余仅在回访结果为「无人接听下发」时查询预评分。命中后按本次统一配置更新DCC五项字段，保存成功后再同步厂商；保存失败不发送，同步失败保留DCC已保存结果。转换标记按本次操作和线索关联，不永久跳过后续独立操作。</div><div class="section-note"><strong>同步边界：</strong>DCC 完成字段转换后继续既有主机厂同步，不能把转换当作剔除下发记录。保存失败不发送，保存成功与同步成功分开显示；主机厂最终处理依其接口约定，需正式联调验证。</div><div class="section-note"><strong>记录口径：</strong>预评分转换记录包含六类来源和已转换、未命中、无分、处理失败；保存字段前后值、评分、规则配置版本、实际入口。筛选用任务编号／线索编号，下发批次仅关联批量来源；DEMO记录仅供演示。</div><div class="section-note"><a href="../需求说明/无人接收下发场景_线索状态转换_需求说明.html#config">统一配置与完整需求 ↗</a> · <a href="../需求说明/无人接收下发场景_线索状态转换_需求说明.html#acceptance-20261030">逐入口验证记录与待联调事项 ↗</a></div></section>
+</div><div class="footer">DCC 培育 · 业务流程图</div></main>
+<aside class="outline"><div class="side-heading"><h2>本场景目录 <span class="side-count" id="outline-count"></span></h2><button class="side-toggle" type="button" id="hide-outline" aria-label="收起本场景目录">›</button></div><p class="outline-subtitle" id="outline-subtitle">FLOW-002 · AI 智能外呼与结果处理</p>
+<nav class="outline-nav scene-outline" data-outline="FLOW-002" aria-label="FLOW-002 场景目录">
+      <a href="#FLOW-002-overview">场景说明</a>
+      <a href="#FLOW-002-flow">业务流程图</a>
+      <a href="#FLOW-002-decisions">页面依据与待核对边界</a>
+    </nav>
+<nav class="outline-nav scene-outline" data-outline="FLOW-003" hidden aria-label="FLOW-003 场景目录">
+      <a href="#FLOW-003-overview">场景说明</a>
+      <a href="#FLOW-003-flow">业务流程图</a>
+      <a href="#FLOW-003-decisions">页面依据与待核对边界</a>
+    </nav>
+<nav class="outline-nav scene-outline" data-outline="FLOW-004" hidden aria-label="FLOW-004 场景目录">
+      <a href="#FLOW-004-overview">场景说明</a>
+      <a href="#FLOW-004-flow">业务流程图</a>
+      <a href="#FLOW-004-decisions">已确认规则与实施边界</a>
+    </nav>
+<nav class="outline-nav scene-outline" data-outline="FLOW-005" hidden aria-label="FLOW-005 场景目录">
+      <a href="#FLOW-005-overview">场景说明</a>
+      <a href="#FLOW-005-flow">业务流程图</a>
+      <a href="#FLOW-005-decisions">已确认规则与实施边界</a>
+    </nav>
+
+<nav class="outline-nav scene-outline" data-outline="FLOW-007" hidden aria-label="FLOW-007 场景目录">
+      <a href="#FLOW-007-overview">场景说明</a>
+      <a href="#FLOW-007-flow">建议与执行方案</a>
+      <a href="#FLOW-007-publish">审核发布与回滚</a>
+      <a href="#FLOW-007-resubmit">驳回重审与归档</a>
+      <a href="#FLOW-007-decisions">已确认规则</a>
+    </nav>
+<nav class="outline-nav scene-outline" data-outline="FLOW-008" hidden aria-label="FLOW-008 场景目录">
+      <a href="#FLOW-008-overview">场景说明</a>
+      <a href="#FLOW-008-flow">业务流程图</a>
+      <a href="#FLOW-008-mapping">工单生成字段映射</a>
+      <a href="#FLOW-008-decisions">生成规则与实施边界</a>
+    </nav><nav class="outline-nav scene-outline" data-outline="FLOW-009" hidden aria-label="FLOW-009 场景目录"><a href="#FLOW-009-overview">场景说明</a><a href="#FLOW-009-config">① 配置与保存确认</a><a href="#FLOW-009-manual">② 人工两次校验</a><a href="#FLOW-009-flow">③ 全局判定与保存</a><a href="#FLOW-009-decisions">规则与实施边界</a></nav></aside>
+</div><button class="side-reopen left" type="button" id="show-scenes">☰ 展开业务场景</button><button class="side-reopen right" type="button" id="show-outline">☰ 展开本场景目录</button></div>
+<script src="../../js/mermaid.min.js"></script>
+<script>
+(function(){
+  mermaid.initialize({startOnLoad:false,theme:'base',securityLevel:'strict',flowchart:{htmlLabels:true,useMaxWidth:false,curve:'step',nodeSpacing:48,rankSpacing:64},themeVariables:{primaryColor:'#eff6ff',primaryTextColor:'#172033',primaryBorderColor:'#2563eb',lineColor:'#64748b',fontFamily:'Microsoft YaHei, PingFang SC, Arial',fontSize:'14px'}});
+  var sceneLinks=Array.prototype.slice.call(document.querySelectorAll('[data-scene-link]'));
+  var panels=Array.prototype.slice.call(document.querySelectorAll('[data-scene-content]'));
+  var outlines=Array.prototype.slice.call(document.querySelectorAll('[data-outline]'));
+  var subtitle=document.getElementById('outline-subtitle');
+  var layout=document.querySelector('.layout');
+  document.getElementById('scene-count').textContent=sceneLinks.length+'项';
+  document.getElementById('hide-scenes').addEventListener('click',function(){layout.classList.add('left-collapsed');});
+  document.getElementById('show-scenes').addEventListener('click',function(){layout.classList.remove('left-collapsed');});
+  document.getElementById('hide-outline').addEventListener('click',function(){layout.classList.add('right-collapsed');});
+  document.getElementById('show-outline').addEventListener('click',function(){layout.classList.remove('right-collapsed');});
+  var sceneChangeToken=0;
+  var lastSyncedHash=location.hash;
+  function currentSceneFromHash(){
+    var hash=decodeURIComponent(location.hash.slice(1));
+    var match=hash.match(/^(FLOW-00[1-9])(?:-|$)/);
+    return match && sceneLinks.some(function(link){return link.dataset.sceneLink===match[1];})?match[1]:'FLOW-002';
+  }
+  async function selectScene(id,scrollTarget){
+    var token=++sceneChangeToken;
+    var previous=sceneLinks.find(function(link){return link.classList.contains('active');});
+    if(previous && previous.dataset.sceneLink!==id) window.scrollTo({top:0,behavior:'instant'});
+    sceneLinks.forEach(function(link){var selected=link.dataset.sceneLink===id;link.classList.toggle('active',selected);if(selected)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
+    panels.forEach(function(panel){panel.hidden=panel.dataset.sceneContent!==id;});
+    outlines.forEach(function(outline){outline.hidden=outline.dataset.outline!==id;});
+    var visibleOutline=document.querySelector('[data-outline="'+id+'"]');
+    if(visibleOutline) document.getElementById('outline-count').textContent=visibleOutline.querySelectorAll('a').length+'项';
+    if(visibleOutline){var activeHref='#'+(scrollTarget||id+'-overview');visibleOutline.querySelectorAll('a').forEach(function(item){item.classList.toggle('active',item.getAttribute('href')===activeHref);});}
+    var link=sceneLinks.find(function(item){return item.dataset.sceneLink===id;});
+    if(link) subtitle.textContent=link.querySelector('.nav-code').textContent+' · '+link.querySelector('.scene-name').textContent;
+    var active=document.querySelector('[data-scene-content="'+id+'"]');
+    var diagrams=active?Array.from(active.querySelectorAll('.mermaid:not([data-processed])')):[];
+    if(diagrams.length) await mermaid.run({nodes:diagrams});
+    if(token!==sceneChangeToken) return;
+    if(scrollTarget){var target=document.getElementById(scrollTarget);if(target) target.scrollIntoView({behavior:'instant',block:'start'});}
+  }
+  sceneLinks.forEach(function(link){link.addEventListener('click',function(event){event.preventDefault();var id=link.dataset.sceneLink;var target=id+'-overview';if(location.hash!=='#'+target)history.pushState(null,'','#'+target);lastSyncedHash=location.hash;selectScene(id,target);});});
+  document.querySelectorAll('.scene-outline a').forEach(function(link){link.addEventListener('click',function(event){
+    event.preventDefault();
+    var outline=link.closest('.scene-outline');
+    outline.querySelectorAll('a').forEach(function(item){item.classList.toggle('active',item===link);});
+    if(location.hash!==link.hash) history.pushState(null,'',link.hash);
+    lastSyncedHash=location.hash;
+    var target=document.getElementById(link.hash.slice(1));
+    if(target) target.scrollIntoView({behavior:'instant',block:'start'});
+  });});
+  function syncFromLocation(){
+    if(location.hash===lastSyncedHash) return;
+    lastSyncedHash=location.hash;
+    selectScene(currentSceneFromHash(),decodeURIComponent(location.hash.slice(1)));
+  }
+  window.addEventListener('popstate',syncFromLocation);
+  window.addEventListener('hashchange',syncFromLocation);
+  var initialHash=decodeURIComponent(location.hash.slice(1));selectScene(currentSceneFromHash(),initialHash||null);
+})();
+</script>
+</body></html>
