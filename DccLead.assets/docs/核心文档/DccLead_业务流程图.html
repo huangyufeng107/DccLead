@@ -363,11 +363,11 @@
 </tbody></table><div class="section-note"><strong>转换优先级：</strong>本页先产生候选字段；若命中预评分转换，则采用统一配置中的五项最终值，原映射不得再次覆盖。未转换则保留本页映射值，最终校验通过后才保存。</div></section>
 <section class="card" id="FLOW-008-decisions"><h2>生成规则与实施边界</h2><div class="section-note"><strong>匹配规则：</strong>仅启用配置参与。按「预外呼系统状态」「预外呼通话状态」及配置的匹配维度判断；初始线索状态、渠道编码、媒体名称依所选维度和实际配置取值参与。各已配置条件共同成立；同一多选字段命中任一值即可。已处理状态下可配置接通时长、当前批次话单返回次数；留空不限制，配置后缺少对应数据不命中。</div><div class="section-note"><strong>选取与不生成：</strong>命中多条时按权重从小到大优先，不为每条命中配置各生成一张工单。未命中不生成本次工单；保存失败不能显示生成成功。</div><div class="section-note"><strong>接口与重复回传：</strong>系统状态读取配置器对应业务字段，不凭“任务已完成”推断为“已处理”。真实状态映射、同权重取舍、重复话单幂等和实际指派需服务联调确认；原型生成模拟按线索与话单关联防止重复生成，不据此声明生产服务已接入。</div><div class="section-note"><a href="#FLOW-009-flow">查看 FLOW-009 · 预评分转换判定与处理 →</a></div></section>
 </div><div class="scene-content" data-scene-content="FLOW-009" hidden>
-<section class="card" id="FLOW-009-overview"><h2>场景说明</h2><p class="lead">六类入口共用预评分低分区间与五项转换动作，既保留人工选择与确认，又让批量、话单生成和通话状态配置在保存前执行统一判定。</p><div class="chips"><span class="chip">流程编号：FLOW-009</span><span class="chip">配置 → 人工选择提示 → 提交或自动处理 → 保存与同步 → 记录</span><span class="chip review">状态：原型规则与模拟逻辑，真实服务待联调</span></div><div class="section-note"><strong>关键区别：</strong>人工回访、人工／AI批量、预测话单生成须满足回访结果为「无人接听下发」；AI通话状态配置命中且开启优先转换时，直接判断低分，不要求回访结果。天网付费自动下发归入对应人工或AI批量链路。</div></section>
-<article class="card" id="FLOW-009-config"><h2>① 统一配置与保存确认</h2><p class="lead">低分区间默认留空，配置 0–100 整数闭区间。线索状态、异常原因、意向级别需共同核对；不擅自设定固定级别映射。清空区间也需确认，仅保留已保存动作。</p><div class="diagram-wrap"><pre class="mermaid">flowchart TB
-  A([管理员打开预评分转换规则]) --> B[填写低分区间和五项处理值]
+<section class="card" id="FLOW-009-overview"><h2>场景说明</h2><p class="lead">六类入口共用多个互不重叠的预评分区间，每段独立配置五项转换动作，既保留人工选择与确认，又让批量、话单生成和通话状态配置在保存前执行统一判定。</p><div class="chips"><span class="chip">流程编号：FLOW-009</span><span class="chip">配置 → 人工选择提示 → 提交或自动处理 → 保存与同步 → 记录</span><span class="chip review">状态：原型规则与模拟逻辑，真实服务待联调</span></div><div class="section-note"><strong>关键区别：</strong>人工回访、人工／AI批量、预测话单生成须满足回访结果为「无人接听下发」；AI通话状态配置命中且开启优先转换时，直接判断低分，不要求回访结果。天网付费自动下发归入对应人工或AI批量链路。</div></section>
+<article class="card" id="FLOW-009-config"><h2>① 统一配置与保存确认</h2><p class="lead">分数区间默认留空，可配置多个 0–100 整数闭区间，端点也不能交集。每段分别配置五项动作，并核对线索状态、异常原因和意向级别；删除全部区间需确认，保留已保存动作。</p><div class="diagram-wrap"><pre class="mermaid">flowchart TB
+  A([管理员打开预评分转换规则]) --> B[新增或删除区间，逐段填写五项处理值]
   B --> C[异常原因按线索状态联动，核对意向级别]
-  C --> D{区间、字典适用关系与必填校验通过?}
+  C --> D{各段边界无交集，字典关系与必填均通过?}
   D -->|否| E[提示原因，保留填写内容]
   E --> B
   D -->|是| F[展示已保存值与本次保存值对照]
@@ -413,18 +413,18 @@
   W -->|否| F
   D -->|是| E{本配置命中且选择优先执行预评分转换规则?}
   E -->|否| N[沿用该入口原有动作，不进入本次转换]
-  E -->|是，不要求回访结果| G{统一低分区间已配置?}
+  E -->|是，不要求回访结果| G{至少配置一个分数区间?}
   D -->|否| F{本次回访结果为无人接听下发?}
   F -->|否| N
   F -->|是| G
   G -->|否| N
   G -->|是| H[本次读取有效预评分，不等待无分完成，不轮询]
-  H --> I{评分已取得且落入低分区间?}
+  H --> I{评分已取得且命中唯一分数区间?}
   I -->|无分、异常或未命中| N
   I -->|是| J{员工手动提交回访工单?}
   J -->|是| K{坐席确认覆盖五项字段?}
   K -->|返回修改| R([返回工单，保留填写，本次不保存不同步])
-  K -->|确认| L[采用五项配置转换值，跳过原字段更新动作]
+  K -->|确认| L[采用命中区间的五项执行值，跳过原字段更新动作]
   J -->|后台批量或自动处理| L
   L --> M[校验最终数据后保存]
   N --> M
@@ -441,7 +441,7 @@
   classDef decision fill:#fff,stroke:#64748b,color:#172033,stroke-width:2px;
   classDef warn fill:#fffbeb,stroke:#f59e0b,color:#92400e;
   class A,B,C,X,V,Y,H,L,M,Q,S main; class D,E,F,G,I,J,K,O,W decision; class N,R,P,T warn; class U ok;</pre></div></article>
-<section class="card" id="FLOW-009-decisions"><h2>已确认规则与实施边界</h2><div class="section-note"><strong>五项动作：</strong>线索状态、回访结果、异常原因、回访描述、意向级别，均读取本次已保存配置快照。默认值分别为休眠失联、休眠失联、三天四次无法接通、多次联系无人接听、L；实际值以管理员确认保存的配置为准。</div><div class="section-note"><strong>正常放行：</strong>未配置区间、无有效评分、读取异常、未命中时沿用原流程；无等待六分钟、无轮询、无历史补改。合法零分按有效评分参与判断。仅人工选择提示或返回修改不产生保存成功记录。</div><div class="section-note"><strong>厂商回流同步：</strong>厂商回流同步在同步前兜底：本次操作已完成转换的线索沿用已保存结果，不重复查分或覆盖；其余仅在回访结果为「无人接听下发」时查询预评分。命中后按本次统一配置更新DCC五项字段，保存成功后再同步厂商；保存失败不发送，同步失败保留DCC已保存结果。转换标记按本次操作和线索关联，不永久跳过后续独立操作。</div><div class="section-note"><strong>同步边界：</strong>DCC 完成字段转换后继续既有主机厂同步，不能把转换当作剔除下发记录。保存失败不发送，保存成功与同步成功分开显示；主机厂最终处理依其接口约定，需正式联调验证。</div><div class="section-note"><strong>记录口径：</strong>预评分转换记录包含六类来源和已转换、未命中、无分、处理失败；保存字段前后值、评分、规则配置版本、实际入口。筛选用任务编号／线索编号，下发批次仅关联批量来源；DEMO记录仅供演示。</div><div class="section-note"><a href="../需求说明/无人接收下发场景_线索状态转换_需求说明.html#config">统一配置与完整需求 ↗</a> · <a href="../需求说明/无人接收下发场景_线索状态转换_需求说明.html#acceptance-20261030">逐入口验证记录与待联调事项 ↗</a></div></section>
+<section class="card" id="FLOW-009-decisions"><h2>已确认规则与实施边界</h2><div class="section-note"><strong>五项动作：</strong>线索状态、回访结果、异常原因、回访描述、意向级别，均读取本次已保存配置快照中命中区间的执行值。初始示例值分别为休眠失联、休眠失联、三天四次无法接通、多次联系无人接听、L；实际值以管理员确认保存的配置为准。</div><div class="section-note"><strong>正常放行：</strong>未配置区间、无有效评分、读取异常、未命中时沿用原流程；无等待六分钟、无轮询、无历史补改。合法零分按有效评分参与判断。仅人工选择提示或返回修改不产生保存成功记录。</div><div class="section-note"><strong>厂商回流同步：</strong>厂商回流同步在同步前兜底：本次操作已完成转换的线索沿用已保存结果，不重复查分或覆盖；其余仅在回访结果为「无人接听下发」时查询预评分。命中后按本次统一配置更新DCC五项字段，保存成功后再同步厂商；保存失败不发送，同步失败保留DCC已保存结果。转换标记按本次操作和线索关联，不永久跳过后续独立操作。</div><div class="section-note"><strong>同步边界：</strong>DCC 完成字段转换后继续既有主机厂同步，不能把转换当作剔除下发记录。保存失败不发送，保存成功与同步成功分开显示；主机厂最终处理依其接口约定，需正式联调验证。</div><div class="section-note"><strong>记录口径：</strong>预评分转换记录包含六类来源和已转换、未命中、无分、处理失败；保存字段前后值、评分、命中区间、规则配置版本、实际入口。筛选用任务编号／线索编号，下发批次仅关联批量来源；DEMO记录仅供演示。</div><div class="section-note"><a href="../需求说明/无人接收下发场景_线索状态转换_需求说明.html#config">统一配置与完整需求 ↗</a> · <a href="../验证记录/预评分转换_原型验证记录.html#acceptance-20261030">逐入口验证记录与待联调事项 ↗</a></div></section>
 </div><div class="footer">DCC 培育 · 业务流程图</div></main>
 <aside class="outline"><div class="side-heading"><h2>本场景目录 <span class="side-count" id="outline-count"></span></h2><button class="side-toggle" type="button" id="hide-outline" aria-label="收起本场景目录">›</button></div><p class="outline-subtitle" id="outline-subtitle">FLOW-002 · AI 智能外呼与结果处理</p>
 <nav class="outline-nav scene-outline" data-outline="FLOW-002" aria-label="FLOW-002 场景目录">
