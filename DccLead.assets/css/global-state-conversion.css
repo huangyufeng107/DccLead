@@ -13,6 +13,11 @@
 .gsc-primary:hover{background:#1047b6}.gsc-secondary:hover{background:#f8fafc}
 .gsc-primary:disabled{opacity:.5;cursor:not-allowed}
 .gsc-card :focus-visible{outline:2px solid #93c5fd;outline-offset:2px}
+.gsc-rule-editor{margin:16px 0;padding:16px;border:1px solid #d5deea;border-radius:8px;background:#fff}
+.gsc-rule-editor>header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.gsc-rule-editor>header strong{font-size:15px;color:#1e293b}
+.gsc-rule-editor .gsc-fields{margin-bottom:16px}
+#gscAddRule{margin:4px 0 12px}
 .gsc-muted{font-size:12px}
 #gscError{color:#dc2626}
 .gsc-table{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}

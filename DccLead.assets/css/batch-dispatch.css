@@ -107,6 +107,8 @@ body.dcc-docs-ready .batch-detail-modal .batch-detail-panel { max-height: calc(1
 .batch-log-page-head p{margin:8px 0 0;color:#64748b;font-size:12px}
 .batch-log-page-head button{flex-shrink:0}
 .batch-log-page-card{overflow:hidden;border:1px solid #e2e8f0;border-radius:8px;background:#fff}
+.batch-conversion-list-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px;border-bottom:1px solid #e2e8f0}
+.batch-conversion-list-toolbar strong{font-size:16px;color:#1e293b}
 .batch-log-page .batch-log-list{table-layout:fixed;min-width:960px;font-size:13px}
 .batch-log-page .batch-log-list>thead>tr>th,.batch-log-page .batch-log-list>tbody>tr>td{vertical-align:top;white-space:normal;overflow-wrap:anywhere;padding:14px 16px}
 .batch-log-page .batch-log-list>thead>tr>th:first-child{width:18%}
