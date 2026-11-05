@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>预评分转换 · 原型验证记录</title>
+<style>body{margin:0;background:#f5f7fb;color:#27364b;font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}main{max-width:1100px;margin:32px auto;padding:0 20px}section{background:#fff;border:1px solid #dce5f0;border-radius:10px;padding:24px;margin:18px 0}h1,h2{color:#17395f}h1{font-size:25px}h2{font-size:19px;margin-top:0}table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:10px 12px;border-bottom:1px solid #e8edf4;text-align:left;vertical-align:top}th{background:#f1f5fa}p,li{max-width:95ch}a{color:#1657c0}.muted{color:#64748b} .wrap{overflow:auto}</style></head><body><main>
+<h1>预评分转换 · 原型验证记录</h1>
+<p class="muted">本页保存历史原型检查证据和未完成的验证。现行业务规则与验收口径以<a href="../核心文档/DccLead_功能文档.html#global-pre-score-conversion-spec">功能文档</a>为准；本页的模型检查不代表真实接口或浏览器操作已通过。</p>
+<section id="acceptance-20261030"><h2>2026-10-30 · 逐入口模型检查</h2><div class="wrap"><table><thead><tr><th>入口</th><th>已检查内容</th><th>限制</th></tr></thead><tbody>
+<tr><td>人工／AI 批量</td><td>混合分数、单条失败隔离、配置版本、重复提交和记录</td><td>天网真实自动触发链路未联调</td></tr>
+<tr><td>人工回访</td><td>打开查分、选择提示、提交复核、返回保留输入、确认覆盖及保存失败</td><td>模型与表单状态检查；非浏览器点击验收</td></tr>
+<tr><td>预测话单生成</td><td>配置优先级、先生成候选字段再转换、重复话单和失败重试</td><td>真实话单与坐席指派未接入</td></tr>
+<tr><td>厂商回流</td><td>本次已转换跳过、先保存 DCC 再同步、保存与同步失败分离</td><td>真实回流和服务幂等未联调</td></tr>
+<tr><td>AI 通话状态</td><td>配置命中、优先转换开关、未转换执行原动作</td><td>真实话单事件服务链路未接入</td></tr>
+<tr><td>统一配置</td><td>数值校验、字典联动、停用过滤和配置快照</td><td>非浏览器视觉验收</td></tr>
+</tbody></table></div><p>当时使用的检查脚本包括 <code>test_low_score_visit.cjs</code>、<code>test_low_score_dispatch.cjs</code>、<code>test_call_status_conversion.cjs</code>、<code>test_global_state_conversion.cjs</code>、<code>test_configurable_conversion.cjs</code>、<code>test_conversion_dictionary.cjs</code>、<code>test_conversion_closure.cjs</code> 和 <code>test_conversion_confirmation.cjs</code>。此处仅记录当时的检查范围，不将旧结论当作当前版本的完整验收。</p></section>
+<section id="closeout-20261102"><h2>2026-11-02 · 文档与模拟链路复核</h2><p>当时核对了需求目录、功能文档入口、流程图和本地链接；原型与文档的静态链接、模型分支通过，浏览器视觉与点击、正式接口仍未验证。</p><p>同轮还核对 FLOW-002 至 FLOW-005、FLOW-008 和 FLOW-009 的相关说明：去除了固定 A/B 级转人工、缺字段自动存草稿、缺项或无份额自动转线索等未确认推断；回访暂存沿用既有功能。各流程当前规则仍以对应<a href="../核心文档/DccLead_业务流程图.html">业务流程图</a>和功能文档为准。</p></section>
+<section id="acceptance-evidence-20261102"><h2>后续静态与模型回归</h2><p>2026-11-04 的多区间调整已运行配置增删、端点冲突、分段命中、各入口转换及静态零回归检查。浏览器工具对本地 <code>file://</code> 页面访问受限，因此尚未完成视觉与真实点击验收。</p><div class="wrap"><table><thead><tr><th>仍待验证</th><th>完成证据</th></tr></thead><tbody>
+<tr><td>浏览器操作</td><td>在可访问的预览环境核对分段增删、保存确认、人工回访、批量下发和记录展示，保存实际步骤与截图。</td></tr>
+<tr><td>服务与权限</td><td>核对评分读取、配置持久化、租户权限、版本并发、六类入口触发及幂等结果。</td></tr>
+<tr><td>主机厂同步</td><td>核对保存前后字段、同步请求、回执、失败重试和不重复转换。</td></tr>
+</tbody></table></div></section>
+<p><a href="../需求说明/无人接收下发场景_线索状态转换_需求说明.html">返回需求调研文档</a></p>
+</main></body></html>
