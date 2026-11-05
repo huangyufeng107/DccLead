@@ -992,7 +992,7 @@ function getLiveVisitRating(task, fallback) {
   if (task.isDriveTask || session?.taskId !== task.id) return fallback;
   if (session.status === 'loading' || session.status === 'idle') return { text: '查询中', score: null, color: '#64748b' };
   if (session.score == null) return { text: '暂无评分', score: null, color: '#64748b' };
-  const low = DccLowScoreVisit.evaluate(DccLowScoreVisit.NO_ANSWER, session.score, session.range);
+  const low = Boolean(DccLowScoreVisit.matchRule(session.score));
   return { score: session.score, text: low ? '低分' : (session.score === fallback.score ? fallback.text : '预评'), color: low ? '#2563eb' : (session.score === fallback.score ? fallback.color : '#475569') };
 }
 
@@ -1018,7 +1018,7 @@ function syncLiveVisitScore(task) {
 function renderVisitDemoControls() {
   const demo = DccLowScoreVisit.getDemo();
   const scenarios = [['actual','当前客户评分'],['low','已出低分（20 分）'],['pass','未命中（80 分）'],['none','无评分'],['late','打开无分，提交时出低分'],['score-error','评分读取失败'],['save-failure','工单保存失败']];
-  return `<details class="nt-visit-demo" ${visitDemoOpen ? 'open' : ''}><summary>原型演示设置</summary><p>仅模拟评分和保存结果；低分区间在「培育策略 → 预评分转换规则」统一维护，当前${demo.range ? `为 ${demo.range.min}–${demo.range.max} 分` : '未配置'}。</p><p>${demo.range ? '体验覆盖确认：选择“已出低分（20分）”或“打开无分，提交时出低分”，点击应用；回访结果保留“无人接听下发”后提交。20分须落入已保存的低分区间。' : '当前未配置低分区间，所有模拟场景均不会触发覆盖确认。请先在“培育策略 → 预评分转换规则”设置区间（如0–30分）并确认保存，再应用演示场景。'}</p><div class="nt-visit-demo-row"><label>模拟场景<select data-visit-demo="scenario">${scenarios.map(([value,label])=>`<option value="${value}" ${demo.scenario === value ? 'selected' : ''}>${label}</option>`).join('')}</select></label><div class="nt-visit-demo-actions"><button type="button" class="nt-btn nt-btn-default" data-action="visit-demo-apply">应用演示设置</button></div></div></details>`;
+  return `<details class="nt-visit-demo" ${visitDemoOpen ? 'open' : ''}><summary>原型演示设置</summary><p>仅模拟评分和保存结果；分数区间在「培育策略 → 预评分转换规则」统一维护，当前${demo.rules.length ? `为 ${demo.rules.map(rule=>`${rule.range.min}–${rule.range.max}`).join('、')} 分` : '未配置'}。</p><p>${demo.rules.length ? '体验覆盖确认：选择“已出低分（20分）”或“打开无分，提交时出低分”，点击应用；回访结果保留“无人接听下发”后提交。20分须落入任一已保存区间。' : '当前未配置分数区间，所有模拟场景均不会触发覆盖确认。请先在“培育策略 → 预评分转换规则”设置区间（如0–30分）并确认保存，再应用演示场景。'}</p><div class="nt-visit-demo-row"><label>模拟场景<select data-visit-demo="scenario">${scenarios.map(([value,label])=>`<option value="${value}" ${demo.scenario === value ? 'selected' : ''}>${label}</option>`).join('')}</select></label><div class="nt-visit-demo-actions"><button type="button" class="nt-btn nt-btn-default" data-action="visit-demo-apply">应用演示设置</button></div></div></details>`;
 }
 
 function renderVisitRuleDialog(task) {
@@ -1107,7 +1107,7 @@ function renderVisitForm(task) {
   if (task.lastVisitSaved?.converted && f.intentLevel && !intentLevelOptions.some(option=>option.value===f.intentLevel)) intentLevelOptions.push({value:f.intentLevel,label:f.intentLevel,color:'#64748b'});
   const selRes = resultOptions.find(r => r.value === vr);
   const conversionConfig = window.DccLowScoreVisit?.getDemo();
-  const conversionNeedsFollow = vr === window.DccLowScoreVisit?.NO_ANSWER && conversionConfig?.range && ['next_visit','test_drive'].includes(conversionConfig.actions.visitResult);
+  const conversionNeedsFollow = vr === window.DccLowScoreVisit?.NO_ANSWER && conversionConfig?.rules?.some(rule=>['next_visit','test_drive'].includes(rule.actions.visitResult));
   const showFollow = !!(conversionNeedsFollow || selRes?.needFollowTime || ['next_visit','intentional','considering','appointment','test_drive','callback','sms_followup'].includes(vr));
   const showStore = !!(selRes?.needStoreVisit || ['appointment','test_drive'].includes(vr));
   const lc = intentLevelOptions.find(l => l.value === (f.intentLevel || task.level)) || {};
@@ -2001,7 +2001,7 @@ function bindEvents() {
       if (a.startsWith('visit-demo-')) {
         if (visitSubmitBusy) return;
         try {
-          DccLowScoreVisit.configure(DccLowScoreVisit.getDemo().range, page.querySelector('[data-visit-demo="scenario"]').value);
+          DccLowScoreVisit.setScenario(page.querySelector('[data-visit-demo="scenario"]').value);
           visitDemoOpen = true; beginVisitScoreSession(getActiveTask(), true); renderNurtureTaskPage();
           showToast?.('演示设置已应用，已重新读取评分', true);
         } catch (error) { showToast?.(error.message, false); }

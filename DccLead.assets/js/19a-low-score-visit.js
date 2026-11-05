@@ -5,7 +5,7 @@
   const DORMANT = 'dormant_unreachable';
   const actionResultOptions = [ {value:DORMANT,label:'休眠失联'}, {value:'dormant_no_purchase',label:'休眠未购'}, {value:'closed_invalid',label:'无效结案'}, {value:'closed_lost',label:'战败'} ];
   const defaultActions = {leadStatus:'休眠失联',visitResult:DORMANT,resultReason:'三天四次无法接通',visitDesc:'多次联系，无人接听',intentLevel:'L'};
-  const demo = { range: null, actions: {...defaultActions}, scenario: 'actual', version: 0, updatedAt: '' };
+  const demo = { rules: [], range: null, actions: {...defaultActions}, scenario: 'actual', version: 0, updatedAt: '' };
   const visitResultLabel = value => actionDictionaries('').results.find(item=>item.value===value)?.label || actionResultOptions.find(item=>item.value===value)?.label || value || '';
   // Resolve current dictionary state at edit/save time; execution retains its captured values.
   function actionDictionaries(leadStatus) {
@@ -40,6 +40,9 @@
   function validRange(value) {
     return value && Number.isInteger(value.min) && Number.isInteger(value.max) && value.min >= 0 && value.max <= 100 && value.min <= value.max;
   }
+  function matchRule(score, rules = demo.rules) {
+    return rules.find(rule => matchesLowScore(score, rule.range)) || null;
+  }
   function matchesLowScore(score, range) {
     return Boolean(validRange(range) && score != null && Number.isFinite(score) && score >= range.min && score <= range.max);
   }
@@ -60,8 +63,34 @@
     }
     demo.range = range ? { ...range } : null;
     demo.actions = normalized;
+    demo.rules = range ? [{range:{...range},actions:{...normalized}}] : [];
     demo.scenario = scenario || 'actual';
   }
+  function configureRules(rules, scenario = demo.scenario) {
+    const normalized = validateRules(rules);
+    if (JSON.stringify(demo.rules) !== JSON.stringify(normalized)) {
+      demo.version += 1;
+      demo.updatedAt = new Date().toLocaleString('sv-SE', {timeZone:'Asia/Shanghai'});
+    }
+    demo.rules = normalized;
+    demo.range = normalized[0]?.range ? {...normalized[0].range} : null;
+    demo.actions = normalized[0]?.actions ? {...normalized[0].actions} : {...demo.actions};
+    demo.scenario = scenario;
+  }
+  function validateRules(rules) {
+    if (!Array.isArray(rules)) throw Error('区间配置格式不正确');
+    const normalized = rules.map((rule, index) => {
+      if (!validRange(rule.range)) throw Error(`第 ${index + 1} 个区间须为 0–100 的整数，且最低分不能高于最高分`);
+      const actions = validateConfiguration(rule.range, rule.actions);
+      return {range:{...rule.range},actions:{...actions}};
+    });
+    const sorted = [...normalized].sort((a,b) => a.range.min-b.range.min);
+    for (let i=1;i<sorted.length;i++) {
+      if (sorted[i].range.min <= sorted[i-1].range.max) throw Error(`区间 ${sorted[i-1].range.min}–${sorted[i-1].range.max} 与 ${sorted[i].range.min}–${sorted[i].range.max} 重叠，端点不能交集`);
+    }
+    return normalized;
+  }
+  function setScenario(scenario) { demo.scenario = scenario || 'actual'; }
   async function query(task, phase) {
     const scenario = demo.scenario;
     const original = task.currentPreScore ?? task.aiInsight?.score ?? task.leadInfo?.initScore ?? task.initScore;
@@ -75,15 +104,17 @@
   function createSession(task, options = {}) {
     const session = {
       taskId: task.id, status: 'idle', score: null, result: '',
-      range: demo.range ? { ...demo.range } : null, started: false, disposed: false, submitting: false,
+      range: null, started: false, disposed: false, submitting: false,
       validationStarted: false,
       freshValidationStarted: false,
       pendingConfirmation: false, requestCounts: { open: 0, submit: 0 },
       current() { return !this.disposed && (!options.isCurrent || options.isCurrent()); },
       notify() { if (this.current()) options.onChange?.(this); },
       hint() {
-        if (this.current() && !this.submitting && !this.pendingConfirmation && evaluate(this.result, this.score, this.range)) {
-          options.onHit?.({ score: this.score, range: { ...this.range } });
+        const rule = matchRule(this.score);
+        if (this.current() && !this.submitting && !this.pendingConfirmation && this.result === NO_ANSWER && rule) {
+          this.range = {...rule.range};
+          options.onHit?.({ score: this.score, range: { ...rule.range }, actions: {...rule.actions} });
         }
       },
       async start() {
@@ -103,10 +134,9 @@
         if (!this.current()) return { stale: true };
         this.validationStarted = true;
         this.submitting = true;
-        const range = demo.range ? { ...demo.range } : null;
+        const rules = demo.rules.map(rule=>({range:{...rule.range},actions:{...rule.actions}}));
         const configVersion = demo.version;
-        const actions = {...demo.actions};
-        const checked = result === NO_ANSWER && validRange(range);
+        const checked = result === NO_ANSWER && rules.length > 0;
         let score = null;
         if (checked) {
           this.freshValidationStarted = true;
@@ -116,9 +146,12 @@
         }
         if (!this.current()) return { stale: true };
         if (checked) {
-          this.score = score; this.range = range; this.status = score == null ? 'none' : 'ready'; this.notify();
+          this.score = score; this.status = score == null ? 'none' : 'ready'; this.notify();
         }
-        return { hit: evaluate(result, score, range), score, range, result, checked, configVersion, actions };
+        const matched = matchRule(score, rules);
+        const range = matched ? {...matched.range} : null;
+        this.range = range;
+        return { hit: result === NO_ANSWER && Boolean(matched), score, range, result, checked, configVersion, actions: matched ? {...matched.actions} : {...demo.actions} };
       },
       release() { this.submitting = false; this.pendingConfirmation = false; },
       close() { this.disposed = true; this.pendingConfirmation = false; }
@@ -136,5 +169,5 @@
     if (scenario === 'save-failure') throw new Error('保存失败，请重试。已保留原填写内容。');
     return { ...form };
   }
-  window.DccLowScoreVisit = { NO_ANSWER, DORMANT, parseScore, validRange, matchesLowScore, evaluate, conversion, configure, validateConfiguration, createSession, save, validateFinalFields, actionResultOptions, actionDictionaries, visitResultLabel, queryDispatchScore: (row, phase) => query({ currentPreScore: row.currentPreScore }, phase), getDemo: () => ({ range: demo.range ? { ...demo.range } : null, scenario: demo.scenario, actions: {...demo.actions}, version: demo.version, updatedAt: demo.updatedAt }) };
+  window.DccLowScoreVisit = { NO_ANSWER, DORMANT, parseScore, validRange, matchesLowScore, evaluate, conversion, configure, configureRules, validateRules, setScenario, matchRule, validateConfiguration, createSession, save, validateFinalFields, actionResultOptions, actionDictionaries, visitResultLabel, queryDispatchScore: (row, phase) => query({ currentPreScore: row.currentPreScore }, phase), getDemo: () => ({ rules: demo.rules.map(rule=>({range:{...rule.range},actions:{...rule.actions}})), range: demo.range ? { ...demo.range } : null, scenario: demo.scenario, actions: {...demo.actions}, version: demo.version, updatedAt: demo.updatedAt }) };
 })();

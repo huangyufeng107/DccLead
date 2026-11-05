@@ -18,15 +18,20 @@
     const items = dictionary.available ? dictionary.reasons : [{value:current,label:current}].filter(item=>item.value);
     return `<option value="">不设置（清空原值）</option>${selectOptions(items,current)}`;
   }
-  function renderActionInputs(actions) {
+  function renderActionInputs(actions, index) {
     const dictionary = api.actionDictionaries(actions.leadStatus);
     const statuses = dictionary.available ? dictionary.statuses : [{value:actions.leadStatus,label:actions.leadStatus}];
     const levels = typeof strategyConfiguratorOptions === 'undefined' ? ['H','A','B','C','E','F','L','N'] : [...new Set([...strategyConfiguratorOptions.intentLevelAction.filter(value=>/^[A-Z]$/.test(value)),'N'])];
-    return `<tr><td>线索状态</td><td><select id="gscActionStatus">${selectOptions(statuses,actions.leadStatus)}</select></td></tr>
-      <tr><td>回访结果</td><td><select id="gscActionResult">${selectOptions(dictionary.results,actions.visitResult)}</select><small class="gsc-field-help">读取启用字典项，仅保留无人接听下发、休眠失联、休眠未购、无效结案和战败。</small></td></tr>
-      <tr><td>异常原因</td><td><select id="gscActionReason">${reasonOptions(actions.leadStatus,actions.resultReason)}</select><small class="gsc-field-help" id="gscReasonHelp">仅展示适用于所选线索状态的已启用原因；不设置时清空原异常原因。</small></td></tr>
-      <tr><td>回访描述</td><td><textarea id="gscActionDesc" rows="3" maxlength="500" placeholder="请输入命中后的回访描述">${esc(actions.visitDesc)}</textarea><small class="gsc-field-help">必填，最多500字。</small></td></tr>
-      <tr><td>意向级别</td><td><select id="gscActionLevel">${selectOptions(levels.map(value=>({value,label:value})),actions.intentLevel)}</select></td></tr>`;
+    return `<tr><td>线索状态</td><td><select data-field="leadStatus">${selectOptions(statuses,actions.leadStatus)}</select></td></tr>
+      <tr><td>回访结果</td><td><select data-field="visitResult">${selectOptions(dictionary.results,actions.visitResult)}</select><small class="gsc-field-help">读取启用字典项，仅保留无人接听下发、休眠失联、休眠未购、无效结案和战败。</small></td></tr>
+      <tr><td>异常原因</td><td><select data-field="resultReason">${reasonOptions(actions.leadStatus,actions.resultReason)}</select><small class="gsc-field-help" data-reason-help>仅展示适用于所选线索状态的已启用原因；不设置时清空原异常原因。</small></td></tr>
+      <tr><td>回访描述</td><td><textarea data-field="visitDesc" rows="3" maxlength="500" placeholder="请输入命中后的回访描述">${esc(actions.visitDesc)}</textarea><small class="gsc-field-help">必填，最多500字。</small></td></tr>
+      <tr><td>意向级别</td><td><select data-field="intentLevel">${selectOptions(levels.map(value=>({value,label:value})),actions.intentLevel)}</select></td></tr>`;
+  }
+  function renderRuleEditor(rule,index) {
+    return `<article class="gsc-rule-editor" data-rule-index="${index}"><header><strong>分数区间 ${index+1}</strong><button type="button" class="gsc-secondary" data-remove-rule>删除区间</button></header>
+      <div class="gsc-fields"><label>最低分<input data-field="min" type="text" inputmode="numeric" value="${esc(rule.range?.min ?? '')}" placeholder="0–100"></label><span>至</span><label>最高分<input data-field="max" type="text" inputmode="numeric" value="${esc(rule.range?.max ?? '')}" placeholder="0–100"></label></div>
+      <table class="gsc-table"><thead><tr><th>命中后更新字段</th><th>命中后执行值（可配置）</th></tr></thead><tbody>${renderActionInputs(rule.actions,index)}</tbody></table></article>`;
   }
   window.openGlobalConversionRules = () => window.switchStrategyNav(document.querySelector('[data-page="lead-state-conversion"]'));
   window.openPredictiveVisitConfig = () => {
@@ -37,99 +42,69 @@
     const page = document.getElementById('leadStateConversionPage');
     if (!page) return;
     const config = api.getDemo();
-    page.innerHTML = `<section class="gsc-page"><header class="gsc-card gsc-head"><div><h1>预评分转换规则</h1><p>统一维护无人接听下发场景的低分转换规则，各入口共用配置与判定。</p></div><span>${config.range ? '已配置' : '未配置，沿用原流程'}</span></header>
-      <section class="gsc-card"><h2>统一规则配置</h2><p>当本次回访结果为「无人接听下发」，且有效预评分命中以下区间时执行转换。其他结果、无分或未配置时沿用原流程。</p><form id="gscForm" novalidate><div class="gsc-fields"><label>最低分<input id="gscMin" type="text" inputmode="numeric" pattern="[0-9]{1,3}" autocomplete="off" aria-describedby="gscRangeHelp gscError" value="${config.range?.min ?? ''}" placeholder="默认留空"></label><span>至</span><label>最高分<input id="gscMax" type="text" inputmode="numeric" pattern="[0-9]{1,3}" autocomplete="off" aria-describedby="gscRangeHelp gscError" value="${config.range?.max ?? ''}" placeholder="默认留空"></label><button type="button" id="gscClear" class="gsc-secondary">清空区间</button></div></form><p class="gsc-muted" id="gscRangeHelp">仅支持 0–100 的整数，最低分不得大于最高分；两项同时留空表示不启用。原型按包含最低分、最高分演示。保存后用于后续操作；当前版本 ${config.version}，${config.updatedAt ? '更新时间：' + esc(config.updatedAt) : '尚未保存'}。配置仅在当前原型会话保留。</p>
-      <table class="gsc-table"><thead><tr><th>命中后更新字段</th><th>命中后执行值（可配置）</th></tr></thead><tbody>${renderActionInputs(config.actions)}</tbody></table><div class="gsc-review-note"><strong>保存前请核对三项关系</strong><span>线索状态、异常原因和意向级别应符合业务处理口径。异常原因按状态联动；意向级别由操作人核对，系统不擅自推定对应关系。</span></div><p id="gscError" role="alert" aria-live="polite"></p><div class="gsc-save-footer"><span>修改后请保存；确认保存后用于后续操作，不补改历史记录。</span><button type="submit" form="gscForm" class="gsc-primary" id="gscSave">保存配置</button></div><div id="gscConfirmHost"></div></section>
-      <section class="gsc-card"><h2>接入场景</h2><p>各入口共用低分区间与转换动作。通话状态配置通过「是否优先执行预评分转换规则」决定是否引用；选择是且本配置命中后直接判断低分，未触发转换则执行原动作。以下状态表示原型覆盖情况，不代表服务上线。</p><div class="gsc-scroll"><table class="gsc-table"><thead><tr><th>接入场景</th><th>具体入口</th><th>判定时点</th><th>覆盖状态</th></tr></thead><tbody>${routes.map(row=>`<tr>${row.map(v=>`<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div></section><details class="gsc-card"><summary>原型演示设置</summary><p>仅模拟厂商回流同步兜底，不调用真实厂商接口。使用当前已保存规则。</p><div class="gsc-fields"><label>模拟场景<select id="gscReturnScenario"><option value="low">未转换，低分20分</option><option value="done">本次已转换，跳过查分</option><option value="other">其他回访结果，跳过查分</option><option value="none">无分，沿用原流程</option><option value="failure">命中低分，保存失败</option></select></label><button type="button" class="gsc-secondary" id="gscReturnRun">应用演示设置</button></div><p id="gscReturnOutput" role="status"></p></details></section>`;
-    page.querySelector('#gscReturnRun').onclick = async event => {
-      event.target.disabled=true;
-      try {
-        const scenario=page.querySelector('#gscReturnScenario').value;
-        const row={taskCode:'RETURN-DEMO-TASK',leadCode:'RETURN-DEMO-LEAD',latestLeadStatus:scenario==='done'?'休眠失联':'培育中',latestVisitResult:scenario==='other'?'下次回访':scenario==='done'?'休眠失联':'无人接听下发',abnormalReason:'',visitDesc:'回流演示',latestLevel:'B'};
-        const result=await gateway.manufacturerReturn(row,{convertedLeadCodes:scenario==='done'?[row.leadCode]:[]},{query:async()=>scenario==='none'?null:20,save:async()=>{if(scenario==='failure')throw Error('模拟DCC保存失败');}});
-        page.querySelector('#gscReturnOutput').textContent=`${result.reason}；线索状态：${row.latestLeadStatus}；回访结果：${row.latestVisitResult}；${result.error || result.syncStatus}。可在“预评分转换记录”按厂商回流同步查看。`;
-      } catch(error) {page.querySelector('#gscReturnOutput').textContent=error.message;}
-      finally {event.target.disabled=false;}
-    };
-    page.querySelector('#gscActionStatus').onchange = () => {
-      const status = page.querySelector('#gscActionStatus').value;
-      const reason = page.querySelector('#gscActionReason');
-      const previous = reason.value;
-      const valid = api.actionDictionaries(status).reasons.some(item=>item.value === previous);
-      reason.innerHTML = reasonOptions(status,valid ? previous : '');
-      reason.value = valid ? previous : '';
-      const help = page.querySelector('#gscReasonHelp');
-      if (help) help.textContent = previous && !valid ? '线索状态已变更，原异常原因不适用，已清空；请重新选择或保留不设置。' : '仅展示适用于所选线索状态的已启用原因；不设置时清空原异常原因。';
-    };
-    const scoreInputs = ['#gscMin','#gscMax'].map(selector => page.querySelector(selector));
+    let draft = config.rules.map(rule=>({range:{...rule.range},actions:{...rule.actions}}));
+    if (!draft.length) draft = [{range:null,actions:{...config.actions}}];
+    page.innerHTML = `<section class="gsc-page"><header class="gsc-card gsc-head"><div><h1>预评分转换规则</h1><p>按不同分数区间配置独立转换动作，各入口共用已保存规则。</p></div><span>${config.rules.length ? `已配置 ${config.rules.length} 个区间` : '未配置，沿用原流程'}</span></header>
+      <section class="gsc-card"><h2>分数区间与执行动作</h2><p>回访结果为「无人接听下发」且有效预评分命中某个区间时，执行该区间的动作。AI通话状态配置引用规则时按原有入口条件判断。无分、区间外或未配置时沿用原流程。</p>
+      <form id="gscForm" novalidate><div id="gscRuleList"></div><button type="button" id="gscAddRule" class="gsc-secondary">新增分数区间</button></form>
+      <p class="gsc-muted">分数须为 0–100 整数，包含上下限；区间之间不能交集，端点相同也算重叠。当前版本 ${config.version}，${config.updatedAt ? '更新时间：' + esc(config.updatedAt) : '尚未保存'}。原型配置仅在当前会话保留。</p>
+      <div class="gsc-review-note"><strong>保存前请核对每个区间的三项关系</strong><span>线索状态、异常原因和意向级别应符合业务处理口径。异常原因按状态联动；意向级别由操作人核对。</span></div><p id="gscError" role="alert" aria-live="polite"></p><div class="gsc-save-footer"><span>确认保存后只影响后续操作，不补改历史记录。</span><button type="submit" form="gscForm" class="gsc-primary" id="gscSave">保存配置</button></div><div id="gscConfirmHost"></div></section>
+      <section class="gsc-card"><h2>接入场景</h2><p>各入口按评分选中唯一分数区间及其转换动作；通话状态配置选择优先转换且本配置命中后直接判断评分。</p><div class="gsc-scroll"><table class="gsc-table"><thead><tr><th>接入场景</th><th>具体入口</th><th>判定时点</th><th>覆盖状态</th></tr></thead><tbody>${routes.map(row=>`<tr>${row.map(v=>`<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table></div></section><details class="gsc-card"><summary>原型演示设置</summary><p>仅模拟厂商回流同步兜底，不调用真实厂商接口。</p><div class="gsc-fields"><label>模拟场景<select id="gscReturnScenario"><option value="low">未转换，低分20分</option><option value="done">本次已转换，跳过查分</option><option value="other">其他回访结果，跳过查分</option><option value="none">无分，沿用原流程</option><option value="failure">命中低分，保存失败</option></select></label><button type="button" class="gsc-secondary" id="gscReturnRun">应用演示设置</button></div><p id="gscReturnOutput" role="status"></p></details></section>`;
+    const list = page.querySelector('#gscRuleList');
     const errorNode = page.querySelector('#gscError');
-    const validText = value => value === '' || (/^\d{1,3}$/.test(value) && Number(value) <= 100);
-    scoreInputs.forEach(input => {
-      let previous = input.value;
-      const reject = () => { errorNode.textContent = '仅支持输入 0–100 的整数，不支持负数、小数或科学计数法。'; input.setAttribute('aria-invalid','true'); };
-      input.addEventListener('keydown', event => {
-        if (!event.ctrlKey && !event.metaKey && ['-','+','.','e','E'].includes(event.key)) { event.preventDefault(); reject(); }
-      });
-      input.addEventListener('input', () => {
-        if (!validText(input.value)) { input.value = previous; reject(); return; }
-        previous = input.value; input.removeAttribute('aria-invalid'); errorNode.textContent = '';
-      });
-      input.addEventListener('blur', () => {
-        if (input.value !== '' && validText(input.value)) { input.value = String(Number(input.value)); previous = input.value; }
-      });
+    const collectDraft = () => [...list.querySelectorAll('[data-rule-index]')].map(node => {
+      const value = key => node.querySelector(`[data-field="${key}"]`).value.trim();
+      const min=value('min'),max=value('max');
+      return {range:{min,max},actions:{leadStatus:value('leadStatus'),visitResult:value('visitResult'),resultReason:value('resultReason'),visitDesc:value('visitDesc'),intentLevel:value('intentLevel')}};
     });
-    const host = page.querySelector('#gscConfirmHost');
-    let pending = null;
-    const close = () => { pending = null; host.innerHTML = ''; host.onkeydown = null; page.querySelector('#gscSave')?.focus?.(); };
-    const rangeLabel = range => range ? `${range.min}–${range.max} 分（含上下限）` : '未配置，不执行转换';
-    const openConfirmation = (range, actions, clear = false) => {
-      const normalized = api.validateConfiguration(range,actions);
-      pending = {range:range ? {...range} : null,actions:{...normalized},version:config.version};
-      const rows = [
-        ['低分区间',rangeLabel(config.range),rangeLabel(range),false],
-        ['线索状态',config.actions.leadStatus,normalized.leadStatus,true],
-        ['回访结果',api.visitResultLabel(config.actions.visitResult),api.visitResultLabel(normalized.visitResult),false],
-        ['异常原因',config.actions.resultReason || '不设置（清空原值）',normalized.resultReason || '不设置（清空原值）',true],
-        ['回访描述',config.actions.visitDesc,normalized.visitDesc,false],
-        ['意向级别',config.actions.intentLevel,normalized.intentLevel,true]
-      ];
-      host.innerHTML = `<div class="gsc-confirm-mask"><section class="gsc-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="gscConfirmTitle" aria-describedby="gscConfirmNote"><header><h2 id="gscConfirmTitle">${clear ? '确认清空低分区间' : '确认保存预评分转换规则'}</h2><button type="button" class="gsc-confirm-close" id="gscConfirmClose" aria-label="返回修改">×</button></header><div class="gsc-confirm-body"><div class="gsc-review-note" id="gscConfirmNote"><strong>请重点核对：线索状态 → 异常原因 → 意向级别</strong><span>三项将共同写入命中线索，请确认组合符合业务处理口径。字典关联校验不能代替业务核对。</span></div>${clear ? '<p>仅清空已保存的低分区间，保留已保存的转换动作；当前未保存的字段修改不会提交。</p>' : ''}<table class="gsc-table"><thead><tr><th>配置项</th><th>已保存值</th><th>本次保存值</th></tr></thead><tbody>${rows.map(([label,before,after,key])=>`<tr class="${key?'gsc-key-review':''}"><th scope="row">${esc(label)}${key?' · 重点核对':''}</th><td>${esc(before)}</td><td>${esc(after)}</td></tr>`).join('')}</tbody></table><p>各接入入口共用本配置，确认后对后续操作生效，不补改历史记录。</p><label class="gsc-confirm-check"><input id="gscConfirmAck" type="checkbox">我已核对线索状态、异常原因与意向级别的关系，确认配置正确。</label><p id="gscConfirmError" role="alert"></p></div><footer><button type="button" class="gsc-secondary" id="gscConfirmBack">返回修改</button><button type="button" class="gsc-primary" id="gscConfirmCommit" disabled>确认保存</button></footer></section></div>`;
-      const ack=host.querySelector('#gscConfirmAck'),commit=host.querySelector('#gscConfirmCommit');
-      ack.onchange=()=>{commit.disabled=!ack.checked;};
-      host.querySelector('#gscConfirmBack').onclick=close;
-      host.querySelector('#gscConfirmClose').onclick=close;
-      commit.onclick=()=>{
-        if (!pending || !ack.checked || commit.disabled) return;
-        try {
-          if (api.getDemo().version !== pending.version) throw Error('已保存配置发生变化，请返回修改并重新核对后保存。');
-          api.configure(pending.range,config.scenario,pending.actions);
-          pending=null;window.renderLeadStateConversionPage();window.showToast?.('统一规则已确认保存（原型会话）',true);
-        } catch(error) {host.querySelector('#gscConfirmError').textContent=error.message;}
-      };
-      host.onkeydown=event=>{
-        if(event.key==='Escape'){event.preventDefault();close();return;}
-        if(event.key==='Tab'){
-          const controls=[...host.querySelectorAll('button:not(:disabled),input')];
-          const first=controls[0],last=controls[controls.length-1];
-          if(event.shiftKey && document.activeElement===first){event.preventDefault();last?.focus();}
-          else if(!event.shiftKey && document.activeElement===last){event.preventDefault();first?.focus();}
-        }
-      };
-      host.querySelector('#gscConfirmBack').focus?.();
-    };
-    page.querySelector('#gscForm').onsubmit = event => {
+    const readDraft = () => collectDraft().map(rule => {
+      const min=rule.range.min,max=rule.range.max;
+      if (!/^\d{1,3}$/.test(min) || !/^\d{1,3}$/.test(max) || Number(min)>100 || Number(max)>100) throw Error('每个区间的最低分和最高分都须填写 0–100 的整数。');
+      return {range:{min:Number(min),max:Number(max)},actions:rule.actions};
+    });
+    const draw = () => {list.innerHTML=draft.map(renderRuleEditor).join('');};
+    draw();
+    page.querySelector('#gscAddRule').addEventListener('click',()=>{
+      draft=collectDraft();
+      draft.push({range:null,actions:{...config.actions}});draw();errorNode.textContent='';
+    });
+    list.addEventListener('click',event=>{
+      const button=event.target.closest('[data-remove-rule]');if(!button)return;
+      const index=Number(button.closest('[data-rule-index]').dataset.ruleIndex);
+      draft=collectDraft();
+      draft.splice(index,1);draw();errorNode.textContent='';
+    });
+    list.addEventListener('change',event=>{
+      if (event.target.dataset.field !== 'leadStatus') return;
+      const node=event.target.closest('[data-rule-index]'),reason=node.querySelector('[data-field="resultReason"]');
+      const previous=reason.value,valid=api.actionDictionaries(event.target.value).reasons.some(item=>item.value===previous);
+      reason.innerHTML=reasonOptions(event.target.value,valid?previous:'');
+      node.querySelector('[data-reason-help]').textContent=previous&&!valid?'线索状态已变更，原异常原因不适用，已清空。':'仅展示适用于所选线索状态的已启用原因；不设置时清空原异常原因。';
+    });
+    const host=page.querySelector('#gscConfirmHost');let pending=null;
+    const close=()=>{pending=null;host.innerHTML='';page.querySelector('#gscSave')?.focus();};
+    page.querySelector('#gscForm').addEventListener('submit',event=>{
       event.preventDefault();
-      const min = page.querySelector('#gscMin').value.trim(), max = page.querySelector('#gscMax').value.trim();
       try {
-        errorNode.textContent='';
-        if (!validText(min) || !validText(max)) throw Error('最低分和最高分仅支持 0–100 的整数。');
-        if ((min === '') !== (max === '')) throw Error('请同时填写最低分和最高分，或同时留空。');
-        openConfirmation(min === '' ? null : {min:Number(min),max:Number(max)}, {leadStatus:page.querySelector('#gscActionStatus').value,visitResult:page.querySelector('#gscActionResult').value,resultReason:page.querySelector('#gscActionReason').value,visitDesc:page.querySelector('#gscActionDesc').value,intentLevel:page.querySelector('#gscActionLevel').value});
-      } catch (error) { errorNode.textContent = error.message; }
-    };
-    page.querySelector('#gscClear').onclick = () => {
-      try { openConfirmation(null,config.actions,true); } catch(error) { errorNode.textContent=error.message; }
-    };
+        const rules=readDraft();api.validateRules(rules);
+        pending={rules,version:config.version};errorNode.textContent='';
+        const label=rule=>`${rule.range.min}–${rule.range.max} 分：${rule.actions.leadStatus}／${api.visitResultLabel(rule.actions.visitResult)}／${rule.actions.resultReason||'不设置异常原因'}／${rule.actions.intentLevel}；回访描述：${rule.actions.visitDesc}`;
+        host.innerHTML=`<div class="gsc-confirm-mask"><section class="gsc-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="gscConfirmTitle"><header><h2 id="gscConfirmTitle">确认保存分数区间规则</h2><button type="button" class="gsc-confirm-close" id="gscConfirmClose" aria-label="返回修改">×</button></header><div class="gsc-confirm-body"><p>请逐条核对区间及执行动作；保存后只对后续操作生效。</p><table class="gsc-table"><thead><tr><th>已保存</th><th>本次保存</th></tr></thead><tbody><tr><td>${config.rules.length?config.rules.map(rule=>esc(label(rule))).join('<br>'):'未配置'}</td><td>${rules.length?rules.map(rule=>esc(label(rule))).join('<br>'):'清空全部区间'}</td></tr></tbody></table><label class="gsc-confirm-check"><input id="gscConfirmAck" type="checkbox">我已核对每个区间的线索状态、异常原因和意向级别。</label><p id="gscConfirmError" role="alert"></p></div><footer><button type="button" class="gsc-secondary" id="gscConfirmBack">返回修改</button><button type="button" class="gsc-primary" id="gscConfirmCommit" disabled>确认保存</button></footer></section></div>`;
+        host.querySelector('#gscConfirmClose').addEventListener('click',close);host.querySelector('#gscConfirmBack').addEventListener('click',close);
+        const ack=host.querySelector('#gscConfirmAck'),commit=host.querySelector('#gscConfirmCommit');
+        ack.addEventListener('change',()=>{commit.disabled=!ack.checked;});
+        commit.addEventListener('click',()=>{try{if(api.getDemo().version!==pending.version)throw Error('已保存配置发生变化，请重新核对。');api.configureRules(pending.rules);window.renderLeadStateConversionPage();window.showToast?.('分数区间规则已保存（原型会话）',true);}catch(error){host.querySelector('#gscConfirmError').textContent=error.message;}});
+        host.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();close();}});
+        host.querySelector('#gscConfirmBack').focus();
+      } catch(error) {errorNode.textContent=error.message;}
+    });
+    page.querySelector('#gscReturnRun').addEventListener('click',async event=>{
+      event.target.disabled=true;
+      try{const scenario=page.querySelector('#gscReturnScenario').value;const row={taskCode:'RETURN-DEMO-TASK',leadCode:'RETURN-DEMO-LEAD',latestLeadStatus:scenario==='done'?'休眠失联':'培育中',latestVisitResult:scenario==='other'?'下次回访':scenario==='done'?'休眠失联':'无人接听下发',abnormalReason:'',visitDesc:'回流演示',latestLevel:'B'};
+        const result=await gateway.manufacturerReturn(row,{convertedLeadCodes:scenario==='done'?[row.leadCode]:[]},{query:async()=>scenario==='none'?null:20,save:async()=>{if(scenario==='failure')throw Error('模拟DCC保存失败');}});
+        page.querySelector('#gscReturnOutput').textContent=`${result.reason}；线索状态：${row.latestLeadStatus}；回访结果：${row.latestVisitResult}；${result.error||result.syncStatus}。可在“预评分转换记录”查看。`;
+      }catch(error){page.querySelector('#gscReturnOutput').textContent=error.message;}finally{event.target.disabled=false;}
+    });
   };
   function compare(condition, actual, field) {
     if (condition == null || condition === '') return true;

@@ -5,13 +5,13 @@
   if (document.getElementById('dccDocsHeader')) return;
   const tabs = [
     ['prototype', '产品原型', './DccLead.html'],
-    ['requirements', '需求说明', 'DccLead.assets/docs/需求说明/index.html?v=20261103-prototype-entry'],
+    ['requirements', '需求说明', 'DccLead.assets/docs/需求说明/index.html?v=20261104-review-cleanup'],
     ['blueprint', '系统蓝图', 'DccLead.assets/docs/核心文档/DccLead_系统蓝图.html?v=20261026-v29-integrated'],
-    ['manual', '功能文档', 'DccLead.assets/docs/核心文档/DccLead_功能文档.html?v=20261102-acceptance'],
+    ['manual', '功能文档', 'DccLead.assets/docs/核心文档/DccLead_功能文档.html?v=20261104-logic-tables'],
     ['interaction', '页面交互图', 'DccLead.assets/docs/核心文档/DccLead_交互流程图.html?v=20261026-v29-integrated'],
-    ['sequence', '业务流程图', 'DccLead.assets/docs/核心文档/DccLead_业务流程图.html?v=20261102-confirmed-closeout'],
-    ['features', '功能点清单', 'DccLead.assets/docs/核心文档/DccLead_功能清单.html?v=20261030-v30'],
-    ['versions', '版本号日志', 'DccLead.assets/docs/核心文档/DccLead_版本日志.html?v=20261030-v30']
+    ['sequence', '业务流程图', 'DccLead.assets/docs/核心文档/DccLead_业务流程图.html?v=20261104-review-cleanup'],
+    ['features', '功能点清单', 'DccLead.assets/docs/核心文档/DccLead_功能清单.html?v=20261104-multi-range'],
+    ['versions', '版本号日志', 'DccLead.assets/docs/核心文档/DccLead_版本日志.html?v=20261104-review-cleanup']
   ];
   const header = document.createElement('header');
   header.id = 'dccDocsHeader';

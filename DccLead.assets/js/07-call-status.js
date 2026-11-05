@@ -343,6 +343,7 @@ function renderCallStatusPolicyForm(rule) {
             <div class="form-group"><div class="form-label">线索状态更新为 <span class="required">*</span></div><select class="form-input" id="callStatusFormLeadStatus" onchange="updateCallStatusPolicyReasonOptions()">${renderLeadDispatchOptionList(leadDispatchFormLeadStatusOptions, rule.updateLeadStatus || '', '请选择线索状态')}</select></div>
             <div class="form-group" id="callStatusFormAbnormalReasonGroup" style="${shouldShowLeadDispatchAbnormalReason(rule.updateLeadStatus || '') ? '' : 'display:none'}"><div class="form-label">异常原因更新为 <span class="required">*</span></div><select class="form-input" id="callStatusFormAbnormalReason" ${isLeadStatusAbnormalReasonLocked(rule.updateLeadStatus || '') ? 'disabled' : ''}>${renderLeadDispatchOptionList(getLeadDispatchAbnormalReasonOptions(rule.updateLeadStatus || '', rule.abnormalReason || ''), getSelectedLeadDispatchAbnormalReason(rule.updateLeadStatus || '', rule.abnormalReason || ''), isLeadStatusAbnormalReasonLocked(rule.updateLeadStatus || '') ? '不更新' : '请选择异常原因')}</select></div>
             <div class="form-group wide"><div class="form-label">意向级别 <span class="required">*</span></div><select class="form-input" id="callStatusFormIntentLevel" ${isLeadStatusIntentLevelLocked(rule.updateLeadStatus || '') ? 'disabled' : ''}>${renderLeadDispatchOptionList(getLeadDispatchIntentLevelOptions(rule.updateLeadStatus || '', rule.updateIntentLevel || ''), getLeadStatusLockedIntentLevel(rule.updateLeadStatus || '', rule.updateIntentLevel || ''), isLeadStatusIntentLevelLocked(rule.updateLeadStatus || '') ? '不更新' : '请选择意向级别')}</select></div>
+            <div class="form-group wide"><div class="form-label">回访描述</div><input class="form-input" id="callStatusFormVisitDescription" value="${escapeAttr(rule.visitDescription || '')}" placeholder="请输入回访描述（选填）" /></div>
           </div>
         </div>
       </section>
@@ -377,7 +378,7 @@ function renderCallStatusPolicyDetail(rule) {
   const sections = [
     { title: '基础信息', fields: [['配置名称', rule.name], ['权重', `P${rule.priority}`], ['状态', rule.enabled ? '启用' : '停用']] },
     { title: '命中条件', fields: [['外呼类型', rule.callTypes.join('、')], ['通话状态', `${rule.statusLogic || '或'}：${rule.callStatuses.join('、')}`], ['渠道编码', rule.channelCodes?.length ? rule.channelCodes.join('、') : '不限渠道'], ['是否优先执行预评分转换规则', rule.useGlobalConversion ? '是；低分命中时执行统一转换，否则执行本配置动作' : '否']] },
-    { title: '执行动作', fields: [['线索状态更新为', rule.updateLeadStatus || '不更新'], ['异常原因更新为', rule.abnormalReason || '不更新'], ['意向级别', rule.updateIntentLevel || '不更新']] }
+    { title: '执行动作', fields: [['线索状态更新为', rule.updateLeadStatus || '不更新'], ['异常原因更新为', rule.abnormalReason || '不更新'], ['意向级别', rule.updateIntentLevel || '不更新'], ['回访描述', rule.visitDescription || '未填写']] }
   ];
   return `<div class="rule-detail-layout">${sections.map(section => `<section class="rule-detail-section"><div class="rule-detail-title">${section.title}</div><div class="rule-detail-body">${section.fields.map(([label, value]) => `<div class="rule-detail-field"><div class="rule-detail-label">${label}</div><div class="rule-detail-value">${detailValue(value)}</div></div>`).join('')}</div></section>`).join('')}</div>`;
 }
@@ -394,6 +395,7 @@ function saveCallStatusPolicyRule() {
     updateLeadStatus: document.getElementById('callStatusFormLeadStatus').value.trim(),
     abnormalReason: getLeadStatusLockedAbnormalReason(document.getElementById('callStatusFormLeadStatus').value.trim(), document.getElementById('callStatusFormAbnormalReason').value.trim()),
     updateIntentLevel: getLeadStatusLockedIntentLevel(document.getElementById('callStatusFormLeadStatus').value.trim(), document.getElementById('callStatusFormIntentLevel').value.trim()),
+    visitDescription: document.getElementById('callStatusFormVisitDescription').value.trim(),
     enabled: document.getElementById('callStatusFormEnabled').value === '启用'
   };
   if (!payload.name) { showToast('请填写配置名称', false); return; }
@@ -458,15 +460,16 @@ window.evaluateCallStatusPolicy = async function (rule, input, options = {}) {
   const before={...(input.fields||{})};
   if(!matched)return {matched:false,converted:false,final:before};
   const api=window.DccLowScoreVisit,config=api.getDemo();let score=null,scoreStatus='未查询';
-  if(rule.useGlobalConversion && api.validRange(config.range)) {
+  if(rule.useGlobalConversion && config.rules.length) {
     try {score=api.parseScore(await (options.query||api.queryDispatchScore)(input,'submit'));scoreStatus=score==null?'无分':'已取得';}
     catch(_){scoreStatus='读取失败';}
   }
-  const converted=Boolean(rule.useGlobalConversion && api.matchesLowScore(score,config.range));
+  const selected=rule.useGlobalConversion?api.matchRule(score,config.rules):null;
+  const converted=Boolean(selected);
   if(converted) {
-    const final=api.conversion(before,config.actions);
+    const final=api.conversion(before,selected.actions);
     try { api.validateFinalFields(final); } catch(error) { return {matched:true,converted:false,score,scoreStatus,configVersion:config.version,error:error.message,final:before}; }
-    return {matched:true,converted:true,score,scoreStatus,configVersion:config.version,final};
+    return {matched:true,converted:true,score,scoreStatus,configVersion:config.version,range:{...selected.range},actions:{...selected.actions},final};
   }
   const final={...before};
   if(rule.updateLeadStatus)final.leadStatus=rule.updateLeadStatus;
@@ -487,11 +490,11 @@ window.processCallStatusPolicy = async function(rule,input,options={}) {
     try {await (options.save||api.save)(decision.final,input);} catch(failure) {error=failure.message || '保存失败';}
   }
   const final=error?before:decision.final;
-  const reason=decision.converted?'本配置命中且评分命中低分区间':!config.range?'未配置低分区间，执行原动作':decision.score==null?'无有效评分，执行原动作':'评分未命中低分区间，执行原动作';
+  const reason=decision.converted?'本配置命中且评分命中低分区间':!config.rules.length?'未配置低分区间，执行原动作':decision.score==null?'无有效评分，执行原动作':'评分未命中低分区间，执行原动作';
   const record=gateway.record({source:'AI通话状态处理',entry:'培育策略／AI外呼配置／通话状态配置',
     taskCode:input.taskCode||'',leadCode:input.leadCode||'',callId:input.callId||'',ruleId:rule.id||'',batchId:'',
     time:new Date().toLocaleString('sv-SE',{timeZone:'Asia/Shanghai'}),before,final,
-    score:decision.score,scoreStatus:decision.scoreStatus,range:config.range,actions:config.actions,configVersion:decision.configVersion,
+    score:decision.score,scoreStatus:decision.scoreStatus,range:decision.range||null,actions:decision.actions||null,configVersion:decision.configVersion,
     converted:decision.converted&&!error,reason,error,status:error?'处理失败':'已保存（模拟）',syncStatus:error?'未同步':'未接入真实同步，回执未验证'});
   return {...decision,final,converted:decision.converted&&!error,error,record};
 };

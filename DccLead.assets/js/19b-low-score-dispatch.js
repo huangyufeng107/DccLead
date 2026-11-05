@@ -38,8 +38,8 @@
       time: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Shanghai' }), batchId: '',
       before, final: error ? before : { leadStatus: task.leadInfo?.leadStatus, visitResult: saved.visitResult,
         resultReason: saved.resultReason, visitDesc: saved.visitDesc, intentLevel: saved.intentLevel },
-      score, range: decision.range, configVersion: decision.configVersion, entry: workMode === 'predictive' ? '人工预测外呼回访工单' : '我的任务／培育任务回访工单', scoreStatus: decision.checked ? (score == null ? '无分' : '已取得') : '未查询',
-      converted: converted && !error, reason: converted ? '无人接听下发且命中低分区间' : !candidate ? '其他回访结果，沿用原流程' : !api.validRange(decision.range) ? '未配置低分区间，沿用原流程' : score == null ? '无有效评分，沿用原流程' : '评分未命中低分区间',
+      score, range: decision.range, actions: converted ? {...decision.actions} : null, configVersion: decision.configVersion, entry: workMode === 'predictive' ? '人工预测外呼回访工单' : '我的任务／培育任务回访工单', scoreStatus: decision.checked ? (score == null ? '无分' : '已取得') : '未查询',
+      converted: converted && !error, reason: converted ? '无人接听下发且命中低分区间' : !candidate ? '其他回访结果，沿用原流程' : !decision.checked ? '未配置低分区间，沿用原流程' : score == null ? '无有效评分，沿用原流程' : '评分未命中低分区间',
       error: error || '', status: error ? '处理失败' : '已保存（模拟）', syncStatus: error ? '未同步' : '未接入真实同步，回执未验证' });
   }
   const fieldSnapshot = row => ({ leadStatus: row.latestLeadStatus, visitResult: row.latestVisitResult,
@@ -47,9 +47,9 @@
   const resultCode = value => value === '无人接听下发' ? api.NO_ANSWER : value;
   async function process(items, options = {}) {
     // Capture one configuration per operation, and query each eligible row only once.
-    const range = options.range === undefined ? api.getDemo().range : options.range;
-    const configVersion = options.configVersion ?? api.getDemo().version;
-    const actions = {...(options.actions || api.getDemo().actions)};
+    const config = api.getDemo();
+    const rules = options.rules || (options.range !== undefined ? (api.validRange(options.range) ? [{range:options.range,actions:options.actions || config.actions}] : []) : config.rules);
+    const configVersion = options.configVersion ?? config.version;
     const output = new Array(items.length);
     let cursor = 0;
     async function worker() {
@@ -57,18 +57,21 @@
         const index = cursor++, row = items[index], before = fieldSnapshot(row);
         let score = null, scoreStatus = '未查询', reason = '其他回访结果，沿用原流程';
         const candidate = resultCode(before.visitResult) === api.NO_ANSWER;
-        if (candidate && api.validRange(range)) {
+        if (candidate && rules.length) {
           try {
             score = api.parseScore(await (options.query || api.queryDispatchScore)(row, 'submit'));
             scoreStatus = score == null ? '无分' : '已取得';
           } catch (_) { scoreStatus = '读取失败'; }
           reason = score == null ? '无有效评分，沿用原流程' : '评分未命中低分区间';
         } else if (candidate) reason = '未配置低分区间，沿用原流程';
-        const converted = api.evaluate(resultCode(before.visitResult), score, range);
+        const matched = candidate ? api.matchRule(score,rules) : null;
+        const range = matched?.range || null;
+        const actions = matched?.actions || config.actions;
+        const converted = Boolean(matched);
         const final = converted ? api.conversion(before,actions) : { ...before };
         if (converted) reason = '无人接听下发且命中低分区间';
         const record = { configVersion, actions: {...actions}, entry: options.entry || '', taskCode: row.taskCode, leadCode: row.leadCode, before, final, score,
-          scoreStatus, range: api.validRange(range) ? { ...range } : null, converted, reason,
+          scoreStatus, range: range ? { ...range } : null, converted, reason,
           status: '已保存／待同步', syncStatus: '待同步', error: '' };
         try {
           // An individual save failure must not stop other rows or overwrite the source row.

@@ -414,7 +414,7 @@
   window.opsBatchLoadRuleDemo = function () {
     if (processing) { notice('批次处理中，请稍后操作', false); return; }
     if (!demoOriginals) demoOriginals = { '1': rows('1').map(row => ({ ...row })), '2': rows('2').map(row => ({ ...row })) };
-    DccLowScoreVisit.configure(DccLowScoreVisit.getDemo().range, 'actual');
+    DccLowScoreVisit.setScenario('actual');
     ['1', '2'].forEach(key => {
       // Only reset explicitly loaded prototype samples; never mutate task-creation snapshots.
       rows(key).splice(0, rows(key).length, ...demoOriginals[key].map((row, index) => applySample(row, demoValues[index % demoValues.length])));
@@ -447,6 +447,32 @@
     logView.keyword = reset ? '' : document.getElementById('conversionKeyword').value.trim();
     if (reset) logView.batchId = '';
     logView.page = 1; renderLogPage();
+  };
+  function filteredConversionRecords() {
+    return [...DccLowScoreDispatch.records(), ...DccLowScoreDispatch.demoRecords()].filter(item =>
+      (!logView.batchId || item.batchId === logView.batchId) &&
+      (!logView.source || item.source === logView.source) &&
+      (!logView.outcome || item.outcome === logView.outcome) &&
+      (!logView.keyword || [item.taskCode, item.leadCode].some(value => String(value || '').includes(logView.keyword))));
+  }
+  window.opsConversionExport = function () {
+    const records = filteredConversionRecords();
+    if (!records.length) { showToast('当前筛选条件下没有可导出的记录', false); return; }
+    const columns = [
+      ['操作时间', item => item.time], ['来源', item => item.source],
+      ['任务编号', item => item.taskCode], ['线索编号', item => item.leadCode],
+      ['处理结果', item => item.outcome], ['判定评分', item => item.score == null ? '' : item.score],
+      ['处理原因', item => item.reason], ['保存失败原因', item => item.error],
+      ['关联批次', item => item.batchId], ['关联话单', item => item.callId],
+      ['配置版本', item => item.configVersion], ['同步状态', item => item.syncStatus],
+      ['处理前线索状态', item => item.before?.leadStatus], ['处理后线索状态', item => item.final?.leadStatus],
+      ['处理前回访结果', item => item.before?.visitResult], ['处理后回访结果', item => item.final?.visitResult],
+      ['处理前异常原因', item => item.before?.resultReason], ['处理后异常原因', item => item.final?.resultReason],
+      ['处理前回访描述', item => item.before?.visitDesc], ['处理后回访描述', item => item.final?.visitDesc],
+      ['处理前意向级别', item => item.before?.intentLevel], ['处理后意向级别', item => item.final?.intentLevel]
+    ];
+    const rows = [columns.map(([label]) => csvEscape(label)).join(','), ...records.map(item => columns.map(([, value]) => csvEscape(value(item) ?? '')).join(','))];
+    downloadCsvFile(`预评分转换记录_${new Date().toISOString().slice(0, 10)}.csv`, rows, `已导出 ${records.length} 条预评分转换记录`);
   };
   window.opsBatchReturnToList = function () {
     logView.open = false;
@@ -500,18 +526,14 @@
   }
 
   function renderConversionPage(container) {
-    const records = [...DccLowScoreDispatch.records(),...DccLowScoreDispatch.demoRecords()].filter(item =>
-      (!logView.batchId || item.batchId === logView.batchId) &&
-      (!logView.source || item.source === logView.source) &&
-      (!logView.outcome || item.outcome === logView.outcome) &&
-      (!logView.keyword || [item.taskCode,item.leadCode].some(value => String(value || '').includes(logView.keyword))));
+    const records = filteredConversionRecords();
     const pages = Math.max(1, Math.ceil(records.length / logView.pageSize));
     logView.page = Math.min(logView.page, pages);
     const visible = records.slice((logView.page - 1) * logView.pageSize, logView.page * logView.pageSize);
     const options = (values, current) => values.map(value => `<option ${value === current ? 'selected' : ''}>${esc(value)}</option>`).join('');
     container.innerHTML = `<section class="batch-log-page" aria-label="预评分转换记录"><header class="batch-log-page-head"><div><h2>预评分转换记录</h2><p>查看各入口执行预评分转换规则的判定与处理记录，包括已转换、未命中、无分及处理失败。</p><details class="batch-prototype-note"><summary>原型演示说明（非生产要求）</summary><p>本原型内置20条DEMO演示记录，使用独立配置快照，操作记录仅保留于当前会话。测试数据数量、DEMO编号和内存存储方式均不属于生产实现要求。正式记录应由真实业务操作产生，按服务端接口与权限持久化查询。</p></details></div></header>
       <div class="batch-conversion-filter"><strong>筛选查询</strong><div class="batch-conversion-filter-grid"><label>任务编号／线索编号<input id="conversionKeyword" class="form-input" placeholder="请输入任务编号或线索编号" value="${esc(logView.keyword)}"></label><label>操作来源<select id="conversionSource" class="form-input"><option value="">全部来源</option>${options(DccLowScoreDispatch.sources,logView.source)}</select></label><label>处理结果<select id="conversionOutcome" class="form-input"><option value="">全部结果</option>${options(['已转换','未命中','无分','处理失败'],logView.outcome)}</select></label><div><button type="button" class="batch-primary" onclick="opsConversionApplyFilters(false)">查询</button> <button type="button" class="batch-secondary" onclick="opsConversionApplyFilters(true)">重置</button></div></div>${logView.batchId ? `<p>当前关联批次：${esc(logView.batchId)}；重置可查看全部记录。</p>` : ''}</div>
-      <div class="batch-log-page-card"><div class="batch-log-wrap"><table class="batch-log-list"><thead><tr><th>操作时间</th><th>来源</th><th>任务／线索编号</th><th>处理结果</th><th>判定评分</th><th>处理原因</th><th>操作</th></tr></thead><tbody>${visible.length ? visible.map(item => {
+      <div class="batch-log-page-card"><div class="batch-conversion-list-toolbar"><strong>转换记录列表</strong><button type="button" class="batch-secondary" onclick="opsConversionExport()">导出数据</button></div><div class="batch-log-wrap"><table class="batch-log-list"><thead><tr><th>操作时间</th><th>来源</th><th>任务／线索编号</th><th>处理结果</th><th>判定评分</th><th>处理原因</th><th>操作</th></tr></thead><tbody>${visible.length ? visible.map(item => {
         const expanded = logView.expanded.has(item.id);
         return `<tr><td>${esc(item.time)}</td><td>${esc(item.source)}</td><td>${esc(item.taskCode)}<br>${esc(item.leadCode)}</td><td>${esc(item.outcome)}</td><td>${item.score == null ? '—' : esc(item.score) + '分'}</td><td>${esc(item.reason)}</td><td><button type="button" class="batch-log-detail-button" aria-expanded="${expanded}" onclick="opsBatchToggleLogDetails('${item.id}')">${expanded ? '收起明细' : '展开明细'}</button></td></tr>${expanded ? `<tr class="batch-log-expanded"><td colspan="7">${['人工批量下发','AI批量下发'].includes(item.source) && item.batchId ? `<p>关联下发批次：${esc(item.batchId)}</p>` : ''}<div class="batch-log-record-grid">${renderLogRecord(item)}</div></td></tr>` : ''}`;
       }).join('') : '<tr><td colspan="7">暂无符合条件的状态转换记录；完成回访提交或批量处理后可查看。</td></tr>'}</tbody></table></div>
