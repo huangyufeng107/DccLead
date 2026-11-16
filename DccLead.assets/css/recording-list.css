@@ -1,0 +1,78 @@
+#opsRecordingListPage .mw-report-summary { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }
+#opsRecordingListPage .recording-stat { display: flex; flex-direction: column; gap: 6px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 9px; background: #fff; }
+#opsRecordingListPage .recording-stat span { color: #64748b; font-size: 12px; }
+#opsRecordingListPage .recording-stat strong { color: #1554d1; font-size: 23px; line-height: 1.2; }
+#opsRecordingListPage .recording-stat small { margin-left: 3px; color: #64748b; font-size: 12px; font-weight: 400; }
+#opsRecordingListPage .recording-stat em { color: #94a3b8; font-size: 11px; font-style: normal; }
+#opsRecordingListPage .mw-report-filter-card .form-input,
+#opsRecordingListPage .mw-report-table-toolbar select { min-height: 34px; border-color: #d5deea !important; border-radius: 6px !important; color: #334155; }
+#opsRecordingListPage .recording-filter-heading { margin-bottom: 12px !important; }
+#opsRecordingListPage .recording-filter-heading > div { font-size: 15px !important; }
+#opsRecordingListPage .recording-filter-layout { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: start; }
+#opsRecordingListPage .recording-filter-grid { display: grid !important; grid-template-columns: repeat(5, minmax(0, 1fr)) !important; gap: 12px 14px !important; }
+#opsRecordingListPage .recording-filter-grid:not(.is-expanded) > :nth-child(n+6) { display: none !important; }
+#opsRecordingListPage .recording-filter-grid > label { min-width: 0; color: #475569 !important; font-weight: 600 !important; }
+#opsRecordingListPage .recording-filter-grid .form-input { width: 100%; box-sizing: border-box; }
+#opsRecordingListPage .recording-filter-actions { display: flex; gap: 8px; align-items: center; justify-content: flex-end; margin-top: 24px; }
+#opsRecordingListPage .recording-filter-actions button { white-space: nowrap; }
+#opsRecordingListPage .recording-filter-bottom { border-top: 1px solid #e8eef7; margin-top: 14px; padding-top: 12px; }
+#opsRecordingListPage .recording-filter-toggle { border: 0; padding: 0; background: none; color: #2563eb; font-size: 13px; font-weight: 600; cursor: pointer; }
+#opsRecordingListPage .recording-filter-toggle span { margin-left: 5px; color: #64748b; font-size: 12px; font-weight: 600; }
+#opsRecordingListPage .mw-report-table-toolbar,
+#opsRecordingListPage .mw-report-table-toolbar > div { flex-wrap: wrap; gap: 8px; }
+#opsRecordingListPage .mw-report-table-toolbar > div { position: relative; }
+#opsRecordingListPage .recording-primary,
+#opsRecordingListPage .recording-secondary,
+.recording-player-dialog .recording-primary,
+.recording-player-dialog .recording-secondary,
+.recording-transcript-dialog .recording-secondary { display: inline-flex; align-items: center; justify-content: center; min-height: 34px; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; }
+#opsRecordingListPage .recording-primary,
+.recording-player-dialog .recording-primary { border: 1px solid #1554d1 !important; background: #1554d1 !important; color: #fff !important; }
+#opsRecordingListPage .recording-secondary,
+.recording-player-dialog .recording-secondary,
+.recording-transcript-dialog .recording-secondary { border: 1px solid #d5deea !important; background: #fff !important; color: #334155 !important; }
+#opsRecordingListPage .recording-audio-unavailable-button { color: #94a3b8 !important; }
+#opsRecordingListPage .mw-report-table-scroll { max-height: 520px; overflow: auto !important; border: 1px solid #e8eef7; border-radius: 6px 6px 0 0; }
+#opsRecordingListPage .mw-report-table-scroll table { min-width: max-content; }
+#opsRecordingListPage .mw-report-table-scroll thead { position: sticky; top: 0; z-index: 2; }
+#opsRecordingListPage .mw-report-table-scroll thead th { background: #f1f5f9; }
+#opsRecordingListPage .mw-report-table-scroll th:last-child { position: sticky; right: 0; z-index: 3; min-width: 205px; box-shadow: -5px 0 9px rgba(15, 23, 42, .05); }
+#opsRecordingListPage .mw-report-table-scroll td:last-child { position: sticky; right: 0; z-index: 1; min-width: 205px; background: #fff; box-shadow: -5px 0 9px rgba(15, 23, 42, .05); }
+#opsRecordingListPage .mw-report-table-scroll tr[hidden] { display: none !important; }
+#opsRecordingListPage .recording-empty td { padding: 32px 20px; text-align: center; color: #94a3b8; }
+#opsRecordingListPage .recording-pagination { margin: 0 -16px -16px; border-radius: 0 0 10px 10px; }
+#opsRecordingListPage .recording-fields-popover { position: absolute; top: calc(100% + 7px); right: 0; z-index: 10; width: 245px; max-height: 320px; overflow: auto; padding: 14px; border: 1px solid #d5deea; border-radius: 8px; background: #fff; box-shadow: 0 8px 28px rgba(15, 23, 42, .14); }
+#opsRecordingListPage .recording-fields-popover strong { color: #1e293b; font-size: 14px; }
+#opsRecordingListPage .recording-fields-popover p { margin: 3px 0 8px; color: #64748b; font-size: 12px; }
+#opsRecordingListPage .recording-fields-popover label { display: flex; align-items: center; gap: 7px; padding: 5px 0; color: #334155; font-size: 12px; white-space: nowrap; }
+#opsAudioModal.modal-backdrop { position: fixed; inset: 0; z-index: 2600; display: none; align-items: center; justify-content: center; box-sizing: border-box; padding: 24px; background: rgba(15, 23, 42, .45); }
+#opsAudioModal.modal-backdrop.show { display: flex; }
+.recording-player-dialog { width: min(520px, 100%); border-radius: 10px; background: #fff; box-shadow: 0 24px 60px rgba(15, 23, 42, .24); }
+.recording-player-dialog header,
+.recording-player-dialog footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 16px 20px; }
+.recording-player-dialog header { border-bottom: 1px solid #e8eef7; }
+.recording-player-dialog header strong { font-size: 17px; color: #1e293b; }
+.recording-player-dialog header button { border: 0; background: transparent; color: #64748b; font-size: 26px; cursor: pointer; }
+.recording-player-body { padding: 20px; color: #475569; font-size: 13px; }
+.recording-player-body p { margin: 0 0 9px; }
+.recording-player-body audio { width: 100%; margin-top: 12px; }
+.recording-audio-unavailable { margin-top: 14px; padding: 14px; border: 1px solid #dbeafe; border-radius: 6px; background: #eff6ff; color: #1e40af; line-height: 1.6; }
+.recording-player-dialog footer { justify-content: flex-end; border-top: 1px solid #e8eef7; }
+#opsTranscriptModal.recording-transcript-backdrop { position: fixed; inset: 0; z-index: 2600; display: none; align-items: center; justify-content: center; box-sizing: border-box; padding: 24px; background: rgba(15, 23, 42, .45); }
+#opsTranscriptModal.recording-transcript-backdrop.show { display: flex; }
+.recording-transcript-dialog { display: flex; flex-direction: column; width: min(720px, 100%); max-height: calc(100vh - 48px); overflow: hidden; border-radius: 10px; background: #fff; box-shadow: 0 24px 60px rgba(15, 23, 42, .24); }
+.recording-transcript-dialog header,
+.recording-transcript-dialog footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 16px 20px; border-bottom: 1px solid #e8eef7; }
+.recording-transcript-dialog header strong { color: #1e293b; font-size: 16px; }
+.recording-transcript-dialog header button { border: 0; background: transparent; color: #64748b; font-size: 26px; cursor: pointer; }
+.recording-transcript-meta { display: flex; flex-wrap: wrap; gap: 8px 18px; padding: 12px 20px; background: #f8fafc; color: #64748b; font-size: 12px; }
+.recording-transcript-body { overflow: auto; padding: 20px; }
+.recording-transcript-line { margin-bottom: 14px; }
+.recording-transcript-line small { display: block; margin-bottom: 5px; color: #64748b; }
+.recording-transcript-line p { display: inline-block; max-width: 85%; margin: 0; padding: 9px 12px; border: 1px solid #dbeafe; border-radius: 8px; background: #eff6ff; color: #334155; line-height: 1.6; }
+.recording-transcript-line.customer p { border-color: #e2e8f0; background: #f8fafc; }
+.recording-transcript-dialog footer { justify-content: flex-end; border-top: 1px solid #e8eef7; border-bottom: 0; }
+@media (max-width: 1450px) { #opsRecordingListPage .recording-filter-layout { grid-template-columns: 1fr; } #opsRecordingListPage .recording-filter-actions { margin-top: 0; } }
+@media (max-width: 1200px) { #opsRecordingListPage .recording-filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
+@media (max-width: 680px) { #opsRecordingListPage .recording-filter-grid { grid-template-columns: 1fr !important; } }
+@media (max-width: 900px) { #opsRecordingListPage .mw-report-summary { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }

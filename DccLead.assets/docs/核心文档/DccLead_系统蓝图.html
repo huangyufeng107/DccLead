@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DCC培育 · SaaS平台 - 系统蓝图</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg: #faf8ff;
+  --panel: #ffffff;
+  --text: #191b23;
+  --muted: #434654;
+  --border: #c3c6d6;
+  --accent: #003594;
+  --accent-soft: #dbe1ff;
+  --accent-light: #eef2ff;
+  --success: #15803d;
+  --success-bg: #f0fdf4;
+  --warning: #b45309;
+  --warning-bg: #fffbeb;
+  --danger: #b91c1c;
+  --info: #0284c7;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --header-gradient: linear-gradient(135deg, #00174b 0%, #003594 50%, #004ac6 100%);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+}
+.page {
+  max-width: 1680px;
+  margin: 0 auto;
+  padding: 20px 24px 60px;
+}
+
+/* 顶部卡片头部 */
+.doc-header, .bp-header {
+  background: var(--header-gradient);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 28px 32px 22px;
+  margin-bottom: 18px;
+  color: #fff;
+}
+.doc-type-badge, .bp-badge {
+  display: block;
+  background: transparent;
+  color: #dce8ff;
+  backdrop-filter: none;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  padding: 0;
+  border-radius: 0;
+  margin-bottom: 6px;
+}
+.doc-header h1, .bp-header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.5px;
+  color: #fff;
+}
+.doc-subtitle, .bp-subtitle {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 14px;
+  margin-top: 10px;
+  line-height: 1.6;
+}
+
+/* 视图切换 Tabs */
+.view-nav {
+  display: flex;
+  gap: 8px;
+  background: #fff;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  flex-wrap: wrap;
+}
+.view-btn {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid transparent;
+  padding: 9px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.view-btn:hover {
+  background: rgba(0, 53, 148, 0.06);
+  color: var(--accent);
+}
+.view-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+.view-btn .tag {
+  background: rgba(255, 255, 255, 0.25);
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-weight: normal;
+}
+.view-btn:not(.active) .tag {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+/* 主布局 */
+.layout-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .layout-grid { grid-template-columns: 1fr; }
+}
+
+/* 图形工作台 */
+.canvas-card {
+  background: #fff;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.canvas-toolbar {
+  padding: 12px 18px;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.canvas-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.legend-group {
+  display: flex;
+  gap: 14px;
+  font-size: 12px;
+  color: #475569;
+}
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.legend-dot.platform { background: #003594; }
+.legend-dot.upstream { background: #0284c7; }
+.legend-dot.engine { background: #8b5cf6; }
+.legend-dot.downstream { background: #10b981; }
+
+.canvas-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tool-btn {
+  background: #fff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 5px 11px;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tool-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.canvas-viewport {
+  position: relative;
+  overflow: auto;
+  background: #ffffff;
+  min-height: 640px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.canvas-viewport svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  user-select: none;
+  transition: transform 0.2s ease;
+}
+
+/* 侧边详情栏 */
+.sidebar-card {
+  background: #fff;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  position: sticky;
+  top: 20px;
+}
+.sidebar-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sidebar-type-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: var(--accent);
+}
+.info-section {
+  margin-bottom: 16px;
+}
+.info-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.info-content {
+  font-size: 13px;
+  color: #1e293b;
+  line-height: 1.55;
+}
+.interface-pill {
+  display: inline-block;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 12px;
+  font-family: SFMono-Regular, Consolas, monospace;
+  margin: 3px 4px 3px 0;
+  color: #0f172a;
+}
+.callout-box {
+  background: #f8fafc;
+  border-left: 3px solid var(--accent);
+  padding: 10px 12px;
+  border-radius: 0 6px 6px 0;
+  font-size: 12px;
+  color: #334155;
+  margin-top: 14px;
+}
+.menu-path-badge {
+  font-weight: 700;
+  color: #003594;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: inline-block;
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+.action-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.action-list li {
+  position: relative;
+  padding-left: 14px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.5;
+}
+.action-list li::before {
+  content: "•";
+  position: absolute;
+  left: 2px;
+  color: #003594;
+  font-weight: 700;
+}
+
+/* SVG 交互样式 */
+.node-box {
+  cursor: pointer;
+}
+.node-box rect.node-bg {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.06));
+  transition: all 0.2s;
+}
+.node-box:hover rect.node-bg {
+  stroke-width: 2.2px;
+  stroke: #003594 !important;
+  filter: drop-shadow(0 4px 8px rgba(0, 53, 148, 0.16));
+}
+.node-box.is-selected rect.node-bg {
+  stroke-width: 3px;
+  stroke: #003594 !important;
+  fill: #f0f4ff !important;
+}
+.edge-line {
+  fill: none !important;
+  transition: stroke-width 0.2s;
+}
+.edge-line:hover {
+  stroke-width: 3.5px !important;
+  stroke: #003594 !important;
+}
+
+/* 数据矩阵表 */
+.matrix-card {
+  margin-top: 24px;
+  background: #fff;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 22px;
+}
+.matrix-card h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.table-wrap {
+  overflow-x: auto;
+}
+table.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+table.matrix-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-bottom: 2px solid #e2e8f0;
+  white-space: nowrap;
+}
+table.matrix-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: top;
+  line-height: 1.5;
+}
+table.matrix-table tr:hover td {
+  background: #f8fafc;
+}
+.status-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.status-badge.local { background: #dbeafe; color: #1e40af; }
+.status-badge.sync { background: #fef3c7; color: #92400e; }
+.status-badge.webhook { background: #ede9fe; color: #6b21a8; }
+.status-badge.downstream { background: #dcfce7; color: #166534; }
+
+/* 六个文档页统一的顶部系统标题规格 */
+.doc-header h1 { font-family: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; font-size: 26px; font-weight: 700; line-height: 1.3; letter-spacing: 0.5px; color: #fff; }
+@media (max-width: 768px) { .doc-header h1 { font-size: 20px; } }
+
+/* 与 D客连文档统一的顶部标题卡片 */
+.dcc-unified-hero {
+  box-sizing: border-box !important;
+  min-height: 136px !important;
+  padding: 32px 36px !important;
+  margin-bottom: 18px !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, #003594 0%, #1e40af 100%) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 53, 148, .2) !important;
+  color: #fff !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+.dcc-unified-hero h1 {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  letter-spacing: 0 !important;
+  color: #fff !important;
+  margin: 0 0 10px !important;
+}
+.dcc-unified-hero .doc-subtitle, .dcc-unified-hero > p:not(.doc-subtitle) {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.6 !important;
+  color: rgba(255,255,255,.9) !important;
+  opacity: 1 !important;
+  margin: 0 !important;
+  max-width: none !important;
+}
+@media (max-width: 768px) {
+  .dcc-unified-hero { min-height: 0 !important; padding: 24px 22px !important; }
+  .dcc-unified-hero h1 { font-size: 20px !important; }
+  .dcc-unified-hero .doc-subtitle, .dcc-unified-hero > p:not(.doc-subtitle) { font-size: 13px !important; }
+}
+
+/* v2.9 跨文档追溯区 */
+.v29-links{display:flex;flex-wrap:wrap;gap:10px 18px;margin:12px 0;line-height:1.8}.v29-note{padding:14px 16px;margin:14px 0;border:1px solid #bfdbfe;border-radius:8px;background:#eff6ff;color:#334155;line-height:1.8}.v29-block{margin:18px 0;padding:18px;border:1px solid #dbe3ee;border-radius:10px;background:#fff;color:#334155;line-height:1.8}.v29-block h3,.v29-block h4{color:#0f172a;margin:8px 0}.v29-block p{margin:8px 0}.v29-scroll{overflow-x:auto}.v29-table{width:100%;border-collapse:collapse;min-width:680px;font-size:13px}.v29-table th,.v29-table td{padding:10px 12px;text-align:left;vertical-align:top;border:1px solid #dbe3ee;line-height:1.7}.v29-table th{background:#f1f5f9}.v29-links a,.v29-block a,.v29-table a{color:#1d4ed8;text-decoration:underline;text-underline-offset:3px}.v29-block [id],.v29-table tr[id]{scroll-margin-top:24px}
+</style>
+</head>
+<body>
+
+<div class="page">
+  <!-- 头部卡片 -->
+  <div class="doc-header bp-header dcc-unified-hero">
+    <h1>DCC培育 · 系统蓝图</h1>
+    <div class="doc-subtitle bp-subtitle">当前原型范围、业务处理链路、数据归属与执行边界。</div>
+  </div>
+
+  <!-- 视图导航（支持点击切换 3 大架构视图） -->
+  <nav class="view-nav" aria-label="架构视图导航" id="viewNav">
+    <button type="button" class="view-btn active" data-view="overview">
+      <span>01 · 系统拓扑总览</span>
+      <span class="tag">系统边界与拓扑</span>
+    </button>
+    <button type="button" class="view-btn" data-view="domain">
+      <span>02 · DCC平台核心领域架构</span>
+      <span class="tag">线索·排班·规则·任务</span>
+    </button>
+    <button type="button" class="view-btn" data-view="telephony">
+      <span>03 · AI外呼与通信集成蓝图</span>
+      <span class="tag">任务下发·话单·转写回执</span>
+    </button>
+  </nav>
+
+  <!-- 主布局 -->
+  <div class="layout-grid">
+    <!-- 图形工作区 -->
+    <section class="canvas-card" aria-label="系统拓扑架构画布">
+      <div class="canvas-toolbar">
+        <div class="canvas-toolbar-left">
+          <div class="legend-group">
+            <span class="legend-item"><i class="legend-dot platform"></i>DCC平台核心 (自建持久化)</span>
+            <span class="legend-item"><i class="legend-dot upstream"></i>上游中台 (线索来源)</span>
+            <span class="legend-item"><i class="legend-dot engine"></i>AI/通信引擎 (外呼执行)</span>
+            <span class="legend-item"><i class="legend-dot downstream"></i>触达与终端 (坐席/客户)</span>
+          </div>
+        </div>
+        <div class="canvas-toolbar-right">
+          <button type="button" class="tool-btn" id="btnZoomIn" title="放大">＋ 放大</button>
+          <button type="button" class="tool-btn" id="btnZoomOut" title="缩小">− 缩小</button>
+          <button type="button" class="tool-btn" id="btnFit" title="自适应">适应宽度</button>
+          <button type="button" class="tool-btn" id="btnReset" title="重置">100%</button>
+        </div>
+      </div>
+
+      <div class="canvas-viewport" id="canvasViewport">
+        <!-- ==================== 视图 01: 关联系统拓扑总览 ==================== -->
+        <svg id="svgOverview" viewBox="0 0 1060 760" width="1060" height="760" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="#003594"/>
+            </marker>
+            <marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="#7c3aed"/>
+            </marker>
+            <marker id="arrow-teal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="#059669"/>
+            </marker>
+          </defs>
+
+          <!-- 泳道背景组 -->
+          <rect x="20" y="20" width="1020" height="120" rx="10" fill="#f0f9ff" stroke="#bae6fd" stroke-width="1.2"/>
+          <text x="40" y="44" font-size="14" font-weight="700" fill="#0369a1">【上游数据源与业务系统】</text>
+
+          <rect x="20" y="165" width="1020" height="385" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+          <text x="40" y="187" font-size="14" font-weight="700" fill="#1e293b">【DCC培育平台 · SaaS核心业务域】 (100% 对齐系统菜单与业务主线)</text>
+
+          <rect x="20" y="570" width="1020" height="165" rx="10" fill="#faf5ff" stroke="#e9d5ff" stroke-width="1.2"/>
+          <text x="40" y="594" font-size="14" font-weight="700" fill="#6b21a8">【第三方通信与触达底座】 (基础设施与外部引擎)</text>
+
+          <!-- ==================== 1. 上游节点 (正交对齐 4 列) ==================== -->
+          <!-- Col 1: 线下批次导入 -->
+          <g class="node-box" data-id="import_batch" transform="translate(50, 50)">
+            <rect class="node-bg" width="220" height="65" rx="8" fill="#ffffff" stroke="#38bdf8" stroke-width="1.6"/>
+            <text x="18" y="26" font-size="14" font-weight="700" fill="#0c4a6e">线下批次文件导入</text>
+            <text x="18" y="48" font-size="11" fill="#64748b">活动/车展名单校验入库</text>
+          </g>
+
+          <!-- Col 2: 天网付费集客平台 -->
+          <g class="node-box" data-id="tianwang" transform="translate(300, 50)">
+            <rect class="node-bg" width="220" height="65" rx="8" fill="#ffffff" stroke="#38bdf8" stroke-width="1.6"/>
+            <text x="18" y="26" font-size="14" font-weight="700" fill="#0c4a6e">天网付费集客平台</text>
+            <text x="18" y="48" font-size="11" fill="#64748b">多渠道广告线索实时推单</text>
+          </g>
+
+          <!-- Col 3: 三无忧冷线索中台 -->
+          <g class="node-box" data-id="sanwuyou" transform="translate(550, 50)">
+            <rect class="node-bg" width="220" height="65" rx="8" fill="#ffffff" stroke="#38bdf8" stroke-width="1.6"/>
+            <text x="18" y="26" font-size="14" font-weight="700" fill="#0c4a6e">三无忧冷线索中台</text>
+            <text x="18" y="48" font-size="11" fill="#64748b">沉睡线索定时清洗与下发</text>
+          </g>
+
+          <!-- Col 4: 集团营销 CRM (置于最右侧，正对试驾排程，垂直闭环) -->
+          <g class="node-box" data-id="crm" transform="translate(800, 50)">
+            <rect class="node-bg" width="220" height="65" rx="8" fill="#ffffff" stroke="#38bdf8" stroke-width="1.6"/>
+            <text x="18" y="26" font-size="14" font-weight="700" fill="#0c4a6e">集团营销 CRM</text>
+            <text x="18" y="48" font-size="11" fill="#64748b">潜客留资 / 意向变更回传</text>
+          </g>
+
+          <!-- 上游多渠道统一接入总线 (从 Col 1 延伸到 Col 3) -->
+          <path class="edge-line" d="M 160 115 L 160 142" stroke="#0284c7" stroke-width="2" marker-end="url(#arrow-blue)"/>
+          <path class="edge-line" d="M 410 115 L 410 142" stroke="#0284c7" stroke-width="2" marker-end="url(#arrow-blue)"/>
+          <path class="edge-line" d="M 660 115 L 660 142" stroke="#0284c7" stroke-width="2" marker-end="url(#arrow-blue)"/>
+          <path class="edge-line" d="M 160 142 L 660 142" stroke="#0284c7" stroke-width="2.5"/>
+
+          <!-- 总线标识徽章 -->
+          <rect x="295" y="131" width="230" height="22" rx="11" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.2"/>
+          <text x="410" y="146" font-size="11" font-weight="700" fill="#0369a1" text-anchor="middle">多渠道线索统一接入与去重总线</text>
+
+          <!-- 统一垂直注入【线索管理】 -->
+          <path class="edge-line" d="M 160 142 L 160 195" stroke="#0284c7" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
+
+          <!-- ==================== 2. DCC 核心业务主干 (Row 1: 4 步向右流水线) ==================== -->
+          <!-- Col 1: 线索管理 -->
+          <g class="node-box" data-id="m_lead" transform="translate(50, 195)">
+            <rect class="node-bg" width="220" height="115" rx="8" fill="#ffffff" stroke="#003594" stroke-width="1.8"/>
+            <rect x="0" y="0" width="6" height="115" rx="3" fill="#003594"/>
+            <text x="18" y="26" font-size="14" font-weight="700" fill="#003594">【线索管理】</text>
+            <text x="18" y="48" font-size="11" fill="#475569">• 三无忧冷线索准入 · 排重过滤</text>
+            <text x="18" y="67" font-size="11" fill="#475569">• 下发审核 · 批次名单校验入库</text>
+            <text x="18" y="86" font-size="11" fill="#475569">• 沉睡池 / 在跟池 / 公海池流转</text>
+            <rect x="18" y="93" width="160" height="16" rx="4" fill="#f1f5f9"/>
+            <text x="98" y="105" font-size="9" fill="#64748b" text-anchor="middle">公海池承接超时释放线索</text>
+          </g>
+
+          <!-- Col 2: 培育策略 -->
+          <g class="node-box" data-id="m_strategy" transform="translate(300, 195)">
+            <rect class="node-bg" width="220" height="115" rx="8" fill="#ffffff" stroke="#003594" stroke-width="1.8"/>
+            <rect x="0" y="0" width="6" height="115" rx="3" fill="#003594"/>
+            <text x="18" y="24" font-size="13" font-weight="700" fill="#003594">【培育策略】</text>
+            <text x="18" y="42" font-size="10" fill="#475569">• 7维度分配 (Agent胶囊/固定列宽 · v2.8)</text>
+            <text x="18" y="58" font-size="10" fill="#475569">• AI策略工作台 (双来源/逐条发布 · v2.8)</text>
+            <text x="18" y="74" font-size="10" fill="#475569">• AI 外呼策略 · 坐席人工外呼配置</text>
+            <text x="18" y="90" font-size="10" fill="#475569">• 经销商白名单 · 负荷配额熔断</text>
+            <rect x="18" y="95" width="168" height="15" rx="3" fill="#f1f5f9"/>
+            <text x="102" y="106" font-size="8.5" fill="#64748b" text-anchor="middle">低效关联优先 + 在线7级漏斗分派</text>
+          </g>
+
+          <!-- Col 3: 培育任务 (我的任务) -->
+          <g class="node-box" data-id="m_task" transform="translate(550, 195)">
+            <rect class="node-bg" width="220" height="115" rx="8" fill="#ffffff" stroke="#003594" stroke-width="1.8"/>
+            <rect x="0" y="0" width="6" height="115" rx="3" fill="#003594"/>
+            <text x="18" y="26" font-size="14" font-weight="700" fill="#003594">【培育任务】</text>
+            <text x="18" y="48" font-size="11" fill="#475569">• 坐席待办工单 · 软电话条弹屏</text>
+            <text x="18" y="67" font-size="11" fill="#475569">• 通话沟通记录 · 客户意向评级打标</text>
+            <text x="18" y="86" font-size="11" fill="#475569">• 话后整理小休锁 · 草稿自动暂存</text>
+            <rect x="18" y="93" width="170" height="16" rx="4" fill="#fee2e2"/>
+            <text x="103" y="105" font-size="9" font-weight="600" fill="#b91c1c" text-anchor="middle">⏰ 24h未跟进自动回收公海</text>
+          </g>
+
+          <!-- Col 4: 试驾排程 ★核心转化终态 -->
+          <g class="node-box" data-id="m_testdrive" transform="translate(800, 195)">
+            <rect class="node-bg" width="220" height="115" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="2.2"/>
+            <rect x="0" y="0" width="6" height="115" rx="3" fill="#16a34a"/>
+            <text x="18" y="26" font-size="14" font-weight="700" fill="#15803d">【试驾排程】★核心转化</text>
+            <text x="18" y="48" font-size="11" fill="#166534">• 试驾预约工单 · 门店/车系日历锁定</text>
+            <text x="18" y="67" font-size="11" fill="#166534">• 下发到店定位指引短信 · 企微通知</text>
+            <text x="18" y="86" font-size="11" fill="#166534">• 中台推送监控 · 履约结果反哺 CRM</text>
+            <rect x="18" y="93" width="160" height="16" rx="4" fill="#dcfce7"/>
+            <text x="98" y="105" font-size="9" font-weight="700" fill="#15803d" text-anchor="middle">★ 预约成功反哺回传 CRM</text>
+          </g>
+
+          <!-- Row 1 正向流水线推进水平箭头 (零折线、零交叉) -->
+          <path class="edge-line" d="M 270 252 L 300 252" stroke="#003594" stroke-width="2.4" marker-end="url(#arrow-blue)"/>
+          <text x="285" y="244" font-size="10" font-weight="700" fill="#003594" text-anchor="middle">分单 ➔</text>
+
+          <path class="edge-line" d="M 520 252 L 550 252" stroke="#003594" stroke-width="2.4" marker-end="url(#arrow-blue)"/>
+          <text x="535" y="244" font-size="10" font-weight="700" fill="#003594" text-anchor="middle">派单 ➔</text>
+
+          <path class="edge-line" d="M 770 252 L 800 252" stroke="#16a34a" stroke-width="2.4" marker-end="url(#arrow-teal)"/>
+          <text x="785" y="244" font-size="10" font-weight="700" fill="#15803d" text-anchor="middle">★试驾 ➔</text>
+
+          <!-- 试驾排程反哺闭环 ➔ 垂直向上直连 CRM (绝不穿墙、绝不碰三无忧) -->
+          <path class="edge-line" d="M 910 195 L 910 115" stroke="#16a34a" stroke-width="2.2" stroke-dasharray="5 4" marker-end="url(#arrow-teal)"/>
+          <rect x="830" y="145" width="160" height="20" rx="4" fill="#f0fdf4" stroke="#16a34a" stroke-width="1"/>
+          <text x="910" y="159" font-size="10" font-weight="700" fill="#15803d" text-anchor="middle">★ 试驾数据反哺 CRM 闭环 ➔</text>
+
+          <!-- ==================== 3. DCC 支撑与监控层 (Row 2: 左右两翼大卡片) ==================== -->
+          <!-- 左翼支撑: 任务排班 -->
+          <g class="node-box" data-id="m_schedule" transform="translate(50, 360)">
+            <rect class="node-bg" width="470" height="105" rx="8" fill="#ffffff" stroke="#003594" stroke-width="1.8"/>
+            <rect x="0" y="0" width="6" height="105" rx="3" fill="#003594"/>
+            <text x="18" y="26" font-size="14" font-weight="700" fill="#003594">【任务排班】(坐席管理 · 排班日历 · 短信模板)</text>
+            <text x="18" y="48" font-size="11" fill="#475569">• 坐席管理 · 早/晚/轮休排班日历 · 每日在岗工位监控</text>
+            <text x="18" y="68" font-size="11" fill="#475569">• 短信模板配置 (试驾确认短信 / 未接通关怀短信 / 兜底营销)</text>
+            <text x="18" y="88" font-size="11" fill="#475569">• 坐席在岗心跳监测，为【培育策略】提供实时可用坐席配额与工单上限</text>
+          </g>
+
+          <!-- 右翼沉淀: 统计报表与质检 -->
+          <g class="node-box" data-id="m_report" transform="translate(550, 360)">
+            <rect class="node-bg" width="470" height="105" rx="8" fill="#ffffff" stroke="#003594" stroke-width="1.8"/>
+            <rect x="0" y="0" width="6" height="105" rx="3" fill="#003594"/>
+            <text x="18" y="26" font-size="14" font-weight="700" fill="#003594">【统计报表与质检】(业绩看板 · 工单明细 · 预外呼质检)</text>
+            <text x="18" y="48" font-size="11" fill="#475569">• 坐席业绩看板 · 转化漏斗大屏 (留资 ➔ 呼通 ➔ 高意向 ➔ 到店试驾)</text>
+            <text x="18" y="68" font-size="11" fill="#475569">• 人工坐席工单 · 总部培育多维综合报表导出</text>
+            <text x="18" y="88" font-size="11" fill="#475569">• 预外呼监控 · 实时通话监听 · 人工与 AI 通话录音抽检查听质检</text>
+          </g>
+
+          <!-- 支撑层垂直联动箭头 (纯垂直、零倾斜) -->
+          <!-- 排班为策略提供坐席配额 -->
+          <path class="edge-line" d="M 410 360 L 410 310" stroke="#003594" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#arrow-blue)"/>
+          <text x="418" y="340" font-size="10" font-weight="600" fill="#003594">排班配额 ➔</text>
+
+          <!-- 任务向报表沉淀工单流水 -->
+          <path class="edge-line" d="M 660 310 L 660 360" stroke="#003594" stroke-width="1.8" marker-end="url(#arrow-blue)"/>
+          <text x="668" y="340" font-size="10" font-weight="600" fill="#003594">工单与录音沉淀 ➔</text>
+
+          <!-- ==================== 4. 第三方通信与触达底座 (纯垂直正交对齐) ==================== -->
+          <!-- Col 2 正下方: AI 智能外呼平台 -->
+          <g class="node-box" data-id="ai_engine" transform="translate(260, 620)">
+            <rect class="node-bg" width="300" height="85" rx="8" fill="#ffffff" stroke="#8b5cf6" stroke-width="1.8"/>
+            <text x="20" y="28" font-size="14" font-weight="700" fill="#6b21a8">AI 智能外呼平台 (AliCti)</text>
+            <text x="20" y="50" font-size="12" fill="#64748b">机器人自动拨打 · 意向智能识别</text>
+            <text x="20" y="70" font-size="12" fill="#64748b">话单推送 (Webhook) · 录音转写文本</text>
+          </g>
+
+          <!-- Col 3 正下方: 软电话通信网关 -->
+          <g class="node-box" data-id="webrtc_phone" transform="translate(580, 620)">
+            <rect class="node-bg" width="210" height="85" rx="8" fill="#ffffff" stroke="#8b5cf6" stroke-width="1.8"/>
+            <text x="20" y="28" font-size="14" font-weight="700" fill="#6b21a8">软电话通信网关</text>
+            <text x="20" y="50" font-size="12" fill="#64748b">SIP / WebRTC 媒体流</text>
+            <text x="20" y="70" font-size="12" fill="#64748b">坐席网页端双向呼叫</text>
+          </g>
+
+          <!-- Col 4 正下方: 统一短信 / 企微网关 -->
+          <g class="node-box" data-id="sms_gateway" transform="translate(810, 620)">
+            <rect class="node-bg" width="210" height="85" rx="8" fill="#ffffff" stroke="#10b981" stroke-width="1.8"/>
+            <text x="20" y="28" font-size="14" font-weight="700" fill="#047857">统一短信 / 企微网关</text>
+            <text x="20" y="50" font-size="12" fill="#64748b">模板短信批量下发 (触达兜底)</text>
+            <text x="20" y="70" font-size="12" fill="#64748b">到店指引定位 · 坐席任务提醒</text>
+          </g>
+
+          <!-- 通信底座垂直对齐连线 (三根纯垂直线条，绝不相交) -->
+          <path class="edge-line" d="M 410 465 L 410 620" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrow-purple)"/>
+          <text x="418" y="550" font-size="10" font-weight="600" fill="#7c3aed">外呼批次任务 ➔</text>
+
+          <path class="edge-line" d="M 685 465 L 685 620" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrow-purple)"/>
+          <text x="693" y="550" font-size="10" font-weight="600" fill="#7c3aed">通话信令媒体流 ➔</text>
+
+          <path class="edge-line" d="M 915 465 L 915 620" stroke="#059669" stroke-width="2" marker-end="url(#arrow-teal)"/>
+          <text x="923" y="550" font-size="10" font-weight="600" fill="#047857">到店定位/催办短信 ➔</text>
+        </svg>
+
+        <!-- ==================== 视图 02: DCC 核心领域架构 ==================== -->
+        <svg id="svgDomain" viewBox="0 0 1060 760" width="1060" height="760" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+          <defs>
+            <marker id="arrow-blue-dom" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="#003594"/>
+            </marker>
+            <marker id="arrow-teal-dom" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="#059669"/>
+            </marker>
+            <marker id="arrow-red-dom" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="#b91c1c"/>
+            </marker>
+          </defs>
+
+          <!-- 泳道背景组 -->
+          <rect x="20" y="20" width="1020" height="210" rx="10" fill="#f0f9ff" stroke="#bae6fd" stroke-width="1.2"/>
+          <text x="40" y="46" font-size="14" font-weight="700" fill="#0369a1">【领域层 01 · 线索全生命周期状态机与属性模型】</text>
+
+          <rect x="20" y="250" width="1020" height="250" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+          <text x="40" y="276" font-size="14" font-weight="700" fill="#1e293b">【领域层 02 · 规则引擎、任务调度与滞留治理中心】</text>
+
+          <rect x="20" y="520" width="1020" height="210" rx="10" fill="#fefce8" stroke="#fef08a" stroke-width="1.2"/>
+          <text x="40" y="546" font-size="14" font-weight="700" fill="#854d0e">【持久化与缓存基础设施层 (Persistence & Cache)】</text>
+
+          <!-- 状态机节点 -->
+          <g class="node-box" data-id="lead_pending" transform="translate(50, 70)">
+            <rect class="node-bg" width="150" height="70" rx="8" fill="#ffffff" stroke="#003594" stroke-width="1.8"/>
+            <text x="20" y="30" font-size="13" font-weight="700" fill="#003594">待分配 (PENDING)</text>
+            <text x="20" y="50" font-size="11" fill="#64748b">新线索排重入池</text>
+          </g>
+
+          <g class="node-box" data-id="lead_allocated" transform="translate(250, 70)">
+            <rect class="node-bg" width="150" height="70" rx="8" fill="#ffffff" stroke="#003594" stroke-width="1.8"/>
+            <text x="20" y="30" font-size="13" font-weight="700" fill="#003594">已分配 (ALLOC)</text>
+            <text x="20" y="50" font-size="11" fill="#64748b">锁定目标坐席工号</text>
+          </g>
+
+          <g class="node-box" data-id="lead_follow" transform="translate(450, 70)">
+            <rect class="node-bg" width="160" height="70" rx="8" fill="#ffffff" stroke="#003594" stroke-width="1.8"/>
+            <text x="20" y="30" font-size="13" font-weight="700" fill="#003594">跟进中 (FOLLOWING)</text>
+            <text x="20" y="50" font-size="11" fill="#64748b">外呼接通 / 沟通录入</text>
+          </g>
+
+          <g class="node-box" data-id="lead_intent" transform="translate(660, 70)">
+            <rect class="node-bg" width="160" height="70" rx="8" fill="#ffffff" stroke="#15803d" stroke-width="1.8"/>
+            <text x="20" y="30" font-size="13" font-weight="700" fill="#15803d">高意向 / 已预约试驾</text>
+            <text x="20" y="50" font-size="11" fill="#15803d">A/B 级潜客 · 到店排期</text>
+          </g>
+
+          <g class="node-box" data-id="lead_stagnant_state" transform="translate(860, 70)">
+            <rect class="node-bg" width="160" height="70" rx="8" fill="#ffffff" stroke="#b91c1c" stroke-width="1.8"/>
+            <text x="20" y="30" font-size="13" font-weight="700" fill="#b91c1c">滞留公海 / 战败流转</text>
+            <text x="20" y="50" font-size="11" fill="#b91c1c">超时未跟进 · 释放归属</text>
+          </g>
+
+          <!-- 状态机流向箭头 -->
+          <path class="edge-line" d="M 200 105 L 250 105" stroke="#003594" stroke-width="2" marker-end="url(#arrow-blue-dom)"/>
+          <path class="edge-line" d="M 400 105 L 450 105" stroke="#003594" stroke-width="2" marker-end="url(#arrow-blue-dom)"/>
+          <path class="edge-line" d="M 610 105 L 660 105" stroke="#15803d" stroke-width="2" marker-end="url(#arrow-teal-dom)"/>
+          <path class="edge-line" d="M 530 140 L 530 175 L 940 175 L 940 140" stroke="#b91c1c" stroke-width="1.8" stroke-dasharray="4 4" marker-end="url(#arrow-red-dom)"/>
+          <rect x="635" y="156" width="200" height="22" rx="4" fill="#fee2e2" stroke="#fca5a5" stroke-width="1"/>
+          <text x="735" y="171" font-size="11" font-weight="600" fill="#b91c1c" text-anchor="middle">超时未跟进 (24h) 自动流转</text>
+
+          <!-- 领域层 02 节点 -->
+          <g class="node-box" data-id="rule_operators" transform="translate(50, 300)">
+            <rect class="node-bg" width="220" height="90" rx="8" fill="#ffffff" stroke="#003594" stroke-width="1.8"/>
+            <text x="18" y="28" font-size="13" font-weight="700" fill="#003594">7 维度策略算子引擎</text>
+            <text x="18" y="48" font-size="11" fill="#64748b">• 轮询均分 / 星级评分加权</text>
+            <text x="18" y="66" font-size="11" fill="#64748b">• 车系专长 / 地域网格匹配</text>
+            <text x="18" y="82" font-size="11" fill="#64748b">• 在线状态 / 今日负荷上限</text>
+          </g>
+
+          <g class="node-box" data-id="schedule_dispatch" transform="translate(300, 300)">
+            <rect class="node-bg" width="220" height="90" rx="8" fill="#ffffff" stroke="#003594" stroke-width="1.8"/>
+            <text x="18" y="28" font-size="13" font-weight="700" fill="#003594">排班调度与波次控制器</text>
+            <text x="18" y="48" font-size="11" fill="#64748b">• 坐席排班日历 (早/晚/休)</text>
+            <text x="18" y="66" font-size="11" fill="#64748b">• 外呼波次频次控制 (RateLimit)</text>
+            <text x="18" y="82" font-size="11" fill="#64748b">• 可用坐席阈值不足自动挂起</text>
+          </g>
+
+          <g class="node-box" data-id="stagnant_engine_deep" transform="translate(550, 300)">
+            <rect class="node-bg" width="230" height="90" rx="8" fill="#ffffff" stroke="#003594" stroke-width="1.8"/>
+            <text x="18" y="28" font-size="13" font-weight="700" fill="#003594">滞留阶梯预警与治理引擎</text>
+            <text x="18" y="48" font-size="11" fill="#64748b">• 10min 轮询巡检 Worker</text>
+            <text x="18" y="66" font-size="11" fill="#64748b">• 临期 2h 企微催办通知</text>
+            <text x="18" y="82" font-size="11" fill="#64748b">• 强制回收与短信关怀下发</text>
+          </g>
+
+          <g class="node-box" data-id="seat_workbench_deep" transform="translate(810, 300)">
+            <rect class="node-bg" width="210" height="90" rx="8" fill="#ffffff" stroke="#003594" stroke-width="1.8"/>
+            <text x="18" y="28" font-size="13" font-weight="700" fill="#003594">坐席与班长工作台服务</text>
+            <text x="18" y="48" font-size="11" fill="#64748b">• 通话中草稿 5s 自动暂存</text>
+            <text x="18" y="66" font-size="11" fill="#64748b">• 挂机强制话后小休锁</text>
+            <text x="18" y="82" font-size="11" fill="#64748b">• 试驾预约冲突检测</text>
+          </g>
+
+          <!-- 持久化层节点 -->
+          <g class="node-box" data-id="mysql_core" transform="translate(50, 560)">
+            <rect class="node-bg" width="300" height="85" rx="8" fill="#ffffff" stroke="#ca8a04" stroke-width="1.8"/>
+            <text x="20" y="28" font-size="14" font-weight="700" fill="#a16207">MySQL 业务关系型数据库</text>
+            <text x="20" y="48" font-size="11" fill="#475569">线索主表 (dcc_lead) · 流转日志表</text>
+            <text x="20" y="66" font-size="11" fill="#475569">分配规则 (dcc_alloc_rule) · 试驾预约单</text>
+          </g>
+
+          <g class="node-box" data-id="redis_cache" transform="translate(380, 560)">
+            <rect class="node-bg" width="300" height="85" rx="8" fill="#ffffff" stroke="#ca8a04" stroke-width="1.8"/>
+            <text x="20" y="28" font-size="14" font-weight="700" fill="#a16207">Redis 高性能缓存与锁集群</text>
+            <text x="20" y="48" font-size="11" fill="#475569">坐席分布式排它锁 (lock:seat:${id})</text>
+            <text x="20" y="66" font-size="11" fill="#475569">坐席实时在线心跳 · 待办计数器</text>
+          </g>
+
+          <g class="node-box" data-id="oss_archive" transform="translate(710, 560)">
+            <rect class="node-bg" width="310" height="85" rx="8" fill="#ffffff" stroke="#ca8a04" stroke-width="1.8"/>
+            <text x="20" y="28" font-size="14" font-weight="700" fill="#a16207">OSS 对象存储与冷归档</text>
+            <text x="20" y="48" font-size="11" fill="#475569">外呼通话双轨录音文件 (.mp3/.wav)</text>
+            <text x="20" y="66" font-size="11" fill="#475569">ASR 完整转写对话文本 JSON</text>
+          </g>
+
+          <!-- 领域与存储连线 -->
+          <path class="edge-line" d="M 160 390 L 160 560" stroke="#ca8a04" stroke-width="1.8" marker-end="url(#arrow-blue-dom)"/>
+          <path class="edge-line" d="M 410 390 L 450 560" stroke="#ca8a04" stroke-width="1.8" marker-end="url(#arrow-blue-dom)"/>
+          <path class="edge-line" d="M 660 390 L 530 560" stroke="#ca8a04" stroke-width="1.8" marker-end="url(#arrow-blue-dom)"/>
+          <path class="edge-line" d="M 915 390 L 860 560" stroke="#ca8a04" stroke-width="1.8" marker-end="url(#arrow-blue-dom)"/>
+        </svg>
+
+        <!-- ==================== 视图 03: AI 外呼与通信集成蓝图 ==================== -->
+        <svg id="svgTelephony" viewBox="0 0 1060 760" width="1060" height="760" xmlns="http://www.w3.org/2000/svg" style="display:none;">
+          <defs>
+            <marker id="arrow-purple-tel" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="#7c3aed"/>
+            </marker>
+          </defs>
+
+          <!-- 泳道背景组 -->
+          <rect x="20" y="20" width="320" height="700" rx="10" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+          <text x="40" y="48" font-size="14" font-weight="700" fill="#1e293b">【DCC 平台通信适配层】</text>
+
+          <rect x="370" y="20" width="320" height="700" rx="10" fill="#f5f3ff" stroke="#ddd6fe" stroke-width="1.2"/>
+          <text x="390" y="48" font-size="14" font-weight="700" fill="#5b21b6">【传输协议与安全管道】</text>
+
+          <rect x="720" y="20" width="320" height="700" rx="10" fill="#faf5ff" stroke="#e9d5ff" stroke-width="1.2"/>
+          <text x="740" y="48" font-size="14" font-weight="700" fill="#6b21a8">【第三方云通信底座 (AliCti)】</text>
+
+          <!-- DCC 适配模块 -->
+          <g class="node-box" data-id="tel_task_dispatcher" transform="translate(40, 80)">
+            <rect class="node-bg" width="280" height="85" rx="8" fill="#ffffff" stroke="#003594" stroke-width="1.8"/>
+            <text x="18" y="28" font-size="13" font-weight="700" fill="#003594">外呼任务下发适配器</text>
+            <text x="18" y="48" font-size="11" fill="#64748b">• 构造 POST /task/create 请求</text>
+            <text x="18" y="66" font-size="11" fill="#64748b">• 映射 enterpriseId, 话术流, 名单批次</text>
+          </g>
+
+          <g class="node-box" data-id="tel_webhook_gateway" transform="translate(40, 210)">
+            <rect class="node-bg" width="280" height="85" rx="8" fill="#ffffff" stroke="#003594" stroke-width="1.8"/>
+            <text x="18" y="28" font-size="13" font-weight="700" fill="#003594">Webhook 话单接收网关</text>
+            <text x="18" y="48" font-size="11" fill="#64748b">• 验证 sign 签名与 timestamp 时效</text>
+            <text x="18" y="66" font-size="11" fill="#64748b">• 按 callId 幂等防重放过滤</text>
+          </g>
+
+          <g class="node-box" data-id="tel_webrtc_signaling" transform="translate(40, 340)">
+            <rect class="node-bg" width="280" height="85" rx="8" fill="#ffffff" stroke="#003594" stroke-width="1.8"/>
+            <text x="18" y="28" font-size="13" font-weight="700" fill="#003594">坐席电话条信令服务</text>
+            <text x="18" y="48" font-size="11" fill="#64748b">• WebSocket 双向会话保活</text>
+            <text x="18" y="66" font-size="11" fill="#64748b">• 置闲/置忙/签出状态与前端同步</text>
+          </g>
+
+          <g class="node-box" data-id="tel_audio_archive" transform="translate(40, 470)">
+            <rect class="node-bg" width="280" height="85" rx="8" fill="#ffffff" stroke="#003594" stroke-width="1.8"/>
+            <text x="18" y="28" font-size="13" font-weight="700" fill="#003594">录音与转写文本管道</text>
+            <text x="18" y="48" font-size="11" fill="#64748b">• 异步拉取供应商录音并转存 OSS</text>
+            <text x="18" y="66" font-size="11" fill="#64748b">• 提取意向打标关键词回填线索表</text>
+          </g>
+
+          <!-- 中间管道模块 -->
+          <g class="node-box" data-id="pipe_auth" transform="translate(390, 110)">
+            <rect class="node-bg" width="280" height="75" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.6"/>
+            <text x="18" y="28" font-size="13" font-weight="700" fill="#6b21a8">接口签名安全握手 (Sign)</text>
+            <text x="18" y="50" font-size="11" fill="#64748b">MD5/HMAC 签名鉴权 · 防伪造拦截</text>
+          </g>
+
+          <g class="node-box" data-id="pipe_queue" transform="translate(390, 240)">
+            <rect class="node-bg" width="280" height="75" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.6"/>
+            <text x="18" y="28" font-size="13" font-weight="700" fill="#6b21a8">RocketMQ 异步削峰管道</text>
+            <text x="18" y="50" font-size="11" fill="#64748b">承接大批量话单突发回推 · 100% 不丢单</text>
+          </g>
+
+          <g class="node-box" data-id="pipe_media" transform="translate(390, 370)">
+            <rect class="node-bg" width="280" height="75" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.6"/>
+            <text x="18" y="28" font-size="13" font-weight="700" fill="#6b21a8">WebRTC 媒体流通道</text>
+            <text x="18" y="50" font-size="11" fill="#64748b">浏览器麦克风直连语音中继专线</text>
+          </g>
+
+          <!-- 外部 AliCti 模块 -->
+          <g class="node-box" data-id="alicti_task_center" transform="translate(740, 80)">
+            <rect class="node-bg" width="280" height="85" rx="8" fill="#ffffff" stroke="#8b5cf6" stroke-width="1.8"/>
+            <text x="18" y="28" font-size="13" font-weight="700" fill="#6b21a8">AliCti 外呼任务引擎</text>
+            <text x="18" y="48" font-size="11" fill="#64748b">• 智能分配预测外呼线路</text>
+            <text x="18" y="66" font-size="11" fill="#64748b">• 支持暂停、恢复与停止指令</text>
+          </g>
+
+          <g class="node-box" data-id="alicti_ai_nlp" transform="translate(740, 210)">
+            <rect class="node-bg" width="280" height="85" rx="8" fill="#ffffff" stroke="#8b5cf6" stroke-width="1.8"/>
+            <text x="18" y="28" font-size="13" font-weight="700" fill="#6b21a8">机器人交互与 NLP 引擎</text>
+            <text x="18" y="48" font-size="11" fill="#64748b">• ASR 语音识别与 TTS 语音合成</text>
+            <text x="18" y="66" font-size="11" fill="#64748b">• 智能意向评分输出 (A/B/C/D/N)</text>
+          </g>
+
+          <g class="node-box" data-id="alicti_sip_trunk" transform="translate(740, 340)">
+            <rect class="node-bg" width="280" height="85" rx="8" fill="#ffffff" stroke="#8b5cf6" stroke-width="1.8"/>
+            <text x="18" y="28" font-size="13" font-weight="700" fill="#6b21a8">SIP 媒体网关与中继</text>
+            <text x="18" y="48" font-size="11" fill="#64748b">• 坐席与客户电话线路建立</text>
+            <text x="18" y="66" font-size="11" fill="#64748b">• 线路振铃、接通、挂断事件分发</text>
+          </g>
+
+          <g class="node-box" data-id="alicti_clids" transform="translate(740, 470)">
+            <rect class="node-bg" width="280" height="85" rx="8" fill="#ffffff" stroke="#8b5cf6" stroke-width="1.8"/>
+            <text x="18" y="28" font-size="13" font-weight="700" fill="#6b21a8">号码池与外显导航 (Clid)</text>
+            <text x="18" y="48" font-size="11" fill="#64748b">• 企业外显统一固定导航</text>
+            <text x="18" y="66" font-size="11" fill="#64748b">• 防封号轮换号码池策略</text>
+          </g>
+
+          <!-- 管道连线 -->
+          <path class="edge-line" d="M 320 120 L 390 145" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrow-purple-tel)"/>
+          <path class="edge-line" d="M 670 145 L 740 120" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrow-purple-tel)"/>
+
+          <path class="edge-line" d="M 740 250 L 670 275" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrow-purple-tel)"/>
+          <path class="edge-line" d="M 390 275 L 320 250" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrow-purple-tel)"/>
+
+          <path class="edge-line" d="M 320 380 L 390 405" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrow-purple-tel)"/>
+          <path class="edge-line" d="M 670 405 L 740 380" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrow-purple-tel)"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- 侧边交互信息栏 -->
+    <aside class="sidebar-card" id="detailPanel">
+      <div class="sidebar-title">
+        <span id="detailTitle">系统详情</span>
+        <span class="sidebar-type-tag" id="detailTag">核心模块</span>
+      </div>
+
+      <div class="info-section" id="secMenuPath">
+        <div class="info-label">原型菜单路径</div>
+        <div class="info-content menu-path-badge" id="detailMenuPath">【NEV培育】➔【线索管理】</div>
+      </div>
+
+      <div class="info-section" id="secSubMenus">
+        <div class="info-label">包含二级子模块 / 页面</div>
+        <div class="info-content" id="detailSubMenus">三无忧 · 下发审核 · 公海池 · 线索导入</div>
+      </div>
+
+      <div class="info-section">
+        <div class="info-label">业务职责与系统边界</div>
+        <div class="info-content" id="detailDesc">点击左侧架构图中的任意节点或连接线，即可在此查看该模块的原型映射、核心数据流向、交互动作与对接协议。</div>
+      </div>
+
+      <div class="info-section" id="secActions">
+        <div class="info-label">原型界面核心交互</div>
+        <div class="info-content" id="detailActions">
+          <ul class="action-list">
+            <li>查看三无忧冷线索准入总量与排重过滤详情</li>
+            <li>批量导入线下车展/活动 Excel 名单并校验入库</li>
+            <li>线索公海池流转与沉睡线索定时释放</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-section" id="secFlows">
+        <div class="info-label">端到端业务与数据流</div>
+        <div class="info-content" id="detailFlows">外部数据源 ➔ 统一排重入池 ➔ 意向初筛(A/B/C/D/N) ➔ 触发培育策略</div>
+      </div>
+
+      <div class="info-section">
+        <div class="info-label">关键接口 / 对接协议</div>
+        <div class="info-content" id="detailApis">
+          <span class="interface-pill">HTTP RESTful</span>
+          <span class="interface-pill">MQ 消息队列</span>
+          <span class="interface-pill">Webhook 回调</span>
+        </div>
+      </div>
+
+      <div class="callout-box" id="detailCallout">
+        <strong>原型落地规则：</strong>点击左侧任一业务节点查看具体业务与风控底线。
+      </div>
+    </aside>
+  </div>
+
+<section class="matrix-card v29-block" id="ai-review-service-boundaries"><h2>策略建议重审 · 数据与服务边界</h2><p><strong>运营/前端：</strong>展示资格、原因填写、确认和审核时间线；提示与跳转共用最新条目。前端隐藏按钮不能替代后端校验。</p><p><strong>业务服务：</strong>持久化审核轮次及不可覆盖的历史，按规则维度与稳定对象标识维护最新建议关系；在重审和发布提交时校验权限、归档、最新条目、审核状态、执行方案修订及配置，处理重复请求与并发。列表批量返回可重审标识、阻止原因和最新条目定位，避免逐行扫描历史记录。</p><p><strong>Agent与DCC：</strong>Agent新结果只替代同对象旧未发布建议；Agent不恢复审核状态。重新提交不调用DCC、不创建正式版本；DCC成功回执才切换后续新线索规则。原型本地状态不代表上述接口、持久化及邮件已实现。</p><div class="v29-links"><a href="DccLead_版本日志.html?v=20261026-v29-integrated#version-2-9" target="_blank" rel="noopener">返回 v2.9 版本说明与关联材料 ↗</a><a href="DccLead_功能文档.html?v=20261026-v29-coherent#ai-review-submit-check" target="_blank" rel="noopener">字段与提交校验 ↗</a></div></section>  <!-- 关联数据对照矩阵表格 -->
+  <section class="matrix-card">
+    <h2>关联系统集成接口与职责矩阵 (8 项关键系统流向)</h2>
+    <div class="table-wrap">
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th>流向编号</th>
+            <th>源系统 (发送方)</th>
+            <th>目标系统 (接收方)</th>
+            <th>交互场景</th>
+            <th>协议与调用方式</th>
+            <th>数据一致性保障</th>
+            <th>职责归属</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>REL-01</strong></td>
+            <td>三无忧冷线索中台</td>
+            <td>DCC 培育平台</td>
+            <td>低意向/沉睡线索定时批量下发</td>
+            <td>HTTP POST (批量加密) / 定时任务拉取</td>
+            <td>批次号排重 + 手机号唯一锁</td>
+            <td><span class="status-badge sync">外部中台输入</span></td>
+          </tr>
+          <tr>
+            <td><strong>REL-02</strong></td>
+            <td>天网付费集客平台</td>
+            <td>DCC 培育平台</td>
+            <td>媒体广告线索实时推单进池</td>
+            <td>Webhook 实时通知 + Token 签名校验</td>
+            <td>MQ 消费幂等 + 实时落库</td>
+            <td><span class="status-badge sync">外部中台输入</span></td>
+          </tr>
+          <tr>
+            <td><strong>REL-03</strong></td>
+            <td>DCC 培育平台</td>
+            <td>AI 智能外呼平台 (AliCti)</td>
+            <td>下发批次外呼任务 (含名单与话术)</td>
+            <td>REST API (POST /task/create)</td>
+            <td>返回 taskId 本地记录，状态机绑定</td>
+            <td><span class="status-badge local">平台主动调度</span></td>
+          </tr>
+          <tr>
+            <td><strong>REL-04</strong></td>
+            <td>AI 智能外呼平台 (AliCti)</td>
+            <td>DCC 培育平台</td>
+            <td>外呼接通、挂机话单、意向打标回推</td>
+            <td>Webhook 异步推送 (带 sign 签名)</td>
+            <td>按 callId 幂等消费 + 话后重试对账</td>
+            <td><span class="status-badge webhook">异步回推对账</span></td>
+          </tr>
+          <tr>
+            <td><strong>REL-05</strong></td>
+            <td>AI 智能外呼平台 (AliCti)</td>
+            <td>DCC 培育平台</td>
+            <td>录音文件 URL 与 ASR 转写文本归档</td>
+            <td>异步消息拉取 / 批量回调接口</td>
+            <td>音视频临时存储转归档 OSS</td>
+            <td><span class="status-badge webhook">媒体归档</span></td>
+          </tr>
+          <tr>
+            <td><strong>REL-06</strong></td>
+            <td>坐席工作台 (浏览器)</td>
+            <td>软电话网关 (SIP/WebRTC)</td>
+            <td>坐席点击拨打、接听、保持、挂断</td>
+            <td>WebSocket 信令 + WebRTC 媒体流</td>
+            <td>本地通话中草稿暂存，掉线重连恢复</td>
+            <td><span class="status-badge local">坐席操作通道</span></td>
+          </tr>
+          <tr>
+            <td><strong>REL-07</strong></td>
+            <td>DCC 培育平台</td>
+            <td>统一短信网关</td>
+            <td>线索未接通兜底触达、试驾预约确认</td>
+            <td>HTTP REST API (模板短信)</td>
+            <td>发送回执查询 + 失败重试</td>
+            <td><span class="status-badge downstream">通知下发</span></td>
+          </tr>
+          <tr>
+            <td><strong>REL-08</strong></td>
+            <td>DCC 培育平台</td>
+            <td>集团营销 CRM</td>
+            <td>高意向线索确认进店 / 培育成功回传</td>
+            <td>HTTP POST / 消息队列异步通知</td>
+            <td>事务落库后异步发送，支持手工补推</td>
+            <td><span class="status-badge downstream">数据反哺回传</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+// 节点全景详情数据
+const nodeData = {
+  // 视图 01: 上游数据源
+  crm: {
+    title: "集团营销 CRM",
+    tag: "上游业务系统",
+    menuPath: "【中台推送监控】➔【CRM推送接口】",
+    subMenus: ["客户档案归集", "意向变更回传", "到店试驾核销"],
+    desc: "企业核心客户关系管理系统，负责全国潜客档案归集、售前售后跟进以及正式成交订单绑定。DCC培育平台培育出高意向客户后，将回传意向等级与到店试驾预约记录，形成双向闭环。",
+    actions: [
+      "接收 DCC 培育成功的高意向 (A/B 级) 客户档案与试驾预约工单",
+      "回传潜客最新生命周期状态与门店正式成交状态",
+      "支持失败推送时在【中台推送监控】中手动重试补推"
+    ],
+    flows: "CRM 原始潜客 ➔ DCC 培育唤醒 ➔ 试驾排程预约 ➔ 反哺推送回传 CRM ➔ 门店顾问到店核销",
+    apis: ["HTTP RESTful", "OAuth 2.0 鉴权", "Kafka 主题同步"],
+    callout: "回传数据须做脱敏处理，高意向线索回传后触发 CRM 顾问抢单或定向派发。"
+  },
+  sanwuyou: {
+    title: "三无忧冷线索中台",
+    tag: "上游数据源",
+    menuPath: "【NEV培育】➔【线索管理】➔【三无忧】",
+    subMenus: ["查询汇总", "准入总量详情", "去重过滤详情", "短信成功率"],
+    desc: "沉睡潜客与超期未跟进线索归集中心。每天定时进行数据清洗与复苏模型计算，并将清洗后的冷线索批次下发至 DCC 培育平台进行新一轮外呼与人工触达。",
+    actions: [
+      "查看活动状态、准入车系等 5 项配置与 6 个实时监控指标",
+      "查看准入数据总量与建联、黑名单、同号去重后的过滤线索量",
+      "查看首轮短信触达成功率，针对未接通/失败线索触发重试策略"
+    ],
+    flows: "三无忧沉睡池 ➔ 定时清洗排重 ➔ 批量推入 DCC【线索管理】➔ 触发外呼策略",
+    apis: ["Batch Export API", "数据加密隧道", "定时 Cron 拉取"],
+    callout: "中台下发必须带有原渠道标识与历史意向记录，防止同一客户被多次重复触达骚扰。"
+  },
+  tianwang: {
+    title: "天网付费集客平台",
+    tag: "上游数据源",
+    menuPath: "【NEV培育】➔【线索管理】➔【线索来源：天网集客】",
+    subMenus: ["广告投放推单", "多渠道UTM归因", "实时推单Webhook"],
+    desc: "对接字节跳动、腾讯、百度等公域主流投放平台的集客 API，负责广告点击留资线索的实时捕获、防刷校验并立即注入 DCC 培育池。",
+    actions: [
+      "实时监听媒体广告留资 Webhook 推送并完成验签解密",
+      "解析广告计划 ID、创意 ID 与渠道 UTM 参数完成线索打标",
+      "触发 5 分钟内 AI 外呼响应与坐席抢单机制"
+    ],
+    flows: "公域广告留资 ➔ 天网捕获推单 ➔ DCC 统一排重 ➔ 5分钟极速外呼响应",
+    apis: ["Webhook 实时回推", "HMAC-SHA256 签名", "防重复重放拦截"],
+    callout: "付费线索对触达时效要求极高，系统配置有 5 分钟内 AI 外呼响应与坐席抢单机制。"
+  },
+  import_batch: {
+    title: "线下批次文件导入",
+    tag: "本地数据输入",
+    menuPath: "【NEV培育】➔【线索管理】➔【下发审核 / 导入】",
+    subMenus: ["模板下载", "名单校验入库", "导入批次记录"],
+    desc: "支持车展、外展、商超巡展活动收集的手工名单 Excel/CSV 模板批量导入。导入时执行严格的前置校验：手机号格式、必填项、本地排重以及意向车系归属。",
+    actions: [
+      "下载标准 Excel 导入模板并填写潜客信息",
+      "上传文件并执行系统前置校验（格式校验、黑名单排重、重复数据过滤）",
+      "查看导入批次进度、成功条数与错误行下载反馈"
+    ],
+    flows: "Excel文件上传 ➔ 异步解析校验 ➔ 错误行报告生成 ➔ 合格线索批量注入线索公海池",
+    apis: ["文件解析引擎", "异步导入批次任务", "错误报告生成下载"],
+    callout: "导入超过 1000 行名单时必须异步入库，并提供进度条与错误行下载反馈。"
+  },
+
+  // 视图 01: DCC 平台核心业务域 (对齐原型 6 大一级菜单)
+  m_lead: {
+    title: "【线索管理】",
+    tag: "原型一级菜单",
+    menuPath: "【NEV培育】➔【线索管理】",
+    subMenus: ["三无忧", "下发审核", "公海池", "线索导入"],
+    desc: "线索流入平台的总调度中心。涵盖三无忧沉睡线索同步、广告推单实时推流、线下活动名单导入，统一执行黑名单过滤、同号去重与意向初始建档（A/B/C/D/N）。",
+    actions: [
+      "查看三无忧冷线索准入总量与排重过滤详情",
+      "批量导入线下车展/活动 Excel 名单并校验入库",
+      "线索公海池流转与沉睡线索定时释放",
+      "手动或批量修改线索意向级别并调整跟进状态"
+    ],
+    flows: "多渠道数据源 ➔ 统一排重入池 ➔ 意向初筛(A/B/C/D/N) ➔ 待分配池 ➔ 触发【培育策略】",
+    apis: ["Batch Import API", "MD5 排重算法", "公海流转状态机"],
+    callout: "【原型落地规则】对同一手机号在 30 天内重复进入的线索，自动合并至历史档案并累加留资频次，防止跨渠道重复拨打骚扰。"
+  },
+  m_strategy: {
+    title: "【培育策略】",
+    tag: "原型一级菜单",
+    menuPath: "【NEV培育】➔【培育策略】",
+    subMenus: ["线索分配规则", "AI策略工作台", "AI外呼配置", "人工外呼配置", "经销商白名单"],
+    desc: "平台线索分发与触达任务的智能策略中枢。定义线索分配给人工坐席的 7 维度加权算法与 Agent建议静态来源标签，以及基于 T+1 结算数据的 AI 策略工作台（默认预设补齐或 Agent 完整方案、只读建议与执行方案分离、逐条审核发布、配置去重复用和版本回滚）。",
+    actions: [
+      "线索分配规则：配置 7 维度分配权重，展示 Agent建议静态来源标签（无悬停/点击摘要），并固定列宽防拉扯",
+      "AI策略工作台：默认进入 AI 分配默认方案；来源切换保存确认后仅影响新建议；维护例外名单与导入导出，调整执行方案并逐条审核发布；v2.9支持有效驳回建议重提、最新建议定位与归档只读",
+      "配置与版本：等价启用分配配置复用，否则自动创建并记录来源；版本按本次变更查询，支持单条、维度和整套快照回滚",
+      "设定 AI 外呼波次策略（如每批次 500 条、呼通率阈值挂起）",
+      "管理经销商准入白名单与线索流转边界"
+    ],
+    flows: "已结算数据 ➔ Agent建议接收 ➔ 按已生效来源形成执行方案 ➔ 运营核对或调整 ➔ 授权逐条审核 ➔ 配置复用或创建 ➔ DCC成功回执 ➔ 独立正式版本及整套快照 ➔ 后续新线索按既有规则分派",
+    apis: ["RuleEngine.dispatch()", "AiStrategy.diffPreview()", "AiStrategy.rollback()", "RateLimiter", "分布式防撞锁"],
+    callout: "【生效边界】来源切换不改旧建议快照；跨日待审在被同对象新有效建议替代前仍可审；通知关闭只停邮件。DCC成功回执前不切换规则；回滚复核基准并形成新版本，历史任务不重派。真实外部接口仍需联调。"
+  },
+  m_task: {
+    title: "【培育任务 (我的任务)】",
+    tag: "原型一级菜单 · 坐席工作台",
+    menuPath: "【NEV培育】➔【培育任务】➔【我的任务】",
+    subMenus: ["我的任务", "通话工作台", "客户详情弹屏"],
+    desc: "DCC 人工坐席日常跟进的核心工作台。集成待办工单列表、纯网页软电话工具条、通话中弹屏草稿填写、客户全景资料以及快捷意向打标。",
+    actions: [
+      "坐席通过软电话条一键外呼、接听、保持与挂断",
+      "通话中实时填写沟通纪要并自动暂存草稿（防止刷新丢失）",
+      "修改客户意向级别（A/B/C/D/N），高意向直接发起【试驾排程】",
+      "倒计时响应：24h 滞留倒计时未跟进触发企微强催办并自动回收"
+    ],
+    flows: "待办工单 ➔ 软电话外呼 ➔ 提交跟进记录 ➔ [高意向➔试驾排程] 或 [超时➔释放公海]",
+    apis: ["WebSocket 通话信令", "草稿暂存接口", "滞留超时定时器"],
+    callout: "【原型落地规则】支持通话中草稿每 5 秒自动暂存；挂断后强制进入话后小休锁 (Wrap-up)，保障坐席专注填写沟通记录。"
+  },
+  m_testdrive: {
+    title: "【试驾排程】★核心转化终态",
+    tag: "原型一级菜单 · 核心终点",
+    menuPath: "【NEV培育】➔【试驾排程】",
+    subMenus: ["试驾排程工单", "中台推送监控"],
+    desc: "DCC 培育链路的最终商业交付成果。坐席锁定高意向客户购车意向后，预约到店试驾排期、锁定试驾车型与门店专属顾问，并反哺数据至集团营销 CRM。",
+    actions: [
+      "在排程日历上选择试驾日期、试驾车型、意向门店与接待顾问",
+      "生成正式试驾排程工单并向客户下发带定位的到店指引短信",
+      "查看中台推送监控大屏，追踪试驾工单推送到 CRM 的状态与回执",
+      "若客户改期或爽约，原坐席可重新发起改期排程"
+    ],
+    flows: "跟进意向锁定 ➔ 创建试驾单 ➔ 触发到店短信 ➔ 异步推送集团 CRM ➔ 门店顾问核销履约",
+    apis: ["POST /testdrive/booking", "CRM 异步通知队列", "短信下发 API"],
+    callout: "【原型落地规则】生成试驾工单后自动锁定线索所有权，禁止再次进入公海；若推送 CRM 失败支持手动重试补推。"
+  },
+  m_schedule: {
+    title: "【任务排班】",
+    tag: "原型一级菜单",
+    menuPath: "【NEV培育】➔【任务排班】",
+    subMenus: ["坐席管理", "排班管理", "短信模板", "分配规则"],
+    desc: "坐席人力资源与触达通道的底层支撑模块。管理坐席早/晚班排班日历、请假状态、短信通知模板，确保培育策略与实际在岗坐席能力精准匹配。",
+    actions: [
+      "配置坐席排班日历（早班/晚班/轮休）及每日在岗工位",
+      "编辑与审核短信模板（如试驾确认通知、未接通关怀短信、活动邀请）",
+      "坐席技能标签配置（专长车型、服务星级、普通话等级）",
+      "坐席在岗状态实时心跳监测与负荷统计"
+    ],
+    flows: "排班日历发布 ➔ 实时考勤/心跳同步 ➔ 供【培育策略】计算可用坐席配额与负荷",
+    apis: ["ShiftSchedule API", "模板审核接口", "心跳探测"],
+    callout: "【原型落地规则】严格遵守夜间勿扰时段控制（20:00 - 次日 08:30 禁止营销短信批量触达）。"
+  },
+  m_report: {
+    title: "【统计报表与质检】",
+    tag: "原型一级菜单",
+    menuPath: "【业务模块】➔【统计报表】 / 【NEV培育】➔【质检管理】",
+    subMenus: ["坐席业绩看板", "人工坐席工单", "总部培育报表", "预外呼监控", "质检管理"],
+    desc: "管理层与班长/主管的实时运营作战室。提供坐席通话录音抽检、实时在岗监听、外呼接通率监控、线索转化漏斗以及总部跨门店多维统计报表。",
+    actions: [
+      "实时监听坐席通话，支持强插、强拆与耳语指导",
+      "抽检人工与 AI 通话录音，进行评分与违规敏感词打标",
+      "查看日/周/月线索培育转化漏斗（入库量 ➔ 呼通量 ➔ 高意向 ➔ 试驾率）",
+      "导出总部培育统计报表与坐席工单详单"
+    ],
+    flows: "业务流水事实 ➔ 异步聚合归档 ➔ 实时看板大屏 / 报表导出 / 质检扣分",
+    apis: ["SSE 实时推流", "录音播放 STS 授权", "聚合统计从库查询"],
+    callout: "【原型落地规则】大屏与报表查询走只读从库，后台限制频繁全表扫描，保护核心业务事务库性能。"
+  },
+
+  // 视图 01: 下游通信与触达系统
+  ai_engine: {
+    title: "AI 智能外呼平台 (AliCti)",
+    tag: "外部通信引擎",
+    menuPath: "【培育策略】➔【AI外呼配置】",
+    subMenus: ["任务下发", "话单推送", "录音转写"],
+    desc: "第三方智能语音交互引擎。承接 DCC 下发的名单执行预测式或批量外呼。机器人通过 ASR 语音识别与 NLP 模型与客户对话，对话结束后推送话单与意向标签。",
+    actions: [
+      "接收 DCC 批量下发的外呼名单与配置话术流",
+      "机器人自动发起呼叫并进行多轮智能问答",
+      "通话结束后通过 Webhook 异步推送话单 CDR、录音地址与意向标签"
+    ],
+    flows: "DCC 下发任务 ➔ AI 机器人呼叫 ➔ 智能意向打标 ➔ Webhook 推送话单 ➔ DCC 入库归档",
+    apis: ["REST API (创建任务/暂停)", "Webhook (话单/结果)", "录音 OSS 直连"],
+    callout: "必须通过签名与时间戳校验供应商推送，支持回查与异步对账防丢单。"
+  },
+  webrtc_phone: {
+    title: "软电话通信网关 (SIP/WebRTC)",
+    tag: "通信中继",
+    menuPath: "【培育任务】➔【我的任务】➔【软电话条】",
+    subMenus: ["WebRTC呼叫", "SIP信令", "双向录音"],
+    desc: "为 DCC 坐席工作台提供纯浏览器内的通话能力。通过 WebSocket 建立信令通道，WebRTC 建立音频媒体流，无需安装外部硬件话机或桌面插件。",
+    actions: [
+      "浏览器内一键发起呼叫、接听来电、通话保持与挂断",
+      "自动建立双向音频媒体流，保障高保真通话质量",
+      "通话结束后自动上传录音至 OSS 并关联工单流水"
+    ],
+    flows: "坐席点击拨打 ➔ WebSocket 信令 ➔ WebRTC 建立音频 ➔ 录音归档 OSS",
+    apis: ["WebSocket 信令协议", "WebRTC PeerConnection", "分机鉴权码"],
+    callout: "必须支持自动网络降级与断线重连，保障坐席通话时不因微小网络抖动掉线。"
+  },
+  sms_gateway: {
+    title: "统一短信 / 企微网关",
+    tag: "触达下游",
+    menuPath: "【任务排班】➔【短信模板】",
+    subMenus: ["模板短信下发", "发送回执监控", "企微应用通知"],
+    desc: "企业级多渠道触达管道。支持高并发短信验证码与营销模板下发，以及企业微信应用消息、群机器人打通，作为电话无法接通时的有效辅助触达途径。",
+    actions: [
+      "在潜客预约试驾成功后下发带导航定位与专属顾问联系方式的到店短信",
+      "电话呼叫未接通时，自动下发关怀短信进行兜底触达",
+      "坐席滞留倒计时临期时，向坐席企业微信推送强催办卡片通知"
+    ],
+    flows: "业务事件触发 ➔ 匹配短信/企微模板 ➔ 调用网关下发 ➔ 接收发送回执",
+    apis: ["统一短信 HTTP 接口", "企业微信 Open API", "发送状态报告回调"],
+    callout: "严格遵守夜间勿扰时段控制（20:00 - 次日 08:30 禁止营销短信触达）。"
+  },
+
+  // 视图 02 节点
+  lead_pending: {
+    title: "待分配状态 (PENDING)",
+    tag: "线索聚合状态",
+    desc: "线索流入平台的初始阶段。在此状态下线索属于公共池，执行手机号 MD5 排重、黑名单过滤、渠道归类打标，等待分配规则引擎扫描分发。",
+    apis: ["批量入库事务", "排重索引扫描"],
+    persistence: "dcc_lead.status = 'PENDING', owner_id = NULL",
+    callout: "对同一手机号在 30 天内重复进入的线索，自动合并至老潜客档案并递增留资频次。"
+  },
+  lead_allocated: {
+    title: "已分配状态 (ALLOCATED)",
+    tag: "线索聚合状态",
+    desc: "规则引擎命中目标坐席后锁定的状态。线索被分配给唯一坐席工号，并在此刻启动【滞留倒计时定时器】（默认 24 小时倒计时）。",
+    apis: ["加锁更新", "启动延迟巡检"],
+    persistence: "dcc_lead.owner_id = 10086, allocated_at = NOW()",
+    callout: "坐席必须在倒计时归零前添加至少一条通话或跟进记录，否则将触发滞留预警。"
+  },
+  lead_follow: {
+    title: "跟进中状态 (FOLLOWING)",
+    tag: "线索聚合状态",
+    desc: "坐席已进行电话沟通或企业微信初次联络。线索正式脱离滞留公海威胁，转入长期跟进周期。坐席可多次添加跟进记录并修改意向级别。",
+    apis: ["跟进流水提交", "标签动态更新"],
+    persistence: "dcc_lead_follow_up 表新增流水行",
+    callout: "每次跟进重置下一次预计跟进时间 (next_follow_time)，支持自定义提醒。"
+  },
+  lead_intent: {
+    title: "高意向 / 试驾预约 (WON/A/B)",
+    tag: "线索转化终态",
+    desc: "潜客表现出明确购车意愿，完成试驾排程预约。系统锁定试驾车系、到店门店与排班顾问，并反哺数据至集团 CRM 系统。",
+    apis: ["试驾排程单生成", "CRM 数据反向回传"],
+    persistence: "写入 dcc_test_drive_booking，状态流转为 APPOINTED",
+    callout: "生成试驾单后触发统一短信网关向潜客下发带定位的到店指引短信。"
+  },
+  lead_stagnant_state: {
+    title: "滞留公海 / 战败状态 (LOST/STAGNANT)",
+    tag: "线索回收终态",
+    desc: "超期未跟进或跟进后潜客明确无购车意愿的归宿。公海线索将剥夺原坐席归属权，进入休眠池，等待下一轮二次复苏或降级流转。",
+    apis: ["批量回收接口", "公海流转日志"],
+    persistence: "dcc_lead.status = 'STAGNANT_PUBLIC', owner_id = NULL",
+    callout: "公海线索受防抢单频次限制，单个坐席每天最多从公海捞取 10 条线索。"
+  },
+  rule_operators: {
+    title: "7 维度策略算子引擎",
+    tag: "核心算法组件",
+    desc: "系统分配的核心中枢。按照配置的权重依次计算：1.轮询均分 2.星级能力 3.车型专长 4.地域归属 5.在线状态 6.工单上限熔断 7.防并发锁。",
+    apis: ["RuleChain.execute()", "评分加权矩阵"],
+    persistence: "配置表 dcc_allocation_rule",
+    callout: "规则配置变更采用版本控制 (rule_version)，实时热生效无需重启服务。"
+  },
+  schedule_dispatch: {
+    title: "排班调度与波次控制器",
+    tag: "调度中心",
+    desc: "支持坐席多班次排班日历（早/晚/轮休），并与 AI 外呼波次联动。当可用在线坐席数低于阈值时，自动向 AI 平台下发暂停指令，防止呼通后无坐席承接。",
+    apis: ["XXL-Job 定时调度", "动态速率限制器"],
+    persistence: "排班日历表 dcc_shift_schedule",
+    callout: "外呼任务仅在法定时段 (09:00 - 20:00) 允许启动，系统底层设有时段强制拦截防线。"
+  },
+  stagnant_engine_deep: {
+    title: "滞留阶梯预警与治理引擎",
+    tag: "数据治理引擎",
+    desc: "通过分布式定时任务（每 10 分钟）扫描超期活跃线索。实施阶梯式治理：距离超时 2 小时推送坐席企微强催办；彻底超时执行强制回收并扣减坐席分配积分。",
+    apis: ["延迟队列扫描", "企业微信推送 API"],
+    persistence: "dcc_stagnant_config, dcc_stagnant_log",
+    callout: "对故意填写无意义跟进记录规避滞留的坐席，后台提供主管抽检与违章判定惩罚。"
+  },
+  seat_workbench_deep: {
+    title: "坐席工作台服务",
+    tag: "工作台底座",
+    desc: "支持通话中草稿每 5 秒自动暂存 (LocalStorage + 后端草稿表)，电话挂断强制进入 Wrap-up 话后整理锁，保障坐席专注填写沟通纪要而不被新进呼叫打断。",
+    apis: ["WebSocket 会话推送", "草稿暂存接口"],
+    persistence: "dcc_seat_draft 表",
+    callout: "话后整理最长保护时间为 3 分钟，超时未提交系统将弹窗告警并记录小休超时。"
+  },
+  mysql_core: {
+    title: "MySQL 业务核心数据库",
+    tag: "关系型存储",
+    desc: "平台所有业务实体的强一致性持久化存储。包含线索表、跟进记录表、分配流水表、排班日历、试驾预约单与审计日志。",
+    apis: ["JDBC / MyBatis-Plus", "读写分离从库"],
+    persistence: "MySQL 8.0 InnoDB 引擎，主从架构",
+    callout: "核心线索表单表超过 500 万行时，按创建月份与租户 ID 执行归档分表策略。"
+  },
+  redis_cache: {
+    title: "Redis 缓存与分布式锁",
+    tag: "内存存储",
+    desc: "承担微秒级响应需求：坐席在线心跳状态 Hash、7 维度分配分布式排它锁 (Redisson)、各坐席待办工单计数器、防重放 Token 缓存。",
+    apis: ["Redis Cluster", "Redisson 分布式锁"],
+    persistence: "Redis 6.x / AOF 持久化",
+    callout: "分布式锁必须配置合理的 watchdog 看门狗自动续期与最大超时释放时间。"
+  },
+  oss_archive: {
+    title: "OSS 对象存储与冷归档",
+    tag: "海量对象存储",
+    desc: "用于存储 AI 机器人外呼与人工通话的完整录音媒体流文件 (.mp3/.wav)，以及 ASR 语音转写对话文本 JSON 记录，支持加密下载与在线流媒体播放。",
+    apis: ["阿里云 OSS SDK", "STS 临时授权签名 URL"],
+    persistence: "标准存储 $\rightarrow$ 180天后自动转低频/归档存储",
+    callout: "前端播放录音一律生成 30 分钟有效的只读 STS 临时签名 URL，严禁暴露长期 AccessKey。"
+  },
+
+  // 视图 03 节点
+  tel_task_dispatcher: {
+    title: "外呼任务下发适配器",
+    tag: "通信适配中枢",
+    desc: "将 DCC 平台内部的批次名单与排班策略转换为第三方呼叫中心协议。调用 AliCti 的 API 创建外呼任务，传递企业账号 enterpriseId、话术流编码与号码池标识。",
+    apis: ["POST /task/create", "POST /task/update"],
+    persistence: "dcc_outbound_task 表记录外部 taskId 映射",
+    callout: "任务下发前必须校验可用外显号码池状态，避免因线路被封禁导致大面积呼叫失败。"
+  },
+  tel_webhook_gateway: {
+    title: "Webhook 话单接收网关",
+    tag: "通信安全入口",
+    desc: "专用于接收云呼叫中心平台推送的实时通话事件与挂机话单。负责签名验签、时间戳防重放、按 callId 幂等落库，并将事件转入内部消息队列进行异步解耦。",
+    apis: ["POST /webhook/cdr", "POST /webhook/call-event"],
+    persistence: "落入临时 CDR 缓存，推入 MQ 削峰",
+    callout: "网关响应耗时必须控制在 50ms 以内直接返回 200 OK，严禁在此同步执行复杂业务逻辑。"
+  },
+  tel_webrtc_signaling: {
+    title: "坐席电话条信令服务",
+    tag: "双向通信网关",
+    desc: "坐席工作台网页端与电话交换机之间的双向桥梁。基于 WebSocket 维持坐席长连接，实时推送来电振铃、通话接通、外显号码与保持/转接信令。",
+    apis: ["WebSocket (WSS 加密)", "Ping-Pong 心跳保活"],
+    persistence: "内存维护坐席当前 Session 会话与分机映射表",
+    callout: "支持网络抖动时 5 秒内静默无缝重连，重连成功后自动恢复正在进行的通话状态。"
+  },
+  tel_audio_archive: {
+    title: "录音与转写文本管道",
+    tag: "媒体异步流水线",
+    desc: "通话结束后，消费话单中的 recordUrl，异步下载音频文件转存入本方自建 OSS，同时拉取 ASR 对话全量转写文本，触发意图分析并回填至潜客档案。",
+    apis: ["异步任务 Worker", "NLP 语义关键词匹配"],
+    persistence: "写入 dcc_call_record.record_oss_url 与 transcript_json",
+    callout: "录音下载设置重试机制（最多重试 3 次），避免因供应商媒体尚未转码完成导致拉取 404。"
+  },
+  pipe_auth: {
+    title: "接口签名安全握手 (Sign)",
+    tag: "传输安全保障",
+    desc: "防止跨系统调用伪造的核心防线。每次 HTTP 调用均基于 enterpriseId + timestamp + Secret 计算 32 位 MD5 或 HMAC-SHA256 签名，防篡改防重放。",
+    apis: ["MD5 / HMAC 签名计算器"],
+    persistence: "不落库，内存计算比对",
+    callout: "时间戳有效期限制在 15 分钟以内，超过时间窗口的请求直接拒绝。"
+  },
+  pipe_queue: {
+    title: "RocketMQ 异步削峰管道",
+    tag: "消息中间件",
+    desc: "当万级外呼任务集中结束时，面对海量并发推单，通过 RocketMQ 消息队列对 Webhook 数据进行平滑缓冲，消费端按顺序消费，保证数据库不被瞬间打垮。",
+    apis: ["RocketMQ Topic: dcc_cdr_stream"],
+    persistence: "MQ Broker 磁盘多副本持久化",
+    callout: "配置合理的死信队列 (DLQ)，对连续 16 次消费失败的异常话单执行告警与人工对账。"
+  },
+  pipe_media: {
+    title: "WebRTC 媒体流通道",
+    tag: "实时音视频",
+    desc: "基于 WebRTC SRTP 协议的端到端加密语音通道。坐席在浏览器中直接通过耳机与客户实时对讲，支持 OPUS 高清语音编码，具备抗弱网和回声消除能力。",
+    apis: ["WebRTC PeerConnection / ICE / STUN"],
+    persistence: "纯实时流传输，不落盘",
+    callout: "坐席网络环境要求丢包率低于 1%，抖动低于 30ms 以保障无延迟通话质量。"
+  },
+  alicti_task_center: {
+    title: "AliCti 外呼任务引擎",
+    tag: "云通信供应商核心",
+    desc: "第三方平台负责调度机器人呼叫的核心集群。控制拨号并发速度、呼叫重试间隔、空号检测以及机器人线路负载均衡。",
+    apis: ["AliCti 供应商 REST API"],
+    persistence: "供应商云端数据库管理任务生命周期",
+    callout: "外呼路数与并发数受企业购买的 SIP 线路并发配额严格限制。"
+  },
+  alicti_ai_nlp: {
+    title: "机器人交互与 NLP 引擎",
+    tag: "人工智能交互",
+    desc: "驱动智能电话机器人的大脑。包含 ASR 实时语音转文字、意图识别与槽位填充、知识库应答以及 TTS 拟人化语音合成，输出潜客意向评级 (A/B/C/D/N)。",
+    apis: ["智能对话树流程", "ASR/TTS 引擎"],
+    persistence: "话术模板配置与对话日志",
+    callout: "根据客户回答打断策略 (Barge-in)，支持客户说话时机器人立即停止播报并倾听。"
+  },
+  alicti_sip_trunk: {
+    title: "SIP 媒体网关与中继",
+    tag: "电信级语音网关",
+    desc: "连接互联网与电信运营商 PSTN 电话网络的网关设备。负责将坐席或机器人的网络数据包转换为运营商电话信号，打通潜客手机。",
+    apis: ["SIP 呼叫控制信令", "ISDN / E1 线路"],
+    persistence: "运营商交换机话务交换流水",
+    callout: "必须配置备用中继链路，主中继故障时 10 秒内自动切换备用运营商线路。"
+  },
+  alicti_clids: {
+    title: "号码池与外显导航 (Clid)",
+    tag: "外呼号码资源",
+    desc: "企业外呼使用的全国固定电话号码池。支持根据潜客归属地智能匹配同城外显号码，提高接听率，并支持轮换拨打防止单一主叫被标记骚扰拦截。",
+    apis: ["ClidPool 资源管理接口"],
+    persistence: "号码池白名单与资费账单表",
+    callout: "号码池必须与企业资质严格绑定，并按工信部要求备案企业统一外显导航。"
+  }
+};
+
+// 交互切换与缩放逻辑
+document.addEventListener('DOMContentLoaded', () => {
+  const detailTitle = document.getElementById('detailTitle');
+  const detailTag = document.getElementById('detailTag');
+  const detailMenuPath = document.getElementById('detailMenuPath');
+  const detailSubMenus = document.getElementById('detailSubMenus');
+  const detailDesc = document.getElementById('detailDesc');
+  const detailActions = document.getElementById('detailActions');
+  const detailFlows = document.getElementById('detailFlows');
+  const detailApis = document.getElementById('detailApis');
+  const detailCallout = document.getElementById('detailCallout');
+
+  const secMenuPath = document.getElementById('secMenuPath');
+  const secSubMenus = document.getElementById('secSubMenus');
+  const secActions = document.getElementById('secActions');
+  const secFlows = document.getElementById('secFlows');
+
+  // 1. 点击节点展示详情
+  function bindNodeClicks() {
+    document.querySelectorAll('.node-box').forEach(node => {
+      node.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = node.dataset.id;
+        document.querySelectorAll('.node-box').forEach(n => n.classList.remove('is-selected'));
+        node.classList.add('is-selected');
+
+        const data = nodeData[id];
+        if (data) {
+          detailTitle.textContent = data.title;
+          detailTag.textContent = data.tag;
+          if (detailMenuPath && secMenuPath) {
+            detailMenuPath.textContent = data.menuPath || '—';
+            secMenuPath.style.display = data.menuPath ? 'block' : 'none';
+          }
+          if (detailSubMenus && secSubMenus) {
+            detailSubMenus.textContent = data.subMenus ? data.subMenus.join(' · ') : (data.persistence || '—');
+            secSubMenus.style.display = (data.subMenus || data.persistence) ? 'block' : 'none';
+          }
+          detailDesc.textContent = data.desc;
+          if (detailActions && secActions) {
+            detailActions.innerHTML = data.actions ? `<ul class="action-list">${data.actions.map(a => `<li>${a}</li>`).join('')}</ul>` : '—';
+            secActions.style.display = data.actions ? 'block' : 'none';
+          }
+          if (detailFlows && secFlows) {
+            detailFlows.textContent = data.flows || '—';
+            secFlows.style.display = data.flows ? 'block' : 'none';
+          }
+          detailApis.innerHTML = (data.apis || []).map(api => `<span class="interface-pill">${api}</span>`).join('');
+          detailCallout.innerHTML = `<strong>落地规则：</strong>${data.callout}`;
+        }
+      });
+    });
+  }
+  bindNodeClicks();
+
+  // 2. 视图切换逻辑 (01, 02, 03)
+  const viewBtns = document.querySelectorAll('.view-btn');
+  const viewSvgs = {
+    overview: document.getElementById('svgOverview'),
+    domain: document.getElementById('svgDomain'),
+    telephony: document.getElementById('svgTelephony')
+  };
+
+  const viewIntros = {
+    overview: {
+      title: "01 · 系统拓扑总览",
+      tag: "全局系统边界",
+      desc: "完全对齐原型左侧菜单结构：上游数据源 (CRM、三无忧、天网、线下) ➔ DCC 核心 6 大业务域 (线索管理、培育策略、培育任务、试驾排程、任务排班、统计报表) ➔ 下游通信引擎 (AliCti、软电话、短信网关)。",
+      apis: ["HTTP RESTful", "MQ 消息队列", "Webhook 回调"],
+      persistence: "【线索管理】统一排重过滤 ➔ 【培育任务】跟进 ➔ 【试驾排程】闭环回传 CRM",
+      callout: "点击左侧任意业务模块查看对应的原型菜单路径、页面交互操作与端到端数据流向。"
+    },
+    domain: {
+      title: "02 · DCC平台核心领域架构",
+      tag: "领域模型与状态机",
+      desc: "深入 DCC 平台内部的核心领域服务：线索全生命周期状态机、7 维度分配策略、排班外呼调度、滞留数据治理以及底层存储架构。",
+      apis: ["内部 Service 聚合", "Redis 分布式排它锁", "延迟队列 Worker"],
+      persistence: "MySQL 业务表群强一致性保存；Redis 维护毫秒级心跳与并发锁。",
+      callout: "7 维度规则引擎计算时加设 Redis 坐席配额排它锁，防止高并发下坐席瞬时超额分单。"
+    },
+    telephony: {
+      title: "03 · AI外呼与通信集成蓝图",
+      tag: "通信底座与安全",
+      desc: "聚焦 DCC 与第三方 AI 智能外呼平台 (AliCti) 的集成通信底座：任务下发适配器、Webhook 话单安全验签、RocketMQ 异步削峰、WebRTC 软电话媒体流与运营商号码池。",
+      apis: ["HMAC-SHA256 签名鉴权", "RocketMQ CDR 削峰队列", "WebRTC SRTP 媒体流"],
+      persistence: "云通信供应商维护原始通话 CDR 与媒体流；DCC 异步归档录音与 ASR 文本至自建 OSS。",
+      callout: "话单 Webhook 接收网关必须严格实施 callId 幂等防重放，且响应耗时控制在 50ms 内直接返回 200 OK。"
+    }
+  };
+
+  viewBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetView = btn.dataset.view;
+      viewBtns.forEach(b => b.classList.toggle('active', b === btn));
+
+      // 切换 SVG 显示
+      Object.keys(viewSvgs).forEach(key => {
+        if (viewSvgs[key]) {
+          viewSvgs[key].style.display = (key === targetView) ? 'block' : 'none';
+          viewSvgs[key].style.transform = 'scale(1)';
+        }
+      });
+
+      // 重置缩放比例
+      currentZoom = 1;
+
+      // 更新右侧侧边栏介绍
+      const intro = viewIntros[targetView];
+      if (intro) {
+        detailTitle.textContent = intro.title;
+        detailTag.textContent = intro.tag;
+        if (secMenuPath) secMenuPath.style.display = 'none';
+        if (secSubMenus) secSubMenus.style.display = intro.persistence ? 'block' : 'none';
+        if (detailSubMenus) detailSubMenus.textContent = intro.persistence || '—';
+        detailDesc.textContent = intro.desc;
+        if (secActions) secActions.style.display = 'none';
+        if (secFlows) secFlows.style.display = 'none';
+        detailApis.innerHTML = intro.apis.map(api => `<span class="interface-pill">${api}</span>`).join('');
+        detailCallout.innerHTML = `<strong>架构建议：</strong>${intro.callout}`;
+      }
+
+      // 清除之前选中的节点高亮
+      document.querySelectorAll('.node-box').forEach(n => n.classList.remove('is-selected'));
+    });
+  });
+
+  // 默认选中【线索管理】展示落地详情
+  const defaultNode = document.querySelector('.node-box[data-id="m_lead"]');
+  if (defaultNode) {
+    defaultNode.click();
+  }
+
+  // 3. 缩放控制（针对当前显示的 SVG）
+  let currentZoom = 1;
+
+  function getActiveSvg() {
+    return Object.values(viewSvgs).find(svg => svg && svg.style.display !== 'none') || viewSvgs.overview;
+  }
+
+  document.getElementById('btnZoomIn').addEventListener('click', () => {
+    currentZoom = Math.min(currentZoom + 0.15, 2.0);
+    const svg = getActiveSvg();
+    if (svg) {
+      svg.style.transform = `scale(${currentZoom})`;
+      svg.style.transformOrigin = 'center center';
+    }
+  });
+
+  document.getElementById('btnZoomOut').addEventListener('click', () => {
+    currentZoom = Math.max(currentZoom - 0.15, 0.6);
+    const svg = getActiveSvg();
+    if (svg) {
+      svg.style.transform = `scale(${currentZoom})`;
+      svg.style.transformOrigin = 'center center';
+    }
+  });
+
+  document.getElementById('btnFit').addEventListener('click', () => {
+    currentZoom = 1;
+    const svg = getActiveSvg();
+    if (svg) {
+      svg.style.transform = 'scale(1)';
+      svg.style.width = '100%';
+    }
+  });
+
+  document.getElementById('btnReset').addEventListener('click', () => {
+    currentZoom = 1;
+    const svg = getActiveSvg();
+    if (svg) {
+      svg.style.transform = 'scale(1)';
+      svg.style.width = '1060px';
+    }
+  });
+});
+</script>
+
+</body>
+</html>

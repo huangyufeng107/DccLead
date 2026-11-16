@@ -1,0 +1,48 @@
+/* 任务排班 / 排班管理 */
+#scheduleManagementPage .page-hero { align-items: center; }
+#scheduleManagementPage .summary-card { min-width: 124px; }
+#scheduleManagementPage .schedule-filter { display: block; margin-bottom: 14px; padding: 18px 20px; background: #fff; border: 1px solid #e4eaf3; border-radius: 8px; }
+#scheduleManagementPage .schedule-filter-heading { margin-bottom: 14px; color: #1f2937; font-size: 14px; font-weight: 700; }
+#scheduleManagementPage .schedule-filter-grid { display: grid; grid-template-columns: 180px minmax(220px, 270px) auto minmax(300px, 1fr); gap: 12px; align-items: end; }
+#scheduleManagementPage .schedule-filter-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; color: #475569; font-size: 12px; font-weight: 600; }
+#scheduleManagementPage .schedule-filter-field .form-input { width: 100%; box-sizing: border-box; }
+#scheduleManagementPage .schedule-filter-actions, #scheduleManagementPage .schedule-toolbar-actions { display: flex; gap: 8px; align-items: center; white-space: nowrap; }
+#scheduleManagementPage .schedule-toolbar-actions { justify-content: flex-end; }
+#scheduleManagementPage .schedule-legend { display: flex !important; flex-wrap: wrap; gap: 10px 18px !important; align-items: center; margin-bottom: 14px !important; padding: 11px 16px !important; background: #fff !important; border: 1px solid #e4eaf3; border-radius: 8px !important; }
+#scheduleManagementPage .schedule-legend-item { display: inline-flex; align-items: center; gap: 6px; color: #475569; font-size: 12px; white-space: nowrap; }
+#scheduleManagementPage .schedule-legend-swatch { display: inline-block; flex: 0 0 16px; width: 16px; height: 16px; border-radius: 4px; }
+#scheduleManagementPage .schedule-table-card { overflow: hidden; border: 1px solid #e4eaf3; border-radius: 8px; }
+#scheduleManagementPage .schedule-table-scroll { overflow-x: auto; }
+#scheduleManagementPage .schedule-table-heading { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 20px; color: #1f2937; font-size: 14px; font-weight: 700; border-bottom: 1px solid #e8eef7; white-space: nowrap; }
+#scheduleManagementPage #scheduleResultCount { color: #94a3b8; font-size: 12px; font-weight: 500; }
+#scheduleManagementPage .schedule-table-hint { margin-left: auto; color: #94a3b8; font-size: 12px; font-weight: 400; }
+#scheduleManagementPage .data-table { width: max-content; min-width: 100%; }
+#scheduleManagementPage .data-table th:nth-child(-n+5), #scheduleManagementPage .data-table td:nth-child(-n+5) { position: sticky; z-index: 1; background: #fff; }
+#scheduleManagementPage .data-table thead th:nth-child(-n+5) { z-index: 3; background: #f8fafc; }
+#scheduleManagementPage .data-table th:nth-child(1), #scheduleManagementPage .data-table td:nth-child(1) { left: 0; min-width: 54px; }
+#scheduleManagementPage .data-table th:nth-child(2), #scheduleManagementPage .data-table td:nth-child(2) { left: 54px; min-width: 112px; }
+#scheduleManagementPage .data-table th:nth-child(3), #scheduleManagementPage .data-table td:nth-child(3) { left: 166px; min-width: 90px; }
+#scheduleManagementPage .data-table th:nth-child(4), #scheduleManagementPage .data-table td:nth-child(4) { left: 256px; min-width: 94px; }
+#scheduleManagementPage .data-table th:nth-child(5), #scheduleManagementPage .data-table td:nth-child(5) { left: 350px; min-width: 104px; box-shadow: 3px 0 7px rgba(15,23,42,.04); }
+#scheduleManagementPage .data-table tbody tr:hover td:nth-child(-n+5) { background: #f8fbff; }
+#scheduleManagementPage .schedule-shift-badge { display: flex; align-items: center; justify-content: center; width: 44px; height: 36px; margin: auto; padding: 0; border: 0; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: transform .15s, box-shadow .15s; }
+#scheduleManagementPage .schedule-shift-badge:hover, #scheduleManagementPage .schedule-shift-badge:focus-visible { transform: translateY(-2px); box-shadow: 0 3px 10px rgba(15,23,42,.18); outline: 2px solid #1d4ed8; outline-offset: 2px; }
+#scheduleManagementPage .schedule-empty { padding: 48px 24px; text-align: center; color: #94a3b8; }
+#scheduleManagementPage .schedule-pagination { display: flex; align-items: center; justify-content: flex-end; gap: 8px; min-height: 56px; padding: 8px 20px; border-top: 1px solid #e8eef7; color: #64748b; font-size: 12px; }
+#scheduleManagementPage .schedule-page-summary { margin-right: auto; }
+#scheduleManagementPage .schedule-page-size { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+#scheduleManagementPage .schedule-page-size select { height: 30px; padding: 0 6px; border: 1px solid #d5deeb; border-radius: 5px; background: #fff; color: #334155; }
+#scheduleManagementPage .schedule-page-btn { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border: 1px solid #d5deeb; border-radius: 5px; background: #fff; color: #1d4ed8; font-size: 19px; cursor: pointer; }
+#scheduleManagementPage .schedule-page-btn:hover:not(:disabled), #scheduleManagementPage .schedule-page-btn:focus-visible { border-color: #2563eb; background: #eff6ff; }
+#scheduleManagementPage .schedule-page-btn:disabled { color: #b8c2d1; background: #f8fafc; cursor: not-allowed; }
+#scheduleManagementPage .schedule-page-current { min-width: 72px; text-align: center; white-space: nowrap; }
+.schedule-modal-card { width: min(600px, calc(100vw - 32px)); max-height: calc(100vh - 48px); overflow: auto; background: #fff; border-radius: 8px; box-shadow: 0 20px 55px rgba(15,23,42,.22); }
+.schedule-modal-note { margin: 0 0 16px; color: #64748b; font-size: 13px; line-height: 1.7; }
+.schedule-shift-row { display: grid; grid-template-columns: 16px 60px 1fr 24px 1fr; gap: 10px; align-items: center; margin: 12px 0; font-size: 13px; color: #475569; }
+.schedule-modal-card .schedule-legend-swatch { display: inline-block; width: 16px; height: 16px; border-radius: 4px; }
+.schedule-shift-row .form-input { width: 100%; box-sizing: border-box; }
+.schedule-import-field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; color: #334155; font-size: 13px; font-weight: 600; }
+.schedule-import-field input { padding: 12px; border: 1px dashed #bfcee2; border-radius: 8px; background: #f8fafc; }
+@media (max-width: 1100px) { #scheduleManagementPage .schedule-filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } #scheduleManagementPage .schedule-toolbar-actions { justify-content: flex-start; } }
+@media (max-width: 620px) { #scheduleManagementPage .page-hero { flex-direction: column; align-items: stretch; } #scheduleManagementPage .schedule-filter-grid { grid-template-columns: 1fr; } #scheduleManagementPage .schedule-toolbar-actions { flex-wrap: wrap; } }
+@media (max-width: 620px) { #scheduleManagementPage .schedule-pagination { flex-wrap: wrap; } #scheduleManagementPage .schedule-page-summary { flex-basis: 100%; } }

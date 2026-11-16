@@ -1,0 +1,42 @@
+/* 统计报表 / 下载列表 */
+#opsDownloadListPage .nld-page { padding: 20px 24px 32px; }
+#opsDownloadListPage .nld-hero { align-items: center; }
+#opsDownloadListPage .nld-metric-success { color: #16a34a; }
+#opsDownloadListPage .nld-metric-processing { color: #2563eb; }
+#opsDownloadListPage .nld-metric-failed { color: #dc2626; }
+#opsDownloadListPage .nld-search { display: block; margin-bottom: 14px; padding: 18px 20px; border: 1px solid #e4eaf3; border-radius: 8px; box-shadow: 0 4px 18px rgba(15,23,42,.035); }
+#opsDownloadListPage .nld-search-title { margin-bottom: 14px; color: #1f2937; font-size: 14px; font-weight: 700; }
+#opsDownloadListPage .nld-search-grid { display: grid; grid-template-columns: minmax(190px, 1fr) minmax(150px, .8fr) minmax(310px, 1.5fr) auto; gap: 14px; align-items: end; }
+#opsDownloadListPage .nld-fi { display: flex; flex-direction: column; align-items: stretch; gap: 7px; min-width: 0; }
+#opsDownloadListPage .nld-label { color: #475569; font-size: 12px; font-weight: 600; }
+#opsDownloadListPage .nld-select, #opsDownloadListPage .nld-date { width: 100%; height: 36px; border-color: #d5deeb; border-radius: 6px; color: #334155; font-size: 13px; }
+#opsDownloadListPage .nld-date-range { display: flex; align-items: center; gap: 8px; min-width: 0; }
+#opsDownloadListPage .nld-date-range span { color: #94a3b8; font-size: 12px; }
+#opsDownloadListPage .nld-search-actions { display: flex; gap: 8px; align-items: center; margin: 0; padding: 0; white-space: nowrap; }
+#opsDownloadListPage .nld-btn { height: 36px; font-size: 13px; font-weight: 600; }
+#opsDownloadListPage .nld-btn-primary { background: #0b4fc4; border-color: #0b4fc4; }
+#opsDownloadListPage .nld-card { overflow: hidden; padding-bottom: 0; border: 1px solid #e4eaf3; border-radius: 8px; box-shadow: 0 4px 18px rgba(15,23,42,.035); }
+#opsDownloadListPage .nld-list-heading { display: flex; align-items: center; gap: 9px; min-height: 54px; padding: 0 20px; border-bottom: 1px solid #e8eef7; color: #1f2937; font-size: 14px; font-weight: 700; }
+#opsDownloadListPage #nldResultCount { color: #94a3b8; font-size: 12px; font-weight: 500; }
+#opsDownloadListPage .nld-list-note { margin-left: auto; color: #94a3b8; font-size: 12px; font-weight: 400; }
+#opsDownloadListPage .nld-table-wrap { padding: 0; }
+#opsDownloadListPage .nld-table { min-width: 900px; font-size: 13px; }
+#opsDownloadListPage .nld-table th { background: #f8fafc; color: #64748b; font-size: 12px; text-align: left; border-bottom-color: #e8eef7; }
+#opsDownloadListPage .nld-table td { height: 48px; color: #334155; text-align: left; border-bottom-color: #edf2f7; }
+#opsDownloadListPage .nld-table th:first-child, #opsDownloadListPage .nld-table td:first-child { padding-left: 20px; }
+#opsDownloadListPage .nld-table th:last-child, #opsDownloadListPage .nld-table td:last-child { padding-right: 20px; }
+#opsDownloadListPage .nld-table tbody tr:hover td { background: #f8fbff; }
+#opsDownloadListPage .nld-badge { gap: 6px; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+#opsDownloadListPage .nld-status-1 { color: #15803d; background: #f0fdf4; }
+#opsDownloadListPage .nld-status-2 { color: #1d4ed8; background: #eff6ff; }
+#opsDownloadListPage .nld-status-0 { color: #dc2626; background: #fef2f2; }
+#opsDownloadListPage .nld-dl-btn { padding: 4px 6px; border-radius: 4px; color: #1d4ed8; font-size: 12px; font-weight: 700; white-space: nowrap; }
+#opsDownloadListPage .nld-dl-btn:hover, #opsDownloadListPage .nld-dl-btn:focus-visible { background: #eff6ff; outline: none; }
+#opsDownloadListPage .nld-filename { display: inline-block; max-width: 230px; margin-left: 5px; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; color: #64748b; font-size: 12px; }
+#opsDownloadListPage .nld-unavailable { color: #94a3b8; font-size: 12px; }
+#opsDownloadListPage .nld-empty-row td { padding: 48px 20px; color: #94a3b8; text-align: center; }
+#opsDownloadListPage .nld-pager { min-height: 58px; padding: 8px 20px; border-top: 1px solid #e8eef7; color: #64748b; font-size: 12px; }
+#opsDownloadListPage .nld-total { color: #64748b; }
+#opsDownloadListPage .nld-page-btn, #opsDownloadListPage .nld-size-changer { height: 30px; font-size: 12px; border-color: #d5deeb; }
+@media (max-width: 1120px) { #opsDownloadListPage .nld-search-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } #opsDownloadListPage .nld-search-actions { justify-content: flex-end; } }
+@media (max-width: 650px) { #opsDownloadListPage .nld-page { padding: 14px; } #opsDownloadListPage .nld-hero { flex-direction: column; align-items: stretch; } #opsDownloadListPage .nld-search-grid { grid-template-columns: 1fr; } #opsDownloadListPage .nld-list-note { display: none; } #opsDownloadListPage .nld-pager { flex-wrap: wrap; } #opsDownloadListPage .nld-total { flex-basis: 100%; } }
