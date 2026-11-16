@@ -18,6 +18,7 @@
     'manual-config': () => manual('frequent-intent-policy'),
     'tianwang-manual': () => manual('tianwang-manual-dispatch'),
     'tianwang-ai': () => ai('tianwang-ai-dispatch'),
+    'blacklist-policy': () => showBlacklistPolicyPage(),
     whitelist: () => { showBlacklistPolicyPage(); switchBlacklistTab('dealer-whitelist-list'); },
     tasks: () => showNurtureTaskPage(),
     'test-drive': () => showTestDriveSchedulingPage(),

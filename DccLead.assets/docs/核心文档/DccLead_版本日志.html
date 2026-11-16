@@ -522,7 +522,7 @@ body {
   </div>
   <div class="summary-card" data-page-node-id="Bddl4pHoNRCyP5ufqSlDNU">
     <div class="summary-label" data-page-node-id="gDDAGo3GkgyFvQv19BKkFg">本轮更新</div>
-    <div class="summary-value" data-page-node-id="iZu6bMkHOVgYCjDyjI7OTd">10<span class="value-sub">项变更</span></div>
+    <div class="summary-value" data-page-node-id="iZu6bMkHOVgYCjDyjI7OTd">11<span class="value-sub">项版本内容</span></div>
   </div>
   <div class="summary-card" data-page-node-id="LiLhlCmDDfejkDKHtS87yQ">
     <div class="summary-label" data-page-node-id="4khrDvfAFtWuQcsQ7KBBSd">覆盖板块</div>
@@ -532,7 +532,7 @@ body {
 
 <div class="version-card" id="version-3-1">
   <div class="version-card-header"><div class="version-tag"><span class="v-label">v</span>3.1</div><div class="version-date">2026-11-10</div><div class="version-status status-current">当前版本 · 原型与功能文档</div></div>
-  <div class="version-summary"><strong>主题：</strong>坐席作业、报表与预评分规则优化。<br><strong>范围：</strong>7 项新增、3 项优化，覆盖任务排班、培育任务、统计报表及培育策略。<br><strong>交付状态：</strong>本地原型与功能文档已更新。车型日报 Excel 导出已明确开发范围，正式实现及验收待执行。</div>
+  <div class="version-summary"><strong>主题：</strong>坐席作业、报表与预评分规则优化，纳入黑名单策略。<br><strong>范围：</strong>7 项新增、3 项优化、1 项待确认具体调整，覆盖任务排班、培育任务、统计报表及培育策略。<br><strong>交付状态：</strong>本地原型与功能文档已更新。车型日报 Excel 导出已明确开发范围，正式实现及验收待执行。</div>
   <div class="change-group">
     <div class="change-group-title">先看诉求，再看规则和验证</div>
     <div class="v29-note">运营主管可在同一份表格中维护坐席共用的短信模板。坐席可筛出已跟进多次的线索，并在回访时按客户所在城市缩小赛马小组的选择范围。主管再通过人工外呼报表查看智能体评级，并用转换记录核对预评分规则的处理结果。运营可在执行日报按日查看人工与 AI 各等级的下发和试驾表现。</div>
@@ -564,11 +564,8 @@ body {
 </tr>
 <tr id="v31-release-R9"><td>V31-R9<br>新增</td><td><strong>坐席 ID 直派开关</strong><br>开启时执行坐席直派规则。关闭时直接判断初始化线索来源编码是否为 999999。成功切换后可在「操作日志」查看操作人、时间及前后状态。</td><td><a href="DccLead_功能文档.html#rules-card-nev-seat-direct" target="_blank" rel="noopener">开发规则 ↗</a><br><a href="DccLead_功能文档.html#acceptance-card-nev-seat-direct" target="_blank" rel="noopener">验收条件 ↗</a></td><td><a href="DccLead_功能清单.html?release=v3.1#v31-feature-R9" target="_blank" rel="noopener">对应功能点 ↗</a></td><td><a href="DccLead_交互流程图.html#interaction-xsfp-seat-direct" target="_blank" rel="noopener">直派开关与分支 ↗</a><br><a href="DccLead_业务流程图.html#FLOW-010-flow" target="_blank" rel="noopener">FLOW-010 · 接收校验与坐席直派 ↗</a></td></tr>
 <tr id="v31-release-R10"><td>V31-R10<br>优化</td><td><strong>总部NEV日报 · 车型日报 Excel 导出</strong><br>沿用「导出 Excel」和下载列表，在总部NEV日报工作簿新增「车型日报」工作表。正式导出待开发。</td><td><a href="DccLead_功能文档.html#rules-card-tab-nev-daily-model-export" target="_blank" rel="noopener">开发规则 ↗</a><br><a href="DccLead_功能文档.html#acceptance-card-tab-nev-daily-model-export" target="_blank" rel="noopener">验收条件 ↗</a></td><td><a href="DccLead_功能清单.html?release=v3.1#v31-feature-R10" target="_blank" rel="noopener">对应功能点 ↗</a></td><td>沿用现有导出和下载列表</td></tr>
+<tr id="v31-release-R11"><td>V31-R11<br>已纳入</td><td><strong>黑名单配置 · 黑名单策略</strong><br>本版范围为「培育策略 → 黑名单配置 → 黑名单策略」页签。具体调整及验收条件待确认。</td><td>待确认</td><td><a href="DccLead_功能清单.html?release=v3.1#v31-feature-R11" target="_blank" rel="noopener">对应功能点 ↗</a></td><td>从本条原型入口查看策略页签</td></tr>
     </tbody></table></div>
-  </div>
-  <div class="change-group">
-    <div class="change-group-title">版本计划</div>
-    <div class="v29-note"><strong>黑名单配置 · 已纳入计划</strong><br>入口为「培育策略 → 黑白名单配置」。待确认涉及的页签、具体调整及验收条件，确认后补入变更追溯表。</div>
   </div>
   <div class="change-group">
     <div class="change-group-title">材料同步与验证记录</div>
@@ -1798,7 +1795,7 @@ body {
 <!-- ═══════════ Version Timeline ═══════════ -->
 <div class="timeline-section" data-page-node-id="JI5qNaTZ8W96KU5AUEh4kO">
   <div class="timeline-title" data-page-node-id="FKlppi4mG1DSLIImPmhg7J">版本时间线</div>
-  <div class="timeline" data-page-node-id="ZlKS4wyUi8UBFKis7fDSUl"><div class="timeline-item"><div class="timeline-dot dot-current"></div><span class="tl-version">v3.1</span><span class="tl-date">2026-11-10</span><p class="tl-summary">坐席作业、报表与预评分规则优化，共 7 项变更。</p></div><div class="timeline-item"><div class="timeline-dot"></div><span class="tl-version">v3.0</span><span class="tl-date">2026-10-30</span><p class="tl-summary">预评分驱动的线索状态转换：统一配置、六类接入、字段确认及处理记录。<a href="#version-3-0">查看版本</a></p></div><div class="timeline-item"><div class="timeline-dot"></div><span class="tl-version">v2.9</span><span class="tl-date">2026-10-26</span><p class="tl-summary">驳回建议重新提交审核：有效性、归档、最新定位、页面内确认与审核留痕。<a href="DccLead_版本日志.html?v=20261026-v29-integrated#version-2-9" target="_blank" rel="noopener">查看本版变更与文档串联 ↗</a></p></div>
+  <div class="timeline" data-page-node-id="ZlKS4wyUi8UBFKis7fDSUl"><div class="timeline-item"><div class="timeline-dot dot-current"></div><span class="tl-version">v3.1</span><span class="tl-date">2026-11-10</span><p class="tl-summary">坐席作业、报表与预评分规则优化，纳入黑名单策略，共 11 项版本内容。</p></div><div class="timeline-item"><div class="timeline-dot"></div><span class="tl-version">v3.0</span><span class="tl-date">2026-10-30</span><p class="tl-summary">预评分驱动的线索状态转换：统一配置、六类接入、字段确认及处理记录。<a href="#version-3-0">查看版本</a></p></div><div class="timeline-item"><div class="timeline-dot"></div><span class="tl-version">v2.9</span><span class="tl-date">2026-10-26</span><p class="tl-summary">驳回建议重新提交审核：有效性、归档、最新定位、页面内确认与审核留痕。<a href="DccLead_版本日志.html?v=20261026-v29-integrated#version-2-9" target="_blank" rel="noopener">查看本版变更与文档串联 ↗</a></p></div>
     <div class="timeline-item">
       <div class="timeline-dot"></div>
       <span class="tl-version">v2.8</span>
@@ -2050,6 +2047,7 @@ body {
     'v31-release-R5':'conversion-records',
     'v31-release-R6':'call-status',
     'v31-release-R7':'tasks', 'v31-release-R8':'nev-daily',
+    'v31-release-R11':'blacklist-policy',
     'v30-release-R1':'conversion-rules',    'v30-release-R2':'tasks',    'v30-release-R3':'batch-dispatch',    'v30-release-R4':'return-visit-config',    'v30-release-R5':'call-status',    'v30-release-R6':'conversion-records',    'v30-release-R7':'conversion-rules',
     'v29-release-R1':'workbench-review', 'v29-release-R2':'workbench-review', 'v29-release-R3':'workbench-review',
     'v29-release-R4':'workbench-review', 'v29-release-R5':'workbench-review', 'v29-release-R6':'workbench-review',
