@@ -146,17 +146,16 @@ function aiListTransferConfirm() {
   renderAiStrategyWorkbench();aiListTransferRender();
 }
 function aiListTransferExportSuggestions() {
-  const draft=aiStrategySelectedDraft();
-  if(!draft){aiStrategyNotice('暂无可导出的策略建议。');return;}
-  const records=aiStrategyFilteredDraftRows(draft,aiStrategyState.draftFilters || {});
+  if(aiStrategyDateRangeError()){aiStrategyNotice(aiStrategyDateRangeError());return;}
+  const records=aiStrategyRangeEntries();
   if(!records.length){aiStrategyNotice('当前筛选条件下没有可导出的策略建议。');return;}
-  const rows=records.map(({row})=>{
+  const rows=records.map(({draft,row})=>{
     const hasSuggestion=row.reviewStatus!=='无需审核' && row.recommended!=='—';
     if(hasSuggestion)aiExecutionEnsure(row);
     const result=hasSuggestion?aiExecutionResult(row):null;
-    return [draft.id,aiStrategyDraftDate(draft),row.dimension,row.value,row.ruleId || '',row.sample,aiStrategyCurrentRuleTemplate(row),row.agentRecommended || row.recommended || '—',result ? (result.error || aiExecutionSummary(result)) : (row.type === '直派名单命中' ? '按直派路径执行' : '沿用关联策略'),hasSuggestion ? (row.execution?.scheme?.name || '全人工执行') : '—',aiStrategyAgentReason(row),row.reviewStatus || '待审核',hasSuggestion ? (row.receivedAt || '未记录') : '—',row.review?.reviewer || '—',row.review?.reviewedAt || '—'];
+    return [draft.id,aiStrategyDraftDate(draft),row.dimension,row.value,row.ruleId || '',row.sample,aiStrategyCurrentRuleTemplate(row),row.agentRecommended || row.recommended || '—',result ? (result.error || aiExecutionSummary(result)) : (row.type === '直派名单命中' ? '按直派路径执行' : '沿用关联策略'),hasSuggestion ? (row.execution?.scheme?.name || '全人工执行') : '—',aiStrategyAgentReason(row),row.reviewStatus || '待审核',hasSuggestion ? (row.receivedAt || '未记录') : '—',row.review?.reviewer || '—',row.review?.reviewedAt || '—',aiStrategySyncTime(row)];
   });
-  downloadExcelWorkbookFile(`线索分派策略建议-${draft.id}.xls`,[{name:'策略建议',columns:['建议批次号','业务日期','规则维度','匹配值','规则ID','样本量','当前比例（规则模板）','Agent建议比例','执行分配方案','引用预设方案','建议说明','审核/发布状态','接收时间','审核人','审核时间'],rows}],`已导出当前筛选结果，共${rows.length}条`);
+  downloadExcelWorkbookFile(`线索分派策略建议-日期范围.xls`,[{name:'策略建议',columns:['建议批次号','版本日期（建议业务日期）','规则维度','匹配值','规则ID','样本量','当前比例（规则模板）','Agent建议比例','执行分配方案','引用预设方案','建议说明','审核/发布状态','接收时间','审核人','审核时间','同步时间'],rows}],`已导出当前筛选结果，共${rows.length}条`);
 }
 document.addEventListener('change',event=>{if(event.target.matches?.('[data-ai-io-file]'))aiListTransferRead(event.target.files?.[0]);});
 document.addEventListener('click',event=>{

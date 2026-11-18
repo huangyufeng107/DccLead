@@ -57,6 +57,8 @@ function renderLeadAssignmentRuleDetail(rule, dimension) {
           <div class="rule-detail-field"><div class="rule-detail-label">策略名称</div><div class="rule-detail-value">${detailValue(rule.name)}</div></div>
           <div class="rule-detail-field"><div class="rule-detail-label">排序</div><div class="rule-detail-value">P${detailValue(rule.sort)}</div></div>
           <div class="rule-detail-field"><div class="rule-detail-label">状态</div><div class="rule-detail-value">${detailValue(rule.status)}</div></div>
+          <div class="rule-detail-field"><div class="rule-detail-label">更新人</div><div class="rule-detail-value">${detailValue(rule.updatedBy || '未记录')}</div></div>
+          <div class="rule-detail-field"><div class="rule-detail-label">更新时间</div><div class="rule-detail-value">${detailValue(rule.updatedAt)}</div></div>
         </div>
       </div>
       <div class="rule-detail-section">
@@ -73,7 +75,6 @@ function renderLeadAssignmentRuleDetail(rule, dimension) {
         <div class="rule-detail-body">
           <div class="rule-detail-field"><div class="rule-detail-label">分配动作</div><div class="rule-detail-value">${detailValue(rule.action)}</div></div>
           <div class="rule-detail-field"><div class="rule-detail-label">比例/评级</div><div class="rule-detail-value">${detailValue(rule.ratio)}</div></div>
-          <div class="rule-detail-field"><div class="rule-detail-label">更新时间</div><div class="rule-detail-value">${detailValue(rule.updatedAt)}</div></div>
         </div>
       </div>
       ${renderReadableRuleSource(rule)}
@@ -581,6 +582,8 @@ function renderCompactAssignmentRuleDetail(rule, dimension) {
           <div class="rule-detail-field"><div class="rule-detail-label">配置维度</div><div class="rule-detail-value">${detailValue(dimension.name)}</div></div>
           <div class="rule-detail-field"><div class="rule-detail-label">策略名称</div><div class="rule-detail-value">${detailValue(rule.name)}</div></div>
           <div class="rule-detail-field"><div class="rule-detail-label">状态</div><div class="rule-detail-value">${detailValue(rule.status)}</div></div>
+          <div class="rule-detail-field"><div class="rule-detail-label">更新人</div><div class="rule-detail-value">${detailValue(rule.updatedBy || '未记录')}</div></div>
+          <div class="rule-detail-field"><div class="rule-detail-label">更新时间</div><div class="rule-detail-value">${detailValue(rule.updatedAt)}</div></div>
         </div>
       </div>
       <div class="rule-detail-section">

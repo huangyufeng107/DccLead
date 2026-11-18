@@ -91,8 +91,8 @@ function aiExecutionModalPreview() {
   return `<div class="aie-result-heading"><h4>最终执行结果</h4><span>实时计算</span></div><p class="aie-result-subtitle">以下比例以全部线索为 100%</p>${result.error ? `<p class="aid-preview-error">${aiStrategyEsc(result.error)}</p>` : `<div class="aie-result-bar" aria-hidden="true">${result.parts.filter(part => part.percent > 0).map((part, index) => `<span style="width:${part.percent}%;background:${colors[index % colors.length]}"></span>`).join('')}</div>${result.parts.filter(part => part.percent > 0).map((part, index) => `<div class="aid-result"><span><i style="background:${colors[index % colors.length]}"></i>${aiStrategyEsc(part.type)}</span><strong>${part.percent}%</strong></div>`).join('')}`}<div class="aid-total">全部线索合计<strong>${result.error ? '待完善' : '100%'}</strong></div>${!result.error ? `<div class="aie-result-compare">${plan.ai === originalAi ? '人工／AI 总比例沿用 Agent 建议' : `<strong>总比例已调整</strong><span>人工 ${100-originalAi}% → ${100-plan.ai}%</span><span>AI ${originalAi}% → ${plan.ai}%</span>`}</div><div class="aie-policy-note"><span>审核发布时</span><p>${policy ? `引用已有配置「${aiStrategyEsc(policy.name)}」` : '自动创建并关联分配比例配置'}</p></div>` : ''}`;
 }
 
-function aiExecutionOpen(index) {
-  const draft = aiStrategySelectedDraft(), row = draft?.rows?.[index];
+function aiExecutionOpen(index, draftId) {
+  const draft = aiStrategyDraftById(draftId), row = draft?.rows?.[index];
   if (!aiStrategyCanReviewRow(draft, row)) { aiStrategyNotice('该建议已失效或不可修改。'); return; }
   aiExecutionEnsure(row);
   aiExecutionState.modal = { draft, row, plan: aiDefaultsClone(row.execution) };
@@ -240,7 +240,7 @@ document.addEventListener('click', event => {
   const button = event.target.closest('[data-aie-action]');
   if (!button || button.disabled) return;
   const action = button.dataset.aieAction;
-  if (action === 'edit') { aiExecutionOpen(Number(button.dataset.aieIndex)); return; }
+  if (action === 'edit') { aiExecutionOpen(Number(button.dataset.aieIndex), button.closest('[data-ai-draft-id]')?.dataset.aiDraftId); return; }
   const modal = aiExecutionState.modal;
   if (!modal) return;
   if (action === 'cancel') { aiExecutionClose(); return; }

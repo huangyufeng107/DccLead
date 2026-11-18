@@ -6,12 +6,12 @@
   const tabs = [
     ['prototype', '产品原型', './DccLead.html'],
     ['requirements', '需求说明', 'DccLead.assets/docs/需求说明/index.html?v=20261104-review-cleanup'],
-    ['blueprint', '系统蓝图', 'DccLead.assets/docs/核心文档/DccLead_系统蓝图.html?v=20261026-v29-integrated'],
-    ['manual', '功能文档', 'DccLead.assets/docs/核心文档/DccLead_功能文档.html?v=20261111-seat-direct'],
-    ['interaction', '页面交互图', 'DccLead.assets/docs/核心文档/DccLead_交互流程图.html?v=20261111-seat-direct'],
-    ['sequence', '业务流程图', 'DccLead.assets/docs/核心文档/DccLead_业务流程图.html?v=20261112-nev-flow-title'],
-    ['features', '功能点清单', 'DccLead.assets/docs/核心文档/DccLead_功能清单.html?v=20261111-v31-nev-grade'],
-    ['versions', '版本号日志', 'DccLead.assets/docs/核心文档/DccLead_版本日志.html?v=20261111-v31-nev-grade']
+    ['blueprint', '系统蓝图', 'DccLead.assets/docs/核心文档/DccLead_系统蓝图.html?v=20261118-doc-anchor-fix'],
+    ['manual', '功能文档', 'DccLead.assets/docs/核心文档/DccLead_功能文档.html?v=20261118-doc-anchor-f9'],
+    ['interaction', '页面交互图', 'DccLead.assets/docs/核心文档/DccLead_交互流程图.html?v=20261118-doc-anchor-fix'],
+    ['sequence', '业务场景与流程', 'DccLead.assets/docs/核心文档/DccLead_业务流程图.html?v=20261118-doc-anchor-fix'],
+    ['features', '功能点清单', 'DccLead.assets/docs/核心文档/DccLead_功能清单.html?v=20261118-doc-anchor-fix'],
+    ['versions', '版本号日志', 'DccLead.assets/docs/核心文档/DccLead_版本日志.html?v=20261118-doc-anchor-fix']
   ];
   const header = document.createElement('header');
   header.id = 'dccDocsHeader';

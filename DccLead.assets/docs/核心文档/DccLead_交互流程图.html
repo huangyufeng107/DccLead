@@ -819,6 +819,8 @@
   <div class="op-group" data-page="xsfp">
     <button data-op="xsfp-seat-direct">NEV 培育线索 · 坐席ID直派</button>
     <!-- 线索分配规则（全7个维度完整交互流程） -->
+    <span class="section-divider">六类配置共用</span>
+    <button data-op="xsfp-rule-edit">人工编辑与来源保留</button>
     <span class="section-divider">意向车系</span>
     <button data-op="xsfp-series-01" class="active">车系规则配置与查询</button>
     <button data-op="xsfp-series-02">车系多选与互斥校验</button>
@@ -828,6 +830,7 @@
     <button data-op="xsfp-sc-02">推送时段控制与分流</button>
     <span class="section-divider">大项目名</span>
     <button data-op="xsfp-proj-01">大项目规则复合匹配</button>
+    
     <span class="section-divider">渠道编码</span>
     <button data-op="xsfp-chan-01">渠道编码匹配与路由</button>
     <span class="section-divider">线索状态</span>
@@ -844,7 +847,7 @@
     <button data-op="xsfp-07">策略来源静态标签（v2.8新增）</button>
   </div>
   <!-- AI策略工作台（v2.8 全新上线）：提供概况看板、低效对象关联、Agent建议审批及版本Diff回滚 10 大流程 -->
-<div class="op-group" data-page="aistrat"><span class="section-divider">AI策略工作台</span><button data-op="aistrat-01" class="active">工作台概况与导航</button><button data-op="aistrat-02">默认预设及执行方案来源</button><button data-op="aistrat-03">低效对象配置</button><button data-op="aistrat-04">直派名单维护</button><button data-op="aistrat-05">建议接收、查询与逐条审核发布</button><button data-op="aistrat-06">审核人员与邮件通知</button><button data-op="aistrat-07">版本记录与详情</button><button data-op="aistrat-08">创建回滚版本</button><button data-op="aistrat-09">回滚差异预览</button><button data-op="aistrat-10">发布回滚版本</button><button data-op="aistrat-11">调整执行分配方案</button><button data-op="aistrat-12">名单导入导出及建议导出</button><button data-op="aistrat-13">驳回后重新提交</button><button data-op="aistrat-14">替代、归档与最新定位</button></div>
+<div class="op-group" data-page="aistrat"><span class="section-divider">AI策略工作台</span><button data-op="aistrat-01" class="active">工作台概况与导航</button><button data-op="aistrat-02">默认预设及执行方案来源</button><button data-op="aistrat-03">低效对象配置</button><button data-op="aistrat-04">直派名单维护</button><button data-op="aistrat-05">建议接收、查询与逐条审核发布</button><button data-op="aistrat-date-range">日期范围查询与同步核对</button><button data-op="aistrat-06">审核人员与邮件通知</button><button data-op="aistrat-07">版本记录与详情</button><button data-op="aistrat-08">创建回滚版本</button><button data-op="aistrat-09">回滚差异预览</button><button data-op="aistrat-10">发布回滚版本</button><button data-op="aistrat-11">调整执行分配方案</button><button data-op="aistrat-12">名单导入导出及建议导出</button><button data-op="aistrat-13">驳回后重新提交</button><button data-op="aistrat-14">替代、归档与最新定位</button></div>
   <div class="op-group" data-page="aiwh">
     <span class="section-divider">通话状态</span>
     <button data-op="aiwh-01">查询</button>
@@ -2880,16 +2883,31 @@ flowchart TD
   </pre>
 </div>
 
+<div id="interaction-xsfp-rule-edit" class="chart-card" data-page="xsfp" data-op="xsfp-rule-edit">
+<h2><span class="card-index">编辑</span>六类配置人工编辑与 Agent 来源保留<span class="page-badge">线索分配规则</span></h2>
+<div class="param-box"><strong>入口：</strong>线索分配规则 → 意向车系、SmartCode、大项目名、渠道编码、线索状态、意向门店任一配置 → 行内“编辑”。各配置原有必填、时段、关联与比例校验保持有效。保存成功后，列表与详情显示本次操作账号、更新时间和新配置，保留同一规则的原建议关联；蓝色标识表达历史采用来源。取消或失败保持原记录。AI 策略工作台沿用现状。</div>
+<div class="release-doc-links"><a href="DccLead_版本日志.html?v=20261118-v32-interactions#v32-release-R1" target="_blank" rel="noopener">v3.2变更与验证 ↗</a> · <a href="DccLead_功能文档.html?v=20261118-v32-interactions#lead-assignment-manual-update-common" target="_blank" rel="noopener">现行规格 ↗</a> · <a href="DccLead_业务流程图.html?v=20261118-v32-interactions#FLOW-011-overview" target="_blank" rel="noopener">业务场景 ↗</a></div><pre class="mermaid">flowchart TD
+ A["在六类配置任一列表点击编辑"] --> B["回填配置，原记录尚未改变"]
+ B -->|取消| C["关闭弹窗，原配置和更新信息不变"]
+ B -->|保存| D{"权限与字段校验通过？"}
+ D -->|否| E["提示原因并保留填写，原记录不变"]
+ D -->|是| F{"保存成功？"}
+ F -->|否| E
+ F -->|是| G["更新配置、本次操作账号与时间，保留原建议关联"]
+ G --> H["关闭弹窗，刷新列表"]
+ H --> I["查看同一规则详情：配置、更新信息和来源一致"]
+</pre></div>
+
 <!-- 策略来源静态标签（v2.8展示规则） -->
 <div id="interaction-xsfp-07" class="chart-card" data-page="xsfp" data-op="xsfp-07">
-  <h2><span class="card-index">27</span>策略来源标签<span class="page-badge">线索分配规则 · v2.8</span></h2>
+  <h2><span class="card-index">27</span>策略来源标签<span class="page-badge">线索分配规则</span></h2>
   <div class="param-box">
-    <strong>交互特性：</strong>策略名称下方展示「🤖 Agent建议」静态来源标签，用于区分 Agent 建议生成与人工/系统创建的规则；标签不响应鼠标悬停或点击，不弹出摘要浮层。<br>
+    <strong>交互特性：</strong>策略名称下方展示「🤖 Agent建议」静态来源标签，表示该规则曾采用 Agent 建议，不以最近更新人判断来源；后续人工修改仍保留原标识；标签不响应鼠标悬停或点击，不弹出摘要浮层。<br>
     <strong>详细追溯：</strong>建议编号、Agent版本、数据日期、批次号等信息在规则详情和版本详情中查看。
   </div>
   <div class="release-doc-links">关联变更：<a href="DccLead_版本日志.html?v=20261026-release-links#version-2-8" target="_blank" rel="noopener">v2.8 ↗</a></div><pre class="mermaid">
 flowchart TD
-  A1["渲染线索分配规则列表"] --> A2["判断规则是否包含 Agent 建议来源"]
+  A1["渲染线索分配规则列表"] --> A2["判断规则是否保留 Agent 建议关联"]
   A2 -->|是| A3["展示静态 🤖 Agent建议 标签"]
   A2 -->|否| A4["展示人工/系统创建来源"]
   A3 --> A5["鼠标悬停或点击不触发摘要浮层"]
@@ -2927,12 +2945,12 @@ B -->|否| C["提示错误"]
 B -->|是| D["加入直派名单"] --> E["命中走直派，不参与 Agent 评分及调配"]
 D --> F["可移除、导入数据或导出数据"]
 </pre></div>
-<div id="interaction-aistrat-05" class="chart-card" data-page="aistrat" data-op="aistrat-05"><h2><span class="card-index">05</span>建议接收、查询与逐条审核发布<span class="page-badge">AI策略工作台</span></h2><div class="param-box">列表含接收时间、只读 Agent 建议及执行分配方案；按批次、维度、匹配值、建议比例及状态筛选。当前筛选全部分页支持导出数据；单条操作通过并发布、驳回。</div><div class="release-doc-links">关联变更：<a href="DccLead_版本日志.html?v=20261026-release-links#version-2-8" target="_blank" rel="noopener">v2.8 ↗</a></div><pre class="mermaid">flowchart TD
+<div id="interaction-aistrat-05" class="chart-card" data-page="aistrat" data-op="aistrat-05"><h2><span class="card-index">05</span>建议接收、查询与逐条审核发布<span class="page-badge">AI策略工作台</span></h2><div class="param-box">按版本日期范围（建议业务日期）、维度、匹配值、建议比例及状态跨批次筛选。每行保留业务日期和批次，接收时间与同步时间分列；调整、审核、重提和审核记录均关联原批次。同步时间只在DCC确认成功后记录，当前筛选全部分页可导出。</div><div class="release-doc-links">关联变更：<a href="DccLead_版本日志.html?v=20261026-release-links#version-2-8" target="_blank" rel="noopener">v2.8 ↗</a></div><div class="release-doc-links"><a href="DccLead_版本日志.html?v=20261118-v32-interactions#v32-release-R2" target="_blank" rel="noopener">v3.2变更与验证 ↗</a> · <a href="DccLead_功能文档.html?v=20261118-v32-interactions#card-tab-37-f4" target="_blank" rel="noopener">现行规格 ↗</a> · <a href="DccLead_业务流程图.html?v=20261118-v32-interactions#FLOW-007-acceptance" target="_blank" rel="noopener">业务场景 ↗</a></div><pre class="mermaid">flowchart TD
 A["已结算数据成功生成并接收建议"] --> B["记录接收时间、原始结果与当时来源快照"]
 B --> C["同对象旧未发布建议失效，其他对象旧待审保留"] --> D{"接收来源?"}
 D -->|默认预设补齐| E["快照默认预设并换算 AI 分配"]
 D -->|Agent 完整方案| F["采用 Agent 完整分配，不读默认预设"]
-E --> G["展示并按批次等条件查询，必要时调整执行方案"]
+E --> G["按业务日期范围跨批次查询，必要时调整原条目执行方案"]
 F --> G
 G --> H{"审核操作?"}
 H -->|驳回| I["必填原因并留痕，原规则继续生效"]
@@ -2941,8 +2959,27 @@ K -->|否| L["阻止提交，提示补齐或更新"]
 K -->|是| M["等价启用配置复用，否则创建并关联"] --> N["幂等提交 DCC"]
 N --> O{"成功回执及规则ID、版本号?"}
 O -->|否或未确认| P["不切换版本，核实后重试"]
-O -->|是| Q["本条已发布并记录独立版本和整套快照"]
+O -->|是| Q["本条已发布，记录同步成功时间、独立版本和整套快照"]
 </pre></div>
+<div id="interaction-aistrat-date-range" class="chart-card" data-page="aistrat" data-op="aistrat-date-range">
+<h2><span class="card-index">查询</span>日期范围查询与同步核对<span class="page-badge">AI策略工作台</span></h2>
+<div class="param-box"><strong>入口：</strong>策略建议与审核。“版本日期”按建议业务日期筛选，精确到日并包含首尾；两端留空不限制日期，单边填写为开放边界。同一天多个批次分别展示。接收时间与DCC同步成功时间仅供核对，不参与该日期筛选；历史查询不改变归档、失效及审核权限。</div>
+<div class="release-doc-links"><a href="DccLead_版本日志.html?v=20261118-v32-interactions#v32-release-R2" target="_blank" rel="noopener">v3.2变更与验证 ↗</a> · <a href="DccLead_功能文档.html?v=20261118-v32-interactions#card-tab-37-f4" target="_blank" rel="noopener">现行规格 ↗</a> · <a href="DccLead_业务流程图.html?v=20261118-v32-interactions#FLOW-007-acceptance" target="_blank" rel="noopener">业务场景 ↗</a></div><pre class="mermaid">flowchart TD
+ A["设置版本起止日期及其他筛选"] --> B["清除旧勾选，回到第一页"]
+ B --> C{"日期有效且开始不晚于结束？"}
+ C -->|否| D["提示范围错误，不返回或导出数据"]
+ C -->|是| E["按业务日期查询所有匹配批次，包含首尾"]
+ E --> F{"有匹配记录？"}
+ F -->|否| G["展示空结果，不回退当前批次"]
+ F -->|是| H["按日期、批次倒序展示，保留各条原批次"]
+ H --> I["查看接收时间、同步时间、原建议及执行方案"]
+ I --> J{"后续操作？"}
+ J -->|翻页| K["筛选不变，展示下一页"]
+ J -->|导出| L["导出全部匹配分页，包含原批次及两项时间"]
+ J -->|调整或审核| M["按原批次与条目复核可操作状态"]
+ J -->|重置| N["清空日期和其他筛选、勾选，回到第一页"]
+ I --> O["已发布且成功凭据齐全：显示同步成功时间；否则按未同步或待核对展示"]
+</pre><div class="param-box"><strong>同步时间补充：</strong>成功凭据齐全但时间缺失显示“未记录”；不能用接收、审核或发送请求时间代填。页面原型模拟成功回执，生产同步时间仍需接口联调。</div></div>
 <div id="interaction-aistrat-06" class="chart-card" data-page="aistrat" data-op="aistrat-06"><h2><span class="card-index">06</span>审核人员与邮件通知<span class="page-badge">AI策略工作台</span></h2><div class="param-box">审核人员始终可配置；通知开关关闭只停止邮件，不影响建议生成、查询、调整、审核、驳回、发布或权限。小时/每日汇总包含跨日全部有效待审，不受列表筛选限制。</div><div class="release-doc-links">关联变更：<a href="DccLead_版本日志.html?v=20261026-release-links#version-2-8" target="_blank" rel="noopener">v2.8 ↗</a></div><pre class="mermaid">flowchart TD
 A["打开审核规则设置"] --> B["配置审核人员"] --> C{"开启审核通知?"}
 C -->|关闭| D["邮件字段禁用并保留值，列表操作及审核权限不变"]
@@ -2999,14 +3036,16 @@ J --> K{"操作?"}
 K -->|取消| L["原条目不变"]
 K -->|保存| M["校验最新有效及比例，保存本条快照，不改公共预设"]
 </pre></div>
-<div id="interaction-aistrat-12" class="chart-card" data-page="aistrat" data-op="aistrat-12"><h2><span class="card-index">12</span>名单导入导出及建议导出<span class="page-badge">AI策略工作台</span></h2><div class="param-box">低效/直派复用上传、预览确认、完成三步；模板及失败明细可下载，重复跳过不覆盖。建议只提供导出数据，导出当前批次及筛选的全部匹配行。</div><div class="release-doc-links">关联变更：<a href="DccLead_版本日志.html?v=20261026-release-links#version-2-8" target="_blank" rel="noopener">v2.8 ↗</a></div><pre class="mermaid">flowchart TD
+<div id="interaction-aistrat-12" class="chart-card" data-page="aistrat" data-op="aistrat-12"><h2><span class="card-index">12</span>名单导入导出及建议导出<span class="page-badge">AI策略工作台</span></h2><div class="param-box">低效/直派复用上传、预览确认、完成三步；模板及失败明细可下载，重复跳过不覆盖。建议只提供导出数据，导出当前日期范围及组合筛选的全部匹配行，保留每行批次与同步时间。</div><div class="release-doc-links">关联变更：<a href="DccLead_版本日志.html?v=20261026-release-links#version-2-8" target="_blank" rel="noopener">v2.8 ↗</a></div><div class="release-doc-links"><a href="DccLead_版本日志.html?v=20261118-v32-interactions#v32-release-R2" target="_blank" rel="noopener">v3.2变更与验证 ↗</a> · <a href="DccLead_功能文档.html?v=20261118-v32-interactions#card-tab-37-f4" target="_blank" rel="noopener">现行规格 ↗</a> · <a href="DccLead_业务流程图.html?v=20261118-v32-interactions#FLOW-007-acceptance" target="_blank" rel="noopener">业务场景 ↗</a></div><pre class="mermaid">flowchart TD
 A{"操作?"}
 A -->|低效或直派导入数据| B["下载模板，上传文件并解析"] --> C["逐行校验必填、维度、关联启用及重复"]
 C --> D["预览成功、失败与跳过条目，可下载失败原因"] --> E["确认时重新校验并幂等写入有效行"] --> F["显示结果，重复不覆盖"]
 A -->|清单导出数据| G["导出当前清单记录"]
-A -->|建议导出数据| H["按当前批次及组合筛选获取全部分页记录"] --> I{"有数据?"}
+A -->|建议导出数据| R{"日期范围有效？"}
+R -->|否| S["提示范围错误，不导出"]
+R -->|是| H["按列表相同日期范围与组合筛选获取全部分页"] --> I{"有数据?"}
 I -->|否| J["提示无可导出数据"]
-I -->|是| K["下载含原始建议、执行方案、来源及接收时间的文件"]
+I -->|是| K["下载含业务日期、批次、原始建议、执行方案、接收及同步时间的文件"]
 </pre></div>
 <div class="chart-card" data-page="aistrat" data-op="aistrat-13" id="ai-review-resubmit-flow"><h2><span class="card-index">13</span>驳回后重新提交审核<span class="page-badge">v2.9 · AI策略工作台</span></h2><div class="param-box">有效的已驳回建议才能重新提交；所有确认和原因填写使用页面内弹窗。<div class="v29-links"><a href="DccLead_版本日志.html?v=20261026-v29-integrated#version-2-9" target="_blank" rel="noopener">返回 v2.9 版本说明与关联材料 ↗</a><a href="DccLead_功能文档.html?v=20261026-v29-coherent#ai-review-rules" target="_blank" rel="noopener">功能规则与验收 ↗</a><a href="DccLead_业务流程图.html?v=20261026-v29-integrated#FLOW-007-resubmit" target="_blank" rel="noopener">FLOW-007 ↗</a></div></div><pre class="mermaid">flowchart TD
 A["查看已驳回建议"] --> B{"未归档、同对象无更新建议?"}
@@ -5973,5 +6012,6 @@ flowchart TD
 <script>
   mermaid.initialize({ startOnLoad: true, theme: 'default', themeVariables: { fontSize: '14px', fontFamily: 'Arial, Microsoft YaHei, sans-serif' }, flowchart: { useMaxWidth: false, htmlLabels: true, curve: 'basis' } });
 </script>
+<script src="../../js/doc-anchor-navigation.js?v=20261118-doc-anchor-fix"></script>
 </body>
 </html>

@@ -91,9 +91,9 @@
 .ai-strategy-drafts-table th:nth-child(8), .ai-strategy-drafts-table td:nth-child(8) { min-width:280px; width:280px; }
 .ai-strategy-drafts-table th:nth-child(9), .ai-strategy-drafts-table td:nth-child(9) { min-width:160px; width:160px; overflow-wrap:anywhere; }
 .ai-strategy-drafts-table th:nth-child(10), .ai-strategy-drafts-table td:nth-child(10) { min-width:110px; width:110px; white-space:nowrap; }
-.ai-strategy-drafts-table th:nth-child(11), .ai-strategy-drafts-table td:nth-child(11) { position:sticky; right:0; min-width:110px; width:110px; background:#fff; box-shadow:-5px 0 8px -6px rgba(15,23,42,.25); }
-.ai-strategy-drafts-table th:nth-child(11) { background:#f8fafc; z-index:2; }
-.ai-strategy-drafts-table td:nth-child(11) { z-index:1; }
+.ai-strategy-drafts-table th:last-child, .ai-strategy-drafts-table td:last-child { position:sticky; right:0; min-width:110px; width:110px; background:#fff; box-shadow:-5px 0 8px -6px rgba(15,23,42,.25); }
+.ai-strategy-drafts-table th:last-child { background:#f8fafc; z-index:2; }
+.ai-strategy-drafts-table td:last-child { z-index:1; }
 .ai-strategy-received-time { display:flex; flex-direction:column; gap:3px; font-variant-numeric:tabular-nums; }
 .ai-strategy-received-time small { color:#64748b; font-size:12px; }
 .ai-strategy-row-actions { display:flex; flex-direction:column; align-items:flex-start; gap:8px; }
@@ -584,3 +584,10 @@
 .ai-strategy-demo summary{cursor:pointer;font-weight:600;color:#475569}
 .ai-strategy-demo p{margin:8px 0;line-height:1.6}
 .ai-strategy-demo-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+
+/* 日期范围按天选择；跨批次查询保留每行日期与同步结果。 */
+.ai-strategy-date-filter { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.ai-strategy-filterbar .ai-strategy-range-date { width:155px; min-width:145px; }
+.ai-strategy-range-error { color:#b91c1c; padding:8px 12px; background:#fef2f2; border-radius:6px; }
+.ai-strategy-drafts-table th:nth-child(11), .ai-strategy-drafts-table td:nth-child(11) { min-width:210px; }
+.ai-strategy-drafts-table th:nth-child(12), .ai-strategy-drafts-table td:nth-child(12) { min-width:170px; font-variant-numeric:tabular-nums; }

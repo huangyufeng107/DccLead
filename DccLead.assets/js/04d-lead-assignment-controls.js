@@ -1281,11 +1281,10 @@ function saveSeriesAssignmentRule() {
     updatedAt: new Date().toISOString().slice(0, 16).replace('T', ' ')
   };
   if (editingLeadAssignmentRuleId) {
-    const index = dimension.rules.findIndex(item => item.id === editingLeadAssignmentRuleId);
-    if (index > -1) dimension.rules[index] = { ...dimension.rules[index], ...payload };
+    if (!commitLeadAssignmentManualEdit(dimension, editingLeadAssignmentRuleId, payload)) return;
     showToast(`${getLeadAssignmentRuleLabel(dimension)}已更新`, true);
   } else {
-    dimension.rules.push({ ...getDefaultLeadAssignmentRule(dimension), sort: dimension.rules.length + 1, ...payload });
+    dimension.rules.push({ ...getDefaultLeadAssignmentRule(dimension), sort: dimension.rules.length + 1, ...payload, ...getLeadAssignmentManualUpdateInfo() });
     showToast(`${getLeadAssignmentRuleLabel(dimension)}已创建`, true);
   }
   closeModal('leadDispatchRuleModal');
@@ -1312,11 +1311,10 @@ function saveLeadAssignmentRule() {
   if (!payload.callTypes.length) { showToast('请填写外呼类型', false); return; }
   if (!payload.condition) { showToast('请填写匹配条件', false); return; }
   if (editingLeadAssignmentRuleId) {
-    const index = dimension.rules.findIndex(item => item.id === editingLeadAssignmentRuleId);
-    if (index > -1) dimension.rules[index] = { ...dimension.rules[index], ...payload };
+    if (!commitLeadAssignmentManualEdit(dimension, editingLeadAssignmentRuleId, payload)) return;
     showToast(`${dimension.name}策略已更新`, true);
   } else {
-    dimension.rules.push({ ...getDefaultLeadAssignmentRule(dimension), ...payload });
+    dimension.rules.push({ ...getDefaultLeadAssignmentRule(dimension), ...payload, ...getLeadAssignmentManualUpdateInfo() });
     showToast(`${dimension.name}策略已创建`, true);
   }
   closeModal('leadDispatchRuleModal');

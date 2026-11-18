@@ -80,11 +80,11 @@ const leadAssignmentDimensions = [
     desc: '按意向车系识别线索应进入的培育路径',
     fields: '意向车系、是否按比例、分配比例配置、外呼类型、排序序号',
     rules: [
-      { id: 'CAR-001', name: 'N6车系优先培育', keyValue: 'N6', seriesValues: ['N6'], callTypes: ['科大讯飞-冷线索'], condition: '意向车系=N6', allocationMode: 'single', allocations: [{ channel: '科大讯飞-冷线索', percent: 100 }], action: '全部分配给科大讯飞-冷线索', ratio: '不按比例', aiType: '科大讯飞-冷线索', sort: 1, status: '启用', updatedAt: '2026-06-10 10:18', sourceType: 'agent_recommendation', recommendationId: 'REC-20261012-0001', recommendationItemId: 'ITEM-0001', recommendationSummary: 'Agent建议评分为 100.0 分，系统将该评分作为对象效能参考，建议结合当前人工容量与现行分派规则审核确认。', recommended: '人工0% / AI100%', aiInternalMode: '不按比例', aiInternalPlan: '科大讯飞-冷线索', recommendationType: '优先培育', recommendationPlan: '人工0% / AI100% · 不按比例 · 优先培育', recommendationReason: 'Agent建议评分为 100.0 分，系统将该评分作为对象效能参考，建议结合当前人工容量与现行分派规则审核确认。', adoptionSummary: '张晓彤于 2026-10-12 16:20 采纳，未修改建议内容', agentVersion: 'lead-allocation-agent@V1.3', dataDate: '2026-10-11', batchId: 'BATCH-20261011-0001', requestId: 'REQ-20261012-0001', ruleVersion: 'V12' },
-      { id: 'CAR-002', name: '轩逸车系混合比例分配', keyValue: '轩逸', seriesValues: ['轩逸'], useAllocationPolicy: '是', allocationPolicyId: 'AP-003', callTypes: ['科大讯飞-冷线索', '人工外呼'], condition: '意向车系=轩逸 / 分配比例配置=AI人工混合策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：AI人工混合策略', ratio: '比例配置', sort: 2, status: '启用', updatedAt: '2026-06-11 14:20' },
-      { id: 'CAR-003', name: '天籁车系华南城市分配', keyValue: '天籁', seriesValues: ['天籁'], useAllocationPolicy: '是', allocationPolicyId: 'AP-001', callTypes: ['AI外呼', '人工外呼'], condition: '意向车系=天籁 / 分配比例配置=华南城市分配策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：华南城市分配策略', ratio: '比例配置', sort: 3, status: '启用', updatedAt: '2026-06-12 11:30' },
-      { id: 'CAR-004', name: '逍客车系省份梯队分配', keyValue: '逍客', seriesValues: ['逍客'], useAllocationPolicy: '是', allocationPolicyId: 'AP-005', callTypes: ['AI外呼', '人工外呼', '科大讯飞-冷线索'], condition: '意向车系=逍客 / 分配比例配置=重点省份梯队分配策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：重点省份梯队分配策略', ratio: '比例配置', sort: 4, status: '启用', updatedAt: '2026-06-15 15:10' },
-      { id: 'CAR-005', name: '奇骏车系预评分分层分配', keyValue: '奇骏', seriesValues: ['奇骏'], useAllocationPolicy: '是', allocationPolicyId: 'AP-004', callTypes: ['科大讯飞-冷线索', '科大讯飞-留资未满'], condition: '意向车系=奇骏 / 分配比例配置=预评分分层外呼策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：预评分分层外呼策略', ratio: '比例配置', sort: 5, status: '启用', updatedAt: '2026-06-16 09:40' }
+      { id: 'CAR-001', name: 'N6车系优先培育', keyValue: 'N6', seriesValues: ['N6'], callTypes: ['科大讯飞-冷线索'], condition: '意向车系=N6', allocationMode: 'single', allocations: [{ channel: '科大讯飞-冷线索', percent: 100 }], action: '全部分配给科大讯飞-冷线索', ratio: '不按比例', aiType: '科大讯飞-冷线索', sort: 1, status: '启用', updatedBy: 'agent', updatedAt: '2026-06-10 10:18', sourceType: 'agent_recommendation', recommendationId: 'REC-20261012-0001', recommendationItemId: 'ITEM-0001', recommendationSummary: 'Agent建议评分为 100.0 分，系统将该评分作为对象效能参考，建议结合当前人工容量与现行分派规则审核确认。', recommended: '人工0% / AI100%', aiInternalMode: '不按比例', aiInternalPlan: '科大讯飞-冷线索', recommendationType: '优先培育', recommendationPlan: '人工0% / AI100% · 不按比例 · 优先培育', recommendationReason: 'Agent建议评分为 100.0 分，系统将该评分作为对象效能参考，建议结合当前人工容量与现行分派规则审核确认。', adoptionSummary: '张晓彤于 2026-10-12 16:20 采纳，未修改建议内容', agentVersion: 'lead-allocation-agent@V1.3', dataDate: '2026-10-11', batchId: 'BATCH-20261011-0001', requestId: 'REQ-20261012-0001', ruleVersion: 'V12' },
+      { id: 'CAR-002', name: '轩逸车系混合比例分配', keyValue: '轩逸', seriesValues: ['轩逸'], useAllocationPolicy: '是', allocationPolicyId: 'AP-003', callTypes: ['科大讯飞-冷线索', '人工外呼'], condition: '意向车系=轩逸 / 分配比例配置=AI人工混合策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：AI人工混合策略', ratio: '比例配置', sort: 2, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-11 14:20' },
+      { id: 'CAR-003', name: '天籁车系华南城市分配', keyValue: '天籁', seriesValues: ['天籁'], useAllocationPolicy: '是', allocationPolicyId: 'AP-001', callTypes: ['AI外呼', '人工外呼'], condition: '意向车系=天籁 / 分配比例配置=华南城市分配策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：华南城市分配策略', ratio: '比例配置', sort: 3, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-12 11:30' },
+      { id: 'CAR-004', name: '逍客车系省份梯队分配', keyValue: '逍客', seriesValues: ['逍客'], useAllocationPolicy: '是', allocationPolicyId: 'AP-005', callTypes: ['AI外呼', '人工外呼', '科大讯飞-冷线索'], condition: '意向车系=逍客 / 分配比例配置=重点省份梯队分配策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：重点省份梯队分配策略', ratio: '比例配置', sort: 4, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-15 15:10' },
+      { id: 'CAR-005', name: '奇骏车系预评分分层分配', keyValue: '奇骏', seriesValues: ['奇骏'], useAllocationPolicy: '是', allocationPolicyId: 'AP-004', callTypes: ['科大讯飞-冷线索', '科大讯飞-留资未满'], condition: '意向车系=奇骏 / 分配比例配置=预评分分层外呼策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：预评分分层外呼策略', ratio: '比例配置', sort: 5, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-16 09:40' }
     ]
   },
   {
@@ -96,11 +96,11 @@ const leadAssignmentDimensions = [
     desc: '按 SmartCode 和意向车系识别线索应进入的培育路径',
     fields: 'SmartCode、意向车系、是否按比例、分配比例配置、推送时间、排序序号',
     rules: [
-      { id: 'SC-001', name: '过期SC暂缓分配', keyValue: 'SC-OLD-001', scValues: ['SC-OLD-001'], scSeriesValues: [], useAllocationPolicy: '否', allocationPolicyId: '', callTypes: ['科大讯飞-冷线索'], condition: 'SmartCode=SC-OLD-001 / 未接入分配比例配置', allocationMode: 'single', allocations: [{ channel: '科大讯飞-冷线索', percent: 100 }], pushTime: { days: ['周一', '周二', '周三', '周四', '周五'], slots: [{ start: '09:00', end: '12:00' }, { start: '14:00', end: '18:00' }] }, action: '全部分配给科大讯飞-冷线索', ratio: '不接入比例配置', sort: 1, status: '启用', updatedAt: '2026-06-08 10:15' },
-      { id: 'SC-002', name: '重点SC混合比例分配', keyValue: 'SC-GZ-2026', scValues: ['SC-GZ-2026'], scSeriesValues: ['N6', '轩逸'], useAllocationPolicy: '是', allocationPolicyId: 'AP-003', callTypes: ['科大讯飞-冷线索', '人工外呼'], condition: 'SmartCode=SC-GZ-2026 / 意向车系=N6、轩逸 / 分配比例配置=AI人工混合策略', allocationMode: 'policy', allocations: [], pushTime: { days: [], slots: [] }, action: '接入比例配置：AI人工混合策略', ratio: '比例配置', sort: 2, status: '启用', updatedAt: '2026-06-09 14:22' },
-      { id: 'SC-003', name: '广州N6-SC定向培育', keyValue: 'SC-N6-0891', scValues: ['SC-N6-0891'], scSeriesValues: ['N6'], useAllocationPolicy: '是', allocationPolicyId: 'AP-001', callTypes: ['AI外呼', '人工外呼'], condition: 'SmartCode=SC-N6-0891 / 意向车系=N6 / 分配比例配置=华南城市分配策略', allocationMode: 'policy', allocations: [], pushTime: { days: ['周一', '周二', '周三', '周四', '周五'], slots: [{ start: '09:00', end: '12:00' }, { start: '14:00', end: '18:00' }] }, action: '接入比例配置：华南城市分配策略', ratio: '比例配置', sort: 3, status: '启用', updatedAt: '2026-06-10 11:05' },
-      { id: 'SC-004', name: '沈阳SC省份梯队分配', keyValue: 'SC-SY-0234', scValues: ['SC-SY-0234'], scSeriesValues: ['天籁'], useAllocationPolicy: '是', allocationPolicyId: 'AP-005', callTypes: ['AI外呼', '人工外呼', '科大讯飞-冷线索'], condition: 'SmartCode=SC-SY-0234 / 意向车系=天籁 / 分配比例配置=重点省份梯队分配策略', allocationMode: 'policy', allocations: [], pushTime: { days: [], slots: [] }, action: '接入比例配置：重点省份梯队分配策略', ratio: '比例配置', sort: 4, status: '启用', updatedAt: '2026-06-15 16:30' },
-      { id: 'SC-005', name: '逍客SC评分分层承接', keyValue: 'SC-XK-7712', scValues: ['SC-XK-7712'], scSeriesValues: ['逍客'], useAllocationPolicy: '是', allocationPolicyId: 'AP-004', callTypes: ['科大讯飞-冷线索', '科大讯飞-留资未满'], condition: 'SmartCode=SC-XK-7712 / 意向车系=逍客 / 分配比例配置=预评分分层外呼策略', allocationMode: 'policy', allocations: [], pushTime: { days: [], slots: [] }, action: '接入比例配置：预评分分层外呼策略', ratio: '比例配置', sort: 5, status: '启用', updatedAt: '2026-06-16 11:10' }
+      { id: 'SC-001', name: '过期SC暂缓分配', keyValue: 'SC-OLD-001', scValues: ['SC-OLD-001'], scSeriesValues: [], useAllocationPolicy: '否', allocationPolicyId: '', callTypes: ['科大讯飞-冷线索'], condition: 'SmartCode=SC-OLD-001 / 未接入分配比例配置', allocationMode: 'single', allocations: [{ channel: '科大讯飞-冷线索', percent: 100 }], pushTime: { days: ['周一', '周二', '周三', '周四', '周五'], slots: [{ start: '09:00', end: '12:00' }, { start: '14:00', end: '18:00' }] }, action: '全部分配给科大讯飞-冷线索', ratio: '不接入比例配置', sort: 1, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-08 10:15' },
+      { id: 'SC-002', name: '重点SC混合比例分配', keyValue: 'SC-GZ-2026', scValues: ['SC-GZ-2026'], scSeriesValues: ['N6', '轩逸'], useAllocationPolicy: '是', allocationPolicyId: 'AP-003', callTypes: ['科大讯飞-冷线索', '人工外呼'], condition: 'SmartCode=SC-GZ-2026 / 意向车系=N6、轩逸 / 分配比例配置=AI人工混合策略', allocationMode: 'policy', allocations: [], pushTime: { days: [], slots: [] }, action: '接入比例配置：AI人工混合策略', ratio: '比例配置', sort: 2, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-09 14:22' },
+      { id: 'SC-003', name: '广州N6-SC定向培育', keyValue: 'SC-N6-0891', scValues: ['SC-N6-0891'], scSeriesValues: ['N6'], useAllocationPolicy: '是', allocationPolicyId: 'AP-001', callTypes: ['AI外呼', '人工外呼'], condition: 'SmartCode=SC-N6-0891 / 意向车系=N6 / 分配比例配置=华南城市分配策略', allocationMode: 'policy', allocations: [], pushTime: { days: ['周一', '周二', '周三', '周四', '周五'], slots: [{ start: '09:00', end: '12:00' }, { start: '14:00', end: '18:00' }] }, action: '接入比例配置：华南城市分配策略', ratio: '比例配置', sort: 3, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-10 11:05' },
+      { id: 'SC-004', name: '沈阳SC省份梯队分配', keyValue: 'SC-SY-0234', scValues: ['SC-SY-0234'], scSeriesValues: ['天籁'], useAllocationPolicy: '是', allocationPolicyId: 'AP-005', callTypes: ['AI外呼', '人工外呼', '科大讯飞-冷线索'], condition: 'SmartCode=SC-SY-0234 / 意向车系=天籁 / 分配比例配置=重点省份梯队分配策略', allocationMode: 'policy', allocations: [], pushTime: { days: [], slots: [] }, action: '接入比例配置：重点省份梯队分配策略', ratio: '比例配置', sort: 4, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-15 16:30' },
+      { id: 'SC-005', name: '逍客SC评分分层承接', keyValue: 'SC-XK-7712', scValues: ['SC-XK-7712'], scSeriesValues: ['逍客'], useAllocationPolicy: '是', allocationPolicyId: 'AP-004', callTypes: ['科大讯飞-冷线索', '科大讯飞-留资未满'], condition: 'SmartCode=SC-XK-7712 / 意向车系=逍客 / 分配比例配置=预评分分层外呼策略', allocationMode: 'policy', allocations: [], pushTime: { days: [], slots: [] }, action: '接入比例配置：预评分分层外呼策略', ratio: '比例配置', sort: 5, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-16 11:10' }
     ]
   },
   {
@@ -112,11 +112,11 @@ const leadAssignmentDimensions = [
     desc: '按大项目名和意向车系识别线索应进入的培育路径',
     fields: '大项目名、车系、是否按比例、分配比例配置、外呼类型、排序序号',
     rules: [
-      { id: 'PROJ-001', name: '置换活动项目人工直跟', keyValue: '置换活动', projectValues: ['置换活动'], projectSeriesValues: ['轩逸'], callTypes: ['人工外呼'], condition: '大项目名=置换活动 / 意向车系=轩逸', allocationMode: 'single', allocations: [{ channel: '人工外呼', percent: 100 }], action: '全部分配给人工外呼', ratio: '不按比例', sort: 1, status: '启用', updatedAt: '2026-06-03 09:30' },
-      { id: 'PROJ-002', name: '新能源专项混合分配', keyValue: '新能源专项', projectValues: ['新能源专项'], projectSeriesValues: ['N6'], useAllocationPolicy: '是', allocationPolicyId: 'AP-003', callTypes: ['科大讯飞-冷线索', '人工外呼'], condition: '大项目名=新能源专项 / 意向车系=N6 / 分配比例配置=AI人工混合策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：AI人工混合策略', ratio: '比例配置', sort: 2, status: '启用', updatedAt: '2026-06-06 12:33' },
-      { id: 'PROJ-003', name: '华南新能源项目城市分配', keyValue: '新能源专项', projectValues: ['新能源专项'], projectSeriesValues: ['N6', '天籁'], useAllocationPolicy: '是', allocationPolicyId: 'AP-001', callTypes: ['AI外呼', '人工外呼'], condition: '大项目名=新能源专项 / 意向车系=N6、天籁 / 分配比例配置=华南城市分配策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：华南城市分配策略', ratio: '比例配置', sort: 3, status: '启用', updatedAt: '2026-06-12 15:48' },
-      { id: 'PROJ-004', name: 'DCC培育项目省份梯队承接', keyValue: 'DCC培育项目', projectValues: ['DCC培育项目'], projectSeriesValues: ['天籁', '逍客'], useAllocationPolicy: '是', allocationPolicyId: 'AP-005', callTypes: ['AI外呼', '人工外呼', '科大讯飞-冷线索'], condition: '大项目名=DCC培育项目 / 意向车系=天籁、逍客 / 分配比例配置=重点省份梯队分配策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：重点省份梯队分配策略', ratio: '比例配置', sort: 4, status: '启用', updatedAt: '2026-06-15 17:00' },
-      { id: 'PROJ-005', name: '高意向培育项目评分分级分配', keyValue: '高意向培育', projectValues: ['高意向培育'], projectSeriesValues: ['奇骏'], useAllocationPolicy: '是', allocationPolicyId: 'AP-004', callTypes: ['科大讯飞-冷线索', '科大讯飞-留资未满'], condition: '大项目名=高意向培育 / 意向车系=奇骏 / 分配比例配置=预评分分层外呼策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：预评分分层外呼策略', ratio: '比例配置', sort: 5, status: '启用', updatedAt: '2026-06-16 14:15' }
+      { id: 'PROJ-001', sourceType: 'agent_recommendation', recommendationId: 'REC-DEMO-PROJ-001', recommendationItemId: 'ITEM-DEMO-PROJ-001', recommendationPlan: '人工100% · 人工外呼', recommendationSummary: '演示：该规则曾采用 Agent 建议，人工编辑后保留来源。', updatedBy: 'agent', name: '置换活动项目人工直跟', keyValue: '置换活动', projectValues: ['置换活动'], projectSeriesValues: ['轩逸'], callTypes: ['人工外呼'], condition: '大项目名=置换活动 / 意向车系=轩逸', allocationMode: 'single', allocations: [{ channel: '人工外呼', percent: 100 }], action: '全部分配给人工外呼', ratio: '不按比例', sort: 1, status: '启用', updatedAt: '2026-06-03 09:30' },
+      { id: 'PROJ-002', name: '新能源专项混合分配', keyValue: '新能源专项', projectValues: ['新能源专项'], projectSeriesValues: ['N6'], useAllocationPolicy: '是', allocationPolicyId: 'AP-003', callTypes: ['科大讯飞-冷线索', '人工外呼'], condition: '大项目名=新能源专项 / 意向车系=N6 / 分配比例配置=AI人工混合策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：AI人工混合策略', ratio: '比例配置', sort: 2, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-06 12:33' },
+      { id: 'PROJ-003', name: '华南新能源项目城市分配', keyValue: '新能源专项', projectValues: ['新能源专项'], projectSeriesValues: ['N6', '天籁'], useAllocationPolicy: '是', allocationPolicyId: 'AP-001', callTypes: ['AI外呼', '人工外呼'], condition: '大项目名=新能源专项 / 意向车系=N6、天籁 / 分配比例配置=华南城市分配策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：华南城市分配策略', ratio: '比例配置', sort: 3, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-12 15:48' },
+      { id: 'PROJ-004', name: 'DCC培育项目省份梯队承接', keyValue: 'DCC培育项目', projectValues: ['DCC培育项目'], projectSeriesValues: ['天籁', '逍客'], useAllocationPolicy: '是', allocationPolicyId: 'AP-005', callTypes: ['AI外呼', '人工外呼', '科大讯飞-冷线索'], condition: '大项目名=DCC培育项目 / 意向车系=天籁、逍客 / 分配比例配置=重点省份梯队分配策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：重点省份梯队分配策略', ratio: '比例配置', sort: 4, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-15 17:00' },
+      { id: 'PROJ-005', name: '高意向培育项目评分分级分配', keyValue: '高意向培育', projectValues: ['高意向培育'], projectSeriesValues: ['奇骏'], useAllocationPolicy: '是', allocationPolicyId: 'AP-004', callTypes: ['科大讯飞-冷线索', '科大讯飞-留资未满'], condition: '大项目名=高意向培育 / 意向车系=奇骏 / 分配比例配置=预评分分层外呼策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：预评分分层外呼策略', ratio: '比例配置', sort: 5, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-16 14:15' }
     ]
   },
   {
@@ -128,11 +128,11 @@ const leadAssignmentDimensions = [
     desc: '按渠道编码和意向车系识别线索应进入的培育路径',
     fields: '渠道编码、车系、是否按比例、分配比例配置、外呼类型、排序序号',
     rules: [
-      { id: 'CH-001', name: 'R1渠道新线索AI直推', keyValue: 'R1', channelValues: ['R1'], channelSeriesValues: ['N6'], callTypes: ['科大讯飞-冷线索'], condition: '渠道编码=R1 / 意向车系=N6', allocationMode: 'single', allocations: [{ channel: '科大讯飞-冷线索', percent: 100 }], action: '全部分配给科大讯飞-冷线索', ratio: '不按比例', sort: 1, status: '启用', updatedAt: '2026-06-10 15:20' },
-      { id: 'CH-002', name: 'R2渠道混合比例承接', keyValue: 'R2', channelValues: ['R2'], channelSeriesValues: ['轩逸'], useAllocationPolicy: '是', allocationPolicyId: 'AP-003', callTypes: ['科大讯飞-冷线索', '人工外呼'], condition: '渠道编码=R2 / 意向车系=轩逸 / 分配比例配置=AI人工混合策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：AI人工混合策略', ratio: '比例配置', sort: 2, status: '启用', updatedAt: '2026-06-11 16:00' },
-      { id: 'CH-003', name: 'R1渠道华南城市比例分配', keyValue: 'R1', channelValues: ['R1'], channelSeriesValues: ['N6'], useAllocationPolicy: '是', allocationPolicyId: 'AP-001', callTypes: ['AI外呼', '人工外呼'], condition: '渠道编码=R1 / 意向车系=N6 / 分配比例配置=华南城市分配策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：华南城市分配策略', ratio: '比例配置', sort: 3, status: '启用', updatedAt: '2026-06-13 10:26' },
-      { id: 'CH-004', name: 'R3渠道省份梯度分配', keyValue: 'R3', channelValues: ['R3'], channelSeriesValues: ['天籁'], useAllocationPolicy: '是', allocationPolicyId: 'AP-005', callTypes: ['AI外呼', '人工外呼', '科大讯飞-冷线索'], condition: '渠道编码=R3 / 意向车系=天籁 / 分配比例配置=重点省份梯队分配策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：重点省份梯队分配策略', ratio: '比例配置', sort: 4, status: '启用', updatedAt: '2026-06-15 17:40' },
-      { id: 'CH-005', name: 'R4渠道官网评分分层分配', keyValue: 'R4', channelValues: ['R4'], channelSeriesValues: ['逍客'], useAllocationPolicy: '是', allocationPolicyId: 'AP-004', callTypes: ['科大讯飞-冷线索', '科大讯飞-留资未满'], condition: '渠道编码=R4 / 意向车系=逍客 / 分配比例配置=预评分分层外呼策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：预评分分层外呼策略', ratio: '比例配置', sort: 5, status: '启用', updatedAt: '2026-06-16 15:20' }
+      { id: 'CH-001', name: 'R1渠道新线索AI直推', keyValue: 'R1', channelValues: ['R1'], channelSeriesValues: ['N6'], callTypes: ['科大讯飞-冷线索'], condition: '渠道编码=R1 / 意向车系=N6', allocationMode: 'single', allocations: [{ channel: '科大讯飞-冷线索', percent: 100 }], action: '全部分配给科大讯飞-冷线索', ratio: '不按比例', sort: 1, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-10 15:20' },
+      { id: 'CH-002', name: 'R2渠道混合比例承接', keyValue: 'R2', channelValues: ['R2'], channelSeriesValues: ['轩逸'], useAllocationPolicy: '是', allocationPolicyId: 'AP-003', callTypes: ['科大讯飞-冷线索', '人工外呼'], condition: '渠道编码=R2 / 意向车系=轩逸 / 分配比例配置=AI人工混合策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：AI人工混合策略', ratio: '比例配置', sort: 2, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-11 16:00' },
+      { id: 'CH-003', name: 'R1渠道华南城市比例分配', keyValue: 'R1', channelValues: ['R1'], channelSeriesValues: ['N6'], useAllocationPolicy: '是', allocationPolicyId: 'AP-001', callTypes: ['AI外呼', '人工外呼'], condition: '渠道编码=R1 / 意向车系=N6 / 分配比例配置=华南城市分配策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：华南城市分配策略', ratio: '比例配置', sort: 3, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-13 10:26' },
+      { id: 'CH-004', name: 'R3渠道省份梯度分配', keyValue: 'R3', channelValues: ['R3'], channelSeriesValues: ['天籁'], useAllocationPolicy: '是', allocationPolicyId: 'AP-005', callTypes: ['AI外呼', '人工外呼', '科大讯飞-冷线索'], condition: '渠道编码=R3 / 意向车系=天籁 / 分配比例配置=重点省份梯队分配策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：重点省份梯队分配策略', ratio: '比例配置', sort: 4, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-15 17:40' },
+      { id: 'CH-005', name: 'R4渠道官网评分分层分配', keyValue: 'R4', channelValues: ['R4'], channelSeriesValues: ['逍客'], useAllocationPolicy: '是', allocationPolicyId: 'AP-004', callTypes: ['科大讯飞-冷线索', '科大讯飞-留资未满'], condition: '渠道编码=R4 / 意向车系=逍客 / 分配比例配置=预评分分层外呼策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：预评分分层外呼策略', ratio: '比例配置', sort: 5, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-16 15:20' }
     ]
   },
   {
@@ -144,11 +144,11 @@ const leadAssignmentDimensions = [
     desc: '按线索状态和意向车系识别线索应进入的培育路径',
     fields: '线索状态、车系、是否按比例、分配比例配置、外呼类型、排序序号',
     rules: [
-      { id: 'LS-001', name: '总部无效状态人工核验', keyValue: '总部_无效', leadStatusValues: ['总部_无效'], leadStatusReasonValues: ['明确空号'], leadStatusSeriesValues: [], callTypes: ['人工外呼'], condition: '线索状态=总部_无效 / 异常原因=明确空号', allocationMode: 'single', allocations: [{ channel: '人工外呼', percent: 100 }], action: '全部分配给人工外呼', ratio: '不按比例', sort: 1, status: '启用', updatedAt: '2026-06-01 16:55' },
-      { id: 'LS-002', name: '总部休眠未购混合再激活', keyValue: '总部_休眠未购', leadStatusValues: ['总部_休眠未购'], leadStatusReasonValues: [], leadStatusSeriesValues: ['轩逸'], useAllocationPolicy: '是', allocationPolicyId: 'AP-003', callTypes: ['科大讯飞-冷线索', '人工外呼'], condition: '线索状态=总部_休眠未购 / 意向车系=轩逸 / 分配比例配置=AI人工混合策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：AI人工混合策略', ratio: '比例配置', sort: 2, status: '启用', updatedAt: '2026-06-05 18:12' },
-      { id: 'LS-003', name: '总部高意向华南比例分配', keyValue: '总部_高意向', leadStatusValues: ['总部_高意向'], leadStatusReasonValues: [], leadStatusSeriesValues: ['N6'], useAllocationPolicy: '是', allocationPolicyId: 'AP-001', callTypes: ['AI外呼', '人工外呼'], condition: '线索状态=总部_高意向 / 意向车系=N6 / 分配比例配置=华南城市分配策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：华南城市分配策略', ratio: '比例配置', sort: 3, status: '启用', updatedAt: '2026-06-14 11:18' },
-      { id: 'LS-004', name: '战败挽回线索省份梯次分配', keyValue: '总部_战败', leadStatusValues: ['总部_战败'], leadStatusReasonValues: [], leadStatusSeriesValues: ['天籁'], useAllocationPolicy: '是', allocationPolicyId: 'AP-005', callTypes: ['AI外呼', '人工外呼', '科大讯飞-冷线索'], condition: '线索状态=总部_战败 / 意向车系=天籁 / 分配比例配置=重点省份梯队分配策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：重点省份梯队分配策略', ratio: '比例配置', sort: 4, status: '启用', updatedAt: '2026-06-15 18:00' },
-      { id: 'LS-005', name: '下发前高潜线索评分分级分配', keyValue: '总部_高意向', leadStatusValues: ['总部_高意向'], leadStatusReasonValues: [], leadStatusSeriesValues: ['奇骏'], useAllocationPolicy: '是', allocationPolicyId: 'AP-004', callTypes: ['科大讯飞-冷线索', '科大讯飞-留资未满'], condition: '线索状态=总部_高意向 / 意向车系=奇骏 / 分配比例配置=预评分分层外呼策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：预评分分层外呼策略', ratio: '比例配置', sort: 5, status: '启用', updatedAt: '2026-06-16 16:10' }
+      { id: 'LS-001', name: '总部无效状态人工核验', keyValue: '总部_无效', leadStatusValues: ['总部_无效'], leadStatusReasonValues: ['明确空号'], leadStatusSeriesValues: [], callTypes: ['人工外呼'], condition: '线索状态=总部_无效 / 异常原因=明确空号', allocationMode: 'single', allocations: [{ channel: '人工外呼', percent: 100 }], action: '全部分配给人工外呼', ratio: '不按比例', sort: 1, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-01 16:55' },
+      { id: 'LS-002', name: '总部休眠未购混合再激活', keyValue: '总部_休眠未购', leadStatusValues: ['总部_休眠未购'], leadStatusReasonValues: [], leadStatusSeriesValues: ['轩逸'], useAllocationPolicy: '是', allocationPolicyId: 'AP-003', callTypes: ['科大讯飞-冷线索', '人工外呼'], condition: '线索状态=总部_休眠未购 / 意向车系=轩逸 / 分配比例配置=AI人工混合策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：AI人工混合策略', ratio: '比例配置', sort: 2, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-05 18:12' },
+      { id: 'LS-003', name: '总部高意向华南比例分配', keyValue: '总部_高意向', leadStatusValues: ['总部_高意向'], leadStatusReasonValues: [], leadStatusSeriesValues: ['N6'], useAllocationPolicy: '是', allocationPolicyId: 'AP-001', callTypes: ['AI外呼', '人工外呼'], condition: '线索状态=总部_高意向 / 意向车系=N6 / 分配比例配置=华南城市分配策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：华南城市分配策略', ratio: '比例配置', sort: 3, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-14 11:18' },
+      { id: 'LS-004', name: '战败挽回线索省份梯次分配', keyValue: '总部_战败', leadStatusValues: ['总部_战败'], leadStatusReasonValues: [], leadStatusSeriesValues: ['天籁'], useAllocationPolicy: '是', allocationPolicyId: 'AP-005', callTypes: ['AI外呼', '人工外呼', '科大讯飞-冷线索'], condition: '线索状态=总部_战败 / 意向车系=天籁 / 分配比例配置=重点省份梯队分配策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：重点省份梯队分配策略', ratio: '比例配置', sort: 4, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-15 18:00' },
+      { id: 'LS-005', name: '下发前高潜线索评分分级分配', keyValue: '总部_高意向', leadStatusValues: ['总部_高意向'], leadStatusReasonValues: [], leadStatusSeriesValues: ['奇骏'], useAllocationPolicy: '是', allocationPolicyId: 'AP-004', callTypes: ['科大讯飞-冷线索', '科大讯飞-留资未满'], condition: '线索状态=总部_高意向 / 意向车系=奇骏 / 分配比例配置=预评分分层外呼策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：预评分分层外呼策略', ratio: '比例配置', sort: 5, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-16 16:10' }
     ]
   },
   {
@@ -160,11 +160,11 @@ const leadAssignmentDimensions = [
     desc: '按意向门店和意向车系和线索状态识别线索应进入的培育路径',
     fields: '意向门店、车系、线索状态、是否按比例、分配比例配置、外呼类型、排序序号',
     rules: [
-      { id: 'DLR-001', name: '北京门店专属人工直跟', keyValue: '杭州东风日产滨江店', dealerValues: ['杭州东风日产滨江店'], dealerSeriesValues: ['轩逸'], dealerLeadStatusValues: ['总部_高意向'], callTypes: ['人工外呼'], condition: '意向门店=杭州东风日产滨江店 / 意向车系=轩逸 / 线索状态=总部_高意向', allocationMode: 'single', allocations: [{ channel: '人工外呼', percent: 100 }], action: '全部分配给人工外呼', ratio: '不按比例', sort: 1, status: '启用', updatedAt: '2026-06-10 09:08' },
-      { id: 'DLR-002', name: '深圳南山门店混合承接', keyValue: '深圳南山日产', dealerValues: ['深圳南山日产'], dealerSeriesValues: ['N6'], dealerLeadStatusValues: ['总部_休眠未购'], useAllocationPolicy: '是', allocationPolicyId: 'AP-003', callTypes: ['科大讯飞-冷线索', '人工外呼'], condition: '意向门店=深圳南山日产 / 意向车系=N6 / 线索状态=总部_休眠未购 / 分配比例配置=AI人工混合策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：AI人工混合策略', ratio: '比例配置', sort: 2, status: '启用', updatedAt: '2026-06-11 17:18' },
-      { id: 'DLR-003', name: '广州白云门店城市比例分配', keyValue: '广州白云日产', dealerValues: ['广州白云日产'], dealerSeriesValues: ['天籁'], dealerLeadStatusValues: ['总部_高意向'], useAllocationPolicy: '是', allocationPolicyId: 'AP-001', callTypes: ['AI外呼', '人工外呼'], condition: '意向门店=广州白云日产 / 意向车系=天籁 / 线索状态=总部_高意向 / 分配比例配置=华南城市分配策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：华南城市分配策略', ratio: '比例配置', sort: 3, status: '启用', updatedAt: '2026-06-12 18:20' },
-      { id: 'DLR-004', name: '华东多店跨省梯队分配', keyValue: '上海东风日产浦东店', dealerValues: ['上海东风日产浦东店'], dealerSeriesValues: ['逍客'], dealerLeadStatusValues: [], useAllocationPolicy: '是', allocationPolicyId: 'AP-005', callTypes: ['AI外呼', '人工外呼', '科大讯飞-冷线索'], condition: '意向门店=上海东风日产浦东店 / 意向车系=逍客 / 分配比例配置=重点省份梯队分配策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：重点省份梯队分配策略', ratio: '比例配置', sort: 4, status: '启用', updatedAt: '2026-06-15 18:30' },
-      { id: 'DLR-005', name: '成都标杆门店评分分层承接', keyValue: '成都东风日产高新店', dealerValues: ['成都东风日产高新店'], dealerSeriesValues: ['奇骏'], dealerLeadStatusValues: ['总部_高意向'], useAllocationPolicy: '是', allocationPolicyId: 'AP-004', callTypes: ['科大讯飞-冷线索', '科大讯飞-留资未满'], condition: '意向门店=成都东风日产高新店 / 意向车系=奇骏 / 线索状态=总部_高意向 / 分配比例配置=预评分分层外呼策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：预评分分层外呼策略', ratio: '比例配置', sort: 5, status: '启用', updatedAt: '2026-06-16 17:00' }
+      { id: 'DLR-001', name: '北京门店专属人工直跟', keyValue: '杭州东风日产滨江店', dealerValues: ['杭州东风日产滨江店'], dealerSeriesValues: ['轩逸'], dealerLeadStatusValues: ['总部_高意向'], callTypes: ['人工外呼'], condition: '意向门店=杭州东风日产滨江店 / 意向车系=轩逸 / 线索状态=总部_高意向', allocationMode: 'single', allocations: [{ channel: '人工外呼', percent: 100 }], action: '全部分配给人工外呼', ratio: '不按比例', sort: 1, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-10 09:08' },
+      { id: 'DLR-002', name: '深圳南山门店混合承接', keyValue: '深圳南山日产', dealerValues: ['深圳南山日产'], dealerSeriesValues: ['N6'], dealerLeadStatusValues: ['总部_休眠未购'], useAllocationPolicy: '是', allocationPolicyId: 'AP-003', callTypes: ['科大讯飞-冷线索', '人工外呼'], condition: '意向门店=深圳南山日产 / 意向车系=N6 / 线索状态=总部_休眠未购 / 分配比例配置=AI人工混合策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：AI人工混合策略', ratio: '比例配置', sort: 2, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-11 17:18' },
+      { id: 'DLR-003', name: '广州白云门店城市比例分配', keyValue: '广州白云日产', dealerValues: ['广州白云日产'], dealerSeriesValues: ['天籁'], dealerLeadStatusValues: ['总部_高意向'], useAllocationPolicy: '是', allocationPolicyId: 'AP-001', callTypes: ['AI外呼', '人工外呼'], condition: '意向门店=广州白云日产 / 意向车系=天籁 / 线索状态=总部_高意向 / 分配比例配置=华南城市分配策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：华南城市分配策略', ratio: '比例配置', sort: 3, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-12 18:20' },
+      { id: 'DLR-004', name: '华东多店跨省梯队分配', keyValue: '上海东风日产浦东店', dealerValues: ['上海东风日产浦东店'], dealerSeriesValues: ['逍客'], dealerLeadStatusValues: [], useAllocationPolicy: '是', allocationPolicyId: 'AP-005', callTypes: ['AI外呼', '人工外呼', '科大讯飞-冷线索'], condition: '意向门店=上海东风日产浦东店 / 意向车系=逍客 / 分配比例配置=重点省份梯队分配策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：重点省份梯队分配策略', ratio: '比例配置', sort: 4, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-15 18:30' },
+      { id: 'DLR-005', name: '成都标杆门店评分分层承接', keyValue: '成都东风日产高新店', dealerValues: ['成都东风日产高新店'], dealerSeriesValues: ['奇骏'], dealerLeadStatusValues: ['总部_高意向'], useAllocationPolicy: '是', allocationPolicyId: 'AP-004', callTypes: ['科大讯飞-冷线索', '科大讯飞-留资未满'], condition: '意向门店=成都东风日产高新店 / 意向车系=奇骏 / 线索状态=总部_高意向 / 分配比例配置=预评分分层外呼策略', allocationMode: 'policy', allocations: [], action: '接入比例配置：预评分分层外呼策略', ratio: '比例配置', sort: 5, status: '启用', updatedBy: '演示运营账号', updatedAt: '2026-06-16 17:00' }
     ]
   },
   {
@@ -178,6 +178,48 @@ const leadAssignmentDimensions = [
     rules: []
   }
 ];
+// 仅用于本地原型回读人工编辑；正式账号、持久化和权限由服务端负责。
+const leadAssignmentEditStorageKey = 'dcc.leadAssignment.manualEdits.v1';
+let leadAssignmentSavedEdits = {};
+try {
+  const saved = JSON.parse(localStorage.getItem(leadAssignmentEditStorageKey) || '{}');
+  if (saved && typeof saved === 'object' && !Array.isArray(saved)) leadAssignmentSavedEdits = saved;
+  leadAssignmentDimensions.forEach(dimension => {
+    dimension.rules = dimension.rules.map(rule => {
+      const edit = leadAssignmentSavedEdits[`${dimension.key}/${rule.id}`];
+      return edit && edit.id === rule.id ? { ...rule, ...edit } : rule;
+    });
+  });
+} catch {
+  // 无法回读时保留演示初始数据；保存失败不得伪装为成功。
+}
+
+function getLeadAssignmentManualUpdateInfo() {
+  const name = document.querySelector('.topbar-user-name')?.textContent?.trim();
+  const accountId = document.getElementById('profileEmpId')?.value?.trim();
+  return {
+    updatedBy: name && accountId ? `${name}（${accountId}）` : name || accountId || '当前登录帐号',
+    updatedAt: new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Shanghai', hour12: false })
+  };
+}
+
+function commitLeadAssignmentManualEdit(dimension, id, payload) {
+  const index = dimension.rules.findIndex(rule => rule.id === id);
+  if (index < 0) { showToast('规则不存在，请刷新后重试', false); return false; }
+  // 只合并业务表单及更新信息，不清除历史建议关联。
+  const next = { ...dimension.rules[index], ...payload, ...getLeadAssignmentManualUpdateInfo() };
+  const saved = { ...leadAssignmentSavedEdits, [`${dimension.key}/${id}`]: next };
+  try {
+    localStorage.setItem(leadAssignmentEditStorageKey, JSON.stringify(saved));
+  } catch {
+    showToast('保存失败：无法写入本地原型数据，请检查浏览器存储后重试', false);
+    return false;
+  }
+  leadAssignmentSavedEdits = saved;
+  dimension.rules[index] = next;
+  return true;
+}
+
 const seatDirectAssignmentTab = { key: 'seat-direct', name: '坐席ID直派' };
 
 let activeLeadAssignmentDimension = 'series';
@@ -415,7 +457,7 @@ function renderLeadAssignmentDimensionPanel() {
           <button class="btn-add" type="button" ${renderUiActionCallback('assignment-open-rule', ['add'])}>新增策略</button>
         </div>
       </div>
-      <table class="data-table assignment-rule-table lead-dimension-rule-table">
+      <div class="lead-dimension-table-scroll"><table class="data-table assignment-rule-table lead-dimension-rule-table">
         <thead>
           <tr>
             ${isCompactAssignmentDimension(dimension) ? '<th style="width:60px;text-align:center;">#</th>' : '<th style="width:70px;text-align:center;">排序</th>'}
@@ -426,11 +468,13 @@ function renderLeadAssignmentDimensionPanel() {
             <th>分配动作</th>
             ${isCompactAssignmentDimension(dimension) ? '' : '<th style="width:120px;">比例/评级</th>'}
             <th style="width:84px;text-align:center;">状态</th>
+            <th style="width:150px;">更新人</th>
+            <th style="width:160px;">更新时间</th>
             <th style="width:170px;text-align:right;">操作</th>
           </tr>
         </thead>
         <tbody id="leadAssignmentDimensionTableBody"></tbody>
-      </table>
+      </table></div>
       <div class="pagination">
         <span id="leadAssignmentPageInfo">共 0 条记录，当前第 1 / 1 页</span>
         <div class="pagination-btns">
@@ -845,6 +889,8 @@ function renderLeadAssignmentDimensionTable() {
       <td>${isCompactAssignmentDimension(dimension) ? renderClampedCellText(rule.action) : `<strong>${escapeHtml(rule.action)}</strong>`}</td>
       ${isCompactAssignmentDimension(dimension) ? '' : `<td>${escapeHtml(rule.ratio || '—')}</td>`}
       <td class="cell-center">${rule.status === '启用' ? '<span class="col-status-on">● 启用</span>' : '<span class="col-status-off">● 停用</span>'}</td>
+      <td>${escapeHtml(rule.updatedBy || '未记录')}</td>
+      <td>${escapeHtml(rule.updatedAt || '—')}</td>
       <td class="cell-right">
         <div class="action-btns" style="justify-content: flex-end;">
           <button class="action-btn view" type="button" ${renderUiActionCallback('assignment-open-rule', ['view', rule.id])}>查看</button>
@@ -853,7 +899,7 @@ function renderLeadAssignmentDimensionTable() {
         </div>
       </td>
     </tr>
-  `).join('') : `<tr><td colspan="${isCompactAssignmentDimension(dimension) ? 8 : 9}"><div class="empty-state">暂无匹配的线索分配策略</div></td></tr>`;
+  `).join('') : `<tr><td colspan="${isCompactAssignmentDimension(dimension) ? 10 : 11}"><div class="empty-state">暂无匹配的线索分配策略</div></td></tr>`;
 }
 
 function resetLeadAssignmentFilters() {
@@ -892,6 +938,14 @@ function deleteLeadAssignmentRule(id) {
   const rule = dimension.rules.find(item => item.id === id);
   if (!rule) return;
   if (!confirm(`确认删除${getLeadAssignmentRuleLabel(dimension)}「${rule.name}」？`)) return;
+  const cacheKey = `${dimension.key}/${id}`;
+  if (Object.prototype.hasOwnProperty.call(leadAssignmentSavedEdits, cacheKey)) {
+    const saved = { ...leadAssignmentSavedEdits };
+    delete saved[cacheKey];
+    try { localStorage.setItem(leadAssignmentEditStorageKey, JSON.stringify(saved)); }
+    catch { showToast('删除失败：无法更新本地原型数据', false); return; }
+    leadAssignmentSavedEdits = saved;
+  }
   dimension.rules = dimension.rules.filter(item => item.id !== id);
   showToast(`${getLeadAssignmentRuleLabel(dimension)}已删除`, true);
   renderLeadAssignmentConfigPage();

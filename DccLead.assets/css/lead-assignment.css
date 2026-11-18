@@ -216,3 +216,7 @@
 .lead-dimension-rule-table .cell-right {
   text-align: right;
 }
+
+/* 更新信息独立列，宽表通过所在面板横向滚动，避免挤压分配动作。 */
+.lead-dimension-table-scroll { overflow-x: auto; }
+.assignment-rule-table.lead-dimension-rule-table { min-width: 1500px; }
