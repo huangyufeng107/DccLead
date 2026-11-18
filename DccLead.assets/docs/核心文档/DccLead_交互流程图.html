@@ -2886,7 +2886,7 @@ flowchart TD
 <div id="interaction-xsfp-rule-edit" class="chart-card" data-page="xsfp" data-op="xsfp-rule-edit">
 <h2><span class="card-index">编辑</span>六类配置人工编辑与 Agent 来源保留<span class="page-badge">线索分配规则</span></h2>
 <div class="param-box"><strong>入口：</strong>线索分配规则 → 意向车系、SmartCode、大项目名、渠道编码、线索状态、意向门店任一配置 → 行内“编辑”。各配置原有必填、时段、关联与比例校验保持有效。保存成功后，列表与详情显示本次操作账号、更新时间和新配置，保留同一规则的原建议关联；蓝色标识表达历史采用来源。取消或失败保持原记录。AI 策略工作台沿用现状。</div>
-<div class="release-doc-links"><a href="DccLead_版本日志.html?v=20261118-v32-interactions#v32-release-R1" target="_blank" rel="noopener">v3.2变更与验证 ↗</a> · <a href="DccLead_功能文档.html?v=20261118-v32-interactions#lead-assignment-manual-update-common" target="_blank" rel="noopener">现行规格 ↗</a> · <a href="DccLead_业务流程图.html?v=20261118-v32-interactions#FLOW-011-overview" target="_blank" rel="noopener">业务场景 ↗</a></div><pre class="mermaid">flowchart TD
+<div class="release-doc-links"><a href="DccLead_版本日志.html?v=20261118-sync-date-filter#v32-release-R1" target="_blank" rel="noopener">v3.2变更与验证 ↗</a> · <a href="DccLead_功能文档.html?v=20261118-sync-date-filter#lead-assignment-manual-update-common" target="_blank" rel="noopener">现行规格 ↗</a> · <a href="DccLead_业务流程图.html?v=20261118-sync-date-filter#FLOW-011-overview" target="_blank" rel="noopener">业务场景 ↗</a></div><pre class="mermaid">flowchart TD
  A["在六类配置任一列表点击编辑"] --> B["回填配置，原记录尚未改变"]
  B -->|取消| C["关闭弹窗，原配置和更新信息不变"]
  B -->|保存| D{"权限与字段校验通过？"}
@@ -2945,7 +2945,7 @@ B -->|否| C["提示错误"]
 B -->|是| D["加入直派名单"] --> E["命中走直派，不参与 Agent 评分及调配"]
 D --> F["可移除、导入数据或导出数据"]
 </pre></div>
-<div id="interaction-aistrat-05" class="chart-card" data-page="aistrat" data-op="aistrat-05"><h2><span class="card-index">05</span>建议接收、查询与逐条审核发布<span class="page-badge">AI策略工作台</span></h2><div class="param-box">按版本日期范围（建议业务日期）、维度、匹配值、建议比例及状态跨批次筛选。每行保留业务日期和批次，接收时间与同步时间分列；调整、审核、重提和审核记录均关联原批次。同步时间只在DCC确认成功后记录，当前筛选全部分页可导出。</div><div class="release-doc-links">关联变更：<a href="DccLead_版本日志.html?v=20261026-release-links#version-2-8" target="_blank" rel="noopener">v2.8 ↗</a></div><div class="release-doc-links"><a href="DccLead_版本日志.html?v=20261118-v32-interactions#v32-release-R2" target="_blank" rel="noopener">v3.2变更与验证 ↗</a> · <a href="DccLead_功能文档.html?v=20261118-v32-interactions#card-tab-37-f4" target="_blank" rel="noopener">现行规格 ↗</a> · <a href="DccLead_业务流程图.html?v=20261118-v32-interactions#FLOW-007-acceptance" target="_blank" rel="noopener">业务场景 ↗</a></div><pre class="mermaid">flowchart TD
+<div id="interaction-aistrat-05" class="chart-card" data-page="aistrat" data-op="aistrat-05"><h2><span class="card-index">05</span>建议接收、查询与逐条审核发布<span class="page-badge">AI策略工作台</span></h2><div class="param-box">按版本日期范围（建议业务日期）、维度、匹配值、建议比例及状态跨批次筛选。每行保留业务日期和批次，接收时间与同步时间分列；调整、审核、重提和审核记录均关联原批次。同步时间只在DCC确认成功后记录，当前筛选全部分页可导出。</div><div class="release-doc-links">关联变更：<a href="DccLead_版本日志.html?v=20261026-release-links#version-2-8" target="_blank" rel="noopener">v2.8 ↗</a></div><div class="release-doc-links"><a href="DccLead_版本日志.html?v=20261118-sync-date-filter#v32-release-R2" target="_blank" rel="noopener">v3.2变更与验证 ↗</a> · <a href="DccLead_功能文档.html?v=20261118-sync-date-filter#card-tab-37-f4" target="_blank" rel="noopener">现行规格 ↗</a> · <a href="DccLead_业务流程图.html?v=20261118-sync-date-filter#FLOW-007-acceptance" target="_blank" rel="noopener">业务场景 ↗</a></div><pre class="mermaid">flowchart TD
 A["已结算数据成功生成并接收建议"] --> B["记录接收时间、原始结果与当时来源快照"]
 B --> C["同对象旧未发布建议失效，其他对象旧待审保留"] --> D{"接收来源?"}
 D -->|默认预设补齐| E["快照默认预设并换算 AI 分配"]
@@ -2963,13 +2963,17 @@ O -->|是| Q["本条已发布，记录同步成功时间、独立版本和整套
 </pre></div>
 <div id="interaction-aistrat-date-range" class="chart-card" data-page="aistrat" data-op="aistrat-date-range">
 <h2><span class="card-index">查询</span>日期范围查询与同步核对<span class="page-badge">AI策略工作台</span></h2>
-<div class="param-box"><strong>入口：</strong>策略建议与审核。“版本日期”按建议业务日期筛选，精确到日并包含首尾；两端留空不限制日期，单边填写为开放边界。同一天多个批次分别展示。接收时间与DCC同步成功时间仅供核对，不参与该日期筛选；历史查询不改变归档、失效及审核权限。</div>
-<div class="release-doc-links"><a href="DccLead_版本日志.html?v=20261118-v32-interactions#v32-release-R2" target="_blank" rel="noopener">v3.2变更与验证 ↗</a> · <a href="DccLead_功能文档.html?v=20261118-v32-interactions#card-tab-37-f4" target="_blank" rel="noopener">现行规格 ↗</a> · <a href="DccLead_业务流程图.html?v=20261118-v32-interactions#FLOW-007-acceptance" target="_blank" rel="noopener">业务场景 ↗</a></div><pre class="mermaid">flowchart TD
- A["设置版本起止日期及其他筛选"] --> B["清除旧勾选，回到第一页"]
- B --> C{"日期有效且开始不晚于结束？"}
+<div class="param-box"><strong>入口：</strong>策略建议与审核。版本日期默认近一周（含今天的最近7个自然日），按建议业务日期选择起止日并包含首尾；同步日期默认空，可按天选择，在版本日期命中的记录中进一步筛选DCC确认同步成功的记录。两个条件取交集，不使用接收时间代替同步时间。用户主动清空版本日期时，两端为空不限制版本日期，单边填写为开放边界。同一天多个批次分别展示；历史查询不改变归档、失效及审核权限。</div>
+<div class="release-doc-links"><a href="DccLead_版本日志.html?v=20261118-sync-date-filter#v32-release-R2" target="_blank" rel="noopener">v3.2变更与验证 ↗</a> · <a href="DccLead_功能文档.html?v=20261118-sync-date-filter#card-tab-37-f4" target="_blank" rel="noopener">现行规格 ↗</a> · <a href="DccLead_业务流程图.html?v=20261118-sync-date-filter#FLOW-007-acceptance" target="_blank" rel="noopener">业务场景 ↗</a></div><pre class="mermaid">flowchart TD
+ Z["首次进入：版本日期近一周，同步日期空"] --> A["设置版本起止日期、可选同步日期及其他筛选"]
+ A --> B["清除旧勾选，回到第一页"]
+ B --> C{"日期均有效且版本开始不晚于结束？"}
  C -->|否| D["提示范围错误，不返回或导出数据"]
  C -->|是| E["按业务日期查询所有匹配批次，包含首尾"]
- E --> F{"有匹配记录？"}
+ E --> E2{"填写同步日期？"}
+ E2 -->|是| E3["在版本范围结果中，按DCC同步成功日期取交集"]
+ E2 -->|否| F{"有匹配记录？"}
+ E3 --> F
  F -->|否| G["展示空结果，不回退当前批次"]
  F -->|是| H["按日期、批次倒序展示，保留各条原批次"]
  H --> I["查看接收时间、同步时间、原建议及执行方案"]
@@ -2977,7 +2981,7 @@ O -->|是| Q["本条已发布，记录同步成功时间、独立版本和整套
  J -->|翻页| K["筛选不变，展示下一页"]
  J -->|导出| L["导出全部匹配分页，包含原批次及两项时间"]
  J -->|调整或审核| M["按原批次与条目复核可操作状态"]
- J -->|重置| N["清空日期和其他筛选、勾选，回到第一页"]
+ J -->|重置| N["恢复版本日期近一周；清空同步日期、其他筛选和勾选，回到第一页"]
  I --> O["已发布且成功凭据齐全：显示同步成功时间；否则按未同步或待核对展示"]
 </pre><div class="param-box"><strong>同步时间补充：</strong>成功凭据齐全但时间缺失显示“未记录”；不能用接收、审核或发送请求时间代填。页面原型模拟成功回执，生产同步时间仍需接口联调。</div></div>
 <div id="interaction-aistrat-06" class="chart-card" data-page="aistrat" data-op="aistrat-06"><h2><span class="card-index">06</span>审核人员与邮件通知<span class="page-badge">AI策略工作台</span></h2><div class="param-box">审核人员始终可配置；通知开关关闭只停止邮件，不影响建议生成、查询、调整、审核、驳回、发布或权限。小时/每日汇总包含跨日全部有效待审，不受列表筛选限制。</div><div class="release-doc-links">关联变更：<a href="DccLead_版本日志.html?v=20261026-release-links#version-2-8" target="_blank" rel="noopener">v2.8 ↗</a></div><pre class="mermaid">flowchart TD
@@ -3036,7 +3040,7 @@ J --> K{"操作?"}
 K -->|取消| L["原条目不变"]
 K -->|保存| M["校验最新有效及比例，保存本条快照，不改公共预设"]
 </pre></div>
-<div id="interaction-aistrat-12" class="chart-card" data-page="aistrat" data-op="aistrat-12"><h2><span class="card-index">12</span>名单导入导出及建议导出<span class="page-badge">AI策略工作台</span></h2><div class="param-box">低效/直派复用上传、预览确认、完成三步；模板及失败明细可下载，重复跳过不覆盖。建议只提供导出数据，导出当前日期范围及组合筛选的全部匹配行，保留每行批次与同步时间。</div><div class="release-doc-links">关联变更：<a href="DccLead_版本日志.html?v=20261026-release-links#version-2-8" target="_blank" rel="noopener">v2.8 ↗</a></div><div class="release-doc-links"><a href="DccLead_版本日志.html?v=20261118-v32-interactions#v32-release-R2" target="_blank" rel="noopener">v3.2变更与验证 ↗</a> · <a href="DccLead_功能文档.html?v=20261118-v32-interactions#card-tab-37-f4" target="_blank" rel="noopener">现行规格 ↗</a> · <a href="DccLead_业务流程图.html?v=20261118-v32-interactions#FLOW-007-acceptance" target="_blank" rel="noopener">业务场景 ↗</a></div><pre class="mermaid">flowchart TD
+<div id="interaction-aistrat-12" class="chart-card" data-page="aistrat" data-op="aistrat-12"><h2><span class="card-index">12</span>名单导入导出及建议导出<span class="page-badge">AI策略工作台</span></h2><div class="param-box">低效/直派复用上传、预览确认、完成三步；模板及失败明细可下载，重复跳过不覆盖。建议只提供导出数据，导出当前版本日期范围、可选同步日期及其他筛选共同命中的全部匹配行，保留每行批次与同步时间。</div><div class="release-doc-links">关联变更：<a href="DccLead_版本日志.html?v=20261026-release-links#version-2-8" target="_blank" rel="noopener">v2.8 ↗</a></div><div class="release-doc-links"><a href="DccLead_版本日志.html?v=20261118-sync-date-filter#v32-release-R2" target="_blank" rel="noopener">v3.2变更与验证 ↗</a> · <a href="DccLead_功能文档.html?v=20261118-sync-date-filter#card-tab-37-f4" target="_blank" rel="noopener">现行规格 ↗</a> · <a href="DccLead_业务流程图.html?v=20261118-sync-date-filter#FLOW-007-acceptance" target="_blank" rel="noopener">业务场景 ↗</a></div><pre class="mermaid">flowchart TD
 A{"操作?"}
 A -->|低效或直派导入数据| B["下载模板，上传文件并解析"] --> C["逐行校验必填、维度、关联启用及重复"]
 C --> D["预览成功、失败与跳过条目，可下载失败原因"] --> E["确认时重新校验并幂等写入有效行"] --> F["显示结果，重复不覆盖"]

@@ -37,7 +37,7 @@ const aiStrategyHelpContent = {
   'low-efficiency': { title: '低效对象配置', purpose: '将六类普通分配规则中已启用的策略关联为低效对象。命中后直接执行关联策略当前有效的分派动作，不进入 Agent 评分、排名和动态调配。', steps: ['点击“导入数据”“导出数据”执行批量维护。导入按“上传文件→数据预览→导入完成”操作，可下载模板和失败明细；只新增校验通过的记录，不覆盖重复记录，导出包含当前名单全部数据。','选择对象维度，再选择该维度下已启用的分配策略；匹配值、规则 ID、当前动作和状态会自动显示。', '填写维护说明后加入低效清单；同一策略不能重复关联。', '在清单中查看关联状态、继承的分派动作和 Agent 处理方式；可移除关联。'], note: '这里只维护关联，不修改普通规则，也不另行配置人工/AI比例。关联策略停用或删除后关联失效，线索回到普通规则匹配。' },
   'data-scope': { title: '直派名单', purpose: '维护需要直接执行的线索标识。当前仅支持“大项目名”，用于识别直派路径。命中后不参与 Agent 评分、排名和动态调配。', steps: ['点击“导入数据”“导出数据”执行批量维护。导入按“上传文件→数据预览→导入完成”操作，可下载模板和失败明细；只新增校验通过的记录，不覆盖重复记录，导出包含当前名单全部数据。','选择直派名单类型（当前仅“大项目名”）。', '填写标识值和生效说明，加入直派名单。', '在名单中核对记录；可移除不再适用的标识。'], note: '直派名单只维护标识及说明，不编辑分配策略；命中后按直派路径执行，不参与 Agent 评分、排名和动态调配。' },
   capacity: { title: '容量查看', purpose: '查看 Agent 生成建议时使用的上一完整业务日人工容量快照。', steps: ['查看计划上限、已占用任务和可承接量。', '确认数据日期和结算状态。', '容量不足时，Agent按H/A/B/C优先级生成对象比例建议；实际执行仍按已发布规则。'], note: '本版本不做实时重算，容量采用T+1数据。' },
-  drafts: { title: '策略建议与审核', purpose: '按建议批次查看 Agent 评分、现行规则模板与建议比例，并逐条审核发布。支持按版本日期范围（建议业务日期）、规则维度、匹配值、建议比例和状态跨批次筛选。', steps: ['点击“导出数据”，导出当前日期范围及筛选条件下的全部列表记录，不限当前页；包含版本日期、建议批次、Agent 建议、执行方案、接收时间、同步时间及审核记录。', '“接收时间”为系统收到并保存该条 Agent 建议的时间；立即入库时可与创建时间相同，后续修改与审核不会改变接收时间。', '可先在“审核规则设置”中配置审核人员、邮箱通知、频率和超时提醒。关闭通知仅停止邮件与超时提醒，不影响审核人员配置、建议生成或列表审核发布操作。实时通知针对新增建议；每小时／每日汇总覆盖全部仍可审核的待审核建议（含跨日遗留），不受列表筛选影响。超时从首次成功通知起跨日连续计时，每条仅提醒一次；已处理、已失效或已归档后停止通知。', '通过页面底部“原型演示设置”模拟接收建议；生产由 Agent 生成并推送。数据结算且成功接收新建议后，同一对象的旧未发布建议才标记“已失效”；未结算或生成失败时，遗留建议继续可审。', 'Agent 建议比例只读；执行方案来源支持“默认预设补齐”（默认）和“Agent 完整方案”。选择来源后须保存并确认才生效，仅影响新接收建议；已有建议保留来源及快照；Agent 模式不读取默认预设，明细缺失或无效时需人工补齐，禁止直接发布。点击“调整方案”可更改实际人工／AI 比例、引用预设或调整 AI 类型及内部比例；全 AI 也支持按比例和不按比例，全人工无需配置 AI。', '人工执行占比限 0–100 的整数，AI 自动补足；人工 100% 时隐藏 AI 配置。调整窗口实时展示最终比例，保存只影响当前建议。默认预设来源的“恢复默认”会恢复 Agent 比例并读取最新默认预设；Agent 来源的“恢复 Agent 方案”仅恢复该条原始完整结果。审核时校验建议仍有效、内部比例合计 100%；按最终结果复用已有启用配置或新建配置，每条审核通过立即发布并分别留痕。自动新建的分配比例配置在列表标识“策略审核自动创建”，详情保留来源批次、规则对象及创建人和时间；复用不改变原创建来源。', '只有 DCC 发布成功并返回规则 ID 和版本号，才能标记“已发布”；失败时保留原有效规则并允许核对后重试。'], note: '“当前比例”读取关联分配规则的模板内容。默认补齐模式使用 Agent 总比例与预设组合；完整模式采用 Agent 返回的具体类型和比例，不自动读取预设。旧建议跨日不自动过期，按业务日期满六个自然月只读归档；新建议到来不会撤销已发布策略。发布只影响后续新线索。' },
+  drafts: { title: '策略建议与审核', purpose: '按建议批次查看 Agent 评分、现行规则模板与建议比例，并逐条审核发布。版本日期默认近一周（含今天），同步日期默认空；先按建议业务日期范围选批次，再按可选同步日期、规则维度、匹配值、建议比例和状态进一步筛选。', steps: ['点击“导出数据”，导出当前版本日期范围、同步日期及其他筛选共同命中的全部列表记录，不限当前页；包含版本日期、建议批次、Agent 建议、执行方案、接收时间、同步时间及审核记录。', '“接收时间”为系统收到并保存该条 Agent 建议的时间；立即入库时可与创建时间相同，后续修改与审核不会改变接收时间。', '可先在“审核规则设置”中配置审核人员、邮箱通知、频率和超时提醒。关闭通知仅停止邮件与超时提醒，不影响审核人员配置、建议生成或列表审核发布操作。实时通知针对新增建议；每小时／每日汇总覆盖全部仍可审核的待审核建议（含跨日遗留），不受列表筛选影响。超时从首次成功通知起跨日连续计时，每条仅提醒一次；已处理、已失效或已归档后停止通知。', '通过页面底部“原型演示设置”模拟接收建议；生产由 Agent 生成并推送。数据结算且成功接收新建议后，同一对象的旧未发布建议才标记“已失效”；未结算或生成失败时，遗留建议继续可审。', 'Agent 建议比例只读；执行方案来源支持“默认预设补齐”（默认）和“Agent 完整方案”。选择来源后须保存并确认才生效，仅影响新接收建议；已有建议保留来源及快照；Agent 模式不读取默认预设，明细缺失或无效时需人工补齐，禁止直接发布。点击“调整方案”可更改实际人工／AI 比例、引用预设或调整 AI 类型及内部比例；全 AI 也支持按比例和不按比例，全人工无需配置 AI。', '人工执行占比限 0–100 的整数，AI 自动补足；人工 100% 时隐藏 AI 配置。调整窗口实时展示最终比例，保存只影响当前建议。默认预设来源的“恢复默认”会恢复 Agent 比例并读取最新默认预设；Agent 来源的“恢复 Agent 方案”仅恢复该条原始完整结果。审核时校验建议仍有效、内部比例合计 100%；按最终结果复用已有启用配置或新建配置，每条审核通过立即发布并分别留痕。自动新建的分配比例配置在列表标识“策略审核自动创建”，详情保留来源批次、规则对象及创建人和时间；复用不改变原创建来源。', '只有 DCC 发布成功并返回规则 ID 和版本号，才能标记“已发布”；失败时保留原有效规则并允许核对后重试。'], note: '“当前比例”读取关联分配规则的模板内容。默认补齐模式使用 Agent 总比例与预设组合；完整模式采用 Agent 返回的具体类型和比例，不自动读取预设。旧建议跨日不自动过期，按业务日期满六个自然月只读归档；新建议到来不会撤销已发布策略。发布只影响后续新线索。' },
   versions: { title: '版本与回滚', purpose: '按每次成功发布的正式版本查看整套规则快照与逐条审核记录；可选择历史版本中的单条规则、单个维度或整套策略生成回滚版本。', steps: ['单条建议审核通过并成功发布后，新增一个发布版本；同一建议批次可对应多个版本。版本详情展示本次变更、规则内容及审核记录。', '版本列表可组合选择建议批次、规则维度、匹配值、状态，以及搜索版本号或 DCC 规则 ID；维度和匹配值只查该版本本次变更的规则。输入后点击“查询”或按回车；点击“重置”清空条件，结果可分页查看。', '点击版本列表“选择回滚”，或在表单手动选同一版本，都会自动带入整套目标快照并显示与当前版本的差异；需要缩小范围时可改选维度或规则并重新预览。', '只恢复一条规则时，在历史版本详情点击“回滚此规则”，系统自动带入该条规则并显示差异。', '填写回滚原因并核对差异后生成待发布回滚版本；产品负责人或管理员确认发布时再次校验当前生效版本，待发布版本也可取消。'], note: '每次单条建议发布会产生一个新版本，但版本保存发布后的整套规则快照；选择版本恢复整套，选择规则只恢复该条。发布仅影响后续新线索。发布结果以 DCC 成功回执及返回的规则 ID、版本号为准。' }
 };
 
@@ -555,7 +555,7 @@ const aiStrategyState = {
   publishChecks: [false, false, false, false],
   draft: null,
   drafts: [],
-  draftFilters: { draftId: '', dimension: '', value: '', status: '全部', ratioFilter: '' },
+  draftFilters: aiStrategyDefaultDraftFilters(),
   draftPage: 1,
   draftPageSize: 10,
   versions: aiStrategyDemoVersions.map(v => ({ ...v, snapshot: { ...v.snapshot }, lowEfficiency: v.lowEfficiency.map(item => ({ ...item })) })),
@@ -722,7 +722,7 @@ function aiStrategyLoadDemoData() {
   aiStrategyState.sourceSettled = true;
   aiStrategyState.draft = null;
   aiStrategyState.drafts = [];
-  aiStrategyState.draftFilters = { draftId: '', dimension: '', value: '', status: '全部', ratioFilter: '' };
+  aiStrategyState.draftFilters = aiStrategyDefaultDraftFilters();
   aiStrategyState.publishChecks = [false, false, false, false];
   aiStrategyState.pendingRollbackId = '';
   aiStrategyState.rollbackSelection = { targetId: '', scope: 'FULL', dimension: '', ruleKey: '', reason: '', previewBaseVersionId: '' };
@@ -908,6 +908,15 @@ function aiStrategyBusinessDate(value = new Date()) {
   const y = value.getFullYear(); const m = String(value.getMonth() + 1).padStart(2, '0'); const d = String(value.getDate()).padStart(2, '0');
   return `${y}-${m}-${d}`;
 }
+// 近一周含当天，共七个自然日；按业务时区生成默认范围，跨月/跨年同样适用。
+function aiStrategyDefaultDraftFilters(value = new Date()) {
+  const parts = new Intl.DateTimeFormat('en-CA', {timeZone:'Asia/Shanghai', year:'numeric', month:'2-digit', day:'2-digit'}).formatToParts(value);
+  const part = key => parts.find(item => item.type === key).value;
+  const dateTo = `${part('year')}-${part('month')}-${part('day')}`;
+  const start = new Date(dateTo + 'T00:00:00Z');
+  start.setUTCDate(start.getUTCDate() - 6);
+  return {draftId:'', dateFrom:start.toISOString().slice(0,10), dateTo, syncDate:'', dimension:'', value:'', status:'全部', ratioFilter:''};
+}
 function aiStrategyDraftDate(draft) { return draft?.businessDate || String(draft?.createdAt || '').slice(0, 10) || aiStrategyBusinessDate(); }
 // 原型批次号按业务日期与当日流水生成；现存批次和发布引用均参与查重。
 function aiStrategyNextRecommendationId(businessDate = aiStrategyBusinessDate()) {
@@ -927,16 +936,16 @@ function aiStrategyFilteredDraftRows(draft, filters = aiStrategyState.draftFilte
     (!filters.ratioFilter || (row.recommended !== '—' && (filters.ratioFilter === '包含AI' ? aiStrategyGetAiPercent(row.recommended) > 0 : aiStrategyGetAiPercent(row.recommended) <= 0))) &&
     (filters.status === '全部' || !filters.status || (row.reviewStatus || '待审核') === filters.status));
 }
-// 版本日期沿用建议业务日期；接收时间、DCC同步成功时间分别展示，不混作筛选日期。
+// 先按建议业务日期选批次，再按可选同步日期过滤成功记录；接收时间不作日期筛选。
 function aiStrategyDraftById(id) {
   return id ? aiStrategyState.drafts.find(draft => draft.id === id) : aiStrategySelectedDraft();
 }
 function aiStrategyDateRangeError(filters = aiStrategyState.draftFilters || {}) {
-  for (const value of [filters.dateFrom, filters.dateTo]) {
+  for (const value of [filters.dateFrom, filters.dateTo, filters.syncDate]) {
     if (!value) continue;
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return '请选择有效的起止日期';
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return '请选择有效的版本日期或同步日期';
     const date = new Date(value + 'T00:00:00Z');
-    if (!Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== value) return '请选择有效的起止日期';
+    if (!Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== value) return '请选择有效的版本日期或同步日期';
   }
   return filters.dateFrom && filters.dateTo && filters.dateFrom > filters.dateTo ? '开始日期不能晚于结束日期' : '';
 }
@@ -946,12 +955,25 @@ function aiStrategyRangeEntries(filters = aiStrategyState.draftFilters || {}) {
     const date = aiStrategyDraftDate(draft);
     return (!filters.dateFrom || date >= filters.dateFrom) && (!filters.dateTo || date <= filters.dateTo);
   }).sort((a,b) => aiStrategyDraftDate(b).localeCompare(aiStrategyDraftDate(a)) || String(b.id).localeCompare(String(a.id), undefined, {numeric:true}))
-    .flatMap(draft => aiStrategyFilteredDraftRows(draft, filters).map(entry => ({...entry, draft})));
+    .flatMap(draft => aiStrategyFilteredDraftRows(draft, filters).map(entry => ({...entry, draft})))
+    .filter(({row}) => !filters.syncDate || aiStrategySyncDate(row) === filters.syncDate);
 }
 function aiStrategySyncTime(row) {
   if (row.reviewStatus !== '已发布') return '未同步';
   if (!row.dccRuleId || !row.publishedVersionId) return '待核对';
   return row.syncedAt || row.publishAt || '未记录';
+}
+// 只从具备成功凭据的同步时间取业务日；缺失、待核对和未同步均不命中。
+function aiStrategySyncDate(row) {
+  const time = aiStrategySyncTime(row);
+  if (/^\d{4}-\d{2}-\d{2}T.*(?:Z|[+-]\d{2}:?\d{2})$/.test(time)) {
+    const date = new Date(time);
+    return Number.isFinite(date.getTime()) ? aiStrategyDefaultDraftFilters(date).dateTo : '';
+  }
+  const match = /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[ T]|$)/.exec(time);
+  if (!match) return '';
+  const value = `${match[1]}-${match[2].padStart(2,'0')}-${match[3].padStart(2,'0')}`;
+  return aiStrategyDateRangeError({syncDate:value}) ? '' : value;
 }
 function aiStrategyClearDraftSelections() {
   aiStrategyState.drafts.forEach(draft => { draft.selected = []; });
@@ -1078,7 +1100,7 @@ function aiStrategyViewLatestRow(index, draftId) {
   const latest = aiStrategyLatestReplacement(source);
   if (!latest) { aiStrategyNotice('没有更新建议。'); return; }
   aiStrategyClearDraftSelections();
-  aiStrategyState.draftFilters = { draftId: '', dateFrom: aiStrategyDraftDate(latest.draft), dateTo: aiStrategyDraftDate(latest.draft), dimension: latest.row.dimension, value: latest.row.value, status: '全部', ratioFilter: '' };
+  aiStrategyState.draftFilters = { draftId: '', dateFrom: aiStrategyDraftDate(latest.draft), dateTo: aiStrategyDraftDate(latest.draft), syncDate: '', dimension: latest.row.dimension, value: latest.row.value, status: '全部', ratioFilter: '' };
   const filtered = aiStrategyRangeEntries();
   const position = filtered.findIndex(item => item.draft === latest.draft && item.row === latest.row);
   aiStrategyState.draftPage = Math.floor(Math.max(0, position) / (aiStrategyState.draftPageSize || 10)) + 1;
@@ -1220,10 +1242,10 @@ function aiStrategyRenderDrafts() {
       aiStrategyState.drafts.push({ ...aiStrategyState.draft, id: 'REC-' + archiveBusinessDate.replaceAll('-', '') + '-0003', businessDate: archiveBusinessDate, createdAt: archiveBusinessDate + ' 09:00:00', receivedAt: archiveBusinessDate + ' 09:00:00', rows: [archivedRow], selected: [] });
     }
     aiStrategyState.drafts.forEach(item => item.rows.forEach(aiExecutionEnsure));
-    if (rejectedRow) aiStrategyState.draftFilters = { draftId: rejectedDraft.id, dimension: '', value: '', status: '全部', ratioFilter: '' };
+    aiStrategyState.draftFilters = aiStrategyDefaultDraftFilters();
   }
   if (!aiStrategyState.drafts.length) aiStrategyState.drafts = [aiStrategyState.draft];
-  const filters = aiStrategyState.draftFilters || (aiStrategyState.draftFilters = {});
+  const filters = aiStrategyState.draftFilters || (aiStrategyState.draftFilters = aiStrategyDefaultDraftFilters());
   // 兼容既有“定位批次”入口：定位到该批次业务日期后仍按范围查询。
   if (filters.draftId) {
     const located = aiStrategyDraftById(filters.draftId);
@@ -1244,8 +1266,8 @@ function aiStrategyRenderDrafts() {
   const dimensions = [...new Set(aiStrategyState.drafts.flatMap(draft => (draft.rows || []).map(row => row.dimension)))];
   return `<section class="ai-strategy-card"><div class="ai-strategy-section-head"><div><h3>策略建议与审核</h3><p>根据已启用的分配规则生成策略建议。Agent 建议保留原值；执行方案按接收时配置的来源生成，可调整后审核发布。</p></div><div class="ai-strategy-section-head-actions">${aiStrategyPlanDocButton()}${aiStrategyHelpButton('drafts')}<button type="button" class="ai-strategy-btn secondary" data-ai-io="export-suggestions" title="导出日期范围及筛选条件下的全部记录，不限当前页">导出数据</button><button type="button" class="ai-strategy-btn secondary" data-ai-action="open-audit-rules" title="设置策略建议审核通知、审核人与超时提醒">审核规则设置</button></div></div>
     ${aiExecutionDefaultBanner()}
-    <div class="ai-strategy-draft-head"><div><strong>策略推荐历史</strong><small>版本日期按建议业务日期筛选，包含首尾日期；同一天多个批次分别展示。接收时间与同步时间不参与本日期筛选。</small></div></div>
-      <div class="ai-strategy-filterbar"><label class="ai-strategy-date-filter">版本日期 <input type="date" class="ai-strategy-inline-input ai-strategy-range-date" data-ai-filter="dateFrom" aria-label="版本开始日期" value="${aiStrategyEsc(filters.dateFrom || '')}"> 至 <input type="date" class="ai-strategy-inline-input ai-strategy-range-date" data-ai-filter="dateTo" aria-label="版本结束日期" value="${aiStrategyEsc(filters.dateTo || '')}"></label><select class="ai-strategy-inline-select" data-ai-filter="dimension"><option value="">全部规则维度</option>${dimensions.map(d => `<option value="${aiStrategyEsc(d)}" ${filters.dimension === d ? 'selected' : ''}>${aiStrategyEsc(d)}</option>`).join('')}</select><input class="ai-strategy-inline-input" data-ai-filter="value" value="${aiStrategyEsc(filters.value)}" placeholder="搜索匹配值"><select class="ai-strategy-inline-select" data-ai-filter="ratioFilter" title="按建议比例筛选"><option value="">全部建议比例</option><option value="包含AI" ${filters.ratioFilter === '包含AI' ? 'selected' : ''}>包含AI</option><option value="不包含AI" ${filters.ratioFilter === '不包含AI' ? 'selected' : ''}>不包含AI</option></select><select class="ai-strategy-inline-select" data-ai-filter="status"><option value="待审核" ${filters.status === '待审核' ? 'selected' : ''}>待审核</option><option value="已发布" ${filters.status === '已发布' ? 'selected' : ''}>已发布</option><option value="已驳回" ${filters.status === '已驳回' ? 'selected' : ''}>已驳回</option><option value="已失效" ${filters.status === '已失效' ? 'selected' : ''}>已失效</option><option value="无需审核" ${filters.status === '无需审核' ? 'selected' : ''}>无需审核</option><option value="全部" ${filters.status === '全部' ? 'selected' : ''}>全部状态</option></select><button type="button" class="ai-strategy-btn secondary" data-ai-action="reset-draft-filters">重置</button><span class="ai-strategy-muted">当前 ${filteredRows.length} 条，可审核 ${pendingRows.length} 条</span></div>
+    <div class="ai-strategy-draft-head"><div><strong>策略推荐历史</strong><small>版本日期按建议业务日期筛选，包含首尾日期；默认近一周（含今天），同一天多个批次分别展示；同步日期默认不限，选择后在版本日期结果内进一步筛选。</small></div></div>
+      <div class="ai-strategy-filterbar"><label class="ai-strategy-date-filter">版本日期 <input type="date" class="ai-strategy-inline-input ai-strategy-range-date" data-ai-filter="dateFrom" aria-label="版本开始日期" value="${aiStrategyEsc(filters.dateFrom || '')}"> 至 <input type="date" class="ai-strategy-inline-input ai-strategy-range-date" data-ai-filter="dateTo" aria-label="版本结束日期" value="${aiStrategyEsc(filters.dateTo || '')}"></label><label class="ai-strategy-date-filter" title="在版本日期范围内，按DCC确认成功日期进一步筛选；留空不限">同步日期 <input type="date" class="ai-strategy-inline-input ai-strategy-range-date" data-ai-filter="syncDate" aria-label="同步日期（留空不限）" value="${aiStrategyEsc(filters.syncDate || '')}"></label><select class="ai-strategy-inline-select" data-ai-filter="dimension"><option value="">全部规则维度</option>${dimensions.map(d => `<option value="${aiStrategyEsc(d)}" ${filters.dimension === d ? 'selected' : ''}>${aiStrategyEsc(d)}</option>`).join('')}</select><input class="ai-strategy-inline-input" data-ai-filter="value" value="${aiStrategyEsc(filters.value)}" placeholder="搜索匹配值"><select class="ai-strategy-inline-select" data-ai-filter="ratioFilter" title="按建议比例筛选"><option value="">全部建议比例</option><option value="包含AI" ${filters.ratioFilter === '包含AI' ? 'selected' : ''}>包含AI</option><option value="不包含AI" ${filters.ratioFilter === '不包含AI' ? 'selected' : ''}>不包含AI</option></select><select class="ai-strategy-inline-select" data-ai-filter="status"><option value="待审核" ${filters.status === '待审核' ? 'selected' : ''}>待审核</option><option value="已发布" ${filters.status === '已发布' ? 'selected' : ''}>已发布</option><option value="已驳回" ${filters.status === '已驳回' ? 'selected' : ''}>已驳回</option><option value="已失效" ${filters.status === '已失效' ? 'selected' : ''}>已失效</option><option value="无需审核" ${filters.status === '无需审核' ? 'selected' : ''}>无需审核</option><option value="全部" ${filters.status === '全部' ? 'selected' : ''}>全部状态</option></select><button type="button" class="ai-strategy-btn secondary" data-ai-action="reset-draft-filters">重置</button><span class="ai-strategy-muted">当前 ${filteredRows.length} 条，可审核 ${pendingRows.length} 条</span></div>
       ${rangeError ? `<p class="ai-strategy-range-error" role="alert">${aiStrategyEsc(rangeError)}</p>` : ''}
       <div class="ai-strategy-table-wrap"><table class="ai-strategy-table ai-strategy-drafts-table"><thead><tr><th><input type="checkbox" data-ai-action="select-visible" ${!pagePendingRows.length ? 'disabled' : ''} ${pagePendingRows.length && pagePendingRows.every(({draft,index}) => draft.selected?.includes(index)) ? 'checked' : ''}></th><th>规则维度</th><th>匹配值</th><th>样本量</th><th>当前比例 <small title="读取当前启用分配规则对应的模板内容">（规则模板）</small></th><th>Agent 建议比例</th><th>执行分配方案</th><th>建议说明</th><th>审核/发布状态</th><th title="系统接收并保存 Agent 建议的时间">接收时间</th><th title="建议业务日期及原始批次">版本日期／建议批次</th><th title="DCC确认发布成功的时间">同步时间</th><th>操作</th></tr></thead><tbody>${pagedRows.map(({draft, row, index}) => {
   const status = row.reviewStatus || '待审核';
@@ -1713,7 +1735,7 @@ document.addEventListener('click', event => {
     if (removed) aiStrategyLog(`移除直派标识：${removed.type} / ${removed.value}`);
     renderAiStrategyWorkbench(); aiStrategyNotice('直派标识已移除。', true); return;
   }
-  if (action === 'reset-draft-filters') { aiStrategyClearDraftSelections(); aiStrategyState.draftFilters = { draftId: '', dateFrom: '', dateTo: '', dimension: '', value: '', status: '全部', ratioFilter: '' }; aiStrategyState.draftPage = 1; renderAiStrategyWorkbench(); return; }
+  if (action === 'reset-draft-filters') { aiStrategyClearDraftSelections(); aiStrategyState.draftFilters = aiStrategyDefaultDraftFilters(); aiStrategyState.draftPage = 1; renderAiStrategyWorkbench(); return; }
   if (action === 'search-versions') { aiStrategyState.versionPage = 1; renderAiStrategyWorkbench(); return; }
   if (action === 'reset-version-filters') { aiStrategyState.versionFilter = { batchId: '', dimension: '', matchValue: '', status: '全部', keyword: '' }; aiStrategyState.versionPage = 1; renderAiStrategyWorkbench(); return; }
   if (action === 'version-page-prev') { aiStrategyState.versionPage = Math.max(1, aiStrategyState.versionPage - 1); renderAiStrategyWorkbench(); return; }
@@ -1821,7 +1843,7 @@ document.addEventListener('change', event => {
   }
   const filter = event.target.closest('[data-ai-filter]');
   if (filter && filter.closest('.ai-strategy-workbench')) {
-    aiStrategyState.draftFilters = aiStrategyState.draftFilters || { draftId: '', dimension: '', value: '', status: '全部', ratioFilter: '' };
+    aiStrategyState.draftFilters = aiStrategyState.draftFilters || aiStrategyDefaultDraftFilters();
     if (filter.dataset.aiFilter !== 'pageSize') aiStrategyClearDraftSelections();
     if (filter.dataset.aiFilter === 'pageSize') { aiStrategyState.draftPageSize = Number(filter.value) || 10; aiStrategyState.draftPage = 1; } else { aiStrategyState.draftFilters[filter.dataset.aiFilter] = filter.value; aiStrategyState.draftPage = 1; if (filter.dataset.aiFilter === 'draftId') { aiStrategyState.draftFilters.dimension = ''; aiStrategyState.draftFilters.value = ''; aiStrategyState.draftFilters.status = '全部'; aiStrategyState.draftFilters.ratioFilter = ''; } }
     renderAiStrategyWorkbench();
@@ -1866,7 +1888,7 @@ document.addEventListener('input', event => {
   if (versionFilter && versionFilter.tagName === 'INPUT') { aiStrategyState.versionFilter[versionFilter.dataset.versionFilter] = input.value; return; }
   const filter = input.closest('[data-ai-filter]');
   if (filter) {
-    aiStrategyState.draftFilters = aiStrategyState.draftFilters || { draftId: '', dimension: '', value: '', status: '全部', ratioFilter: '' };
+    aiStrategyState.draftFilters = aiStrategyState.draftFilters || aiStrategyDefaultDraftFilters();
     aiStrategyClearDraftSelections();
     aiStrategyState.draftFilters[filter.dataset.aiFilter] = input.value;
     return;
