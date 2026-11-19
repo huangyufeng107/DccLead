@@ -2,7 +2,7 @@
   const statusOptions = ['已接通', '客户未接听', '关机', '空号', '停机', '拒接', '接通秒挂', '待返回'];
   const callTypeOptions = ['新线索', '门店冷线索', '总部冷线索'];
   const actions = ['批量下发－无人接听下发', '批量下发－意向线索下发'];
-  const documentPath = 'DccLead.assets/docs/天网付费线索自动下发_后台配置设计说明.html';
+  const documentPath = 'DccLead.assets/docs/专题资料/天网付费线索自动下发_后台配置设计说明.html';
   let documentTrigger;
   const state = {
     manual: { enabled: true, count: '5', contactStatus: '无人接听', action: actions[0] },

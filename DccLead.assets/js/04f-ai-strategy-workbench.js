@@ -73,12 +73,12 @@ function openLeadAllocationPlanDocModal() {
             <p style="margin:4px 0 0; font-size:12px; color:#94a3b8;">面向 DCC 培育平台的 Agent 智能生成分派策略方案（供产品、业务、数据、技术联合评审与对照执行）</p>
           </div>
           <div style="display:flex; gap:10px; align-items:center;">
-            <button type="button" style="color:#93c5fd; border:1px solid #3b82f6; background:rgba(37,99,235,0.25); padding:6px 14px; font-size:12px; font-weight:600; border-radius:4px; cursor:pointer;" onclick="window.open('DccLead.assets/docs/线索分派策略_产品方案.html?v=20261022-v28-closeout', '_blank')">在新窗口打开完整手册 ↗</button>
+            <button type="button" style="color:#93c5fd; border:1px solid #3b82f6; background:rgba(37,99,235,0.25); padding:6px 14px; font-size:12px; font-weight:600; border-radius:4px; cursor:pointer;" onclick="window.open('DccLead.assets/docs/专题资料/线索分派策略_产品方案.html?v=20261022-v28-closeout', '_blank')">在新窗口打开完整手册 ↗</button>
             <button type="button" style="background:none; border:none; color:#94a3b8; font-size:22px; cursor:pointer; line-height:1;" onclick="closeLeadAllocationPlanDocModal()">✕</button>
           </div>
         </header>
         <div style="flex:1; overflow:hidden; background:#f8fafc;">
-          <iframe src="DccLead.assets/docs/线索分派策略_产品方案.html?v=20261022-v28-closeout" style="width:100%; height:100%; border:none;"></iframe>
+          <iframe src="DccLead.assets/docs/专题资料/线索分派策略_产品方案.html?v=20261022-v28-closeout" style="width:100%; height:100%; border:none;"></iframe>
         </div>
         <footer style="padding:12px 24px; background:#f8fafc; border-top:1px solid #e2e8f0; display:flex; justify-content:flex-end; align-items:center;">
           <button type="button" style="height:32px; padding:0 20px; background:#2563eb; border:1px solid #2563eb; color:#fff; border-radius:4px; font-size:13px; font-weight:500; cursor:pointer;" onclick="closeLeadAllocationPlanDocModal()">完成查阅，返回工作台</button>

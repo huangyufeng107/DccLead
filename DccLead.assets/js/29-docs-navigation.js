@@ -6,18 +6,20 @@
   const tabs = [
     ['prototype', '产品原型', './DccLead.html'],
     ['requirements', '需求说明', 'DccLead.assets/docs/需求说明/index.html?v=20261104-review-cleanup'],
-    ['blueprint', '系统蓝图', 'DccLead.assets/docs/核心文档/DccLead_系统蓝图.html?v=20261118-sync-date-filter'],
-    ['manual', '功能文档', 'DccLead.assets/docs/核心文档/DccLead_功能文档.html?v=20261118-sync-date-filter'],
-    ['interaction', '页面交互图', 'DccLead.assets/docs/核心文档/DccLead_交互流程图.html?v=20261118-sync-date-filter'],
-    ['sequence', '业务场景与流程', 'DccLead.assets/docs/核心文档/DccLead_业务流程图.html?v=20261119-flow-viewer'],
-    ['features', '功能点清单', 'DccLead.assets/docs/核心文档/DccLead_功能清单.html?v=20261118-sync-date-filter'],
-    ['versions', '版本号日志', 'DccLead.assets/docs/核心文档/DccLead_版本日志.html?v=20261118-sync-date-filter']
+    ['blueprint', '系统蓝图', 'DccLead.assets/docs/核心文档/DccLead_系统蓝图.html?v=20261119-blueprint-refresh'],
+    ['manual', '功能说明', 'DccLead.assets/docs/核心文档/DccLead_功能说明.html?v=20261119-manual-links'],
+    ['interaction', '页面交互图', 'DccLead.assets/docs/核心文档/DccLead_页面交互图.html?v=20261118-sync-date-filter'],
+    ['sequence', '业务流程', 'DccLead.assets/docs/核心文档/DccLead_业务流程.html?v=20261119-flow-viewer'],
+    ['features', '功能点清单', 'DccLead.assets/docs/核心文档/DccLead_功能点清单.html?v=20261118-sync-date-filter'],
+    ['versions', '版本日志', 'DccLead.assets/docs/核心文档/DccLead_版本日志.html?v=20261119-docs-organized']
   ];
+  const primaryTabs = ['prototype', 'manual', 'sequence', 'versions'];
+  const primaryTabFor = { requirements: 'manual', blueprint: 'manual', interaction: 'manual', features: 'versions' };
   const header = document.createElement('header');
   header.id = 'dccDocsHeader';
   header.className = 'dcc-docs-header';
   header.innerHTML = `<div class="dcc-docs-brand"><span class="dcc-docs-logo" aria-hidden="true">D</span><strong>DCC培育 · SaaS平台</strong></div>
-    <nav class="dcc-docs-nav" aria-label="文档与产品导航">${tabs.map(([id, label]) => `<a class="dcc-docs-tab" data-docs-tab="${id}" href="#dcc-${id}">${label}</a>`).join('')}</nav>
+    <nav class="dcc-docs-nav" aria-label="文档与产品导航">${tabs.filter(([id]) => primaryTabs.includes(id)).map(([id, label]) => `<a class="dcc-docs-tab" data-docs-tab="${id}" href="#dcc-${id}">${label}</a>`).join('')}</nav>
     <div class="dcc-docs-tools"><button class="dcc-docs-tool dcc-docs-refresh" type="button" title="重新加载当前内容">↻ 刷新内容</button><a class="dcc-docs-tool" id="dccDocsNewWindow" target="_blank" rel="noopener" href="./DccLead.html" title="在新窗口打开当前内容">↗ 新窗口</a></div>`;
   const view = document.createElement('section');
   view.className = 'dcc-docs-view';
@@ -37,7 +39,7 @@
     if (current === 'prototype' && key !== 'prototype') prototypeScroll = window.scrollY;
     current = key;
     header.querySelectorAll('[data-docs-tab]').forEach(link => {
-      if (link.dataset.docsTab === key) link.setAttribute('aria-current', 'page');
+      if (link.dataset.docsTab === (primaryTabFor[key] || key)) link.setAttribute('aria-current', 'page');
       else link.removeAttribute('aria-current');
     });
     view.hidden = key === 'prototype';
@@ -52,15 +54,18 @@
       const frame = document.createElement('iframe');
       frame.className = 'dcc-docs-frame';
       frame.title = label;
-      if (key === 'sequence') frame.allowFullscreen = true;
+      if (key === 'sequence' || key === 'blueprint') frame.allowFullscreen = true;
       frame.src = path;
       view.append(frame);
       frames.set(key, frame);
     }
     frames.get(key).hidden = false;
   }
-  // 每次重新打开或刷新入口文件都回到产品原型；当前会话内仍可切换其他文档。
-  if (location.hash !== '#dcc-prototype') history.replaceState(null, '', '#dcc-prototype');
+  // 打开已有文档链接时保留定位；刷新入口文件时回到产品原型。
+  const requestedTab = location.hash.startsWith('#dcc-') && tabs.some(([id]) => location.hash === '#dcc-' + id);
+  const navigationEntry = performance.getEntriesByType('navigation')[0];
+  const isReload = navigationEntry ? navigationEntry.type === 'reload' : performance.navigation?.type === 1;
+  if (!requestedTab || isReload) history.replaceState(null, '', '#dcc-prototype');
   const fromHash = () => select(location.hash.startsWith('#dcc-') ? location.hash.slice(5) : 'prototype');
   header.querySelector('.dcc-docs-nav').addEventListener('click', event => {
     const link = event.target.closest('[data-docs-tab]');

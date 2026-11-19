@@ -181,12 +181,12 @@
               <p style="margin:4px 0 0; font-size:12px; color:#94a3b8;">双轨并行、直线向下、阶段一至阶段五严格时序流转与异常流失挽回机制（供产品设计与研发1:1对照执行）</p>
             </div>
             <div style="display:flex; gap:10px; align-items:center;">
-              <button type="button" style="color:#93c5fd; border:1px solid #3b82f6; background:rgba(37,99,235,0.25); padding:6px 14px; font-size:12px; font-weight:600; border-radius:4px; cursor:pointer;" onclick="window.open('DccLead.assets/docs/DccLead_试驾排程场景旅程开发说明.html', '_blank')">在新窗口打开完整手册 ↗</button>
+              <button type="button" style="color:#93c5fd; border:1px solid #3b82f6; background:rgba(37,99,235,0.25); padding:6px 14px; font-size:12px; font-weight:600; border-radius:4px; cursor:pointer;" onclick="window.open('DccLead.assets/docs/专题资料/DccLead_试驾排程场景旅程开发说明.html', '_blank')">在新窗口打开完整手册 ↗</button>
               <button type="button" style="background:none; border:none; color:#94a3b8; font-size:22px; cursor:pointer; line-height:1;" onclick="closeAiTestDriveJourneyDocModal()">✕</button>
             </div>
           </header>
           <div style="flex:1; overflow:hidden; background:#f8fafc;">
-            <iframe src="DccLead.assets/docs/DccLead_试驾排程场景旅程开发说明.html" style="width:100%; height:100%; border:none;"></iframe>
+            <iframe src="DccLead.assets/docs/专题资料/DccLead_试驾排程场景旅程开发说明.html" style="width:100%; height:100%; border:none;"></iframe>
           </div>
           <footer style="padding:12px 24px; background:#f8fafc; border-top:1px solid #e2e8f0; display:flex; justify-content:flex-end; align-items:center;">
             <button type="button" style="height:32px; padding:0 20px; background:#2563eb; border:1px solid #2563eb; color:#fff; border-radius:4px; font-size:13px; font-weight:500; cursor:pointer;" onclick="closeAiTestDriveJourneyDocModal()">完成查阅，返回列表</button>

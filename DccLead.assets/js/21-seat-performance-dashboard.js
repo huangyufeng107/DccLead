@@ -148,7 +148,7 @@ const sdReportTabMeta = {
     intro: '两个板块互不影响，均可单独选择「开始日期＋小时 ～ 结束日期＋小时」；筛选一变，相关指标与图表会同步更新。点击右上角「📋 看板指标说明」可查阅完整指标口径手册。',
     modalTitle: '坐席业绩看板 · 时段业绩指标口径与规则说明手册',
     modalSub: '包含排程、通话、目标、完成度、每日两王及全员明细统计逻辑，供业务与产研对照执行',
-    docFile: 'DccLead.assets/docs/DccLead_时段业绩看板指标说明.html'
+    docFile: 'DccLead.assets/docs/专题资料/DccLead_时段业绩看板指标说明.html'
   },
   underfilled: {
     name: '留资未满报告',
@@ -156,7 +156,7 @@ const sdReportTabMeta = {
     intro: '仅统计关联“留资未满任务”的回访记录。两个大点均可单独选择时段；筛选一变，相关指标与分布同步更新。点击右上角「📋 看板指标说明」可查阅留资未满指标手册。',
     modalTitle: '坐席业务看板 · 留资未满业绩报告指标说明手册',
     modalSub: '包含留资未满数、激活量、排程量、通话时长及各小组人均统计口径，供业务与产研对照执行',
-    docFile: 'DccLead.assets/docs/DccLead_留资未满业绩报告指标说明.html'
+    docFile: 'DccLead.assets/docs/专题资料/DccLead_留资未满业绩报告指标说明.html'
   },
   employee: {
     name: '员工维度报告',
@@ -164,7 +164,7 @@ const sdReportTabMeta = {
     intro: '按日期、时段及 11 项筛选维度查看员工执行数据，任务、话单与有效接通实时计算，后端转化为 T+1 数据。点击右上角「📋 看板指标说明」可查阅员工维度手册。',
     modalTitle: '坐席业务看板 · 员工维度看板指标说明手册',
     modalSub: '包含新增任务、继续跟进任务、过程指标（首触/通话/分层）及后端转化（T+1）完整字段定义与对账关系',
-    docFile: 'DccLead.assets/docs/DccLead_员工维度看板指标说明.html'
+    docFile: 'DccLead.assets/docs/专题资料/DccLead_员工维度看板指标说明.html'
   }
 };
 
