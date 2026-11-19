@@ -9,7 +9,7 @@
     ['blueprint', '系统蓝图', 'DccLead.assets/docs/核心文档/DccLead_系统蓝图.html?v=20261118-sync-date-filter'],
     ['manual', '功能文档', 'DccLead.assets/docs/核心文档/DccLead_功能文档.html?v=20261118-sync-date-filter'],
     ['interaction', '页面交互图', 'DccLead.assets/docs/核心文档/DccLead_交互流程图.html?v=20261118-sync-date-filter'],
-    ['sequence', '业务场景与流程', 'DccLead.assets/docs/核心文档/DccLead_业务流程图.html?v=20261118-sync-date-filter'],
+    ['sequence', '业务场景与流程', 'DccLead.assets/docs/核心文档/DccLead_业务流程图.html?v=20261119-flow-viewer'],
     ['features', '功能点清单', 'DccLead.assets/docs/核心文档/DccLead_功能清单.html?v=20261118-sync-date-filter'],
     ['versions', '版本号日志', 'DccLead.assets/docs/核心文档/DccLead_版本日志.html?v=20261118-sync-date-filter']
   ];
@@ -52,6 +52,7 @@
       const frame = document.createElement('iframe');
       frame.className = 'dcc-docs-frame';
       frame.title = label;
+      if (key === 'sequence') frame.allowFullscreen = true;
       frame.src = path;
       view.append(frame);
       frames.set(key, frame);

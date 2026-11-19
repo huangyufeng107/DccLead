@@ -100,6 +100,7 @@
   background: #f5f8ff;
 }
 </style>
+<link rel="stylesheet" href="../../css/flow-viewer.css?v=20261119-flow-viewer">
 </head>
 <body>
 <div class="page">
@@ -946,4 +947,23 @@ Result -->|成功| Ok[返回成功状态]:::main --> Save[(保存总部培育任
 })();
 </script>
 <script src="../../js/doc-anchor-navigation.js?v=20261118-doc-anchor-fix"></script>
+<dialog class="flow-viewer" id="flow-viewer" aria-labelledby="flow-viewer-title">
+  <div class="flow-viewer-shell">
+    <header class="flow-viewer-toolbar">
+      <h2 id="flow-viewer-title">流程图</h2>
+      <div class="flow-viewer-actions" role="group" aria-label="流程图缩放">
+        <button type="button" data-viewer-action="out" aria-label="缩小">−</button>
+        <output id="flow-viewer-scale" aria-label="当前缩放比例"></output>
+        <button type="button" data-viewer-action="in" aria-label="放大">＋</button>
+        <button type="button" data-viewer-action="fit">适合窗口</button>
+        <button type="button" data-viewer-action="actual">100%</button>
+      </div>
+      <button type="button" class="flow-viewer-exit" data-viewer-action="close" autofocus>退出全屏</button>
+    </header>
+    <div class="flow-viewer-viewport" tabindex="0" role="region" aria-label="流程图画布，可以拖动画布或使用方向键浏览">
+      <div class="flow-viewer-canvas"></div>
+    </div>
+  </div>
+</dialog>
+<script src="../../js/flow-viewer.js?v=20261119-flow-viewer"></script>
 </body></html>

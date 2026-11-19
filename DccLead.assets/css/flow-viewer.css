@@ -1,0 +1,116 @@
+.flow-diagram-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 10px 0 8px;
+}
+
+.flow-diagram-actions button,
+.flow-viewer button {
+  padding: 6px 12px;
+  border: 1px solid #b8c9e3;
+  border-radius: 6px;
+  background: #fff;
+  color: #153b73;
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.flow-diagram-actions button:hover,
+.flow-viewer button:hover {
+  background: #edf4ff;
+}
+
+.flow-viewer button:disabled {
+  opacity: .45;
+  cursor: default;
+}
+
+.flow-viewer {
+  position: fixed;
+  inset: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: #f4f6fb;
+  color: #172b4d;
+  overflow: hidden;
+}
+
+body:has(.flow-viewer[open]) {
+  overflow: hidden;
+}
+
+.flow-viewer-shell {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100%;
+}
+
+.flow-viewer-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #dce3ef;
+  background: #fff;
+}
+
+.flow-viewer-toolbar h2 {
+  flex: 1 1 200px;
+  margin: 0;
+  font-size: 15px;
+}
+
+.flow-viewer-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.flow-viewer-actions output {
+  min-width: 58px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.flow-viewer-exit { margin-inline-start: auto; }
+
+.flow-viewer-viewport {
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 16px;
+  cursor: grab;
+}
+
+.flow-viewer-viewport.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.flow-viewer-viewport:focus-visible {
+  outline: 2px solid #3264ad;
+  outline-offset: -2px;
+}
+
+.flow-viewer-canvas {
+  margin-inline: auto;
+  background: #fff;
+  box-shadow: 0 0 0 1px #dce3ef;
+}
+
+.flow-viewer .flow-viewer-canvas > svg {
+  display: block;
+  width: 100% !important;
+  min-width: 0;
+  max-width: none !important;
+  height: auto !important;
+  margin: 0;
+}
