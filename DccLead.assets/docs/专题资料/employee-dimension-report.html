@@ -455,7 +455,7 @@ details.docs[open] summary .arr{transform:rotate(90deg)}
       </div>
       <div class="card">
         <h3>客户分层与下发</h3>
-        <div class="csub">意向客户 = 最新意向级别 H/A/B/C；下发量按最新回访结果统计（日期口径：下发日期）</div>
+        <div class="csub">意向客户 = 截至结束时间最新意向级别 H/A/B；下发量按最新回访结果统计（日期口径：下发日期）</div>
         <div class="metric-grid" id="mLayer"></div>
       </div>
     </div>
@@ -485,13 +485,15 @@ details.docs[open] summary .arr{transform:rotate(90deg)}
             <th data-k="assigned">已分配任务量</th>
             <th data-k="connectTask">接通任务量</th>
             <th data-k="connectTaskRate">接通任务率</th>
+            <th data-k="connect10" title="所选区间内任意一通已接通通话≥10秒，按任务去重">≥10s通话接通量</th>
+            <th data-k="connect10Rate" title="≥10s通话接通量 ÷ 外呼任务量">≥10s通话接通率</th>
             <th data-k="eff60">有效外呼率(60s)</th>
             <th data-k="wecomAdd">外呼加微量</th>
             <th data-k="wecomAddRate">外呼加微率</th>
             <th data-k="follow">继续跟进任务量</th>
             <th data-k="done">已处理量</th>
             <th data-k="avgFollow">平均跟进次数</th>
-            <th data-k="yi">意向客户量</th>
+            <th data-k="yi" title="截至所选结束时间最新回访级别为H/A/B的任务量">意向客户量</th>
             <th data-k="yiRate">意向客户占比</th>
             <th data-k="dispatch">下发量合计</th>
             <th data-k="schedule">排程量</th>
@@ -677,10 +679,17 @@ var DEFAULT_END=new Date(TODAY);
 /* ================= 筛选与指标计算引擎 ================= */
 var AGENT_NAME_MAP={};
 AGENTS.forEach(function(a){AGENT_NAME_MAP[a.id]=a.name;AGENT_NAME_MAP[a.name]=a.id;});
-function latestRecord(t){return t.records.length?t.records[t.records.length-1]:null;}
+function latestRecord(t, endTime){
+  if (!endTime) return t.records.length ? t.records[t.records.length - 1] : null;
+  var latest = null;
+  t.records.forEach(function(record){
+    if (record.time <= endTime && (!latest || record.time > latest.time)) latest = record;
+  });
+  return latest;
+}
 function firstRecord(t){return t.records.length?t.records[0]:null;}
 function latestResult(t){var r=latestRecord(t);return r?r.result:null;}
-function latestLevel(t){var r=latestRecord(t);return r?r.level:null;}
+function latestLevel(t,endTime){var r=latestRecord(t,endTime);return r?r.level:null;}
 function sameDay(a,b){return startOfDay(a).getTime()===startOfDay(b).getTime();}
 function isBizHour(d){
   if(d.getDay()===0||d.getDay()===6)return false;
@@ -740,7 +749,7 @@ function compute(f,skipPrev){
   var callMap={};
   calls.forEach(function(c){(callMap[c.taskSeq]=callMap[c.taskSeq]||[]).push(c);});
   var connTasks={};
-  calls.forEach(function(c){if(c.connected)connTasks[c.taskSeq]=1;});
+  calls.forEach(function(c){if(c.connected && c.dur > 0)connTasks[c.taskSeq]=1;});
   var out={f:f,total:tasks.length,callsTotal:calls.length};
   /* ---- 新增任务（指标A） ---- */
   var assigned=0,realloc=0;
@@ -787,7 +796,7 @@ function compute(f,skipPrev){
   tasks.forEach(function(t){
     var arr=callMap[t.seq]||[],best=0,connected=false;
     arr.forEach(function(c){if(c.connected)connected=true;if(c.dur>best)best=c.dur;});
-    if(connected)connectTask++;
+    if(connected && best > 0)connectTask++;
     if(connected&&best>0&&best<30)shortConnect30t++;
     if(best>=30)eff30t++;if(best>=60)eff60t++;if(best>=90)eff90t++;
   });
@@ -812,7 +821,7 @@ function compute(f,skipPrev){
   var yi=0,sjxx=0,sjpc=0,yixx=0,wrcj=0,peiyu=0,xm=0,zb=0,wx=0;
   tasks.forEach(function(t){
     var lr=latestRecord(t),res=lr?lr.result:null,lv=lr?lr.level:null;
-    if(lv&&'HABC'.indexOf(lv)>-1)yi++;
+    if(['H','A','B'].includes(latestLevel(t,f.end)))yi++;
     if(res==='试驾线索下发')sjxx++;
     else if(res==='试驾排程下发')sjpc++;
     else if(res==='意向线索下发')yixx++;
@@ -863,7 +872,7 @@ function compute(f,skipPrev){
     gAgg[g].outbound++;
     if(connTasks[t.seq])gAgg[g].connectTask++;
     var lv=latestLevel(t);
-    if(lv&&'HABC'.indexOf(lv)>-1)gAgg[g].yi++;
+    if(['H','A','B'].includes(latestLevel(t,f.end)))gAgg[g].yi++;
     t.conv.forEach(function(e){
       if(e.time>=f.start&&e.time<=f.end){
         if(e.type==='订单')gAgg[g].order++;
@@ -877,20 +886,21 @@ function compute(f,skipPrev){
   });
   /* ---- 员工聚合 ---- */
   var aAgg={};
-  AGENTS.forEach(function(a){aAgg[a.id]={outbound:0,assigned:0,connectTask:0,eff60:0,follow:0,done:0,recs:0,yi:0,dispatch:0,leads:{},drive:0,order:0,lock:0,deal:0,dayDur:{}};});
+  AGENTS.forEach(function(a){aAgg[a.id]={outbound:0,assigned:0,connectTask:0,connect10:0,eff60:0,follow:0,done:0,recs:0,yi:0,dispatch:0,leads:{},drive:0,order:0,lock:0,deal:0,dayDur:{}};});
   tasks.forEach(function(t){
     var a=aAgg[t.agentId];if(!a)return;
     a.outbound++;if(t.assigned)a.assigned++;
     if(connTasks[t.seq])a.connectTask++;
     var arr=callMap[t.seq]||[],best=0;
     arr.forEach(function(c){if(c.dur>best)best=c.dur;});
+    if(arr.some(function(call){return call.connected && call.dur >= 10;}))a.connect10++;
     if(best>=60)a.eff60++;
     var lr=latestRecord(t),res=lr?lr.result:null;
     if(lr&&lr.result==='下次回访'){a.follow++;if(t.records.length>1)a.done++;}
     a.recs+=t.records.length;
     if(t.records.length)a.leads[t.leadId]=true;
     var lv=lr?lr.level:null;
-    if(lv&&'HABC'.indexOf(lv)>-1)a.yi++;
+    if(['H','A','B'].includes(latestLevel(t,f.end)))a.yi++;
     if(res&&res.indexOf('下发')>-1)a.dispatch++;
     t.conv.forEach(function(e){
       if(e.time>=f.start&&e.time<=f.end){
@@ -915,6 +925,7 @@ function compute(f,skipPrev){
     return {id:ag.id,name:ag.name,group:ag.group,outbound:a.outbound,assigned:a.assigned,
       leads:Object.keys(a.leads).length,
       connectTask:a.connectTask,connectTaskRate:a.outbound?a.connectTask/a.outbound:0,
+      connect10:a.connect10,connect10Rate:a.outbound?a.connect10/a.outbound:0,
       eff60Rate:a.outbound?a.eff60/a.outbound:0,follow:a.follow,done:a.done,
       avgFollow:a.assigned?a.recs/a.assigned:0,yi:a.yi,yiRate:a.outbound?a.yi/a.outbound:0,
       dispatch:a.dispatch,drive:a.drive,order:a.order,lock:a.lock,deal:a.deal,perCapita:pc};
@@ -1025,7 +1036,7 @@ function renderKPI(o){
   html+=kpiCard('继续跟进任务量',num(o.follow.total),'个',deltaHTML(o.follow.total,p.follow.total,false),'最新回访结果=下次回访','#2F8066');
   html+=kpiCard('当日跟进率',pct(o.touch.dangriRate),'',deltaHTML(o.touch.dangriRate,p.touch.dangriRate,true),'当日跟进任务量 / 外呼任务量','#299E65');
   html+=kpiCard('20分钟及时首触率',pct(o.touch.t20Rate),'',deltaHTML(o.touch.t20Rate,p.touch.t20Rate,true),'20分钟及时首触量 / 应首触量','#DE8A32');
-  html+=kpiCard('意向客户量',num(o.layer.yi),'个',deltaHTML(o.layer.yi,p.layer.yi,false),'最新意向级别 H/A/B/C','#D95B63');
+  html+=kpiCard('意向客户量',num(o.layer.yi),'个',deltaHTML(o.layer.yi,p.layer.yi,false),'截至结束时间最新意向级别 H/A/B','#D95B63');
   html+=kpiCard('线索量（T+1）',num(o.conv.leads),'条',deltaHTML(o.conv.leads,p.conv.leads,false),'人工回访过的总部培育线索','#143A5C');
   document.getElementById('kpiRow').innerHTML=html;
 }
@@ -1098,7 +1109,7 @@ function renderCall(o){
 function renderLayer(o){
   var l=o.layer;
   var h='';
-  h+=mc('意向客户量',num(l.yi),'最新意向级别 H/A/B/C',true);
+  h+=mc('意向客户量',num(l.yi),'截至结束时间最新意向级别 H/A/B',true);
   h+=mc('意向客户占比',pct(l.yiRate),'意向客户量 / 外呼任务量');
   h+=mc('试驾线索下发量',num(l.sjxx),'最新回访结果=试驾线索下发');
   h+=mc('试驾排程下发量',num(l.sjpc),'最新回访结果=试驾排程下发');
@@ -1274,6 +1285,8 @@ function renderTable(o){
       '<td>'+num(r.assigned)+'</td>'+
       '<td>'+num(r.connectTask)+'</td>'+
       '<td>'+pct(r.connectTaskRate)+'</td>'+
+      '<td>'+num(r.connect10)+'</td>'+
+      '<td>'+(r.outbound?pct(r.connect10Rate):'—')+'</td>'+
       '<td>'+pct(r.eff60Rate)+'</td>'+
       '<td>'+num(r.wecomAdd)+'</td>'+
       '<td>'+pct(r.wecomAddRate)+'</td>'+
@@ -1350,10 +1363,10 @@ function exportCSV(){
     if(typeof va==='string')return sortDir*va.localeCompare(vb,'zh');
     return sortDir*(va-vb);
   });
-  var heads=['排名','坐席ID','坐席名称','小组','线索量','外呼任务量','已分配任务量','接通任务量','接通任务率','有效外呼率(60s)','外呼加微量','外呼加微率','继续跟进任务量','已处理量','平均跟进次数','意向客户量','意向客户占比','下发量合计','排程量','试驾量','订单量','锁单量','成交量','人日均接通时长(h)'];
+  var heads=['排名','坐席ID','坐席名称','小组','线索量','外呼任务量','已分配任务量','接通任务量','接通任务率','≥10s通话接通量','≥10s通话接通率','有效外呼率(60s)','外呼加微量','外呼加微率','继续跟进任务量','已处理量','平均跟进次数','意向客户量','意向客户占比','下发量合计','排程量','试驾量','订单量','锁单量','成交量','人日均接通时长(h)'];
   var lines=[heads.join(',')];
   rows.forEach(function(r,i){
-    lines.push([i+1,r.id,r.name,r.group,r.leads,r.outbound,r.assigned,r.connectTask,pct(r.connectTaskRate),pct(r.eff60Rate),r.wecomAdd,pct(r.wecomAddRate),r.follow,r.done,n2(r.avgFollow),r.yi,pct(r.yiRate),r.dispatch,r.schedule,r.drive,r.order,r.lock,r.deal,n2(r.perCapita)].join(','));
+    lines.push([i+1,r.id,r.name,r.group,r.leads,r.outbound,r.assigned,r.connectTask,pct(r.connectTaskRate),r.connect10,r.outbound?pct(r.connect10Rate):"—",pct(r.eff60Rate),r.wecomAdd,pct(r.wecomAddRate),r.follow,r.done,n2(r.avgFollow),r.yi,pct(r.yiRate),r.dispatch,r.schedule,r.drive,r.order,r.lock,r.deal,n2(r.perCapita)].join(','));
   });
   var blob=new Blob(['\uFEFF'+lines.join('\n')],{type:'text/csv;charset=utf-8;'});
   var a=document.createElement('a');
@@ -1528,7 +1541,7 @@ function renderLayer(o){
     var value=l[key],ratio=o.newTask.total?value/o.newTask.total:0;
     return mc(label,num(value),'占比 '+pct(ratio)+' · '+deltaHTML(value,p[key],false),highlight);
   }
-  var summary=mc('意向客户量',num(l.yi),'最新意向级别 H/A/B/C',true)
+  var summary=mc('意向客户量',num(l.yi),'截至结束时间最新意向级别 H/A/B',true)
     +mc('意向客户占比',pct(l.yiRate),'意向客户量 / 外呼任务量')
     +mc('意向客户转化率',pct(l.yxzhRate),'意向线索下发量 / 外呼任务量');
   var detail=layerDetail('试驾线索下发量','sjxx')

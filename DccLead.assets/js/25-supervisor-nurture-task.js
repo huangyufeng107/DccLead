@@ -495,6 +495,7 @@
     { key: 'assign_lz', label: '任务分配-留资未满', badge: null },
     { key: 'audit', label: '任务审核', badge: null },
     { key: 'incomplete', label: '留资未满', badge: '99+' },
+    { key: 'masked_intake', label: '抖音掩码留资', badge: null },
     { key: 'ai_order', label: '智能体工单', badge: '3' },
     { key: 'fill_audit', label: '填单审核', badge: '99+' }
   ];
@@ -2134,20 +2135,41 @@
     const currentSubTab = pageState.mainTab === 'assign_lz' ? pageState.assignLzSubTab : pageState.assignSubTab;
     const switchFn = pageState.mainTab === 'assign_lz' ? '__switchNurtureAssignLzSubTab' : '__switchNurtureAssignSubTab';
 
+    const masked = pageState.mainTab === 'masked_intake';
+    const navigation = document.getElementById('maskedIntakeNavigation');
+    navigation.hidden = !masked || !page.classList.contains('show');
+    if (masked) {
+      navigation.innerHTML = MAIN_TABS.map(tab => `
+        <button type="button" class="strategy-nav-item ${tab.key === pageState.mainTab ? 'active' : ''}"
+                aria-pressed="${tab.key === pageState.mainTab}" onclick="window.__switchNurtureMainTab('${tab.key}')">
+          <span>${tab.label}</span>
+          ${tab.badge ? `<span class="sd-tab-badge">${tab.badge}</span>` : ''}
+        </button>
+      `).join('');
+    }
+
     page.innerHTML = `
-      <div class="sd-snurture-tabs-wrap">
-        <div class="sd-snurture-tabs">
-          ${MAIN_TABS.map(tab => `
-            <div class="sd-snurture-tab ${pageState.mainTab === tab.key ? 'active' : ''}" onclick="window.__switchNurtureMainTab('${tab.key}')">
-              <span>${tab.label}</span>
-              ${tab.badge ? `<span class="sd-tab-badge">${tab.badge}</span>` : ''}
-            </div>
-          `).join('')}
+      ${masked ? '' : `
+        <div class="sd-snurture-tabs-wrap">
+          <div class="sd-snurture-tabs">
+            ${MAIN_TABS.map(tab => tab.key === 'masked_intake' ? `
+              <button type="button" class="sd-snurture-tab masked-intake-menu"
+                      onclick="window.__switchNurtureMainTab('${tab.key}')">${tab.label}</button>
+            ` : `
+              <div class="sd-snurture-tab ${pageState.mainTab === tab.key ? 'active' : ''}"
+                   onclick="window.__switchNurtureMainTab('${tab.key}')">
+                <span>${tab.label}</span>
+                ${tab.badge ? `<span class="sd-tab-badge">${tab.badge}</span>` : ''}
+              </div>
+            `).join('')}
+          </div>
         </div>
-      </div>
+      `}
 
       ${pageState.mainTab === 'my_task' ? `
         <div id="nurtureMyTaskWorkspace" style="flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden;"></div>
+      ` : pageState.mainTab === 'masked_intake' ? `
+        <div id="maskedIntakeWorkspace" class="masked-intake-workspace"></div>
       ` : `
         <div class="sd-snurture-content">
           ${renderFilterBar()}
@@ -2167,6 +2189,8 @@
       if (typeof window.renderNurtureTaskPage === 'function') {
         window.renderNurtureTaskPage();
       }
+    } else if (pageState.mainTab === 'masked_intake') {
+      window.renderMaskedLeadIntake(document.getElementById('maskedIntakeWorkspace'));
     } else {
       bindFilterEvents();
     }
@@ -2236,6 +2260,7 @@
 
   // ==================== 全局事件函数 ====================
   window.__switchNurtureMainTab = function(key) {
+    if (pageState.mainTab === 'masked_intake') setPageName('NEV培育 / 培育任务');
     pageState.mainTab = key;
     pageState.selectedRows.clear();
     pageState.currentPage = 1;

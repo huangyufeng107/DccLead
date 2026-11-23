@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="DccLead.assets/css/ai-strategy-workbench.css?v=20261118-strategy-date-range">
   <link rel="stylesheet" href="DccLead.assets/css/tianwang-paid-dispatch-config.css?v=20261026-doc-entry">
   <link rel="stylesheet" href="DccLead.assets/css/supervisor-nurture-task.css?v=2026091601">
+  <link rel="stylesheet" href="DccLead.assets/css/masked-lead-intake.css?v=20261123-masked-workspace">
   <link rel="stylesheet" href="DccLead.assets/css/docs-navigation.css?v=20261103-remove-logic">
   <link rel="stylesheet" href="DccLead.assets/css/lead-assignment.css?v=20261118-agent-updater">
   <link rel="stylesheet" href="DccLead.assets/css/pagination-standard.css?v=2026102605">
@@ -209,6 +210,8 @@
     <button type="button" class="strategy-nav-item" data-ui-action="callback" data-ui-callback="leads-nav-switch" data-ui-args='["$self"]'>三无忧</button>
     <button type="button" class="strategy-nav-item" data-ui-action="callback" data-ui-callback="leads-nav-switch" data-ui-args='["$self"]'>线索分发审核</button>
   </nav>
+
+  <nav class="strategy-nav masked-intake-navigation" id="maskedIntakeNavigation" aria-label="培育任务菜单" hidden></nav>
 
   <!-- Test-drive scheduling level-2 nav -->
   <nav class="strategy-nav test-drive-nav" aria-label="试驾排程二级菜单">
@@ -2404,7 +2407,7 @@
 
   <script src="DccLead.assets/js/00-ui-utils.js"></script>
   <script src="DccLead.assets/js/00-data.js"></script>
-  <script src="DccLead.assets/js/01a-shell-navigation.js?v=20261031-distribution-move"></script>
+  <script src="DccLead.assets/js/01a-shell-navigation.js?v=20261123-shell-navigation"></script>
   <script src="DccLead.assets/js/01b-pre-dial-reports.js"></script>
   <script src="DccLead.assets/js/01c-worry-free-config.js"></script>
   <script src="DccLead.assets/js/01d-page-routing.js?v=2026102301"></script>
@@ -2449,13 +2452,15 @@
   <script src="DccLead.assets/js/20-manual-agent-workorders-report.js?v=2026102601"></script>
   <script src="DccLead.assets/js/21-ai-test-drive-scheduling.js?v=20261119-docs-organized"></script>
   <script src="DccLead.assets/js/21-seat-performance-dashboard.js?v=20261119-docs-organized"></script>
-  <script src="DccLead.assets/js/23-employee-report-rebuild.js?v=20261119-docs-organized"></script>
+  <script src="DccLead.assets/js/23-employee-report-rebuild.js?v=20261123-employee-metrics"></script>
     <script src="DccLead.assets/js/22-seat-scheduling.js?v=2026110604"></script>
     <script src="DccLead.assets/js/22a-sms-template-import.js?v=2026110604"></script>
   <script src="DccLead.assets/js/24-tianwang-paid-dispatch-config.js?v=20261119-docs-organized"></script>
   <script src="DccLead.assets/js/23-lead-import.js?v=2026092111"></script>
   <script src="DccLead.assets/js/39-lead-import.js?v=20261026-pagination"></script>
-  <script src="DccLead.assets/js/25-supervisor-nurture-task.js?v=2026102601"></script>
+  <script src="DccLead.assets/js/masked-lead-demo-data.js?v=20261123-masked-workspace"></script>
+  <script src="DccLead.assets/js/25a-masked-lead-intake.js?v=20261123-masked-workspace"></script>
+  <script src="DccLead.assets/js/25-supervisor-nurture-task.js?v=20261123-intake-detail-page"></script>
   <script src="DccLead.assets/js/26-nev-daily-grade-data.js?v=20261111-nev-grade-split"></script>
   <script src="DccLead.assets/js/26-ops-report.js?v=20261119-docs-organized"></script>
   <script src="DccLead.assets/js/30-quality-report-old.js?v=2026102601"></script>
@@ -2468,7 +2473,7 @@
   <script src="DccLead.assets/js/27-retention-data-config.js?v=20261031-retention-window"></script>
   <script src="DccLead.assets/js/28-ops-ai-testdrive-efficiency.js?v=20261102-confirmed-closeout"></script>
   <script src="DccLead.assets/js/45-global-state-conversion.js?v=20261104-multi-range"></script>
-  <script src="DccLead.assets/js/43-version-prototype-entry.js?v=20261116-blacklist-policy"></script>
+  <script src="DccLead.assets/js/43-version-prototype-entry.js?v=20261123-employee-entry"></script>
 
 </body>
 </html>

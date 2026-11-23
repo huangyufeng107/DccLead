@@ -21,6 +21,7 @@
     'blacklist-policy': () => showBlacklistPolicyPage(),
     whitelist: () => { showBlacklistPolicyPage(); switchBlacklistTab('dealer-whitelist-list'); },
     tasks: () => showNurtureTaskPage(),
+    'masked-lead-intake': () => { showNurtureTaskPage(); window.__switchNurtureMainTab('masked_intake'); },
     'test-drive': () => showTestDriveSchedulingPage(),
     'test-drive-report': () => showReportsPage('AI试驾排程效能看板'),
     'nev-daily': () => showReportsPage('总部NEV日报'),
@@ -32,6 +33,7 @@
     'conversion-records': () => showReportsPage('预评分转换记录'),
     workorders: () => showReportsPage('人工坐席工单'),
     'employee-report': () => showReportsPage('坐席业绩看板'),
+    'employee-dimension': () => { showReportsPage('坐席业绩看板'); switchSdBusinessTab('employee'); },
     leads: () => showLeadsPage('培育线索')
   };
   if (!Object.hasOwn(open, page)) return;

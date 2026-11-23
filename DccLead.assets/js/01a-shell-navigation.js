@@ -139,6 +139,7 @@ function setPolicyContentVisible(visible) {
 }
 
 function hideLeadPages() {
+  document.getElementById('maskedIntakeNavigation').hidden = true;
   // 看板会在 body 下创建指标说明浮层，切换页面时一并清理，避免浮层或看板残留。
   window.closeAiEfficiencyMetricInfo?.();
   document.getElementById('dealerWhitelistListPage')?.classList.remove('show');
