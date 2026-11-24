@@ -1,0 +1,501 @@
+(() => {
+  const data = window.dccMaskedWorklist;
+  const params = new URLSearchParams(location.search);
+  const local = params.get('dccMode') === 'local';
+  const safe = value => String(value ?? '').replace(/[&<>"']/g, char =>
+    ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'})[char]);
+  const known = value => safe(value || '—');
+  const mobilePattern = '1[3-9][0-9]{9}';
+  const mobileNumber = new RegExp('^' + mobilePattern + '$');
+  const mobileError = '请输入 11 位中国大陆手机号，例如 13800000000。';
+  let account = Object.hasOwn(data.agents, params.get('maskedSeat')) ? params.get('maskedSeat') : 'A001';
+  let rows = [];
+  let token;
+  let requestVersion = 0;
+  let verificationTimer;
+  let loaded = false;
+  const queues = {new: '新任务', today: '当日跟进', overdue: '逾期任务', future: '未来任务'};
+  const contacts = {
+    connected: '正常接通', no_answer: '无人接听', wechat_follow_up: '企微跟进',
+    rejected: '客户拒绝', busy: '忙音/秘书台', invalid: '空号'
+  };
+  const results = {
+    callback: '下次回访', completed: '回访完成', dispatch_store: '下发门店', candidate: '提交客户手机号核验'
+  };
+  const savedResultLabel = result => result === 'recorded' ? '记录本次跟进' : results[result];
+  const shanghai = new Intl.DateTimeFormat('sv-SE', {timeZone:'Asia/Shanghai', dateStyle:'short', timeStyle:'short'});
+  const dateTime = value => value ? shanghai.format(new Date(value)) : '';
+  let activeQueue = 'new';
+  let selected = '';
+  let keyword = '';
+  let outboundToolbar;
+  let demoOpen = false;
+  let assistantCollapsed = false;
+  let assistantTab = 'details';
+  let assistantKeyword = '';
+  let loading = false;
+  let error = '';
+  let success = '';
+
+  const ownedRows = () => (local ? rows : data.demoRows(account)).filter(row => row.owner === account);
+  const pendingRows = () => ownedRows().filter(data.pendingFollowup);
+  const matchingRows = () => pendingRows().filter(row => [row.task, row.original, row.name, data.phone(row)]
+    .some(value => String(value || '').toLowerCase().includes(keyword.toLowerCase())));
+  const privacyLabel = row => data.privacyLabels[data.privacyStatus(row)] || '待取号';
+  const canDial = row => data.privacyStatus(row) === 'available';
+
+  function queueFor(row) {
+    const plannedDay = dateTime(row.manualFollowup?.nextVisitAt).slice(0, 10);
+    const today = dateTime(Date.now()).slice(0, 10);
+    if (plannedDay) {
+      if (plannedDay < today) return 'overdue';
+      if (plannedDay > today) return 'future';
+      return 'today';
+    }
+    return row.manualFollowup || row.followupVerification ? 'today' : 'new';
+  }
+
+  function renderQueues(pending) {
+    return `<div class="nt-queue-group nt-group-normal" aria-label="掩码任务队列">
+      ${Object.entries(queues).map(([key,label]) => `<div class="nt-queue-block"><button type="button"
+        data-nt-masked-queue="${key}" class="nt-queue-header ${activeQueue === key ? 'active' : ''}"
+        aria-pressed="${activeQueue === key}"><span class="nt-queue-name">${label}</span>
+        <span class="nt-queue-count">${pending.filter(row => queueFor(row) === key).length}</span></button></div>`).join('')}
+    </div>`;
+  }
+
+  function renderFollowupForm(row) {
+    const verification = row.followupVerification;
+    const visit = row.manualFollowup;
+    const locked = verification && verification.status !== 'failed';
+    const options = values => Object.entries(values).map(([key, label]) =>
+      `<option value="${key}">${label}</option>`).join('');
+    return `<section class="nt-section nt-visit-form-section nt-masked-visit" aria-label="回访提交">
+      <div class="nt-section-header static"><span class="nt-section-title">回访提交</span>
+        <span class="nt-masked-result">${verificationLabel(verification)}</span></div>
+      <div class="nt-section-body">
+        ${visit ? `<p class="nt-visit-saved" role="status">最近保存 · ${safe(savedResultLabel(visit.result))} ·
+          ${safe(dateTime(visit.visitedAt))}${visit.nextVisitAt ? ` · 下次回访 ${safe(dateTime(visit.nextVisitAt))}` : ''}</p>` : ''}
+        ${verification?.maskedPhone ? `<p class="nt-masked-meta">已提交号码 ${known(verification.maskedPhone)}</p>` : ''}
+        ${visit?.note ? `<p class="nt-masked-visit-note">${safe(visit.note)}</p>` : ''}
+        ${locked ? '' : `<form class="nt-masked-submit">
+          <div class="nt-form-grid">
+            <div class="nt-form-item"><label for="ntMaskedContact">接触状态</label>
+              <select id="ntMaskedContact" name="contactStatus" class="nt-form-ctl nt-input" required>
+                <option value="">请选择接触状态</option>${options(contacts)}</select></div>
+            <div class="nt-form-item"><label for="ntMaskedResult">回访结果</label>
+              <select id="ntMaskedResult" name="result" class="nt-form-ctl nt-input" required>
+                <option value="">请选择回访结果</option>${options(results)}</select></div>
+            <div class="nt-form-item nt-form-item-plain"><label>上次回访时间</label>
+              <div class="nt-form-ctl nt-plain">${known(dateTime(visit?.visitedAt))}</div></div>
+            <div class="nt-form-item" data-masked-field="nextVisitAt" hidden>
+              <label for="ntMaskedNextVisit">下次回访时间</label>
+              <input type="datetime-local" class="nt-form-ctl nt-input" id="ntMaskedNextVisit" name="nextVisitAt"></div>
+            <div class="nt-form-item" data-masked-field="phone" hidden>
+              <label for="ntMaskedCustomerPhone">客户提供的手机号</label>
+              <input class="nt-form-ctl nt-input" id="ntMaskedCustomerPhone" name="phone" type="tel" inputmode="numeric"
+                autocomplete="off" pattern="${mobilePattern}" aria-describedby="ntMaskedMobileError"
+                placeholder="输入 11 位手机号">
+              <p id="ntMaskedMobileError" class="nt-masked-field-error" aria-live="polite" hidden></p></div>
+            <div class="nt-form-item nt-form-item-wide"><label for="ntMaskedVisitNote">回访描述</label>
+              <textarea id="ntMaskedVisitNote" class="nt-form-ctl nt-textarea" name="note" rows="3" maxlength="500"
+                placeholder="填写本次沟通内容和约定事项"></textarea></div>
+          </div>
+          <p class="nt-masked-feedback" role="status" data-nt-masked-submit-status></p>
+          <div class="nt-form-actions"><button class="nt-btn nt-btn-primary" type="submit">回访提交</button></div>
+        </form>`}
+      </div>
+    </section>`;
+  }
+
+  function verificationLabel(verification) {
+    if (!verification) return '待提交';
+    if (verification.status === 'passed') {
+      if (verification.callbackStatus === 'accepted') return '合格结果已回传';
+      if (verification.callbackStatus === 'pending_confirmation') return '合格回传待核对';
+      if (verification.callbackStatus === 'rejected' || verification.callbackStatus === 'not_received') return '合格回传未成功';
+      return '合格结果待回传';
+    }
+    return {pending:'核验中', timed_out:'核验超时待确认', failed:'核验未通过'}[verification.status] || '待核验';
+  }
+
+  function card(row) {
+    return `<button type="button" class="nt-task-card ${row.id === selected ? 'active' : ''}"
+      data-nt-masked-task="${safe(row.id)}" aria-pressed="${row.id === selected}">
+      <span class="nt-task-card-top"><span class="nt-task-name" title="${known(row.name || row.original || row.task)}">${known(row.name || row.original || row.task)}</span>
+        <span class="sd-tag sd-tag-${data.privacyTones[data.privacyStatus(row)] || 'info'}">${privacyLabel(row)}</span></span>
+      <span class="nt-task-card-bottom"><span class="nt-task-phone">${[data.phone(row), row.intentSeriesName || row.series].filter(Boolean).map(safe).join(' · ')}</span></span>
+      ${row.manualFollowup?.nextVisitAt ? `<span class="nt-masked-card-time">${safe(dateTime(row.manualFollowup.nextVisitAt))}</span>` : ''}</button>`;
+  }
+
+  function detail(row) {
+    return `<section class="nt-masked-detail">
+      <header><h3>${known(row.name || row.original || row.task)}</h3><span>人工跟进 · ${safe(account)}</span></header>
+      <div class="nt-masked-follow-main">
+      <section class="nt-masked-section" aria-label="隐私号外呼">
+        <div class="nt-masked-section-head"><h4>隐私号外呼</h4>
+          <span class="sd-tag sd-tag-${data.privacyTones[data.privacyStatus(row)] || 'info'}">${privacyLabel(row)}</span></div>
+        <dl class="nt-masked-fields"><div><dt>隐私号</dt><dd>${known(row.privacy?.number)}</dd></div>
+        <div><dt>失效截止时间</dt><dd>${known(row.privacy?.expiresAt)}</dd></div></dl>
+        ${row.privacy?.reason ? `<p class="nt-masked-feedback">${safe(row.privacy.reason)}</p>` : ''}
+      </section>
+      ${renderFollowupForm(row)}
+      </div>
+    </section>`;
+  }
+
+  function renderAssistant(row) {
+    const records = row?.manualFollowupHistory || (row?.manualFollowup ? [row.manualFollowup] : []);
+    const groups = row ? [
+      ['基础信息', [['客户姓名', row.name], ['原始掩码号', data.phone(row)], ['隐私号状态', privacyLabel(row)]]],
+      ['来源与意向信息', [['线索来源', row.entry], ['渠道编码', row.channel], ['SmartCode', data.smartcode(row)],
+        ['意向车系', row.intentSeriesName || row.series], ['原意向门店 ID', row.intentionStore], ['送池门店 ID', row.store]]],
+      ['业务标识信息', [['任务编码', row.task], ['原线索 ID', row.original]]]
+    ] : [];
+    const filtered = groups.map(([title, fields]) => [title, fields.filter(([label, value]) =>
+      !assistantKeyword || [label, value].some(item => String(item || '').toLowerCase().includes(assistantKeyword.toLowerCase())))])
+      .filter(([, fields]) => fields.length);
+    let body = '<p class="nt-masked-assistant-empty">请选择一条掩码任务。</p>';
+    if (row && assistantTab === 'details') {
+      body = filtered.map(([title, fields], index) => `<details class="nt-masked-lead-group" ${assistantKeyword || index === 0 || index === 1 ? 'open' : ''}>
+          <summary><strong>${title}</strong><span>${fields.length} 项</span></summary>
+          <dl>${fields.map(([label,value]) => `<div><dt>${label}</dt><dd>${known(value)}</dd></div>`).join('')}</dl>
+        </details>`).join('') || '<p class="nt-masked-assistant-empty">未找到符合条件的线索字段。</p>';
+    }
+    if (row && assistantTab === 'records') {
+      body = records.map(record => `<article class="nt-masked-lead-group nt-masked-visit-record">
+        <strong>${known(savedResultLabel(record.result))}</strong>
+        <div>${known(contacts[record.contactStatus] || (record.contactStatus === 'not_called' ? '未外呼' : ''))} · ${known(dateTime(record.visitedAt))}</div>
+        ${record.nextVisitAt ? `<div>下次回访 ${safe(dateTime(record.nextVisitAt))}</div>` : ''}
+        ${record.note ? `<p>${safe(record.note)}</p>` : ''}
+      </article>`).join('') || '<p class="nt-masked-assistant-empty">暂无回访记录。</p>';
+    }
+    const tabs = [['details','线索详情'], ['records','回访记录']];
+    return `<aside class="nt-right-panel nt-masked-assistant" aria-label="客户辅助信息">
+      <div class="nt-assistant-header"><h3>客户辅助信息</h3>
+        <button type="button" class="nt-assistant-close" aria-label="关闭客户辅助信息" data-masked-assistant-close>×</button></div>
+      <form class="nt-search-ai nt-masked-assistant-search">
+        <input class="nt-search-ai-input" name="query" aria-label="搜索线索字段" placeholder="搜索线索字段" value="${safe(assistantKeyword)}">
+        <button class="nt-search-ai-btn" type="submit">搜 索</button></form>
+      <div class="nt-right-tabs" role="tablist" aria-label="客户辅助信息">
+        ${tabs.map(([key,label]) => `<button type="button" class="nt-rt-tab ${assistantTab === key ? 'active' : ''}"
+          data-masked-assistant-tab="${key}" role="tab" aria-selected="${assistantTab === key}">
+          ${label}${key === 'records' ? `<span class="nt-rt-count">${records.length}</span>` : ''}</button>`).join('')}
+      </div>
+      <div class="nt-right-body">${body}</div>
+    </aside>`;
+  }
+
+  function renderDemoSettings() {
+    return `<details class="nt-visit-demo nt-masked-demo" ${demoOpen ? 'open' : ''}>
+      <summary>原型演示设置</summary>
+      <p>切换坐席，查看该坐席的抖音掩码待办。</p>
+      <form class="nt-visit-demo-row">
+        <label>演示坐席
+          <select name="seat" ${loading ? 'disabled' : ''}>${Object.entries(data.agents).map(([key, name]) =>
+            `<option value="${key}" ${key === account ? 'selected' : ''}>${safe(name)}（${key}）</option>`).join('')}</select>
+        </label>
+        <div class="nt-visit-demo-actions"><button type="submit" class="nt-btn nt-btn-default" ${loading ? 'disabled' : ''}>应用演示设置</button></div>
+      </form>
+    </details>`;
+  }
+
+  function render(page, tabs, switchScope, focus) {
+    const demoFocus = focus === '.nt-masked-demo summary';
+    const centerScroll = demoFocus ? page.querySelector('.nt-masked-center')?.scrollTop : 0;
+    const pending = pendingRows();
+    const matches = matchingRows();
+    if (loading === false && !matches.some(row => queueFor(row) === activeQueue) && focus === '[name="keyword"]' && keyword && matches.length) {
+      activeQueue = queueFor(matches[0]);
+    }
+    const visible = matches.filter(row => queueFor(row) === activeQueue);
+    const current = visible.find(row => row.id === selected) || visible[0];
+    selected = current?.id || '';
+    const dialPhone = () => current && canDial(current) ? current.privacy?.number || null : null;
+    page.innerHTML = `<div class="nt-page-shell">
+      ${outboundToolbar.render({masked: true, assistantCollapsed, dialPhone: dialPhone()})}
+      <div class="nt-workspace nt-masked-workspace ${assistantCollapsed ? 'assistant-collapsed' : ''}" role="region" aria-label="抖音掩码人工外呼">
+        <aside class="nt-left-panel">
+          <div class="nt-panel-head"><span class="nt-panel-title">外呼列表</span>${tabs()}
+            <form class="nt-search-box nt-masked-search" aria-label="搜索掩码任务">
+              <input class="nt-search-input" name="keyword" value="${safe(keyword)}" aria-label="任务编码、线索 ID 或号码尾号"
+                placeholder="任务编码、线索 ID 或号码尾号">
+              <button class="nt-search-icon-btn" aria-label="查询" type="submit">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              </button>
+            </form></div>
+          <div class="nt-queue-list">
+            <div class="nt-masked-counts"><span>待跟进 <b>${pending.length}</b></span>
+              <span>已完成 <b>${ownedRows().filter(row => row.followupComplete).length}</b></span></div>
+            <p class="nt-masked-list-status" role="status">${safe(error || success || (loading ? '正在读取掩码待办…' : ''))}</p>
+            ${renderQueues(pending)}
+            <div class="nt-queue-items nt-active-queue-items">${visible.length ? visible.map(card).join('') :
+              `<div class="nt-queue-empty">${loading || error ? '' : keyword ? '暂无符合查询条件的掩码任务' : '暂无待跟进的掩码任务'}</div>`}</div>
+          </div>
+        </aside>
+        <main class="nt-center-panel nt-masked-center">
+          ${current ? detail(current) : '<div class="nt-queue-empty">待跟进任务的留资线索与跟进结果将在这里显示</div>'}
+          <div class="nt-masked-demo-footer">${renderDemoSettings()}</div>
+        </main>
+        <div class="nt-masked-assistant-slot" ${assistantCollapsed ? 'hidden' : ''}>${renderAssistant(current)}</div>
+      </div>
+      ${outboundToolbar.dialogs(dialPhone())}
+    </div>`;
+    const updateAssistant = () => {
+      const slot = page.querySelector('.nt-masked-assistant-slot');
+      slot.hidden = assistantCollapsed;
+      slot.innerHTML = renderAssistant(current);
+      slot.closest('.nt-workspace').classList.toggle('assistant-collapsed', assistantCollapsed);
+      page.querySelector('[data-nt-top-menu-action="toggle-assistant"]').textContent =
+        assistantCollapsed ? '展开辅助信息' : '收起辅助信息';
+    };
+    const redrawToolbar = () => {
+      const options = {masked: true, assistantCollapsed, dialPhone: dialPhone()};
+      const template = document.createElement('template');
+      template.innerHTML = outboundToolbar.render(options);
+      page.querySelector('.nt-outbound-wrap').replaceWith(template.content.querySelector('.nt-outbound-wrap'));
+      page.querySelector('.nt-outbound-modal-mask')?.remove();
+      page.querySelector('.nt-page-shell').insertAdjacentHTML('beforeend', outboundToolbar.dialogs(dialPhone()));
+      page.querySelector('.nt-outbound-modal-mask button')?.focus();
+    };
+    page.onclick = event => {
+      const outboundAction = event.target.closest('[data-nt-outbound-action], [data-nt-top-action]');
+      if (outboundAction) {
+        outboundToolbar.handle(page, outboundAction.dataset.ntOutboundAction || outboundAction.dataset.ntTopAction,
+          redrawToolbar, dialPhone());
+        return;
+      }
+      const toggle = event.target.closest('[data-nt-top-menu-action], [data-masked-assistant-close]');
+      if (toggle) {
+        const showRecords = toggle.dataset.ntTopMenuAction === 'open-records';
+        if (showRecords) assistantTab = 'records';
+        assistantCollapsed = showRecords ? false : toggle.hasAttribute('data-masked-assistant-close') || !assistantCollapsed;
+        updateAssistant();
+        const focusTarget = assistantCollapsed ? '[data-nt-top-menu-action="toggle-assistant"]' : '[data-masked-assistant-tab][aria-selected="true"]';
+        page.querySelector(focusTarget)?.focus();
+        return;
+      }
+      const tab = event.target.closest('[data-masked-assistant-tab]');
+      if (tab) {
+        assistantTab = tab.dataset.maskedAssistantTab;
+        assistantKeyword = '';
+        updateAssistant();
+        page.querySelector('[data-masked-assistant-tab][aria-selected="true"]')?.focus();
+        return;
+      }
+      const scope = event.target.closest('[data-task-scope]');
+      if (scope && scope.dataset.taskScope !== 'masked') {
+        switchScope(scope.dataset.taskScope);
+        return;
+      }
+      const queue = event.target.closest('[data-nt-masked-queue]');
+      if (queue) {
+        activeQueue = queue.dataset.ntMaskedQueue;
+        assistantKeyword = '';
+        selected = '';
+        render(page, tabs, switchScope, '[data-nt-masked-queue][aria-pressed="true"]');
+        return;
+      }
+      const task = event.target.closest('[data-nt-masked-task]');
+      if (task) {
+        selected = task.dataset.ntMaskedTask;
+        assistantKeyword = '';
+        render(page, tabs, switchScope, '[aria-pressed="true"][data-nt-masked-task]');
+        return;
+      }
+    };
+    page.onkeydown = event => {
+      if (event.key !== 'Escape') return;
+      const control = page.querySelector('.nt-outbound-modal-mask [data-nt-outbound-action]');
+      if (control) outboundToolbar.handle(page, control.dataset.ntOutboundAction, redrawToolbar, dialPhone());
+    };
+    page.onsubmit = event => {
+      if (!event.target.matches('.nt-masked-assistant-search')) return;
+      event.preventDefault();
+      assistantKeyword = event.target.elements.query.value.trim();
+      assistantTab = 'details';
+      updateAssistant();
+      page.querySelector('.nt-masked-assistant-search input')?.focus();
+    };
+    page.querySelector('.nt-masked-search').onsubmit = event => {
+      event.preventDefault();
+      keyword = event.currentTarget.elements.keyword.value.trim();
+      success = '';
+      if (local) load(page, tabs, switchScope, '[name="keyword"]');
+      else render(page, tabs, switchScope, '[name="keyword"]');
+    };
+    const demo = page.querySelector('.nt-masked-demo');
+    demo.addEventListener('toggle', () => { if (demo.isConnected) demoOpen = demo.open; });
+    demo.querySelector('form').onsubmit = event => {
+      event.preventDefault();
+      const nextAccount = event.currentTarget.elements.seat.value;
+      if (loading || !Object.hasOwn(data.agents, nextAccount) || nextAccount === account) return;
+      demoOpen = true;
+      account = nextAccount;
+      selected = keyword = error = assistantKeyword = '';
+      success = '已切换至 ' + data.agents[account] + '（' + account + '）。';
+      activeQueue = 'new';
+      token = undefined;
+      rows = [];
+      loaded = false;
+      if (local) load(page, tabs, switchScope, '.nt-masked-demo summary');
+      else render(page, tabs, switchScope, '.nt-masked-demo summary');
+    };
+    const form = page.querySelector('.nt-masked-submit');
+    if (form) {
+      const {contactStatus, result, phone, nextVisitAt} = form.elements;
+      const phoneError = form.querySelector('#ntMaskedMobileError');
+      const validatePhone = (showIncomplete = false) => {
+        const value = phone.value;
+        const invalid = !phone.disabled && (value ? !mobileNumber.test(value) : showIncomplete);
+        const incomplete = /^1(?:[3-9][0-9]*)?$/.test(value) && value.length < 11;
+        const show = invalid && (showIncomplete || !incomplete);
+        phone.setCustomValidity(invalid ? mobileError : '');
+        if (show) phone.setAttribute('aria-invalid', 'true');
+        else phone.removeAttribute('aria-invalid');
+        phoneError.hidden = !show;
+        phoneError.textContent = show ? mobileError : '';
+      };
+      phone.addEventListener('input', () => validatePhone());
+      phone.addEventListener('blur', () => validatePhone(Boolean(phone.value)));
+      phone.addEventListener('invalid', () => validatePhone(true));
+      const sync = () => {
+        const candidate = result.querySelector('[value="candidate"]');
+        candidate.disabled = !canDial(current) || contactStatus.value !== 'connected';
+        if (candidate.disabled && result.value === 'candidate') result.value = '';
+        Object.entries({phone, nextVisitAt}).forEach(([key, input]) => {
+          const visible = result.value === (key === 'phone' ? 'candidate' : 'callback');
+          input.closest('[data-masked-field]').hidden = !visible;
+          input.disabled = !visible;
+          input.required = visible;
+        });
+        validatePhone();
+        form.querySelector('[type=submit]').textContent = result.value === 'candidate' ? '提交核验' : '回访提交';
+      };
+      form.onchange = sync;
+      form.oninput = () => { delete form.dataset.submissionId; };
+      form.onsubmit = event => {
+        event.preventDefault();
+        submit(page, tabs, switchScope, form, current);
+      };
+      sync();
+    }
+    if (demoFocus) page.querySelector('.nt-masked-center').scrollTop = centerScroll || 0;
+    if (focus) page.querySelector(focus)?.focus({preventScroll: !demoFocus});
+    watchVerification(page, tabs, switchScope, current);
+  }
+
+  function watchVerification(page, tabs, switchScope, current) {
+    clearTimeout(verificationTimer);
+    const verification = current?.followupVerification;
+    if (!local || loading || !token || !verification || verification.status === 'failed') return;
+    const panel = page.querySelector('.nt-masked-workspace');
+    const status = verificationLabel(verification);
+    const version = requestVersion;
+    verificationTimer = setTimeout(async () => {
+      if (!panel.isConnected || version !== requestVersion) return;
+      try {
+        const result = await data.request('tasks', undefined, token);
+        if (!panel.isConnected || version !== requestVersion) return;
+        rows = result.items.map(data.read);
+        const updated = rows.find(row => row.id === current.id);
+        if (updated?.followupComplete) success = '合格结果已回传，任务已计入已完成。';
+        if (!updated || updated.followupComplete || verificationLabel(updated.followupVerification) !== status) {
+          render(page, tabs, switchScope);
+          return;
+        }
+      } catch {
+        // Keep the last result and check again while this task is open.
+      }
+      if (panel.isConnected && version === requestVersion) watchVerification(page, tabs, switchScope, current);
+    }, 2500);
+  }
+
+  async function load(page, tabs, switchScope, focus) {
+    const version = ++requestVersion;
+    const seat = account;
+    loading = true;
+    error = '';
+    render(page, tabs, switchScope, focus);
+    try {
+      const session = token || (await data.request('session', {account: seat})).token;
+      const result = await data.request('tasks', undefined, session);
+      if (version !== requestVersion) return;
+      token = session;
+      rows = result.items.map(data.read);
+      loaded = true;
+    } catch {
+      if (version !== requestVersion) return;
+      error = '暂时无法读取掩码任务，请重新查询。';
+    }
+    if (version !== requestVersion) return;
+    loading = false;
+    if (page.querySelector('.nt-masked-workspace')) render(page, tabs, switchScope, focus);
+  }
+
+  async function submit(page, tabs, switchScope, form, row) {
+    const button = form.querySelector('button');
+    const feedback = form.querySelector('[data-nt-masked-submit-status]');
+    if (button.disabled) return;
+    const {phone, ...visit} = Object.fromEntries(new FormData(form));
+    visit.nextVisitAt ||= '';
+    const submittingNumber = visit.result === 'candidate';
+    if (submittingNumber && !mobileNumber.test(phone || '')) { feedback.textContent = mobileError; return; }
+    if (submittingNumber && !canDial(row)) { feedback.textContent = '隐私号当前不可拨。'; return; }
+    if (!local && visit.result === 'callback' && visit.nextVisitAt <= dateTime(Date.now()).replace(' ', 'T')) {
+      feedback.textContent = '下次回访时间须晚于当前时间。';
+      return;
+    }
+    if (!local && /(?<!\d)1\d{10}(?!\d)/.test(visit.note)) {
+      feedback.textContent = '请仅在手机号字段提交完整手机号。';
+      return;
+    }
+    const prefix = 'tasks/' + encodeURIComponent(row.id) + '/';
+    const previousRecords = row.manualFollowupHistory || (row.manualFollowup ? [row.manualFollowup] : []);
+    button.disabled = true;
+    const grid = form.querySelector('.nt-form-grid');
+    grid.inert = true;
+    try {
+      let message = '已保存本次回访。';
+      if (submittingNumber) {
+        if (local) {
+          form.dataset.submissionId ||= crypto.randomUUID();
+          row.followupVerification = await data.request(prefix + 'candidates',
+            {submissionId: form.dataset.submissionId, phone, visitNote: visit.note}, token);
+          message = '已提交号码核验，回传成功后计入已完成。';
+        } else {
+          row.followupVerification = {maskedPhone: phone.slice(0,3) + '****' + phone.slice(-4),
+            status: 'passed', callbackStatus: 'accepted'};
+          row.followupComplete = true;
+          message = '演示回传成功，任务已计入已完成。';
+        }
+        row.manualFollowup = {...visit, visitedAt: new Date().toISOString()};
+      } else {
+        row.manualFollowup = local ? await data.request(prefix + 'followup', visit, token) : {
+          ...visit, nextVisitAt: visit.nextVisitAt ? visit.nextVisitAt + '+08:00' : null, visitedAt: new Date().toISOString()
+        };
+        if (visit.result === 'callback') message = '已安排下次回访。';
+        if (visit.result === 'dispatch_store') message = '已记录「下发门店」回访结果。';
+      }
+      row.manualFollowupHistory = [row.manualFollowup, ...previousRecords].slice(0, 30);
+      if (form.isConnected) {
+        success = message;
+        activeQueue = queueFor(row);
+        render(page, tabs, switchScope, '[data-nt-masked-queue][aria-pressed="true"]');
+      }
+    } catch (err) {
+      feedback.textContent = err.message || '提交失败，请重试。';
+      button.disabled = false;
+      grid.inert = false;
+    }
+  }
+
+  window.maskedSeatWorkbench = {
+    count: () => local && !loaded ? null : pendingRows().length,
+    show: (page, tabs, switchScope, toolbar) => {
+      outboundToolbar = toolbar;
+      if (local) return load(page, tabs, switchScope, '[data-task-scope="masked"]');
+      return render(page, tabs, switchScope, '[data-task-scope="masked"]');
+    }
+  };
+})();

@@ -2349,10 +2349,12 @@ flowchart TD
   </pre>
 </div>
 
-<div class="chart-card" data-page="aiwh" data-op="aiwh-14">
+<div id="interaction-aiwh-14" class="chart-card" data-page="aiwh" data-op="aiwh-14">
   <h2><span class="card-index">14</span>短信下发-新增<span class="page-badge">AI外呼配置</span></h2>
+  <p>「标签最新意向车系」为选填多选，选项取车系字典的启用名称。匹配值取本次参与短信判定的话单标签返回的单个车系名称。配置未选车系（包括历史配置无此字段）时不限制；已选时名称属于所选集合才满足，空值、缺失或不匹配时该规则不命中。车系条件与现有外呼类型、通话状态、包含及不包含标签条件组合判断，各条件同时满足；包含标签继续必填，内部且／或逻辑沿用配置。单条规则不命中时继续判断其他启用规则，全部未命中才不发送。多个规则命中时权重数字小者优先，同权重取创建时间倒序。</p>
+  <div class="release-doc-links"><a href="DccLead_业务流程.html#FLOW-012-flow" target="_blank" rel="noopener">短信下发业务流程（含车系组合判断） ↗</a> <a href="DccLead_功能说明.html#sms-intent-series-rules" target="_blank" rel="noopener">车系条件规则 ↗</a> <a href="DccLead_版本日志.html#v32-release-R4" target="_blank" rel="noopener">V32-R4版本记录 ↗</a></div>
   <div class="param-box">
-    <strong>接口入参（根据表单字段推导）：</strong>配置名称(configName), 权重(priority), 外呼类型(callTypes, 多选), 通话状态(statuses, 多选), 通话状态判断条件(statusLogic, 且/或), 包含标签(tags, 多选), 标签判断条件(tagLogic, 且/或), 不包含标签(excludeTags, 多选), 排除判断条件(excludeTagLogic, 且/或), 短信模板(template), 启用状态(enabled)【待确认：接口地址】<br>
+    <strong>接口入参（根据表单字段推导）：</strong>配置名称(configName), 权重(priority), 外呼类型(callTypes, 多选), 通话状态(statuses, 多选), 通话状态判断条件(statusLogic, 且/或), 包含标签(tags, 多选), 标签判断条件(tagLogic, 且/或), 不包含标签(excludeTags, 多选), 排除判断条件(excludeTagLogic, 且/或), 标签最新意向车系(intentSeriesNames, 选填多选名称数组), 短信模板(template), 启用状态(enabled)【待确认：接口地址】<br>
     <strong>接口出参（根据表单字段推导）：</strong>配置ID(id), 创建结果(success), 错误信息(errorMsg)
   </div>
   <pre class="mermaid">
@@ -2360,7 +2362,7 @@ flowchart TD
   A1["点击新增配置按钮"] --> A2["打开新增弹窗(3个Section)"]
   A2 --> A3["填写基础信息: 名称/权重/状态"]
   A3 --> A4["配置命中条件: 外呼类型(多选) + 通话状态(多选)+判断条件"]
-  A4 --> A5["配置命中条件: 包含标签(多选)+判断条件 + 不包含标签+排除判断条件"]
+  A4 --> A5["配置命中条件: 标签最新意向车系(选填多选) + 包含标签(必填)+判断条件 + 不包含标签+排除判断条件"]
   A5 --> A6["配置执行动作: 选择短信模板"]
   A6 --> D1{"校验必填项是否完整?"}
   D1 -->|否| A7["Toast提示缺少必填字段"]
@@ -2375,10 +2377,12 @@ flowchart TD
   </pre>
 </div>
 
-<div class="chart-card" data-page="aiwh" data-op="aiwh-15">
+<div id="interaction-aiwh-15" class="chart-card" data-page="aiwh" data-op="aiwh-15">
   <h2><span class="card-index">15</span>短信下发-编辑<span class="page-badge">AI外呼配置</span></h2>
+  <p>「标签最新意向车系」为选填多选，选项取车系字典的启用名称。匹配值取本次参与短信判定的话单标签返回的单个车系名称。配置未选车系（包括历史配置无此字段）时不限制；已选时名称属于所选集合才满足，空值、缺失或不匹配时该规则不命中。车系条件与现有外呼类型、通话状态、包含及不包含标签条件组合判断，各条件同时满足；包含标签继续必填，内部且／或逻辑沿用配置。单条规则不命中时继续判断其他启用规则，全部未命中才不发送。多个规则命中时权重数字小者优先，同权重取创建时间倒序。</p>
+  <div class="release-doc-links"><a href="DccLead_业务流程.html#FLOW-012-flow" target="_blank" rel="noopener">短信下发业务流程（含车系组合判断） ↗</a> <a href="DccLead_功能说明.html#sms-intent-series-rules" target="_blank" rel="noopener">车系条件规则 ↗</a> <a href="DccLead_版本日志.html#v32-release-R4" target="_blank" rel="noopener">V32-R4版本记录 ↗</a></div>
   <div class="param-box">
-    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id), 配置名称(configName), 权重(priority), 外呼类型(callTypes), 通话状态(statuses), 通话状态判断条件(statusLogic), 包含标签(tags), 标签判断条件(tagLogic), 不包含标签(excludeTags), 排除判断条件(excludeTagLogic), 短信模板(template), 启用状态(enabled)【待确认：接口地址】<br>
+    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id), 配置名称(configName), 权重(priority), 外呼类型(callTypes), 通话状态(statuses), 通话状态判断条件(statusLogic), 包含标签(tags), 标签判断条件(tagLogic), 不包含标签(excludeTags), 排除判断条件(excludeTagLogic), 标签最新意向车系(intentSeriesNames, 选填多选名称数组), 短信模板(template), 启用状态(enabled)【待确认：接口地址】<br>
     <strong>接口出参（根据表单字段推导）：</strong>更新结果(success), 错误信息(errorMsg)
   </div>
   <pre class="mermaid">
@@ -2403,11 +2407,13 @@ flowchart TD
   </pre>
 </div>
 
-<div class="chart-card" data-page="aiwh" data-op="sms-dispatch-view">
+<div id="interaction-sms-dispatch-view" class="chart-card" data-page="aiwh" data-op="sms-dispatch-view">
   <h2><span class="card-index">32</span>短信下发-查看<span class="page-badge">AI外呼配置</span></h2>
+  <p>「标签最新意向车系」为选填多选，选项取车系字典的启用名称。匹配值取本次参与短信判定的话单标签返回的单个车系名称。配置未选车系（包括历史配置无此字段）时不限制；已选时名称属于所选集合才满足，空值、缺失或不匹配时该规则不命中。车系条件与现有外呼类型、通话状态、包含及不包含标签条件组合判断，各条件同时满足；包含标签继续必填，内部且／或逻辑沿用配置。单条规则不命中时继续判断其他启用规则，全部未命中才不发送。多个规则命中时权重数字小者优先，同权重取创建时间倒序。</p>
+  <div class="release-doc-links"><a href="DccLead_业务流程.html#FLOW-012-flow" target="_blank" rel="noopener">短信下发业务流程（含车系组合判断） ↗</a> <a href="DccLead_功能说明.html#sms-intent-series-rules" target="_blank" rel="noopener">车系条件规则 ↗</a> <a href="DccLead_版本日志.html#v32-release-R4" target="_blank" rel="noopener">V32-R4版本记录 ↗</a></div>
   <div class="param-box">
     <strong>接口入参（根据表单字段推导）：</strong>配置ID(id)【待确认：查看短信下发配置详情接口地址】<br>
-    <strong>接口出参（根据表单字段推导）：</strong>配置ID(id), 配置名称(configName), 权重(priority), 外呼类型(callTypes), 通话状态(statuses), 通话状态判断条件(statusLogic), 包含标签(tags), 标签判断条件(tagLogic), 不包含标签(excludeTags), 排除判断条件(excludeTagLogic), 短信模板(template), 状态(enabled)
+    <strong>接口出参（根据表单字段推导）：</strong>配置ID(id), 配置名称(configName), 权重(priority), 外呼类型(callTypes), 通话状态(statuses), 通话状态判断条件(statusLogic), 包含标签(tags), 标签判断条件(tagLogic), 不包含标签(excludeTags), 排除判断条件(excludeTagLogic), 标签最新意向车系(intentSeriesNames, 选填多选名称数组), 短信模板(template), 状态(enabled)
   </div>
   <pre class="mermaid">
 flowchart TD

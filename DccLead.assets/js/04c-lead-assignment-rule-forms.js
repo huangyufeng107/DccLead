@@ -236,7 +236,7 @@ const assignmentCityGroups = [
 const assignmentCityOptions = assignmentCityGroups.flatMap(group => group.cities);
 const assignmentProvinceOptions = ['广东省', '浙江省', '上海市', '四川省'];
 const projectNameOptions = ['新能源专项', '置换活动', 'DCC培育项目', '高意向培育', '保客激活', '金融置换专项'];
-const assignmentChannelCodeOptions = ['R1', 'R2', 'R3', 'R4', 'R5', '未知渠道'];
+const assignmentChannelCodeOptions = [...Array.from({ length: 11 }, (_, index) => `R${index + 1}`), '未知渠道'];
 const assignmentLeadStatusOptions = ['总部_高意向', '总部_休眠未购', '总部_休眠失联', '总部_战败', '总部_暂败', '总部_阶段性战败', '总部_无效', '总部_异地'];
 const assignmentLeadStatusReasonMap = {
   '总部_休眠未购': ['资金不足', '半年内不购车', '家人不同意', '征信不通过', '驾照没考到', '关注竞品车型', '其他'],
@@ -245,7 +245,7 @@ const assignmentLeadStatusReasonMap = {
   '总部_无效': ['明确空号', '错号', '停机']
 };
 const assignmentDealerOptions = ['广州白云日产', '深圳南山日产', '杭州东风日产滨江店', '上海东风日产浦东店', '成都东风日产高新店', '无意向门店'];
-const assignmentOutboundChannels = unifiedPolicyCallTypeOptions;
+const assignmentOutboundChannels = [...unifiedPolicyCallTypeOptions, '人工外呼', 'AI外呼'];
 const assignmentPushWeekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
 
 const precallCallStatusOptions = ['坐席未接', '坐席接听', '关机', '无人接听', '不在服务区', '忙音', '停机', '空号'];
@@ -357,6 +357,7 @@ function renderClampedCellText(value) {
 }
 
 function renderCompactConditionCell(rule, dimension) {
+  const scope = `<div class="rule-condition-line"><strong>适用线索：</strong>${assignmentLeadScopeLabel(rule)}</div>`;
   if (hasRelatedSeriesCondition(dimension)) {
     const config = getCompactAssignmentConfig(dimension);
     const selectedValues = getCompactAssignmentSelectedValues(rule, dimension);
@@ -371,6 +372,7 @@ function renderCompactConditionCell(rule, dimension) {
     ].join(' / ');
     return `
       <div class="rule-condition-cell" title="${escapeAttr(title)}">
+        ${scope}
         <div class="rule-condition-line"><strong>${config.valueLabel}：</strong>${escapeHtml(selectedValues.join('、') || '—')}</div>
         ${dimension.key === 'lead-status' ? `<div class="rule-condition-line"><strong>异常原因：</strong>${escapeHtml(leadStatusReasonValues.join('、') || '不限')}</div>` : ''}
         <div class="rule-condition-line"><strong>车系：</strong>${escapeHtml(seriesValues.join('、') || '不限')}</div>
@@ -381,6 +383,7 @@ function renderCompactConditionCell(rule, dimension) {
   if (dimension.key === 'series') {
     return `
       <div class="rule-condition-cell" title="${escapeAttr(rule.condition || '')}">
+        ${scope}
         <div class="rule-condition-line"><strong>车系：</strong>${escapeHtml(getCompactAssignmentSelectedValues(rule, dimension).join('、') || '—')}</div>
       </div>
     `;
@@ -589,6 +592,7 @@ function renderCompactAssignmentRuleDetail(rule, dimension) {
       <div class="rule-detail-section">
         <div class="rule-detail-title">匹配条件</div>
         <div class="rule-detail-body">
+          <div class="rule-detail-field"><div class="rule-detail-label">适用线索</div><div class="rule-detail-value">${assignmentLeadScopeLabel(rule)}</div></div>
           <div class="rule-detail-field"><div class="rule-detail-label">${config.valueLabel}</div><div class="rule-detail-value">${renderDetailValueTags(selectedValues)}</div></div>
           ${dimension.key === 'lead-status' ? `<div class="rule-detail-field"><div class="rule-detail-label">异常原因</div><div class="rule-detail-value">${leadStatusReasonValues.length ? renderDetailValueTags(leadStatusReasonValues) : '不限'}</div></div>` : ''}
           ${hasRelatedSeriesCondition(dimension) ? `<div class="rule-detail-field"><div class="rule-detail-label">意向车系</div><div class="rule-detail-value">${relatedSeriesValues.length ? renderDetailValueTags(relatedSeriesValues) : '不限'}</div></div>` : ''}
@@ -847,6 +851,11 @@ function renderCompactAssignmentRuleForm(rule, dimension) {
 
       <section class="series-form-section">
         <div class="series-section-title">匹配条件</div>
+        <div class="form-group">
+          <label class="form-label" for="assignmentLeadScope">适用线索 <span class="required">*</span></label>
+          <select class="form-input" id="assignmentLeadScope">${renderAssignmentScopeOptions(assignmentLeadScope(rule))}</select>
+          <div class="series-form-hint">所选线索类型须同时满足下方条件。</div>
+        </div>
         ${hasRelatedSeriesCondition(dimension) ? `
           <div class="form-group">
             <div class="form-label">意向车系</div>

@@ -220,3 +220,29 @@
 /* 更新信息独立列，宽表通过所在面板横向滚动，避免挤压分配动作。 */
 .lead-dimension-table-scroll { overflow-x: auto; }
 .assignment-rule-table.lead-dimension-rule-table { min-width: 1500px; }
+
+#leadAssignmentConfigPage > .page-hero {
+  flex-wrap: wrap;
+}
+
+#leadAssignmentConfigPage > .page-hero > :first-child {
+  flex: 1 1 390px;
+}
+
+#leadAssignmentConfigPage > .page-hero .summary-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+  flex: 0 1 590px;
+  width: 100%;
+  overflow: visible;
+}
+
+.lead-dimension-rule-table th:last-child,
+.lead-dimension-rule-table td.cell-right {
+  position: sticky;
+  right: 0;
+}
+
+.lead-dimension-rule-table td.cell-right {
+  background: #fff;
+}

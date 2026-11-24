@@ -2137,38 +2137,21 @@
 
     const masked = pageState.mainTab === 'masked_intake';
     const navigation = document.getElementById('maskedIntakeNavigation');
-    navigation.hidden = !masked || !page.classList.contains('show');
-    if (masked) {
-      navigation.innerHTML = MAIN_TABS.map(tab => `
-        <button type="button" class="strategy-nav-item ${tab.key === pageState.mainTab ? 'active' : ''}"
-                aria-pressed="${tab.key === pageState.mainTab}" onclick="window.__switchNurtureMainTab('${tab.key}')">
-          <span>${tab.label}</span>
-          ${tab.badge ? `<span class="sd-tab-badge">${tab.badge}</span>` : ''}
-        </button>
-      `).join('');
-    }
+    const restoreNavFocus = navigation.contains(document.activeElement);
+    navigation.hidden = !page.classList.contains('show');
+    navigation.innerHTML = MAIN_TABS.map(tab => `
+      <button type="button" class="strategy-nav-item ${tab.key === pageState.mainTab ? 'active' : ''}"
+              aria-pressed="${tab.key === pageState.mainTab}" onclick="window.__switchNurtureMainTab('${tab.key}')">
+        <span>${tab.label}</span>
+        ${tab.badge ? `<span class="sd-tab-badge">${tab.badge}</span>` : ''}
+      </button>
+    `).join('');
+    if (restoreNavFocus) navigation.querySelector('.active')?.focus({preventScroll: true});
 
     page.innerHTML = `
-      ${masked ? '' : `
-        <div class="sd-snurture-tabs-wrap">
-          <div class="sd-snurture-tabs">
-            ${MAIN_TABS.map(tab => tab.key === 'masked_intake' ? `
-              <button type="button" class="sd-snurture-tab masked-intake-menu"
-                      onclick="window.__switchNurtureMainTab('${tab.key}')">${tab.label}</button>
-            ` : `
-              <div class="sd-snurture-tab ${pageState.mainTab === tab.key ? 'active' : ''}"
-                   onclick="window.__switchNurtureMainTab('${tab.key}')">
-                <span>${tab.label}</span>
-                ${tab.badge ? `<span class="sd-tab-badge">${tab.badge}</span>` : ''}
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `}
-
       ${pageState.mainTab === 'my_task' ? `
         <div id="nurtureMyTaskWorkspace" style="flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden;"></div>
-      ` : pageState.mainTab === 'masked_intake' ? `
+      ` : masked ? `
         <div id="maskedIntakeWorkspace" class="masked-intake-workspace"></div>
       ` : `
         <div class="sd-snurture-content">

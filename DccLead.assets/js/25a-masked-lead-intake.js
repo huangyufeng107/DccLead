@@ -9,6 +9,7 @@
     pending: ['回执待核对', 'info']
   };
 
+  const monitoring = window.maskedMonitoring;
   const { headquarters, date: demoDate, phone: demoPhone, smartcode: demoSmartcode } = window.maskedLeadDemo;
   const phone = row => row.local ? row.maskedPhone : demoPhone(row);
   const smartcode = row => row.local ? row.smartcode : demoSmartcode(row);
@@ -33,12 +34,33 @@
       events.push([record.time, '返回接单结果', record.task]);
     }
     if (record.status === 'replayed') events.push(['09:12:20', '收到重复派送', '沿用原总部任务编号 ' + record.task]);
+    if (record.privacy) {
+      events.push([record.time, '自动申请隐私号', '按原推送 ID ' + record.original + ' 申请']);
+      if (record.privacy.status !== 'processing') {
+        events.push([record.time, '取号结果', privacyLabels[record.privacy.status]]);
+      }
+      events.sort(([timeA], [timeB]) => timeA.localeCompare(timeB));
+    }
     if (record.owner) events.push([record.assignedAt?.slice(11) || '09:07:20', '主管人工派单', displayOwner(record.owner)]);
     return events;
   };
 
   const scopes = { new: '新任务分配', old: '旧任务分配', overdue: '逾期任务分配', todo: '待跟进', stats: '任务统计', errors: '接单异常' };
   const receivedAt = row => row.local ? row.receivedAt : demoDate + ' ' + row.time;
+  const routingLabels = {
+    ai: 'AI跟进', manual: '人工待分配', unmatched: '未命中 · 待人工分配',
+    conflict: '规则冲突 · 待主管处理', review: '分配条件待核对'
+  };
+  const routingLabel = row => {
+    if (!row.task || row.status === 'pending') return '';
+    if (row.owner) return '人工跟进';
+    if (row.routing?.state === 'ai' && !row.followupComplete) {
+      const privacy = privacyStatus(row);
+      if (!privacy || privacy === 'processing') return 'AI跟进 · 等待取号';
+      if (privacy !== 'available') return 'AI跟进 · 暂不可拨';
+    }
+    return routingLabels[row.routing?.state] || '待人工分配';
+  };
   const taskColumns = [
     ['任务编码', row => row.task], ['线索编码', row => row.original],
     ['上次跟进坐席账号', row => row.previousAgent], ['上次跟进坐席名称', row => agents[row.previousAgent]],
@@ -55,32 +77,117 @@
     ['油电类型', row => row.power], ['车系 ID', row => row.series],
     ['原报文有效意向门店 ID', row => row.intentionStore], ['送池门店 ID', row => row.store], ['接单结果', row => statuses[row.status][0]]
   ];
+  const privacyLabels = {
+    processing: '取号中', available: '可拨', failed: '取号失败', timeout: '超时待核对',
+    not_received: '已确认未取号', expired: '已失效'
+  };
+  const privacyStatus = row => row.privacy?.status === 'available' && row.privacy.expiresAtRaw
+    && Date.parse(row.privacy.expiresAtRaw) <= Date.now() ? 'expired' : row.privacy?.status;
   const privacyColumns = [
     ['隐私号', row => row.privacy?.number], ['隐私号失效截止时间', row => row.privacy?.expiresAt],
-    ['隐私号状态', row => row.privacy?.status || '待取号']
+    ['隐私号状态', row => privacyLabels[privacyStatus(row)] || '待取号']
   ];
-  const columns = [...taskColumns, ...intakeColumns, ...privacyColumns];
+  const columns = [...taskColumns.slice(0, 2), ['跟进方式', routingLabel], ...taskColumns.slice(2), ...intakeColumns, ...privacyColumns];
   const byColumn = Object.fromEntries(columns);
-  const displayField = (row, label, value) => value || (label === '坐席账号' && row.task ? '未分配' : '—');
-  const filtersList = [
-    ['联系电话', phone, 'text'], ['意向车系'], ['线索来源'], ['渠道编码'],
-    ['初始意向级别'], ['留资时间', byColumn['留资时间'], 'date'], ['任务接收时间', receivedAt, 'date'],
-    ['坐席账号'], ['分配规则'], ['是否有上次坐席跟进', row => row.previousAgent ? '是' : '否'],
-    ['意向专营店'], ['油电类型'], ['入池关联标识', byColumn['入池关联标识'], 'text']
+  const displayField = (row, label, value) => value ||
+    (label === '坐席账号' && row.task && row.routing?.state !== 'ai' ? '未分配' : '—');
+  const quickFilters = [
+    ['客户姓名', byColumn['客户姓名'], 'text'], ['联系电话', phone, 'text'], ['意向车系']
   ];
+  const advancedFilters = [
+    ['线索来源'], ['渠道编码'], ['初始意向级别'], ['坐席账号'], ['跟进方式'],
+    ['分配规则'], ['是否有上次坐席跟进', row => row.previousAgent ? '是' : '否'],
+    ['留资时间', byColumn['留资时间'], 'date'],
+    ['意向专营店'], ['油电类型'], ['任务接收时间', receivedAt, 'date'],
+    ['入池关联标识', byColumn['入池关联标识'], 'text']
+  ];
+  const filtersList = [...quickFilters, ...advancedFilters];
+  const todoColumns = ['任务编码', '线索编码', '客户姓名', '联系电话', '意向车系', '坐席账号',
+    '隐私号状态', '隐私号失效截止时间'];
+  const privacyTones = { available: 'success', processing: 'info', timeout: 'warning', failed: 'danger', expired: 'danger' };
   const optionDefaults = { 坐席账号: Object.keys(agents), 初始意向级别: ['H', 'A', 'B', 'C'], 分配规则: ['人工分配'] };
+
+  function readIntake(snapshot) {
+    const {lead, taskId, dccTaskId, receiptStatus, receiptReason, events, owner, assignedAt, followupComplete, followupVerification, manualFollowup, manualFollowupHistory, firstFollowupAt, privacy, routing} = snapshot;
+    const accepted = receiptStatus === 'accepted';
+    const recovered = events.some(event => event.kind === 'acceptance_checked' && event.status === 'accepted');
+    const replayed = events.some(event => event.kind === 'duplicate_intake');
+    const status = accepted ? (recovered ? 'recovered' : replayed ? 'replayed' : 'accepted')
+      : receiptStatus === 'pending_confirmation' ? 'pending' : 'failed';
+    const titles = {
+      dispatch_sent: '收到临时池派单', dcc_task_created: '建单成功', acceptance_returned: '接单回执',
+      acceptance_checked: '核对接单结果', duplicate_intake: '收到重复推送',
+      privacy_requested: '自动申请隐私号', privacy_result: '取号结果', privacy_checked: '核对取号结果'
+    };
+    const log = events.map(event => [
+      localTime.format(new Date(event.at)), titles[event.kind],
+      event.receiverTaskId || event.reason || (event.kind === 'privacy_requested'
+        ? `第 ${event.attempt} 次请求 · 原推送 ID ${event.originalPushId}`
+        : event.kind === 'duplicate_intake' ? '沿用原接单记录' : taskId)
+    ]);
+    const firstDispatch = events.find(event => event.kind === 'dispatch_sent');
+    const privacyReady = events.find(event => ['privacy_result', 'privacy_checked'].includes(event.kind) &&
+      (event.status === 'available' || event.reason === '取得隐私号并绑定原总部 DCC 任务。'));
+    return {
+      id: taskId, local: true, task: dccTaskId, original: lead.originalPushId,
+      association: lead.associationId, dispatch: taskId, status, reason: receiptReason,
+      entry: lead.entry, channel: lead.rChannel, power: lead.powerType, series: lead.carSeriesId,
+      intentionStore: lead.originalIntentionStoreId, store: lead.storeId, maskedPhone: lead.maskedPhone,
+      owner, routing, assignedAt: assignedAt ? localTime.format(new Date(assignedAt)) : '', followupComplete, followupVerification, manualFollowup, manualFollowupHistory, firstFollowupAt,
+      privacy: privacy ? {...privacy, availableAt: privacyReady?.at, expiresAtRaw: privacy.expiresAt,
+        expiresAt: privacy.expiresAt ? localTime.format(new Date(privacy.expiresAt)) : ''} : null,
+      smartcode: lead.smartcode, receivedAt: firstDispatch ? localTime.format(new Date(firstDispatch.at)) : '—', events: log
+    };
+  }
+
+  async function requestMaskedWorkspace(action, body, token) {
+    const response = await fetch('/dcc/workspace/' + action, {
+      method: body ? 'POST' : 'GET',
+      headers: {...(token ? {Authorization: 'Bearer ' + token} : {}), ...(body ? {'Content-Type': 'application/json'} : {})},
+      body: body ? JSON.stringify(body) : undefined
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.message || '操作失败，请重新查询。');
+    return result;
+  }
+
+  const pendingFollowup = row => Boolean(row.task && row.owner && row.status !== 'pending'
+    && row.routing?.state !== 'ai' && !row.followupComplete);
+  window.dccMaskedWorklist = {
+    agents,
+    phone,
+    smartcode,
+    privacyStatus,
+    privacyLabels,
+    privacyTones,
+    pendingFollowup,
+    request: requestMaskedWorkspace,
+    read: readIntake,
+    demoRows: account => headquarters.filter(row => row.owner === account)
+  };
 
   window.renderMaskedLeadIntake = root => {
     const params = new URLSearchParams(location.search);
     const poolTask = params.get('poolTask');
     const localWorkspace = params.get('dccMode') === 'local' && !poolTask;
+    const routingRules = localWorkspace || poolTask ? [] : compileMaskedIntakeRules();
     const records = localWorkspace || poolTask ? [] : headquarters;
+    if (!localWorkspace && !poolTask) {
+      records.filter(row => row.task && !row.owner).forEach(row => {
+        row.routing = evaluateMaskedIntakeRules(routingRules, {
+          ...row, smartcode: smartcode(row), dealer: row.intentionStore || '无意向门店'
+        }, receivedAt(row));
+      });
+    }
     let localToken;
     let fetchVersion = 0;
     let saving = false;
+    let statisticsTimer;
+    let lastStatisticsRead = localWorkspace ? null : Date.now();
+    let statisticsStatus = '';
     const today = () => localWorkspace ? localTime.format(new Date()).slice(0, 10) : demoDate;
     let scope = 'new';
-    const criteria = { tasks: new FormData(), errors: new FormData() };
+    const criteria = { tasks: new FormData(), todo: new FormData(), errors: new FormData() };
     let page = 1;
     let size = 10;
     let targets = [];
@@ -90,6 +197,19 @@
     const selected = new Set();
     const counts = {};
     const get = selector => root.querySelector(selector);
+    const renderFilter = ([label, value = byColumn[label], type]) => {
+      if (type === 'text') return `<label class="search-field"><span class="masked-filter-label">${label}</span>
+        <input class="lead-input" name="${label}" aria-label="${label}" placeholder="请输入${label}"></label>`;
+      if (type === 'date') return `<fieldset class="masked-filter-range"><legend class="masked-filter-label">${label}</legend>
+        <div class="date-range"><input class="lead-input" type="date" name="${label}开始" aria-label="${label}开始">
+        <span class="date-range-sep">至</span><input class="lead-input" type="date" name="${label}结束" aria-label="${label}结束"></div></fieldset>`;
+      const options = optionDefaults[label] || [...new Set(records.map(value).filter(Boolean))];
+      return `<label class="search-field"><span class="masked-filter-label">${label}</span>
+        <select class="lead-select" name="${label}" aria-label="${label}" data-filter-options="${label}">
+          <option value="">${label === '意向车系' ? '全部车系' : '全部'}</option>
+          ${options.map(option => `<option>${escape(option)}</option>`).join('')}</select></label>`;
+    };
+    const ownerOptions = Object.entries(agents).map(([account, name]) => `<option value="${account}">${name}（${account}）</option>`).join('');
     root.innerHTML = `
       <main class="masked-intake" aria-label="抖音掩码留资">
         <nav class="strategy-config-tabs show" aria-label="任务分配分类">
@@ -98,24 +218,29 @@
         <form class="filter-row masked-intake-filters"><div class="lead-search-panel">
           <div class="lead-search-title">筛选查询</div>
           <div class="lead-search-grid compact">
-          <div class="search-field"><label for="masked-task">任务编码：</label><input id="masked-task" class="lead-input" name="task" placeholder="请输入" autocomplete="off" aria-label="任务编码"></div>
-          <div class="search-field"><label for="masked-original">线索编码：</label><input id="masked-original" class="lead-input" name="original" placeholder="请输入" autocomplete="off" aria-label="线索编码"></div>
+          <div class="search-field"><label for="masked-task">任务编码</label><input id="masked-task" class="lead-input" name="task" placeholder="请输入任务编码" autocomplete="off"></div>
+          <div class="search-field"><label for="masked-original">线索编码</label><input id="masked-original" class="lead-input" name="original" placeholder="请输入线索编码" autocomplete="off"></div>
+          ${quickFilters.map(renderFilter).join('')}
             <div class="lead-search-actions">
               <button class="btn-add" type="submit">查询</button><button class="btn-secondary" type="reset">重置</button>
-              <button class="btn-secondary" type="button" data-refresh>刷新</button>
             </div>
           </div>
           <details class="lead-search-more"><summary>更多筛选</summary><div class="lead-search-grid masked-intake-more">
-            ${filtersList.map(([label, value = byColumn[label], type]) => {
-              if (type === 'text') return `<label class="search-field">${label}<input class="lead-input" name="${label}" placeholder="请输入"></label>`;
-              if (type === 'date') return `<fieldset><legend>${label}</legend><div class="sd-date-range">
-                <input class="lead-input" type="date" name="${label}开始" aria-label="${label}开始">至
-                <input class="lead-input" type="date" name="${label}结束" aria-label="${label}结束"></div></fieldset>`;
-              const options = optionDefaults[label] || [...new Set(records.map(value).filter(Boolean))];
-              return `<label class="search-field">${label}<select class="lead-select" name="${label}" aria-label="${label}"><option value="">请选择</option>
-                ${options.map(option => `<option>${escape(option)}</option>`).join('')}</select></label>`;
-            }).join('')}
+            ${advancedFilters.map(renderFilter).join('')}
           </div></details>
+        </div></form>
+        <form class="filter-row masked-todo-filters" hidden><div class="lead-search-panel">
+          <div class="lead-search-title">筛选查询</div>
+          <div class="lead-search-grid masked-todo-grid">
+            <label class="search-field"><span class="masked-filter-label">任务编码</span><input class="lead-input" name="task" placeholder="请输入任务编码"></label>
+            <label class="search-field"><span class="masked-filter-label">线索编码</span><input class="lead-input" name="original" placeholder="请输入线索编码"></label>
+            <label class="search-field"><span class="masked-filter-label">坐席账号</span><select class="lead-select" name="owner"><option value="">全部坐席</option>${ownerOptions}</select></label>
+            <label class="search-field"><span class="masked-filter-label">隐私号状态</span><select class="lead-select" name="privacy">
+              <option value="">全部状态</option><option value="waiting">待取号</option>
+              ${Object.entries(privacyLabels).map(([value,label])=>`<option value="${value}">${label}</option>`).join('')}
+            </select></label>
+            <div class="lead-search-actions"><button class="btn-add" type="submit">查询</button><button class="btn-secondary" type="reset">重置</button></div>
+          </div>
         </div></form>
         <form class="filter-row masked-error-filters" hidden><div class="lead-search-panel">
           <div class="lead-search-title">筛选查询</div>
@@ -134,7 +259,6 @@
             </div></fieldset>
             <div class="lead-search-actions">
               <button class="btn-add" type="submit">查询</button><button class="btn-secondary" type="reset">重置</button>
-              <button class="btn-secondary" type="button" data-refresh>刷新</button>
             </div>
           </div>
         </div></form>
@@ -178,12 +302,36 @@
           </footer>
         </section>
         <section class="card masked-intake-results" id="masked-statistics" aria-label="抖音掩码留资任务统计" hidden>
-          <div class="lead-toolbar"><div class="section-title">抖音掩码留资任务统计</div></div>
+          <div class="lead-toolbar"><div class="section-title">抖音掩码留资任务统计</div><div id="masked-statistics-controls"></div></div>
           <div id="masked-statistics-summary" class="masked-statistics-summary" aria-live="polite"></div>
-          <div class="lead-table-wrap"><table class="lead-table">
-            <thead><tr><th>坐席账号</th><th>今日已分配量</th><th>待跟进量</th><th>已完成量</th></tr></thead>
-            <tbody></tbody>
-          </table></div>
+          <p class="masked-monitor-rule">演示阈值按自然时间计算。首跟 30 分钟提醒、2 小时超时，未约回访连续 24 小时未跟进，隐私号剩余 24 小时预警、2 小时加急。正式排班和阈值待确认。</p>
+          <section class="masked-monitor-section" aria-labelledby="masked-alert-title">
+            <div class="masked-monitor-heading">
+              <div><h3 id="masked-alert-title">预警清单</h3><span id="masked-monitor-updated" role="status"></span></div>
+              <div class="masked-monitor-filters">
+                <label><span id="masked-monitor-seat-label">坐席</span><select id="masked-monitor-seat" class="lead-select" aria-labelledby="masked-monitor-seat-label"><option value="">全部坐席</option>
+                  ${Object.entries(agents).map(([account, name]) => `<option value="${account}">${name}（${account}）</option>`).join('')}
+                </select></label>
+                <label>预警类型<select id="masked-monitor-type" class="lead-select"><option value="">全部预警</option>
+                  ${Object.entries(monitoring.types).map(([key, title]) => `<option value="${key}">${title}</option>`).join('')}
+                </select></label>
+              </div>
+            </div>
+            <div class="lead-table-wrap"><table class="lead-table" id="masked-monitor-alerts">
+              <thead><tr><th>任务编码 / 客户</th><th>负责坐席</th><th>预警原因</th><th>最近跟进</th><th>隐私号截止时间</th><th>操作</th></tr></thead>
+              <tbody></tbody>
+            </table></div>
+            <p class="masked-monitor-footnote" id="masked-alert-count" role="status"></p>
+          </section>
+          <section class="masked-monitor-section" aria-labelledby="masked-efficiency-title">
+            <div class="masked-monitor-heading"><div><h3 id="masked-efficiency-title">坐席效率</h3>
+              <span>首跟从派单与隐私号可拨两者较晚的时间起算。首跟指标统计今日可跟进任务。</span></div></div>
+            <div class="lead-table-wrap"><table class="lead-table" id="masked-efficiency-table">
+              <thead><tr><th>坐席账号</th><th>今日已分配量</th><th>待跟进量</th><th>待首跟</th><th>预警任务</th>
+                <th>30 分钟首跟率</th><th>首跟耗时中位数</th><th>已完成量</th><th>操作</th></tr></thead><tbody></tbody>
+            </table></div>
+            <p class="masked-monitor-footnote">首跟率样本包含已记录首跟或已到 30 分钟的任务。完成量按合格结果回传成功统计。</p>
+          </section>
         </section>
       </main>
       <section class="masked-intake-detail" aria-labelledby="masked-detail-title" hidden>
@@ -217,7 +365,9 @@
         </form>
       </dialog>`;
 
-    const forms = { tasks: get('.masked-intake-filters'), errors: get('.masked-error-filters') };
+    const forms = { tasks: get('.masked-intake-filters'), todo: get('.masked-todo-filters'), errors: get('.masked-error-filters') };
+    const checklistRole = get('.masked-intake-role');
+    const toolbar = get('.lead-toolbar-right');
     const role = get('#masked-role');
     const detail = get('.masked-intake-detail');
     const list = get('.masked-intake');
@@ -228,8 +378,7 @@
     const accountInput = assign.querySelector('[name=account]');
     const isSupervisor = () => role.value === 'supervisor';
     const canSee = row => isSupervisor() || role.value === row.owner;
-    const pendingFollowup = row => row.task && row.owner && !row.followupComplete;
-    const eligible = row => !poolTask && isSupervisor() && row.task && row.status !== 'pending' && !row.owner;
+    const eligible = row => !poolTask && isSupervisor() && row.task && row.status !== 'pending' && !row.owner && row.routing?.state !== 'ai';
     const matches = row => {
       if (!canSee(row)) return false;
       if (scope === 'errors' && row.task) return false;
@@ -245,9 +394,14 @@
         return (!identifier || [row.original, row.association, row.dispatch].some(id => id.toLowerCase().includes(identifier))) &&
           (!status || row.status === status) && (!start || date >= start) && (!end || date <= end);
       }
-      const fields = criteria.tasks;
+      const fields = scope === 'todo' ? criteria.todo : criteria.tasks;
       for (const [key, value] of [['task', row.task], ['original', row.original]]) {
         if (!(value || '').toLowerCase().includes((fields.get(key) || '').trim().toLowerCase())) return false;
+      }
+      if (scope === 'todo') {
+        const owner = fields.get('owner');
+        const privacy = fields.get('privacy');
+        return (!owner || owner === row.owner) && (!privacy || privacy === (privacyStatus(row) || 'waiting'));
       }
       return filtersList.every(([label, value = byColumn[label], type]) => {
         const actual = value(row) || '';
@@ -268,7 +422,7 @@
     });
     const tableColumns = () => scope === 'errors'
       ? ['线索编码','线索来源','油电类型','渠道编码','任务接收时间','接单结果'].map(label => [label, byColumn[label]]).concat([['失败原因', row => row.reason]])
-      : columns;
+      : scope === 'todo' ? todoColumns.map(label => [label, byColumn[label]]) : columns;
 
     function seatStats(account) {
       const owned = records.filter(row => row.owner === account);
@@ -279,29 +433,107 @@
       };
     }
 
+    const monitorSeat = get('#masked-monitor-seat');
+    const monitorType = get('#masked-monitor-type');
+    const formatTime = value => Number.isFinite(value) ? localTime.format(new Date(value)) : '—';
+    const monitorTask = (row, now) => monitoring.task(row, now, privacyStatus(row));
+
     function renderStatistics() {
+      const now = Date.now();
       const visible = records.filter(row => row.task && canSee(row));
+      const manual = visible.filter(row => row.owner && row.status !== 'pending' && row.routing?.state !== 'ai');
+      const measured = manual.map(row => monitorTask(row, now));
       const pending = visible.filter(pendingFollowup).length;
-      const summary = [`待跟进 ${pending} 条`, `已完成 ${visible.filter(row => row.followupComplete).length} 条`];
-      if (isSupervisor()) summary.unshift(`待分配 ${visible.filter(eligible).length} 条`);
-      get('#masked-statistics-summary').textContent = summary.join('　');
-      get('#masked-statistics tbody').innerHTML = Object.entries(agents)
+      const summary = [
+        ['待跟进', pending, 'pending'],
+        ['可拨', visible.filter(row => pendingFollowup(row) && privacyStatus(row) === 'available').length, 'available'],
+        ['已完成', visible.filter(row => row.followupComplete).length, 'completed']
+      ];
+      if (isSupervisor()) summary.unshift(['待分配', visible.filter(eligible).length, 'unassigned']);
+      get('#masked-statistics-summary').innerHTML = summary.map(([label, count, tone]) =>
+        `<div class="masked-metric" data-tone="${tone}"><span>${label}</span><strong>${count}</strong><span>条</span></div>`
+      ).join('');
+      monitorSeat.closest('label').hidden = !isSupervisor();
+      get('#masked-monitor-updated').textContent = statisticsStatus ||
+        (lastStatisticsRead ? `最近更新 ${formatTime(lastStatisticsRead)} · 每 30 秒更新` : '正在读取本地任务');
+      const riskTasks = measured.concat(isSupervisor() ? visible.filter(row =>
+        !row.owner && row.status !== 'pending' && row.routing?.state !== 'ai'
+      ).map(row => monitorTask(row, now)) : []);
+      renderAlerts(riskTasks, now);
+
+      get('#masked-efficiency-table tbody').innerHTML = Object.entries(agents)
         .filter(([account]) => isSupervisor() || account === role.value)
         .map(([account, name]) => {
           const stats = seatStats(account);
-          return `<tr><td>${account} · ${name}</td><td>${stats.assignedToday}</td><td>${stats.pending}</td><td>${stats.completed}</td></tr>`;
+          const performance = monitoring.efficiency(measured.filter(item => item.row.owner === account),
+            now, value => localTime.format(new Date(value)).slice(0, 10));
+          const assignedToday = measured.filter(item => item.row.owner === account &&
+            item.row.assignedAt?.slice(0, 10) === localTime.format(new Date(now)).slice(0, 10)).length;
+          return `<tr><td>${account} · ${name}</td><td>${assignedToday}</td><td>${stats.pending}</td><td>${performance.awaiting}</td>
+            <td>${performance.alerts ? action(String(performance.alerts), 'view', 'seat-alerts', account) : '0'}</td>
+            <td>${performance.rate == null ? '—' : `${performance.rate}% <small>（${performance.sample} 条）</small>`}</td>
+            <td>${monitoring.duration(performance.median)}</td><td>${stats.completed}</td>
+            <td>${stats.pending ? action('查看待跟进', 'view', 'seat-todo', account) : '—'}</td></tr>`;
         }).join('');
+    }
+
+    function renderAlerts(tasks, now) {
+      const alerts = tasks.filter(item => !isSupervisor() || !monitorSeat.value || item.row.owner === monitorSeat.value)
+        .map(item => ({...item, alerts: item.alerts.filter(alert => !monitorType.value || alert.type === monitorType.value)
+          .sort((a, b) => a.priority - b.priority || (a.at ?? Infinity) - (b.at ?? Infinity))}))
+        .filter(item => item.alerts.length)
+        .sort((a, b) => a.alerts[0].priority - b.alerts[0].priority ||
+          (a.alerts[0].at ?? Infinity) - (b.alerts[0].at ?? Infinity));
+      const activeTask = document.activeElement?.dataset.maskedMonitorDetail;
+      get('#masked-monitor-alerts tbody').innerHTML = alerts.length ? alerts.map(item => `
+        <tr><td><strong>${escape(item.row.task)}</strong>${item.row.name ? `<small>${escape(item.row.name)}</small>` : ''}</td>
+          <td>${escape(displayOwner(item.row.owner))}</td>
+          <td><div class="masked-monitor-tags">${item.alerts.map(alert => {
+            const description = alert.type === 'expiry' ? `剩余 ${monitoring.duration(alert.at - now)}`
+              : ['first', 'waiting'].includes(alert.type) ? `已等待 ${monitoring.duration(now - item.start)}`
+              : ['callback', 'idle'].includes(alert.type) ? `逾时 ${monitoring.duration(now - alert.at)}`
+              : alert.type === 'blocked' ? privacyLabels[item.state] : '';
+            return `<div>${tag([monitoring.types[alert.type], alert.priority <= 1 ? 'danger' : 'warning'])}
+              ${description ? `<small>${escape(description)}</small>` : ''}</div>`;
+          }).join('')}</div></td>
+          <td>${formatTime(item.last)}</td><td>${formatTime(item.expiry)}</td>
+          <td>${action('查看任务', 'view', 'masked-monitor-detail', escape(item.row.id))}</td></tr>`).join('')
+        : '<tr><td colspan="6" class="sd-table-empty">当前范围暂无预警任务</td></tr>';
+      get('#masked-alert-count').textContent = `共 ${alerts.length} 条预警任务`;
+      if (activeTask) [...get('#masked-monitor-alerts').querySelectorAll('[data-masked-monitor-detail]')]
+        .find(button => button.dataset.maskedMonitorDetail === activeTask)?.focus({preventScroll: true});
+    }
+
+    function scheduleStatisticsRead() {
+      clearTimeout(statisticsTimer);
+      if (scope !== 'stats' || list.hidden || !detail.hidden) return;
+      statisticsTimer = setTimeout(async () => {
+        if (!list.isConnected || list.hidden || scope !== 'stats') return;
+        if (localWorkspace) await refreshDccWorklist(false, true);
+        else {
+          lastStatisticsRead = Date.now();
+          renderStatistics();
+        }
+        scheduleStatisticsRead();
+      }, 30_000);
     }
 
     function render() {
       const statistics = scope === 'stats';
-      forms.tasks.hidden = scope === 'errors' || statistics;
+      forms.tasks.hidden = ['errors', 'todo', 'stats'].includes(scope);
+      forms.todo.hidden = scope !== 'todo';
+      const ownerOptions = forms.todo.elements.owner.options;
+      for (const option of ownerOptions) option.hidden = Boolean(option.value) && !isSupervisor() && option.value !== role.value;
+      const roleHost = statistics ? get('#masked-statistics-controls') : toolbar;
+      if (checklistRole.parentElement !== roleHost) roleHost.append(checklistRole);
+      if (!poolTask) checklistRole.hidden = false;
       forms.errors.hidden = scope !== 'errors';
       get('[aria-label="接单查询结果"]').hidden = statistics;
       get('#masked-statistics').hidden = !statistics;
       if (statistics) renderStatistics();
+      scheduleStatisticsRead();
       const rows = currentRows();
-      const headings = tableColumns().filter(([label]) => scope === 'errors' || !hiddenColumns.has(label));
+      const headings = tableColumns().filter(([label]) => ['errors', 'todo'].includes(scope) || !hiddenColumns.has(label));
       const selectable = !poolTask && isSupervisor() && !['errors', 'todo', 'stats'].includes(scope);
       const canAssign = rows.filter(eligible);
       const totalPages = Math.max(1, Math.ceil(rows.length / size));
@@ -319,10 +551,11 @@
       get('[data-selected]').textContent = selected.size ? `执行分配 (${selected.size})` : '执行分配';
       get('[data-export]').hidden = !isSupervisor();
       get('[data-export]').disabled = !rows.length;
-      get('[data-fields]').closest('.field-picker').hidden = scope === 'errors';
+      get('[data-fields]').closest('.field-picker').hidden = ['errors', 'todo'].includes(scope);
       get('#masked-sort option[value="任务编码"]')?.toggleAttribute('disabled', scope === 'errors');
       get('#masked-list-title').textContent = poolTask ? '总部 DCC 接单联调记录' : scope === 'errors' ? '接单异常列表' : scope === 'todo' ? '抖音掩码留资待跟进' : '抖音掩码留资列表';
       const selection = selectable ? `<th><input type="checkbox" aria-label="全选可分配任务" data-select-all ${canAssign.length ? '' : 'disabled'} ${canAssign.length && canAssign.every(row => selected.has(row.id)) ? 'checked' : ''}></th>` : '';
+      get('.masked-intake-table').classList.toggle('masked-todo-table', scope === 'todo');
       get('.masked-intake-table thead').innerHTML = `<tr>${selection}<th>序号</th>${headings.map(([label]) => {
         const active = sort === label;
         return `<th scope="col"${active ? ` aria-sort="${direction === 'asc' ? 'ascending' : 'descending'}"` : ''}>
@@ -332,7 +565,10 @@
         const checkbox = selectable ? `<td><input type="checkbox" aria-label="选择 ${row.task}" data-select-row="${row.id}" ${eligible(row) ? '' : 'disabled'} ${selected.has(row.id) ? 'checked' : ''}></td>` : '';
         const values = headings.map(([label, read]) => {
           const value = read(row);
+          if (label === '跟进方式' && value) return `<td>${tag([value, row.routing?.state === 'ai' ? 'info' : row.routing?.state === 'conflict' || row.routing?.state === 'review' ? 'warning' : 'success'])}</td>`;
           if (label === '接单结果') return `<td>${tag(statuses[row.status])}</td>`;
+          if (scope === 'todo' && label === '隐私号状态') return `<td>${tag([value, privacyTones[privacyStatus(row)] || 'info'])}</td>`;
+          if (scope === 'todo' && label === '坐席账号') return `<td>${escape(displayOwner(row.owner))}</td>`;
           const text = displayField(row, label, value);
           const mono = ['任务编码', '线索编码', '联系电话', 'SMARTCODE'].includes(label) ? ' class="is-mono"' : '';
           return `<td${mono}>${escape(text)}</td>`;
@@ -347,17 +583,25 @@
       get('[data-page="1"]').disabled = page === totalPages;
     }
 
-    function showDetail(row, trigger) {
+    function showDetail(row, trigger, refresh = false) {
+      const fromMonitor = (refresh ? detailTrigger : trigger)?.dataset.maskedMonitorDetail;
       const fields = [
         ['任务编码', escape(row.task || '未建单')], ['线索编码', escape(row.original)],
         ['联系电话', escape(phone(row))], ['接单结果', tag(statuses[row.status])],
-        ['任务归属', row.task ? escape(displayOwner(row.owner)) : '—'], ['任务接收时间', receivedAt(row)]
+        ['任务归属', row.task ? escape(row.routing?.state === 'ai' ? row.routing.target : displayOwner(row.owner)) : '—'], ['任务接收时间', receivedAt(row)]
       ];
-      const buildSection = (title, entries) => `<section class="detail-section">
+      const buildSection = (title, entries, actions = '') => `<section class="detail-section">
         <div class="detail-section-title">${title}</div><div class="detail-section-body">
           ${entries.map(([label,value]) => `<div class="lead-detail-item"><div class="lead-detail-label">${label}</div>
             <div class="lead-detail-value">${escape(displayField(row, label, value))}</div></div>`).join('')}
-        </div></section>`;
+        </div>${actions}</section>`;
+      const privacy = row.privacy;
+      const privacyActions = row.task && privacy && (privacy.reason || privacyStatus(row) === 'expired' || (localWorkspace && isSupervisor() && (privacy.canRetry || privacy.canReconcile))) ? `<div class="masked-privacy-actions">
+        ${localWorkspace && isSupervisor() && privacy?.canReconcile ? action('核对取号结果', 'edit', 'privacy-reconcile', row.id) : ''}
+        ${localWorkspace && isSupervisor() && privacy?.canRetry ? action('安全重试取号', 'edit', 'privacy-retry', row.id) : ''}
+        <span id="masked-privacy-feedback" role="status">${escape(privacyStatus(row) === 'expired'
+          ? '已到失效截止时间，禁止拨打该隐私号。' : privacy?.reason || '')}</span>
+      </div>` : '';
       get('#masked-detail-subtitle').textContent = '培育任务 / 抖音掩码留资 / ' + (row.task || row.original);
       const handoffQuery = row.local ? { mode: 'local', keyword: row.dispatch } : { keyword: row.original };
       get('[data-handoff-link]').href = 'DNDC线索中心_抖音接口交接查询.html?' + new URLSearchParams(handoffQuery);
@@ -372,7 +616,21 @@
         <div class="detail-tab-panel active" id="masked-detail-info">
           ${buildSection('接单信息', [[row.task ? '接单说明' : '失败原因', row.reason || '已返回总部任务编号。'],
             ...intakeColumns.map(([label,read]) => [label, read(row)])])}
-          ${row.task ? buildSection('隐私号信息', privacyColumns.map(([label,read]) => [label, read(row)])) : ''}
+          ${row.task && row.status !== 'pending' ? buildSection('接单后分配', [
+            ['跟进方式', routingLabel(row)],
+            ['匹配策略', row.routing?.rules.map(rule => `${rule.dimension} · ${rule.name}（${rule.id}）`).join('；')],
+            ['外呼类型', row.routing?.target],
+            ['分配比例配置', [...new Set(row.routing?.rules.map(rule => rule.policyId).filter(Boolean))].join('、')],
+            ['策略版本', row.routing?.version ?? (row.routing ? '原型演示' : '')],
+            ['分配判断时间', row.routing?.decidedAt && localTime.format(new Date(row.routing.decidedAt))]
+          ]) : ''}
+          ${row.task ? buildSection('隐私号信息', privacyColumns.map(([label,read]) => [label, read(row)]), privacyActions) : ''}
+          ${fromMonitor ? buildSection('任务跟进', [
+            ['分配时间', row.assignedAt], ['首跟计时起点', formatTime(monitorTask(row, Date.now()).start)],
+            ['最近跟进时间', formatTime(monitorTask(row, Date.now()).last)],
+            ['下次回访时间', row.manualFollowup?.nextVisitAt && localTime.format(new Date(row.manualFollowup.nextVisitAt))],
+            ['最近回访描述', row.manualFollowup?.note]
+          ]) : ''}
           ${buildSection('线索与任务信息', taskColumns.map(([label,read]) => [label, read(row)]))}
         </div>
         <div class="detail-tab-panel" id="masked-detail-logs">
@@ -380,13 +638,18 @@
           <tbody>${eventsFor(row).map(([time,title,description]) =>
             `<tr><td>${escape(row.local ? time : demoDate + ' ' + time)}</td><td>${title}</td><td>${escape(description)}</td></tr>`).join('')}</tbody></table></div>
         </div>`;
-      listScroll = scrollArea.scrollTop;
-      detailTrigger = trigger;
+      if (!refresh) {
+        listScroll = scrollArea.scrollTop;
+        detailTrigger = trigger;
+      }
       list.hidden = true;
+      clearTimeout(statisticsTimer);
       detail.hidden = false;
       setPageName('NEV培育 / 培育任务 / 抖音掩码留资 / 接单详情');
-      scrollArea.scrollTop = 0;
-      get('#masked-detail-title').focus({preventScroll: true});
+      if (!refresh) {
+        scrollArea.scrollTop = 0;
+        get('#masked-detail-title').focus({preventScroll: true});
+      }
     }
 
     function showList() {
@@ -395,6 +658,7 @@
       setPageName('NEV培育 / 培育任务');
       scrollArea.scrollTop = listScroll;
       detailTrigger?.focus({preventScroll: true});
+      if (scope === 'stats') scheduleStatisticsRead();
     }
 
     function updateCounts() {
@@ -427,7 +691,7 @@
     }
 
     function exportRows() {
-      const headings = tableColumns().filter(([label]) => scope === 'errors' || !hiddenColumns.has(label));
+      const headings = tableColumns().filter(([label]) => ['errors', 'todo'].includes(scope) || !hiddenColumns.has(label));
       const cells = [headings.map(([label]) => label), ...currentRows().map(row => headings.map(([, read]) => read(row) || ''))];
       const csv = cells.map(line => line.map(value => '"' + value.replaceAll('"', '""') + '"').join(',')).join('\r\n');
       const url = URL.createObjectURL(new Blob(['\uFEFF', csv], {type: 'text/csv;charset=utf-8'}));
@@ -449,14 +713,19 @@
         event.preventDefault();
         criteria[kind] = new FormData(form);
         restart();
+        if (poolTask) refreshDccIntake();
+        else if (localWorkspace) refreshDccWorklist();
       });
       form.addEventListener('reset', () => { criteria[kind] = new FormData(); restart(); });
     }
     role.addEventListener('change', () => {
-      scope = 'new';
-      forms.tasks.reset();
+      monitorSeat.value = '';
+      if (scope === 'errors' && !isSupervisor()) scope = 'new';
+      for (const kind of ['tasks', 'todo']) forms[kind].reset();
       if (localWorkspace) refreshDccWorklist(true);
     });
+    monitorSeat.addEventListener('change', renderStatistics);
+    monitorType.addEventListener('change', renderStatistics);
     root.addEventListener('change', event => {
       const input = event.target;
       if (input.hasAttribute('data-select-all')) {
@@ -504,20 +773,39 @@
         scope = next;
         if (scope === 'errors' && sort === '任务编码') { sort = '任务接收时间'; get('#masked-sort').value = sort; }
         restart();
+        if (scope === 'stats' && localWorkspace) refreshDccWorklist(false, true);
+      }
+      const alertSeat = button.dataset.seatAlerts;
+      if (alertSeat && (isSupervisor() || alertSeat === role.value)) {
+        monitorSeat.value = alertSeat;
+        monitorType.value = '';
+        renderStatistics();
+        (isSupervisor() ? monitorSeat : monitorType).focus();
+      }
+      const assignedSeat = button.dataset.seatTodo;
+      if (assignedSeat && (isSupervisor() || assignedSeat === role.value)) {
+        forms.todo.reset();
+        forms.todo.elements.owner.value = assignedSeat;
+        criteria.todo = new FormData(forms.todo);
+        scope = 'todo';
+        restart();
+        get('[data-scope="todo"]').focus();
       }
       if (step) { page += Number(step); render(); }
       if (button.hasAttribute('data-fields')) {
         const open = get('#masked-fields').classList.toggle('show');
         button.setAttribute('aria-expanded', String(open));
       }
-      if (button.hasAttribute('data-refresh')) {
-        if (poolTask) refreshDccIntake();
-        else if (localWorkspace) refreshDccWorklist();
-        else restart();
-      }
-      if (maskedDetail) {
-        const row = records.find(row => row.id === maskedDetail);
+      const detailId = maskedDetail || button.dataset.maskedMonitorDetail;
+      if (detailId) {
+        const row = records.find(row => row.id === detailId);
         if (row && canSee(row)) showDetail(row, button);
+      }
+      for (const [kind, id] of [['reconcile', button.dataset.privacyReconcile], ['retry', button.dataset.privacyRetry]]) {
+        if (id) {
+          updatePrivacy(kind, id, button);
+          return;
+        }
       }
       if (button.dataset.detailPanel) {
         for (const tab of detail.querySelectorAll('[data-detail-panel]')) {
@@ -575,52 +863,48 @@
       else render();
       get('#masked-feedback').textContent = `已分配 ${assignments.length} 条任务。`;
     });
-    function readIntake(snapshot) {
-      const {lead, taskId, dccTaskId, receiptStatus, receiptReason, events, owner, assignedAt, followupComplete} = snapshot;
-      const accepted = receiptStatus === 'accepted';
-      const recovered = events.some(event => event.kind === 'acceptance_checked' && event.status === 'accepted');
-      const replayed = events.some(event => event.kind === 'duplicate_intake');
-      const status = accepted ? (recovered ? 'recovered' : replayed ? 'replayed' : 'accepted')
-        : receiptStatus === 'pending_confirmation' ? 'pending' : 'failed';
-      const titles = {
-        dispatch_sent: '收到临时池派单', dcc_task_created: '建单成功', acceptance_returned: '接单回执',
-        acceptance_checked: '核对接单结果', duplicate_intake: '收到重复推送'
-      };
-      const log = events.map(event => [
-        localTime.format(new Date(event.at)), titles[event.kind],
-        event.receiverTaskId || event.reason || (event.kind === 'duplicate_intake' ? '沿用原接单记录' : taskId)
-      ]);
-      const firstDispatch = events.find(event => event.kind === 'dispatch_sent');
-      return {
-        id: taskId, local: true, task: dccTaskId, original: lead.originalPushId,
-        association: lead.associationId, dispatch: taskId, status, reason: receiptReason,
-        entry: lead.entry, channel: lead.rChannel, power: lead.powerType, series: lead.carSeriesId,
-        intentionStore: lead.originalIntentionStoreId, store: lead.storeId, maskedPhone: lead.maskedPhone,
-        owner, assignedAt: assignedAt ? localTime.format(new Date(assignedAt)) : '', followupComplete,
-        smartcode: lead.smartcode, receivedAt: firstDispatch ? localTime.format(new Date(firstDispatch.at)) : '—', events: log
-      };
+    const workspaceRequest = (action, body) => requestMaskedWorkspace(action, body, localToken);
+
+    async function updatePrivacy(kind, id, button) {
+      if (!localWorkspace || !isSupervisor()) return;
+      const section = button.closest('.masked-privacy-actions');
+      if (section.querySelector('button:disabled')) return;
+      const buttons = [...section.querySelectorAll('button')];
+      buttons.forEach(item => { item.disabled = true; });
+      const feedback = get('#masked-privacy-feedback');
+        feedback.textContent = '正在处理取号请求…';
+      try {
+        const snapshot = await workspaceRequest('privacy/' + encodeURIComponent(id) + '/' + kind, {});
+        const row = readIntake(snapshot);
+        const existing = records.find(record => record.id === id);
+        if (existing) Object.assign(existing, row);
+        render();
+        const trigger = get('[data-masked-detail="' + id + '"]') || detailTrigger;
+        if (feedback.isConnected && !detail.hidden) {
+          showDetail(row, trigger, true);
+          detailTrigger = trigger;
+          const nextFeedback = get('#masked-privacy-feedback');
+          if (!nextFeedback.textContent.trim()) nextFeedback.textContent = '号码状态已更新。';
+          (detail.querySelector('[data-privacy-retry], [data-privacy-reconcile]') || get('#masked-detail-title')).focus({preventScroll: true});
+        }
+      } catch (error) {
+        feedback.textContent = error.message || '读取号码状态失败。';
+      } finally {
+        buttons.forEach(item => { item.disabled = false; });
+      }
     }
 
-    async function workspaceRequest(action, body) {
-      const response = await fetch('/dcc/workspace/' + action, {
-        method: body ? 'POST' : 'GET',
-        headers: {...(localToken ? {Authorization: 'Bearer ' + localToken} : {}), ...(body ? {'Content-Type': 'application/json'} : {})},
-        body: body ? JSON.stringify(body) : undefined
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.message || '操作失败，请刷新后重试。');
-      return result;
-    }
-
-    async function refreshDccWorklist(switching = false) {
+    async function refreshDccWorklist(switching = false, statisticsOnly = false) {
       const version = ++fetchVersion;
       if (switching) {
+        lastStatisticsRead = null;
+        statisticsStatus = '';
         records.length = 0;
         localToken = undefined;
         restart();
       }
       const feedback = get('#masked-feedback');
-      feedback.textContent = '正在读取本地工作台…';
+      if (!statisticsOnly) feedback.textContent = '正在读取本地工作台…';
       try {
         if (!localToken) {
           const {token} = await workspaceRequest('session', {account: role.value});
@@ -628,19 +912,37 @@
           localToken = token;
         }
         const {items} = await workspaceRequest('tasks');
-        if (version !== fetchVersion) return;
+        if (version !== fetchVersion || !list.isConnected || (statisticsOnly && (scope !== 'stats' || list.hidden))) return;
         records.splice(0, records.length, ...items.map(readIntake));
+        lastStatisticsRead = Date.now();
+        statisticsStatus = '';
+        if (statisticsOnly && scope === 'stats' && !list.hidden) {
+          renderStatistics();
+          return;
+        }
+        for (const field of filtersList) {
+          const [label, value = byColumn[label], type] = field;
+          if (type || optionDefaults[label]) continue;
+          const select = forms.tasks.elements.namedItem(label);
+          const saved = select.value;
+          select.options.length = 1;
+          for (const option of new Set(records.map(value).filter(Boolean))) select.add(new Option(option));
+          select.value = [...select.options].some(option => option.value === saved) ? saved : '';
+          if (saved && !select.value) criteria.tasks.delete(label);
+        }
         restart();
         feedback.textContent = '本地联调 · ' + (isSupervisor() ? '主管' : displayOwner(role.value));
       } catch {
-        if (version === fetchVersion) feedback.textContent = '无法读取本地工作台，请刷新重试。';
+        if (version === fetchVersion) {
+          statisticsStatus = '暂时无法更新 · ' + (lastStatisticsRead ? `最近成功 ${formatTime(lastStatisticsRead)}` : '等待下次自动更新');
+          get('#masked-monitor-updated').textContent = statisticsStatus;
+          if (!statisticsOnly) feedback.textContent = '无法读取本地工作台，请重新查询。';
+        }
       }
     }
 
     async function refreshDccIntake() {
       const feedback = get('#masked-feedback');
-      const refresh = forms[scope === 'errors' ? 'errors' : 'tasks'].querySelector('[data-refresh]');
-      refresh.disabled = true;
       feedback.textContent = '正在读取本地接单记录…';
       try {
         const response = await fetch('/dcc/intake/' + encodeURIComponent(poolTask));
@@ -651,9 +953,7 @@
         restart();
         feedback.textContent = '本地模拟接单数据';
       } catch {
-        feedback.textContent = '无法读取这笔本地接单记录，请核对派单标识后刷新。';
-      } finally {
-        refresh.disabled = false;
+        feedback.textContent = '无法读取这笔本地接单记录，请核对派单标识后重新查询。';
       }
     }
 

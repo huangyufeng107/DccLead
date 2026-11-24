@@ -21,6 +21,11 @@
     'blacklist-policy': () => showBlacklistPolicyPage(),
     whitelist: () => { showBlacklistPolicyPage(); switchBlacklistTab('dealer-whitelist-list'); },
     tasks: () => showNurtureTaskPage(),
+    'masked-seat-workbench': () => {
+      showNurtureTaskPage();
+      window.__switchNurtureMainTab('my_task');
+      window.openMaskedSeatWorkbench();
+    },
     'masked-lead-intake': () => { showNurtureTaskPage(); window.__switchNurtureMainTab('masked_intake'); },
     'test-drive': () => showTestDriveSchedulingPage(),
     'test-drive-report': () => showReportsPage('AI试驾排程效能看板'),
@@ -28,6 +33,7 @@
     'nurture-report': () => showReportsPage('总部培育报表'),
     'batch-dispatch': () => showReportsPage('批量下发'),
     'call-status': () => ai('call-status-policy'),
+    'sms-dispatch': () => ai('sms-dispatch'),
     'conversion-rules': () => strategy('lead-state-conversion'),
     'return-visit-config': () => manual('return-visit-order-config'),
     'conversion-records': () => showReportsPage('预评分转换记录'),

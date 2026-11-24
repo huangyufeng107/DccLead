@@ -1,4 +1,4 @@
-const leadAssignmentImportColumns = ['策略名称', '配置内容', '意向车系', '线索状态', '异常原因', '是否按比例', '分配比例配置', '外呼类型', '状态'];
+const leadAssignmentImportColumns = ['策略名称', '配置内容', '意向车系', '线索状态', '异常原因', '是否按比例', '分配比例配置', '外呼类型', '状态', '适用线索'];
 let leadAssignmentImportState = {
   step: 1,
   dimensionKey: '',
@@ -180,7 +180,7 @@ function downloadLeadAssignmentImportTemplate() {
         name: `${dimension.name}线索分配规则`,
         columns: displayColumns.map(column => column.label),
         rows: [
-          [`${sampleValue}导入示例`, sampleValue, sampleSeries, sampleStatus, sampleReason, '否', '', 'AI外呼', '启用']
+          [`${sampleValue}导入示例`, sampleValue, sampleSeries, sampleStatus, sampleReason, '否', '', 'AI外呼', '启用', assignmentLeadScopes.standard]
         ]
       },
       {
@@ -304,7 +304,7 @@ function normalizeLeadAssignmentImportMatrix(matrix) {
   const normalizedMatrix = matrix.map(row => row.map(cell => String(cell || '').replace(/^\ufeff/, '').trim()));
   const headerIndex = normalizedMatrix.findIndex(row => {
     const normalizedHeader = row.map(normalizeLeadAssignmentImportHeader);
-    return leadAssignmentImportColumns.every(column => normalizedHeader.includes(column));
+    return leadAssignmentImportColumns.every(column => column === '适用线索' || normalizedHeader.includes(column));
   });
   if (headerIndex < 0) return [];
   const header = normalizedMatrix[headerIndex].map(normalizeLeadAssignmentImportHeader);
@@ -345,6 +345,9 @@ function validateLeadAssignmentImportRows(rows) {
     const callTypes = splitImportedValues(data['外呼类型']).map(normalizeAssignmentCallType);
     const useRatio = data['是否按比例'].trim();
     const status = data['状态'].trim();
+    const scopeLabel = data['适用线索']?.trim();
+    const leadScope = Object.keys(assignmentLeadScopes).find(key => assignmentLeadScopes[key] === scopeLabel) || 'standard';
+    if (scopeLabel && !Object.values(assignmentLeadScopes).includes(scopeLabel)) errors.push('适用线索仅支持：常规培育线索、抖音掩码留资');
     if (!data['策略名称'].trim()) errors.push('策略名称必填');
     if (!selectedValues.length) errors.push(`${config.valueLabel}必填`);
     if (!['是', '否'].includes(useRatio)) errors.push('是否按比例仅支持：是/否');
@@ -373,7 +376,7 @@ function validateLeadAssignmentImportRows(rows) {
       ...row,
       valid: errors.length === 0,
       errors,
-      normalized: { selectedValues, seriesValues, leadStatusValues, reasonValues, callTypes, useRatio, status }
+      normalized: { selectedValues, seriesValues, leadStatusValues, reasonValues, callTypes, useRatio, status, leadScope }
     };
   });
 }
@@ -407,9 +410,9 @@ function confirmLeadAssignmentImport() {
   const validRows = leadAssignmentImportState.validatedRows.filter(row => row.valid);
   const failed = leadAssignmentImportState.validatedRows.length - validRows.length;
   const now = new Date().toISOString().slice(0, 16).replace('T', ' ');
-  validRows.forEach((row, index) => {
-    dimension.rules.push(buildImportedLeadAssignmentRule(row, dimension, index, now));
-  });
+  const rules = validRows.map((row, index) => buildImportedLeadAssignmentRule(row, dimension, index, now));
+  if (rules.length && !persistLeadAssignmentRows(dimension, rules)) return;
+  dimension.rules.push(...rules);
   leadAssignmentImportState.result = { success: validRows.length, failed };
   leadAssignmentImportState.step = 3;
   renderLeadAssignmentConfigPage();
@@ -429,7 +432,7 @@ function buildImportedLeadAssignmentRule(row, dimension, index, updatedAt) {
     const used = allocations.reduce((sum, item) => sum + item.percent, 0);
     allocations[allocations.length - 1].percent += 100 - used;
   }
-  const conditionParts = [`${config.conditionPrefix}=${normalized.selectedValues.join('、')}`];
+  const conditionParts = [`适用线索=${assignmentLeadScopes[normalized.leadScope]}`, `${config.conditionPrefix}=${normalized.selectedValues.join('、')}`];
   if (dimension.key === 'lead-status' && normalized.reasonValues.length) conditionParts.push(`异常原因=${normalized.reasonValues.join('、')}`);
   if (hasRelatedSeriesCondition(dimension) && normalized.seriesValues.length) conditionParts.push(`意向车系=${normalized.seriesValues.join('、')}`);
   if (dimension.key === 'dealer' && normalized.leadStatusValues.length) conditionParts.push(`线索状态=${normalized.leadStatusValues.join('、')}`);
@@ -439,6 +442,8 @@ function buildImportedLeadAssignmentRule(row, dimension, index, updatedAt) {
   return {
     ...base,
     id: getNextImportedLeadAssignmentRuleId(dimension, index),
+    created: true,
+    leadScope: normalized.leadScope,
     name: data['策略名称'].trim(),
     keyValue: normalized.selectedValues.join('、'),
     [config.valuesKey]: normalized.selectedValues,
@@ -478,6 +483,10 @@ function getNextImportedLeadAssignmentRuleId(dimension, offset = 0) {
   const maxNo = dimension.rules.reduce((max, rule) => {
     const match = String(rule.id || '').match(new RegExp(`^${prefix}-(\\d+)$`));
     return match ? Math.max(max, Number(match[1])) : max;
-  }, 0);
+  }, Object.keys(leadAssignmentSavedEdits).filter(key => key.startsWith(dimension.key + '/')).reduce((max, key) => {
+    const id = key.slice(dimension.key.length + 1);
+    const number = id.startsWith(prefix + '-') ? Number(id.slice(prefix.length + 1)) : 0;
+    return Number.isInteger(number) ? Math.max(max, number) : max;
+  }, 0));
   return `${prefix}-${String(maxNo + offset + 1).padStart(3, '0')}`;
 }

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DCC培育 · SaaS平台</title>
   <link rel="stylesheet" href="DccLead.assets/css/app.css?v=20261110-store-picker-demo">
-  <link rel="stylesheet" href="DccLead.assets/css/outbound-mapping-fixes.css?v=20261113-seat-direct-log-center">
+  <link rel="stylesheet" href="DccLead.assets/css/outbound-mapping-fixes.css?v=20261124-mobile-validation">
   <link rel="stylesheet" href="DccLead.assets/css/sms-templates.css?v=2026110603">
   <link rel="stylesheet" href="DccLead.assets/css/schedule-management.css?v=2026102602">
   <link rel="stylesheet" href="DccLead.assets/css/download-list.css?v=2026102601">
@@ -13,10 +13,10 @@
   <link rel="stylesheet" href="DccLead.assets/css/ai-quality-daily.css?v=2026102607">
   <link rel="stylesheet" href="DccLead.assets/css/ai-strategy-workbench.css?v=20261118-strategy-date-range">
   <link rel="stylesheet" href="DccLead.assets/css/tianwang-paid-dispatch-config.css?v=20261026-doc-entry">
-  <link rel="stylesheet" href="DccLead.assets/css/supervisor-nurture-task.css?v=2026091601">
-  <link rel="stylesheet" href="DccLead.assets/css/masked-lead-intake.css?v=20261123-masked-workspace">
+  <link rel="stylesheet" href="DccLead.assets/css/supervisor-nurture-task.css?v=20261124-nurture-navigation">
+  <link rel="stylesheet" href="DccLead.assets/css/masked-lead-intake.css?v=20261124-seat-monitoring">
   <link rel="stylesheet" href="DccLead.assets/css/docs-navigation.css?v=20261103-remove-logic">
-  <link rel="stylesheet" href="DccLead.assets/css/lead-assignment.css?v=20261118-agent-updater">
+  <link rel="stylesheet" href="DccLead.assets/css/lead-assignment.css?v=20261123-masked-routing">
   <link rel="stylesheet" href="DccLead.assets/css/pagination-standard.css?v=2026102605">
   <link rel="stylesheet" href="DccLead.assets/css/call-status-policy.css?v=20261030-1">
   <link rel="stylesheet" href="DccLead.assets/css/global-state-conversion.css?v=20261104-multi-range">
@@ -2413,20 +2413,21 @@
   <script src="DccLead.assets/js/01d-page-routing.js?v=2026102301"></script>
   <script src="DccLead.assets/js/02-strategy-navigation.js?v=20261030-name1"></script>
   <script src="DccLead.assets/js/03-strategy-configurator.js?v=20261026-excel-import"></script>
-  <script src="DccLead.assets/js/04a-lead-assignment-core.js?v=20261118-agent-updater-seeds"></script>
+  <script src="DccLead.assets/js/04a-lead-assignment-core.js?v=20261123-masked-routing"></script>
   <script src="DccLead.assets/js/04b-outbound-label-mapping.js"></script>
-  <script src="DccLead.assets/js/04c-lead-assignment-rule-forms.js?v=20261118-agent-updater-seeds"></script>
-  <script src="DccLead.assets/js/04d-lead-assignment-controls.js?v=20261118-agent-updater"></script>
-  <script src="DccLead.assets/js/04e-lead-assignment-import.js"></script>
+  <script src="DccLead.assets/js/04c-lead-assignment-rule-forms.js?v=20261123-masked-routing"></script>
+  <script src="DccLead.assets/js/04d-lead-assignment-controls.js?v=20261123-masked-routing"></script>
+  <script src="DccLead.assets/js/04e-lead-assignment-import.js?v=20261123-masked-routing"></script>
   <script src="DccLead.assets/js/04f-ai-strategy-workbench.js?v=20261119-docs-organized"></script>
   <script src="DccLead.assets/js/04g-ai-default-schemes.js?v=2026102205"></script>
   <script src="DccLead.assets/js/04h-ai-execution-plans.js?v=20261118-strategy-date-range"></script>
   <script src="DccLead.assets/js/04i-ai-list-transfer.js?v=20261118-strategy-date-range"></script>
-  <script src="DccLead.assets/js/05-sms-dispatch.js"></script>
+  <script src="DccLead.assets/js/04j-masked-intake-routing.js?v=20261123-masked-routing"></script>
+  <script src="DccLead.assets/js/05-sms-dispatch.js?v=20261124-sms-review"></script>
   <script src="DccLead.assets/js/06-ai-redial.js?v=2026092910"></script>
   <script src="DccLead.assets/js/07-call-status.js?v=20261104-multi-range"></script>
   <script src="DccLead.assets/js/08-cold-lead.js"></script>
-  <script src="DccLead.assets/js/09-lead-dispatch.js"></script>
+  <script src="DccLead.assets/js/09-lead-dispatch.js?v=20261124-sms-series"></script>
   <script src="DccLead.assets/js/10-resource-leads.js"></script>
   <script src="DccLead.assets/js/11-resource-unfilled.js"></script>
   <script src="DccLead.assets/js/12a-nurture-lead-list.js?v=20261106-initial-score-label"></script>
@@ -2448,7 +2449,7 @@
   <script src="DccLead.assets/js/18-batch-dispatch-page.js?v=20261031-distribution-move"></script>
   <script src="DccLead.assets/js/19a-low-score-visit.js?v=20261104-multi-range"></script>
   <script src="DccLead.assets/js/19b-low-score-dispatch.js?v=20261104-multi-range"></script>
-  <script src="DccLead.assets/js/19-nurture-task-page.js?v=20261110-store-city-group"></script>
+  <script src="DccLead.assets/js/19-nurture-task-page.js?v=20261124-masked-assistant"></script>
   <script src="DccLead.assets/js/20-manual-agent-workorders-report.js?v=2026102601"></script>
   <script src="DccLead.assets/js/21-ai-test-drive-scheduling.js?v=20261119-docs-organized"></script>
   <script src="DccLead.assets/js/21-seat-performance-dashboard.js?v=20261119-docs-organized"></script>
@@ -2458,9 +2459,11 @@
   <script src="DccLead.assets/js/24-tianwang-paid-dispatch-config.js?v=20261119-docs-organized"></script>
   <script src="DccLead.assets/js/23-lead-import.js?v=2026092111"></script>
   <script src="DccLead.assets/js/39-lead-import.js?v=20261026-pagination"></script>
-  <script src="DccLead.assets/js/masked-lead-demo-data.js?v=20261123-masked-workspace"></script>
-  <script src="DccLead.assets/js/25a-masked-lead-intake.js?v=20261123-masked-workspace"></script>
-  <script src="DccLead.assets/js/25-supervisor-nurture-task.js?v=20261123-intake-detail-page"></script>
+  <script src="DccLead.assets/js/masked-lead-demo-data.js?v=20261124-seat-monitoring"></script>
+  <script src="DccLead.assets/js/25b-masked-monitoring.js?v=20261124"></script>
+  <script src="DccLead.assets/js/25a-masked-lead-intake.js?v=20261124-seat-monitoring"></script>
+  <script src="DccLead.assets/js/19a-masked-seat-workbench.js?v=20261124-masked-lead-details"></script>
+  <script src="DccLead.assets/js/25-supervisor-nurture-task.js?v=20261124-nurture-navigation"></script>
   <script src="DccLead.assets/js/26-nev-daily-grade-data.js?v=20261111-nev-grade-split"></script>
   <script src="DccLead.assets/js/26-ops-report.js?v=20261119-docs-organized"></script>
   <script src="DccLead.assets/js/30-quality-report-old.js?v=2026102601"></script>
@@ -2473,7 +2476,7 @@
   <script src="DccLead.assets/js/27-retention-data-config.js?v=20261031-retention-window"></script>
   <script src="DccLead.assets/js/28-ops-ai-testdrive-efficiency.js?v=20261102-confirmed-closeout"></script>
   <script src="DccLead.assets/js/45-global-state-conversion.js?v=20261104-multi-range"></script>
-  <script src="DccLead.assets/js/43-version-prototype-entry.js?v=20261123-employee-entry"></script>
+  <script src="DccLead.assets/js/43-version-prototype-entry.js?v=20261124-sms-series"></script>
 
 </body>
 </html>

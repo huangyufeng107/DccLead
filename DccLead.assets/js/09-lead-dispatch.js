@@ -186,7 +186,7 @@ function renderCallTypeTagPicker({ idPrefix, inputName, options = [], selected =
   const onclickAttr = readonly ? '' : renderUiActionCallback('dispatch-calltype-toggle', [idPrefix]);
   return `
     <div class="tag-picker dispatch-tag-picker ${readonly ? 'readonly' : ''}">
-      <button class="tag-picker-trigger placeholder" id="${idPrefix}Trigger" type="button" ${onclickAttr}>${placeholder}</button>
+      <button class="tag-picker-trigger placeholder" id="${idPrefix}Trigger" data-placeholder="${escapeAttr(placeholder)}" type="button" ${onclickAttr}>${escapeHtml(placeholder)}</button>
       <div class="tag-picker-panel" id="${idPrefix}Panel">
         <div class="tag-picker-toolbar">
           <span id="${idPrefix}Count">已选 0 / ${options.length}</span>
@@ -225,7 +225,7 @@ function updateCallTypeTagPickerSummary(idPrefix) {
     inputs: getCallTypeTagPickerInputs(idPrefix),
     triggerId: `${idPrefix}Trigger`,
     countId: `${idPrefix}Count`,
-    placeholder: '请选择外呼类型'
+    placeholder: document.getElementById(`${idPrefix}Trigger`)?.dataset.placeholder || '请选择外呼类型'
   });
 }
 

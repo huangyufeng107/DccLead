@@ -453,6 +453,7 @@ for (let i = 0; i < 5; i++) {
 let activeNurtureTaskQueue = 'today';
 let activeNurtureTaskId = 'NT-T2';
 let activeNurtureTaskScope = 'nurture';
+let maskedSeatOpen = false;
 let activeRightTab = 'rating';
 let activeProfileSubTab = 'buyIntent';
 let collapsedQueues = { new: false, today: false, overdue: false, future: true, drive_new: false, drive_today: true, drive_overdue: true, drive_future: true };
@@ -541,7 +542,8 @@ function commitCustomerName(page) {
 
 function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-function renderNurtureTaskTopbar() {
+function renderNurtureTaskTopbar({masked = false, assistantCollapsed = isNurtureAssistantCollapsed, dialPhone} = {}) {
+  const dialDisabled = masked && !dialPhone ? 'disabled' : '';
   const outboundIsVcp = activeOutboundProvider === 'vcp';
   const providerName = outboundIsVcp ? '联友 VCP' : '天润外呼';
   const providerHint = outboundIsVcp ? '完整座席工具栏' : '当前仅支持登录';
@@ -554,11 +556,11 @@ function renderNurtureTaskTopbar() {
       <span class="nt-outbound-status"><i class="nt-outbound-dot"></i>已登录</span>
       <button type="button" class="nt-outbound-control" data-nt-outbound-action="open-login-modal">重新登录</button>
       <button type="button" class="nt-outbound-control" data-nt-outbound-action="pause">暂停</button>
-      <button type="button" class="nt-outbound-control" data-nt-outbound-action="dial">外拨</button>
+      <button type="button" class="nt-outbound-control" data-nt-outbound-action="dial" ${dialDisabled}>外拨</button>
       <button type="button" class="nt-outbound-control" data-nt-outbound-action="answer">接听</button>
       <button type="button" class="nt-outbound-control" data-nt-outbound-action="hangup">挂机</button>` : outboundLoggedIn ? `
       <span class="nt-outbound-status ${outboundCallState === 'calling' ? 'is-calling' : ''}"><i class="nt-outbound-dot"></i>${outboundCallState === 'calling' ? '通话中' : '已登录'}</span>
-      ${outboundCallState === 'calling' ? '<button type="button" class="nt-outbound-control danger" data-nt-outbound-action="hangup">挂机</button>' : '<button type="button" class="nt-outbound-control primary" data-nt-outbound-action="open-dial-modal">外拨</button>'}
+      ${outboundCallState === 'calling' ? '<button type="button" class="nt-outbound-control danger" data-nt-outbound-action="hangup">挂机</button>' : `<button type="button" class="nt-outbound-control primary" data-nt-outbound-action="open-dial-modal" ${dialDisabled}>外拨</button>`}
       <button type="button" class="nt-outbound-control" data-nt-outbound-action="logout">退出登录</button>` : `
       <span class="nt-outbound-status is-offline"><i class="nt-outbound-dot"></i>未登录</span>
       <button type="button" class="nt-outbound-control primary" data-nt-outbound-action="open-login-modal">登录${outboundIsVcp ? '联友 VCP' : '天润外呼'}</button>`;
@@ -568,8 +570,8 @@ function renderNurtureTaskTopbar() {
       <p>按优先级处理待跟进线索，在同一工作台完成沟通、回访和客户信息查看。</p>
     </div>
     <div class="nt-page-actions">
-      <button type="button" class="nt-page-action nt-page-action-timeline" data-nt-top-menu-action="open-timeline">查看客户时光轴</button>
-      <button type="button" class="nt-page-action" data-nt-top-menu-action="toggle-assistant">${isNurtureAssistantCollapsed ? '展开辅助信息' : '收起辅助信息'}</button>
+      <button type="button" class="nt-page-action nt-page-action-timeline" data-nt-top-menu-action="${masked ? 'open-records' : 'open-timeline'}">${masked ? '查看回访记录' : '查看客户时光轴'}</button>
+      <button type="button" class="nt-page-action" data-nt-top-menu-action="toggle-assistant">${assistantCollapsed ? '展开辅助信息' : '收起辅助信息'}</button>
     </div>
   </header>
       <div class="nt-outbound-wrap">
@@ -589,6 +591,97 @@ function renderNurtureTaskTopbar() {
       </div>`;
 }
 
+function handleNurtureOutboundAction(page, action, redraw, dialPhone) {
+  if (['dial', 'open-dial-modal', 'submit-dial'].includes(action) && dialPhone === null) {
+    outboundDialModalOpen = false;
+    showToast?.('当前任务的隐私号不可拨', false);
+    redraw();
+    return;
+  }
+  if (action === 'toggle-outbound-menu') {
+    outboundMenuOpen = !outboundMenuOpen;
+    redraw();
+    return;
+  }
+  if (action === 'switch-vcp' || action === 'switch-tianrun') {
+    const nextProvider = action === 'switch-vcp' ? 'vcp' : 'tianrun';
+    if (nextProvider !== activeOutboundProvider) {
+      activeOutboundProvider = nextProvider;
+      outboundLoggedIn = true;
+      outboundConnectionState = nextProvider === 'tianrun' ? 'disconnected' : 'ready';
+      showToast?.(`${nextProvider === 'vcp' ? '联友 VCP' : '天润外呼'}已登录，已退出其他外呼工具`, true);
+    }
+    outboundMenuOpen = false;
+    redraw();
+    return;
+  }
+  if (action === 'open-login-modal') {
+    outboundLoginModalOpen = true;
+    outboundMenuOpen = false;
+    redraw();
+    return;
+  }
+  if (action === 'close-login-modal') {
+    outboundLoginModalOpen = false;
+    redraw();
+    return;
+  }
+  if (action === 'submit-login') {
+    const workMode = page.querySelector('#ntOutboundWorkMode')?.value || '';
+    if (!workMode) {
+      showToast?.('请选择工作模式', false);
+      return;
+    }
+    outboundWorkMode = workMode;
+    outboundLoggedIn = true;
+    outboundConnectionState = 'ready';
+    outboundLoginModalOpen = false;
+    showToast?.(`${activeOutboundProvider === 'vcp' ? '联友 VCP' : '天润外呼'}登录成功`, true);
+    redraw();
+    return;
+  }
+  if (action === 'open-dial-modal') {
+    outboundDialModalOpen = true;
+    redraw();
+    return;
+  }
+  if (action === 'close-dial-modal') {
+    outboundDialModalOpen = false;
+    redraw();
+    return;
+  }
+  if (action === 'submit-dial') {
+    outboundDialModalOpen = false;
+    outboundCallState = 'calling';
+    showToast?.(dialPhone === undefined ? `正在拨打 ${getActiveTask()?.phone || '当前任务号码'}` : '已模拟发起隐私号外拨', true);
+    redraw();
+    return;
+  }
+  if (action === 'logout') {
+    outboundLoggedIn = false;
+    outboundCallState = 'idle';
+    showToast?.('天润外呼已退出登录', true);
+    outboundMenuOpen = false;
+    redraw();
+    return;
+  }
+  if (action === 'hangup') {
+    outboundCallState = 'idle';
+    showToast?.('通话已结束', true);
+    redraw();
+    return;
+  }
+  const labels = { pause: '联友 VCP 已暂停', dial: dialPhone === undefined ? '已模拟发起外拨' : '已模拟发起隐私号外拨', answer: '已模拟接听' };
+  if (labels[action]) { showToast?.(labels[action], true); return; }
+}
+
+const maskedOutboundToolbar = {
+  render: renderNurtureTaskTopbar,
+  dialogs: dialPhone => (outboundLoginModalOpen ? renderOutboundLoginModal() : '')
+    + (outboundDialModalOpen && dialPhone ? renderOutboundDialModal(dialPhone) : ''),
+  handle: handleNurtureOutboundAction
+};
+
 function renderOutboundLoginModal() {
   const providerName = activeOutboundProvider === 'vcp' ? '联友 VCP' : '天润外呼';
   return `<div class="nt-outbound-modal-mask" role="presentation">
@@ -605,9 +698,9 @@ function renderOutboundLoginModal() {
   </div>`;
 }
 
-function renderOutboundDialModal() {
-  const task = getActiveTask();
-  const phone = task?.phone || task?.leadInfo?.phone || '-';
+function renderOutboundDialModal(maskedPhone) {
+  const task = maskedPhone === undefined ? getActiveTask() : null;
+  const phone = maskedPhone || task?.phone || task?.leadInfo?.phone || '-';
   return `<div class="nt-outbound-modal-mask" role="presentation">
     <section class="nt-outbound-login-modal nt-outbound-dial-modal" role="dialog" aria-modal="true" aria-labelledby="ntOutboundDialTitle">
       <button type="button" class="nt-outbound-modal-close" aria-label="关闭" data-nt-outbound-action="close-dial-modal">×</button>
@@ -801,21 +894,49 @@ function renderNurtureFilterDialog() {
   </dialog>`;
 }
 
+function renderNurtureScopeTabs() {
+  const maskedCount = window.maskedSeatWorkbench.count();
+  const tabs = [
+    ['nurture', '培育任务', nurtureTaskItems.filter(item => !item.isDriveTask).length],
+    ['drive', '试驾排程', nurtureTaskItems.filter(item => item.isDriveTask).length],
+    ['masked', '抖音掩码', maskedCount]
+  ];
+  const activeScope = maskedSeatOpen ? 'masked' : activeNurtureTaskScope;
+  return `<div class="nt-task-scope-tabs" role="tablist" aria-label="任务类型">
+    ${tabs.map(([scope,label,count]) => `<button type="button" role="tab" aria-selected="${activeScope === scope}"
+      class="nt-task-scope-tab ${activeScope === scope ? 'active' : ''}" data-task-scope="${scope}">
+      ${label}${count == null ? '' : ` <b>${count}</b>`}</button>`).join('')}
+  </div>`;
+}
+
+function switchNurtureTaskScope(nextScope) {
+  maskedSeatOpen = nextScope === 'masked';
+  if (!maskedSeatOpen && nextScope !== activeNurtureTaskScope) {
+    activeNurtureTaskScope = nextScope;
+    const nextTask = nurtureTaskItems.find(task => Boolean(task.isDriveTask) === (nextScope === 'drive'));
+    if (nextTask) {
+      activeNurtureTaskId = nextTask.id;
+      activeNurtureTaskQueue = nextTask.queue;
+      collapsedQueues[nextTask.queue] = false;
+    }
+    if (nextScope === 'drive' && !['details', 'records', 'timeline'].includes(activeRightTab)) activeRightTab = 'details';
+  }
+  renderNurtureTaskPage();
+  if (!maskedSeatOpen) document.querySelector(`#nurtureTaskPage [data-task-scope="${nextScope}"]`)?.focus();
+}
+
+window.openMaskedSeatWorkbench = () => switchNurtureTaskScope('masked');
+
 function renderLeftPanel() {
   const isDriveScope = activeNurtureTaskScope === 'drive';
   const scopeQueues = nurtureTaskQueues.filter(q => q.group === (isDriveScope ? 'drive' : 'normal'));
-  const nurtureCount = nurtureTaskItems.filter(item => !item.isDriveTask).length;
-  const driveCount = nurtureTaskItems.filter(item => item.isDriveTask).length;
   const activeQueueTasks = getFilteredNurtureTasks(activeNurtureTaskQueue);
   const filtersActive = hasNurtureTaskFilters();
   const emptyText = nurtureSearchKeyword || filtersActive ? '暂无符合筛选条件的任务' : '当前队列暂无任务';
   return `<aside class="nt-left-panel">
     <div class="nt-panel-head">
       <span class="nt-panel-title">外呼列表</span>
-      <div class="nt-task-scope-tabs" role="tablist" aria-label="任务类型">
-        <button type="button" class="nt-task-scope-tab ${!isDriveScope ? 'active' : ''}" data-task-scope="nurture" role="tab" aria-selected="${!isDriveScope}">培育任务 <b>${nurtureCount}</b></button>
-        <button type="button" class="nt-task-scope-tab ${isDriveScope ? 'active' : ''}" data-task-scope="drive" role="tab" aria-selected="${isDriveScope}">试驾排程 <b>${driveCount}</b></button>
-      </div>
+      ${renderNurtureScopeTabs()}
       <div class="nt-search-box">
         <input type="text" class="nt-search-input" placeholder="手机号搜索" id="nurtureSearchInput" value="${esc(nurtureSearchKeyword)}"/>
         <button type="button" class="nt-search-icon-btn" id="nurtureSearchBtn">
@@ -1792,6 +1913,15 @@ function renderRightPanel(task) {
 window.renderNurtureTaskPage = function() {
   const page = document.getElementById('nurtureMyTaskWorkspace') || document.getElementById('nurtureTaskPage');
   if (!page) return;
+  if (maskedSeatOpen) {
+    window.clearInterval(criticalReminderCountdownTimer);
+    window.clearTimeout(criticalReminderHideTimer);
+    visitScoreSession?.close();
+    visitScoreSession = null;
+    visitFormActive = false;
+    window.maskedSeatWorkbench.show(page, renderNurtureScopeTabs, switchNurtureTaskScope, maskedOutboundToolbar);
+    return;
+  }
   const task = getActiveTask();
   visitFormActive = !task.isDriveTask;
   if (task.isDriveTask) { visitScoreSession?.close(); visitScoreSession = null; visitRuleDialog = null; }
@@ -1870,76 +2000,8 @@ function bindEvents() {
     const outboundAction = e.target.closest('[data-nt-outbound-action]');
     if (outboundAction) {
       const action = outboundAction.dataset.ntOutboundAction;
-      if (action === 'switch-vcp' || action === 'switch-tianrun') {
-        const nextProvider = action === 'switch-vcp' ? 'vcp' : 'tianrun';
-        if (nextProvider !== activeOutboundProvider) {
-          activeOutboundProvider = nextProvider;
-          outboundLoggedIn = true;
-          outboundConnectionState = nextProvider === 'tianrun' ? 'disconnected' : 'ready';
-          showToast?.(`${nextProvider === 'vcp' ? '联友 VCP' : '天润外呼'}已登录，已退出其他外呼工具`, true);
-        }
-        outboundMenuOpen = false;
-        renderNurtureTaskPage();
-        return;
-      }
-      if (action === 'open-login-modal') {
-        outboundLoginModalOpen = true;
-        outboundMenuOpen = false;
-        renderNurtureTaskPage();
-        return;
-      }
-      if (action === 'close-login-modal') {
-        outboundLoginModalOpen = false;
-        renderNurtureTaskPage();
-        return;
-      }
-      if (action === 'submit-login') {
-        const workMode = page.querySelector('#ntOutboundWorkMode')?.value || '';
-        if (!workMode) {
-          showToast?.('请选择工作模式', false);
-          return;
-        }
-        outboundWorkMode = workMode;
-        outboundLoggedIn = true;
-        outboundConnectionState = 'ready';
-        outboundLoginModalOpen = false;
-        showToast?.(`${activeOutboundProvider === 'vcp' ? '联友 VCP' : '天润外呼'}登录成功`, true);
-        renderNurtureTaskPage();
-        return;
-      }
-      if (action === 'open-dial-modal') {
-        outboundDialModalOpen = true;
-        renderNurtureTaskPage();
-        return;
-      }
-      if (action === 'close-dial-modal') {
-        outboundDialModalOpen = false;
-        renderNurtureTaskPage();
-        return;
-      }
-      if (action === 'submit-dial') {
-        outboundDialModalOpen = false;
-        outboundCallState = 'calling';
-        showToast?.(`正在拨打 ${getActiveTask()?.phone || '当前任务号码'}`, true);
-        renderNurtureTaskPage();
-        return;
-      }
-      if (action === 'logout') {
-        outboundLoggedIn = false;
-        outboundCallState = 'idle';
-        showToast?.('天润外呼已退出登录', true);
-        outboundMenuOpen = false;
-        renderNurtureTaskPage();
-        return;
-      }
-      if (action === 'hangup') {
-        outboundCallState = 'idle';
-        showToast?.('通话已结束', true);
-        renderNurtureTaskPage();
-        return;
-      }
-      const labels = { pause: '联友 VCP 已暂停', dial: '已模拟发起外拨', answer: '已模拟接听' };
-      if (labels[action]) { showToast?.(labels[action], true); return; }
+      handleNurtureOutboundAction(page, action, renderNurtureTaskPage);
+      return;
     }
 
     const assistantClose = e.target.closest('[data-nt-assistant-close]');
@@ -1984,22 +2046,8 @@ function bindEvents() {
     // 队列折叠
     const scopeTab = e.target.closest('[data-task-scope]');
     if (scopeTab) {
-      const nextScope = scopeTab.dataset.taskScope;
-      if (nextScope !== activeNurtureTaskScope) {
-        activeNurtureTaskScope = nextScope;
-        const nextTask = nurtureTaskItems.find(task => Boolean(task.isDriveTask) === (nextScope === 'drive'));
-        if (nextTask) {
-          activeNurtureTaskId = nextTask.id;
-          activeNurtureTaskQueue = nextTask.queue;
-          collapsedQueues[nextTask.queue] = false;
-        }
-        if (nextScope === 'drive') {
-          if (activeRightTab !== 'details' && activeRightTab !== 'records' && activeRightTab !== 'timeline') {
-            activeRightTab = 'details';
-          }
-        }
-      }
-      renderNurtureTaskPage(); return;
+      switchNurtureTaskScope(scopeTab.dataset.taskScope);
+      return;
     }
 
     // 切换任务队列：下方任务列表同步切换为当前队列对应的培育线索。

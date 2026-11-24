@@ -179,16 +179,42 @@ const leadAssignmentDimensions = [
   }
 ];
 // 仅用于本地原型回读人工编辑；正式账号、持久化和权限由服务端负责。
+const assignmentLeadScopes = { standard: '常规培育线索', masked: '抖音掩码留资' };
+const assignmentLeadScope = rule => rule.leadScope === 'masked' ? 'masked' : 'standard';
+const assignmentLeadScopeLabel = rule => assignmentLeadScopes[assignmentLeadScope(rule)];
+const renderAssignmentScopeOptions = selected => Object.entries(assignmentLeadScopes)
+  .map(([value, label]) => `<option value="${value}" ${value === selected ? 'selected' : ''}>${label}</option>`).join('');
+
+const maskedDemoDimension = leadAssignmentDimensions.find(dimension => dimension.key === 'channel');
+for (const [code, channel, name] of [
+  ['R11', 'AI外呼', '抖音掩码 R11 分配给 AI（演示）'],
+  ['R4', '人工外呼', '抖音掩码 R4 分配给人工（演示）']
+]) {
+  maskedDemoDimension.rules.unshift({
+    id: `CH-DY-${code}`, leadScope: 'masked', name, status: '启用',
+    keyValue: code, channelValues: [code], allocationMode: 'single',
+    callTypes: [channel], allocations: [{channel, percent: 100}],
+    condition: `渠道编码=${code} / 适用线索=抖音掩码留资`, action: `全部分配给${channel}`
+  });
+}
+
 const leadAssignmentEditStorageKey = 'dcc.leadAssignment.manualEdits.v1';
 let leadAssignmentSavedEdits = {};
 try {
   const saved = JSON.parse(localStorage.getItem(leadAssignmentEditStorageKey) || '{}');
   if (saved && typeof saved === 'object' && !Array.isArray(saved)) leadAssignmentSavedEdits = saved;
   leadAssignmentDimensions.forEach(dimension => {
-    dimension.rules = dimension.rules.map(rule => {
+    const seededIds = new Set(dimension.rules.map(rule => rule.id));
+    dimension.rules = dimension.rules.flatMap(rule => {
       const edit = leadAssignmentSavedEdits[`${dimension.key}/${rule.id}`];
-      return edit && edit.id === rule.id ? { ...rule, ...edit } : rule;
+      if (edit?.deleted) return [];
+      return [edit && edit.id === rule.id ? { ...rule, ...edit } : rule];
     });
+    for (const [key, rule] of Object.entries(leadAssignmentSavedEdits)) {
+      if (rule?.created && !rule.deleted && key === `${dimension.key}/${rule.id}` && !seededIds.has(rule.id)) {
+        dimension.rules.push(rule);
+      }
+    }
   });
 } catch {
   // 无法回读时保留演示初始数据；保存失败不得伪装为成功。
@@ -203,12 +229,9 @@ function getLeadAssignmentManualUpdateInfo() {
   };
 }
 
-function commitLeadAssignmentManualEdit(dimension, id, payload) {
-  const index = dimension.rules.findIndex(rule => rule.id === id);
-  if (index < 0) { showToast('规则不存在，请刷新后重试', false); return false; }
-  // 只合并业务表单及更新信息，不清除历史建议关联。
-  const next = { ...dimension.rules[index], ...payload, ...getLeadAssignmentManualUpdateInfo() };
-  const saved = { ...leadAssignmentSavedEdits, [`${dimension.key}/${id}`]: next };
+function persistLeadAssignmentRows(dimension, rows) {
+  const saved = { ...leadAssignmentSavedEdits };
+  rows.forEach(rule => { saved[`${dimension.key}/${rule.id}`] = rule; });
   try {
     localStorage.setItem(leadAssignmentEditStorageKey, JSON.stringify(saved));
   } catch {
@@ -216,6 +239,15 @@ function commitLeadAssignmentManualEdit(dimension, id, payload) {
     return false;
   }
   leadAssignmentSavedEdits = saved;
+  return true;
+}
+
+function commitLeadAssignmentManualEdit(dimension, id, payload) {
+  const index = dimension.rules.findIndex(rule => rule.id === id);
+  if (index < 0) { showToast('规则不存在，请刷新后重试', false); return false; }
+  // 只合并业务表单及更新信息，不清除历史建议关联。
+  const next = { ...dimension.rules[index], ...payload, ...getLeadAssignmentManualUpdateInfo() };
+  if (!persistLeadAssignmentRows(dimension, [next])) return false;
   dimension.rules[index] = next;
   return true;
 }
@@ -443,7 +475,14 @@ function renderLeadAssignmentDimensionPanel() {
         <option value="启用">启用</option>
         <option value="停用">停用</option>
       </select>
+      <label class="filter-label" for="leadAssignmentScopeFilter">适用线索</label>
+      <select class="filter-select" id="leadAssignmentScopeFilter" ${renderUiActionCallback('assignment-filter')}>
+        <option value="">全部</option>${renderAssignmentScopeOptions()}
+      </select>
       <button class="btn-secondary" type="button" ${renderUiActionCallback('assignment-reset')}>重置</button>
+      ${new URLSearchParams(location.search).get('dccMode') === 'local' ? `
+      <button class="btn-secondary" type="button" ${renderUiActionCallback('assignment-publish-masked-routing', ['$self'])}>发布到本地联调</button>
+      <span id="maskedRoutingPublishStatus" role="status"></span>` : ''}
     </div>
     ${renderPolicyRuleNote('leadAssignmentRuleNote', '用于统一管理线索接收后的线索分配策略，按意向车系、SmartCode、大项目名、线索状态、渠道编码和意向门店等条件判断线索分配给 AI 跟进、人工跟进或暂不分配。')}
     <div class="card">
@@ -836,7 +875,9 @@ function getFilteredLeadAssignmentRules() {
   const dimension = getLeadAssignmentDimension();
   const keyword = document.getElementById('leadAssignmentKeyword')?.value.trim().toLowerCase() || '';
   const status = document.getElementById('leadAssignmentStatusFilter')?.value || '';
+  const scope = document.getElementById('leadAssignmentScopeFilter')?.value || '';
   return dimension.rules.filter(rule => {
+    if (scope && assignmentLeadScope(rule) !== scope) return false;
     if (status && rule.status !== status) return false;
     if (!keyword) return true;
     return [rule.name, rule.id, rule.keyValue, rule.condition, rule.action, rule.ratio].some(value => String(value || '').toLowerCase().includes(keyword));
@@ -907,6 +948,8 @@ function resetLeadAssignmentFilters() {
   const status = document.getElementById('leadAssignmentStatusFilter');
   if (keyword) keyword.value = '';
   if (status) status.value = '';
+  const scope = document.getElementById('leadAssignmentScopeFilter');
+  if (scope) scope.value = '';
   leadAssignmentCurrentPage = 1;
   renderLeadAssignmentDimensionTable();
 }
@@ -938,14 +981,7 @@ function deleteLeadAssignmentRule(id) {
   const rule = dimension.rules.find(item => item.id === id);
   if (!rule) return;
   if (!confirm(`确认删除${getLeadAssignmentRuleLabel(dimension)}「${rule.name}」？`)) return;
-  const cacheKey = `${dimension.key}/${id}`;
-  if (Object.prototype.hasOwnProperty.call(leadAssignmentSavedEdits, cacheKey)) {
-    const saved = { ...leadAssignmentSavedEdits };
-    delete saved[cacheKey];
-    try { localStorage.setItem(leadAssignmentEditStorageKey, JSON.stringify(saved)); }
-    catch { showToast('删除失败：无法更新本地原型数据', false); return; }
-    leadAssignmentSavedEdits = saved;
-  }
+  if (!persistLeadAssignmentRows(dimension, [{ id, deleted: true }])) return;
   dimension.rules = dimension.rules.filter(item => item.id !== id);
   showToast(`${getLeadAssignmentRuleLabel(dimension)}已删除`, true);
   renderLeadAssignmentConfigPage();
@@ -1226,12 +1262,13 @@ function exportLeadAssignmentRules(dimensionKey) {
     (rule.callTypes || []).join('、'),
     String(rule.sort || ''),
     rule.status || '',
-    rule.updatedAt || ''
+    rule.updatedAt || '',
+    assignmentLeadScopeLabel(rule)
   ]);
   const sheets = [
     {
       name: `${dimension.name}分配规则`,
-      columns: ['规则ID', '策略名称', '配置内容', '匹配条件', '分配动作', '外呼类型', '排序/权重', '状态', '更新时间'],
+      columns: ['规则ID', '策略名称', '配置内容', '匹配条件', '分配动作', '外呼类型', '排序/权重', '状态', '更新时间', '适用线索'],
       rows: rows
     }
   ];

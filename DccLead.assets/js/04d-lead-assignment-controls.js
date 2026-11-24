@@ -1238,7 +1238,8 @@ function saveSeriesAssignmentRule() {
     : isRatio
       ? `接入比例配置：${selectedAllocationPolicy.name}`
       : `全部分配给${allocations[0].channel}`;
-  const conditionParts = [`${config.conditionPrefix}=${selectedValues.join('、')}`];
+  const leadScope = document.getElementById('assignmentLeadScope').value;
+  const conditionParts = [`适用线索=${assignmentLeadScopes[leadScope]}`, `${config.conditionPrefix}=${selectedValues.join('、')}`];
   if (dimension.key === 'lead-status' && leadStatusReasonValues.length) {
     conditionParts.push(`异常原因=${leadStatusReasonValues.join('、')}`);
   }
@@ -1254,6 +1255,7 @@ function saveSeriesAssignmentRule() {
   }
   const payload = {
     name,
+    leadScope,
     keyValue: selectedValues.join('、'),
     [config.valuesKey]: selectedValues,
     ...(dimension.key === 'sc' ? { smartCodeInputMode } : {}),
@@ -1284,7 +1286,11 @@ function saveSeriesAssignmentRule() {
     if (!commitLeadAssignmentManualEdit(dimension, editingLeadAssignmentRuleId, payload)) return;
     showToast(`${getLeadAssignmentRuleLabel(dimension)}已更新`, true);
   } else {
-    dimension.rules.push({ ...getDefaultLeadAssignmentRule(dimension), sort: dimension.rules.length + 1, ...payload, ...getLeadAssignmentManualUpdateInfo() });
+    const base = getDefaultLeadAssignmentRule(dimension);
+    const rule = { ...base, id: getNextImportedLeadAssignmentRuleId(dimension), sort: dimension.rules.length + 1,
+      ...payload, ...getLeadAssignmentManualUpdateInfo(), created: true };
+    if (!persistLeadAssignmentRows(dimension, [rule])) return;
+    dimension.rules.push(rule);
     showToast(`${getLeadAssignmentRuleLabel(dimension)}已创建`, true);
   }
   closeModal('leadDispatchRuleModal');

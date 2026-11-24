@@ -18,7 +18,7 @@ function renderSmsDispatchPolicyPage() {
     <div class="page-hero">
       <div>
         <div class="page-title">短信下发配置</div>
-        <div class="page-desc">用于配置 AI 外呼结束后的短信触达规则，按外呼类型、通话状态、外呼标签和优先级判断是否下发短信，并关联具体短信模板。命中后系统按规则自动选择模板触达客户，让高意向、活动权益、未接通等场景的后续沟通更标准、可追踪。</div>
+        <div class="page-desc">用于配置 AI 外呼结束后的短信触达规则，按外呼类型、通话状态、外呼标签、标签最新意向车系和优先级判断是否下发短信，并关联具体短信模板。命中后系统按规则自动选择模板触达客户，让高意向、活动权益、未接通等场景的后续沟通更标准、可追踪。</div>
       </div>
       ${renderSmsDispatchSummary()}
     </div>
@@ -105,6 +105,13 @@ function getSmsDispatchAllCallTypes() {
   return unifiedPolicyCallTypeOptions;
 }
 
+function getSmsDispatchIntentSeriesOptions(selected = []) {
+  const names = (DICTIONARY_ITEMS.INTENT_SERIES || [])
+    .filter(item => item.status === '启用')
+    .map(item => item.name);
+  return [...new Set([...names, ...(selected || [])])];
+}
+
 function getSmsDispatchAllStatuses() {
   return [...new Set(smsDispatchRules.flatMap(rule => rule.statuses))];
 }
@@ -126,6 +133,7 @@ function getFilteredSmsDispatchRules() {
         (rule.callTypes || []).join(' '),
         (rule.statuses || []).join(' '),
         (rule.tags || []).join(' '),
+        (rule.intentSeriesNames || []).join(' '),
         rule.template,
         rule.send
       ].filter(Boolean).join(' ').toLowerCase();
@@ -134,7 +142,8 @@ function getFilteredSmsDispatchRules() {
     .filter(rule => !callType || rule.callTypes.includes(callType))
     .filter(rule => !template || rule.template === template)
     .filter(rule => !enabled || (enabled === '启用' ? rule.enabled : !rule.enabled))
-    .sort((a, b) => (Number(a.priority) || 99) - (Number(b.priority) || 99) || a.id - b.id);
+    // 示例ID按新增顺序递增，用于模拟同权重的创建时间倒序。
+    .sort((a, b) => (Number(a.priority) || 99) - (Number(b.priority) || 99) || b.id - a.id);
 }
 
 function renderSmsDispatchRuleTable() {
@@ -182,12 +191,13 @@ function renderSmsDispatchRuleTable() {
 function renderSmsDispatchConditionSummary(rule) {
   const parts = [
     `通话状态（${rule.statusLogic || '或'}）：${(rule.statuses || []).slice(0, 3).join('、') || '不限'}${(rule.statuses || []).length > 3 ? '…' : ''}`,
-    `包含标签（${rule.tagLogic || '或'}）：${(rule.tags || []).slice(0, 3).join('、') || '—'}${(rule.tags || []).length > 3 ? '…' : ''}`
+    `包含标签（${rule.tagLogic || '或'}）：${(rule.tags || []).slice(0, 3).join('、') || '—'}${(rule.tags || []).length > 3 ? '…' : ''}`,
+    `标签最新意向车系：${(rule.intentSeriesNames || []).join('、') || '不限'}`
   ];
   if (rule.excludeTags && rule.excludeTags.length) {
     parts.push(`排除标签（${rule.excludeTagLogic || '或'}）：${rule.excludeTags.slice(0, 3).join('、')}${rule.excludeTags.length > 3 ? '…' : ''}`);
   }
-  return `<div class="rule-text-stack">${parts.map(item => `<div>${item}</div>`).join('')}</div>`;
+  return `<div class="rule-text-stack">${parts.map(item => `<div>${escapeHtml(item)}</div>`).join('')}</div>`;
 }
 
 function openSmsDispatchRuleModal(mode, id = null) {
@@ -208,6 +218,7 @@ function openSmsDispatchRuleModal(mode, id = null) {
   document.getElementById('leadDispatchRuleModal').classList.add('show');
   if (mode !== 'view') {
     updateCallTypeTagPickerSummary('smsDispatchCallType');
+    updateCallTypeTagPickerSummary('smsDispatchIntentSeries');
     updateSmsDispatchCallStatusPickerSummary();
     updateSmsDispatchTagPickerSummary('Include');
     updateSmsDispatchTagPickerSummary('Exclude');
@@ -224,6 +235,7 @@ function getDefaultSmsDispatchRule() {
     statusLogic: '或',
     tags: [],
     tagLogic: '或',
+    intentSeriesNames: [],
     excludeTags: [],
     excludeTagLogic: '或',
     send: '下发',
@@ -248,6 +260,7 @@ function renderSmsDispatchRuleDetail(rule) {
         <div class="rule-detail-title">命中条件</div>
         <div class="rule-detail-body">
           <div class="rule-detail-field"><div class="rule-detail-label">外呼类型</div><div class="rule-detail-value">${(rule.callTypes || []).join('、') || '—'}</div></div>
+          <div class="rule-detail-field"><div class="rule-detail-label">标签最新意向车系</div><div class="rule-detail-value">${detailValue((rule.intentSeriesNames || []).join("、") || "不限")}</div></div>
           <div class="rule-detail-field"><div class="rule-detail-label">通话状态</div><div class="rule-detail-value">${detailValue(`${rule.statusLogic || '或'}：${(rule.statuses || []).join('、') || '不限'}`)}</div></div>
           <div class="rule-detail-field"><div class="rule-detail-label">包含标签</div><div class="rule-detail-value">${detailValue(`${rule.tagLogic || '或'}：${(rule.tags || []).join('、') || '—'}`)}</div></div>
           <div class="rule-detail-field"><div class="rule-detail-label">不包含标签</div><div class="rule-detail-value">${detailValue(`${rule.excludeTagLogic || '或'}：${(rule.excludeTags || []).join('、') || '—'}`)}</div></div>
@@ -293,6 +306,11 @@ function renderSmsDispatchRuleForm(rule) {
           <div class="form-group wide">
             <div class="form-label">外呼类型 <span class="required">*</span></div>
             ${renderCallTypeTagPicker({ idPrefix: 'smsDispatchCallType', inputName: 'smsDispatchCallType', options: getSmsDispatchAllCallTypes(), selected: rule.callTypes || [] })}
+          </div>
+          <div class="form-group wide">
+            <div class="form-label">标签最新意向车系</div>
+            ${renderCallTypeTagPicker({ idPrefix: 'smsDispatchIntentSeries', inputName: 'smsDispatchIntentSeries', options: getSmsDispatchIntentSeriesOptions(rule.intentSeriesNames), selected: rule.intentSeriesNames || [], placeholder: '不限' })}
+            <div class="series-form-hint">不选表示不限；选择后，按本次话单标签返回的单个车系名称匹配，多个选项满足任意一个即可。</div>
           </div>
           <div class="form-group wide">
             <div class="form-label">通话状态</div>
@@ -592,6 +610,7 @@ function saveSmsDispatchRule() {
     priority: document.getElementById('smsFormPriority')?.value.trim() || '',
     leadType: '冷线索',
     callTypes: collectCheckedValues('smsDispatchCallType'),
+    intentSeriesNames: collectCheckedValues('smsDispatchIntentSeries'),
     statuses: collectCheckedValues('smsDispatchCallStatus'),
     statusLogic: document.getElementById('smsFormStatusLogic')?.value || '或',
     tags: collectCheckedValues('smsDispatchTag'),
