@@ -10,6 +10,38 @@
   };
 
   const monitoring = window.maskedMonitoring;
+  const monitorFields = {
+    firstWarning: {
+      title: '首跟提醒', unit: '分钟',
+      purpose: '提醒坐席尽快做第一次跟进。达到设定时间还没有首跟记录，预警清单就显示「待首跟提醒」。',
+      example: '默认 30 分钟。9:00 上班时接到一条可拨线索，9:30 还没有首跟记录就提醒。',
+      note: '从派单和隐私号可拨两者较晚的时间开始，只累计在班时间。未首跟转派后，新坐席重新计时。'
+    },
+    firstOverdue: {
+      title: '首跟超时', unit: '分钟',
+      purpose: '让主管看到长时间还没有做第一次跟进的线索，方便优先催办。达到设定时间，预警清单显示「首跟超时」。',
+      example: '默认 120 分钟（2 小时）。9:00 开始计时，11:00 还没有首跟记录就标为超时。',
+      note: '和首跟提醒从同一时间起算。首跟超时时间须大于首跟提醒时间。'
+    },
+    idle: {
+      title: '长时间未跟进', unit: '分钟',
+      purpose: '找出已有跟进记录、还在待处理且没有约下次回访的线索。从最近一次跟进起，达到设定时间仍没有新记录，就显示「长时间未跟进」。',
+      example: '默认 1440 分钟（24 小时）。周一 10:00 跟进后没约下次，周二 10:00 仍无新记录就预警。',
+      note: '已约回访的线索按约定时间判断，到点还没有本次回访记录就标为「回访逾期」。'
+    },
+    expiry: {
+      title: '隐私号临期', unit: '提前分钟',
+      purpose: '让主管提前看到即将失去外拨机会的任务。剩余时间进入设定范围后，预警清单显示「即将失效」。',
+      example: '默认提前 1440 分钟（24 小时）。周五 15:00 失效，周四 15:00 就进入预警清单。',
+      note: '按实际失效时间倒推，休息时段也继续倒计时。'
+    },
+    urgentExpiry: {
+      title: '隐私号加急', unit: '提前分钟',
+      purpose: '提示主管和坐席优先处理快到期的线索。触发后，主管预警加急，坐席列表和任务跟进区显示红色提示。',
+      example: '默认提前 120 分钟（2 小时）。隐私号 15:00 失效，13:00 起显示加急。',
+      note: '客户没接且任务仍在待跟进时继续提醒，到期后显示「隐私号已失效」并禁用外拨。加急时间须短于临期时间。'
+    }
+  };
   const { headquarters, date: demoDate, phone: demoPhone, smartcode: demoSmartcode } = window.maskedLeadDemo;
   const phone = row => row.local ? row.maskedPhone : demoPhone(row);
   const smartcode = row => row.local ? row.smartcode : demoSmartcode(row);
@@ -81,8 +113,8 @@
     processing: '取号中', available: '可拨', failed: '取号失败', timeout: '超时待核对',
     not_received: '已确认未取号', expired: '已失效'
   };
-  const privacyStatus = row => row.privacy?.status === 'available' && row.privacy.expiresAtRaw
-    && Date.parse(row.privacy.expiresAtRaw) <= Date.now() ? 'expired' : row.privacy?.status;
+  const privacyStatus = row => row.privacy?.status === 'available'
+    && monitoring.timestamp(row.privacy.expiresAtRaw || row.privacy.expiresAt) <= Date.now() ? 'expired' : row.privacy?.status;
   const privacyColumns = [
     ['隐私号', row => row.privacy?.number], ['隐私号失效截止时间', row => row.privacy?.expiresAt],
     ['隐私号状态', row => privacyLabels[privacyStatus(row)] || '待取号']
@@ -108,7 +140,7 @@
   const optionDefaults = { 坐席账号: Object.keys(agents), 初始意向级别: ['H', 'A', 'B', 'C'], 分配规则: ['人工分配'] };
 
   function readIntake(snapshot) {
-    const {lead, taskId, dccTaskId, receiptStatus, receiptReason, events, owner, assignedAt, followupComplete, followupVerification, manualFollowup, manualFollowupHistory, firstFollowupAt, privacy, routing} = snapshot;
+    const {lead, taskId, dccTaskId, receiptStatus, receiptReason, events, owner, assignedAt, followupComplete, noPhoneReturn, followupVerification, manualFollowup, manualFollowupHistory, firstFollowupAt, privacy, routing} = snapshot;
     const accepted = receiptStatus === 'accepted';
     const recovered = events.some(event => event.kind === 'acceptance_checked' && event.status === 'accepted');
     const replayed = events.some(event => event.kind === 'duplicate_intake');
@@ -117,7 +149,7 @@
     const titles = {
       dispatch_sent: '收到临时池派单', dcc_task_created: '建单成功', acceptance_returned: '接单回执',
       acceptance_checked: '核对接单结果', duplicate_intake: '收到重复推送',
-      privacy_requested: '自动申请隐私号', privacy_result: '取号结果', privacy_checked: '核对取号结果'
+      privacy_requested: '自动申请隐私号', privacy_result: '取号结果', privacy_checked: '核对取号结果', dcc_no_phone_returned: '未取得手机号，已退回临时池', dcc_task_transferred: '主管转派'
     };
     const log = events.map(event => [
       localTime.format(new Date(event.at)), titles[event.kind],
@@ -133,7 +165,7 @@
       association: lead.associationId, dispatch: taskId, status, reason: receiptReason,
       entry: lead.entry, channel: lead.rChannel, power: lead.powerType, series: lead.carSeriesId,
       intentionStore: lead.originalIntentionStoreId, store: lead.storeId, maskedPhone: lead.maskedPhone,
-      owner, routing, assignedAt: assignedAt ? localTime.format(new Date(assignedAt)) : '', followupComplete, followupVerification, manualFollowup, manualFollowupHistory, firstFollowupAt,
+      owner, routing, assignedAtRaw: assignedAt, assignedAt: assignedAt ? localTime.format(new Date(assignedAt)) : '', followupComplete, noPhoneReturn, followupVerification, manualFollowup, manualFollowupHistory, firstFollowupAt,
       privacy: privacy ? {...privacy, availableAt: privacyReady?.at, expiresAtRaw: privacy.expiresAt,
         expiresAt: privacy.expiresAt ? localTime.format(new Date(privacy.expiresAt)) : ''} : null,
       smartcode: lead.smartcode, receivedAt: firstDispatch ? localTime.format(new Date(firstDispatch.at)) : '—', events: log
@@ -180,6 +212,8 @@
       });
     }
     let localToken;
+    let remoteMonitorSettings;
+    const monitorLimits = () => remoteMonitorSettings || monitoring.settings();
     let fetchVersion = 0;
     let saving = false;
     let statisticsTimer;
@@ -302,9 +336,29 @@
           </footer>
         </section>
         <section class="card masked-intake-results" id="masked-statistics" aria-label="抖音掩码留资任务统计" hidden>
-          <div class="lead-toolbar"><div class="section-title">抖音掩码留资任务统计</div><div id="masked-statistics-controls"></div></div>
+          <div class="lead-toolbar"><div class="section-title">抖音掩码留资任务统计</div><div id="masked-statistics-controls"><button type="button" class="btn-secondary" data-monitor-settings>总部预警配置</button></div></div>
           <div id="masked-statistics-summary" class="masked-statistics-summary" aria-live="polite"></div>
-          <p class="masked-monitor-rule">演示阈值按自然时间计算。首跟 30 分钟提醒、2 小时超时，未约回访连续 24 小时未跟进，隐私号剩余 24 小时预警、2 小时加急。正式排班和阈值待确认。</p>
+          <p class="masked-monitor-rule">首跟按演示班次 09:00–18:00 累计。回访到约定时间即逾期，隐私号临期按实际截止时间倒推。</p>
+          <form id="masked-monitor-settings" class="masked-monitor-settings" aria-label="总部预警配置" hidden>
+            <p>保存后，未完成任务按最新阈值判断。${localWorkspace ? '主管和坐席共用本地联调配置。' : '配置保存在此原型浏览器中。'}</p>
+            <div class="masked-monitor-setting-fields">
+              ${Object.entries(monitorFields).map(([key, field]) => `<div class="masked-monitor-setting">
+                <div class="masked-monitor-setting-label">
+                  <label for="masked-monitor-${key}">${field.title}</label>
+                  <button type="button" class="masked-monitor-help-button" data-monitor-help="${key}" aria-label="查看${field.title}说明" aria-haspopup="dialog">?</button>
+                </div>
+                <div class="masked-monitor-setting-value">
+                  <input id="masked-monitor-${key}" name="${key}" aria-label="${field.title}（${field.unit}）" type="number" min="1" max="525600" required>
+                  <span aria-hidden="true">${field.unit === '分钟' ? '分钟' : '分钟前'}</span>
+                </div>
+              </div>`).join('')}
+            </div>
+            <div class="masked-monitor-setting-actions">
+              <button type="submit" class="btn-primary">保存配置</button>
+              <button type="button" class="btn-secondary" data-monitor-settings>收起</button>
+            </div>
+          </form>
+          <p id="masked-monitor-settings-status" class="masked-monitor-footnote" role="status" hidden></p>
           <section class="masked-monitor-section" aria-labelledby="masked-alert-title">
             <div class="masked-monitor-heading">
               <div><h3 id="masked-alert-title">预警清单</h3><span id="masked-monitor-updated" role="status"></span></div>
@@ -328,9 +382,9 @@
               <span>首跟从派单与隐私号可拨两者较晚的时间起算。首跟指标统计今日可跟进任务。</span></div></div>
             <div class="lead-table-wrap"><table class="lead-table" id="masked-efficiency-table">
               <thead><tr><th>坐席账号</th><th>今日已分配量</th><th>待跟进量</th><th>待首跟</th><th>预警任务</th>
-                <th>30 分钟首跟率</th><th>首跟耗时中位数</th><th>已完成量</th><th>操作</th></tr></thead><tbody></tbody>
+                <th id="masked-first-rate">首跟及时率</th><th>首跟耗时中位数</th><th>已完成量</th><th>操作</th></tr></thead><tbody></tbody>
             </table></div>
-            <p class="masked-monitor-footnote">首跟率样本包含已记录首跟或已到 30 分钟的任务。完成量按合格结果回传成功统计。</p>
+            <p class="masked-monitor-footnote">首跟率样本包含已记录首跟或已达到首跟提醒时间的任务。完成量包含合格结果回传成功与临时池确认接收的未取得手机号任务。</p>
           </section>
         </section>
       </main>
@@ -344,6 +398,18 @@
         <div class="lead-summary-grid"></div>
         <div class="lead-detail-content"></div>
       </section>
+      <dialog class="masked-monitor-help-dialog" id="masked-monitor-help" aria-labelledby="masked-monitor-help-title">
+        <header class="masked-monitor-help-header">
+          <h2 id="masked-monitor-help-title"></h2>
+          <button type="submit" form="masked-monitor-help-close" class="masked-monitor-help-close" aria-label="关闭说明">×</button>
+        </header>
+        <div class="masked-monitor-help-copy">
+          <p data-help-purpose></p>
+          <div class="masked-monitor-help-example"><strong>举个例子</strong><p data-help-example></p></div>
+          <p class="masked-monitor-help-note" data-help-note></p>
+        </div>
+        <form id="masked-monitor-help-close" method="dialog" class="masked-monitor-help-actions"><button class="btn-primary" type="submit" autofocus>知道了</button></form>
+      </dialog>
       <dialog class="masked-intake-assign" aria-labelledby="masked-assign-title">
         <form method="dialog">
           <header class="sd-modal-header"><h2 class="sd-modal-title" id="masked-assign-title">坐席排班</h2><button class="sd-btn" type="button" data-cancel>关闭</button></header>
@@ -433,16 +499,20 @@
       };
     }
 
+    const monitorSettings = get('#masked-monitor-settings');
+    const monitorSettingsStatus = get('#masked-monitor-settings-status');
     const monitorSeat = get('#masked-monitor-seat');
     const monitorType = get('#masked-monitor-type');
     const formatTime = value => Number.isFinite(value) ? localTime.format(new Date(value)) : '—';
-    const monitorTask = (row, now) => monitoring.task(row, now, privacyStatus(row));
+    const monitorTask = (row, now) => monitoring.task(row, now, privacyStatus(row), monitorLimits());
 
     function renderStatistics() {
       const now = Date.now();
       const visible = records.filter(row => row.task && canSee(row));
       const manual = visible.filter(row => row.owner && row.status !== 'pending' && row.routing?.state !== 'ai');
-      const measured = manual.map(row => monitorTask(row, now));
+      const limits = monitorLimits();
+      const measured = manual.map(row => monitoring.task(row, now, privacyStatus(row), limits));
+      get('#masked-first-rate').textContent = limits.firstWarning + ' 分钟内首跟率';
       const pending = visible.filter(pendingFollowup).length;
       const summary = [
         ['待跟进', pending, 'pending'],
@@ -451,9 +521,15 @@
       ];
       if (isSupervisor()) summary.unshift(['待分配', visible.filter(eligible).length, 'unassigned']);
       get('#masked-statistics-summary').innerHTML = summary.map(([label, count, tone]) =>
-        `<div class="masked-metric" data-tone="${tone}"><span>${label}</span><strong>${count}</strong><span>条</span></div>`
+        `<div class="masked-metric" data-tone="${tone}"><span>${label}</span><strong>${count}</strong><span>条</span>${tone === 'completed' && visible.some(row => row.noPhoneReturn)
+          ? `<small class="masked-metric-note">其中退回临时池 ${visible.filter(row => row.noPhoneReturn).length} 条</small>` : ''}</div>`
       ).join('');
       monitorSeat.closest('label').hidden = !isSupervisor();
+      get('#masked-statistics-controls [data-monitor-settings]').hidden = !isSupervisor();
+      if (!isSupervisor()) {
+        monitorSettings.hidden = true;
+        monitorSettingsStatus.hidden = true;
+      }
       get('#masked-monitor-updated').textContent = statisticsStatus ||
         (lastStatisticsRead ? `最近更新 ${formatTime(lastStatisticsRead)} · 每 30 秒更新` : '正在读取本地任务');
       const riskTasks = measured.concat(isSupervisor() ? visible.filter(row =>
@@ -466,7 +542,7 @@
         .map(([account, name]) => {
           const stats = seatStats(account);
           const performance = monitoring.efficiency(measured.filter(item => item.row.owner === account),
-            now, value => localTime.format(new Date(value)).slice(0, 10));
+            now, value => localTime.format(new Date(value)).slice(0, 10), limits);
           const assignedToday = measured.filter(item => item.row.owner === account &&
             item.row.assignedAt?.slice(0, 10) === localTime.format(new Date(now)).slice(0, 10)).length;
           return `<tr><td>${account} · ${name}</td><td>${assignedToday}</td><td>${stats.pending}</td><td>${performance.awaiting}</td>
@@ -490,7 +566,7 @@
           <td>${escape(displayOwner(item.row.owner))}</td>
           <td><div class="masked-monitor-tags">${item.alerts.map(alert => {
             const description = alert.type === 'expiry' ? `剩余 ${monitoring.duration(alert.at - now)}`
-              : ['first', 'waiting'].includes(alert.type) ? `已等待 ${monitoring.duration(now - item.start)}`
+              : ['first', 'waiting'].includes(alert.type) ? `已等待 ${monitoring.duration(item.waiting)}`
               : ['callback', 'idle'].includes(alert.type) ? `逾时 ${monitoring.duration(now - alert.at)}`
               : alert.type === 'blocked' ? privacyLabels[item.state] : '';
             return `<div>${tag([monitoring.types[alert.type], alert.priority <= 1 ? 'danger' : 'warning'])}
@@ -625,6 +701,8 @@
             ['分配判断时间', row.routing?.decidedAt && localTime.format(new Date(row.routing.decidedAt))]
           ]) : ''}
           ${row.task ? buildSection('隐私号信息', privacyColumns.map(([label,read]) => [label, read(row)]), privacyActions) : ''}
+          ${row.noPhoneReturn ? buildSection('任务结案', [['结果', '未取得手机号，已退回临时池'],
+            ['临时池接收时间', formatTime(monitoring.timestamp(row.noPhoneReturn.returnedAt))], ['回访描述', row.manualFollowup?.note]]) : ''}
           ${fromMonitor ? buildSection('任务跟进', [
             ['分配时间', row.assignedAt], ['首跟计时起点', formatTime(monitorTask(row, Date.now()).start)],
             ['最近跟进时间', formatTime(monitorTask(row, Date.now()).last)],
@@ -724,6 +802,36 @@
       for (const kind of ['tasks', 'todo']) forms[kind].reset();
       if (localWorkspace) refreshDccWorklist(true);
     });
+    monitorSettings.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (!isSupervisor()) return;
+      const values = Object.fromEntries([...new FormData(monitorSettings)].map(([key, value]) => [key, Number(value)]));
+      monitorSettingsStatus.hidden = false;
+      if (!monitoring.validSettings(values)) {
+        monitorSettingsStatus.textContent = '首跟超时须晚于首跟提醒，隐私号加急须比临期更接近截止时间。';
+        return;
+      }
+      const submit = monitorSettings.querySelector('button[type="submit"]');
+      submit.disabled = true;
+      try {
+        if (localWorkspace) {
+          if (!localToken) throw new Error('本地工作台正在连接，请稍后保存。');
+          const result = await workspaceRequest('monitor-settings', values);
+          remoteMonitorSettings = result.monitorSettings;
+        } else if (!monitoring.saveSettings(values)) {
+          throw new Error('此浏览器暂时无法保存配置。');
+        }
+      } catch (error) {
+        monitorSettingsStatus.textContent = error.message;
+        return;
+      } finally {
+        submit.disabled = false;
+      }
+      monitorSettingsStatus.textContent = '已保存，未完成任务已按最新阈值更新。';
+      monitorSettings.hidden = true;
+      renderStatistics();
+      get('#masked-statistics-controls [data-monitor-settings]').focus();
+    });
     monitorSeat.addEventListener('change', renderStatistics);
     monitorType.addEventListener('change', renderStatistics);
     root.addEventListener('change', event => {
@@ -768,6 +876,25 @@
         get('[data-fields]').setAttribute('aria-expanded', 'false');
       }
       if (!button) return;
+      const help = monitorFields[button.dataset.monitorHelp];
+      if (help) {
+        const dialog = get('#masked-monitor-help');
+        get('#masked-monitor-help-title').textContent = help.title;
+        dialog.querySelector('[data-help-purpose]').textContent = help.purpose;
+        dialog.querySelector('[data-help-example]').textContent = help.example;
+        dialog.querySelector('[data-help-note]').textContent = help.note;
+        dialog.showModal();
+        return;
+      }
+      if (button.hasAttribute('data-monitor-settings') && isSupervisor()) {
+        monitorSettings.hidden = !monitorSettings.hidden;
+        monitorSettingsStatus.hidden = true;
+        if (!monitorSettings.hidden) {
+          for (const [key, value] of Object.entries(monitorLimits())) monitorSettings.elements[key].value = value;
+          monitorSettings.elements.firstWarning.focus();
+        } else get('#masked-statistics-controls [data-monitor-settings]').focus();
+        return;
+      }
       const {scope:next, page:step, maskedDetail, maskedAssign} = button.dataset;
       if (next) {
         scope = next;
@@ -911,8 +1038,9 @@
           if (version !== fetchVersion) return;
           localToken = token;
         }
-        const {items} = await workspaceRequest('tasks');
+        const {items, monitorSettings: latestLimits} = await workspaceRequest('tasks');
         if (version !== fetchVersion || !list.isConnected || (statisticsOnly && (scope !== 'stats' || list.hidden))) return;
+        if (monitoring.validSettings(latestLimits)) remoteMonitorSettings = latestLimits;
         records.splice(0, records.length, ...items.map(readIntake));
         lastStatisticsRead = Date.now();
         statisticsStatus = '';

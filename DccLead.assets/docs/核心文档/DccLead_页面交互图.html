@@ -1033,6 +1033,7 @@
     <button data-op="hqreport-05">AI工单详情查看</button>
     <span class="section-divider">数据导出（v2.6）</span>
     <button data-op="hqreport-06">导出任务明细表</button>
+    <button data-op="sms-record-filter">短信记录筛选与列表</button>
   </div>
   <div class="op-group" data-page="prescore-records">
     <button data-op="prescore-records-01" class="active">查询与导出转换记录</button>
@@ -4429,6 +4430,21 @@ flowchart TD
   F --&gt; H["无数据的渠道显示空态，缺失比例显示横线"]
   </pre>
 </div>
+<div id="interaction-sms-record-filter" class="chart-card" data-page="hqreport" data-op="sms-record-filter"><h2>短信记录筛选与列表<span class="page-badge">总部培育报表</span></h2><p>四项列表操作使用培育线索的下拉箭头、悬停与聚焦样式。导出当前筛选与排序后的已选字段为CSV；排序立即生效；字段显示勾选即时生效，至少保留一个字段，点击外部或Escape关闭。发送详情按基本信息、正文、时间分组，复制真实写入剪贴板；无客户回复数据，相关展示、筛选、排序与导出已移除。</p><p>列表采用常规字重、统一行间距与浅色状态标签。短信正文最多展示两行，悬停可读完整文本，详情展示完整内容；日期与时分秒、坐席名称与账号分行展示。详情列固定在右侧，横向滚动后仍可打开和关闭详情。</p><p>默认展示任务编码、发送手机、引用模板名称、发送状态、发送坐席账号五项常用条件。点击更多筛选展开创建时间、发送时间及短信内容关键字。展开和收起保留填写值，查询／重置与常用条件同行，位于右侧；更多筛选入口放在下方分隔线后，高级条件在入口下方展开。修改条件不立即改变结果，点击查询后按全部已填写条件取交集；重置清空全部条件并恢复全部记录。</p><p>两个日期范围默认留空表示不限，支持仅填开始或结束日期，起止日期均包含当天。开始晚于结束时提示错误并保留上次查询结果。短信正文关键字只匹配正文。模板、发送状态和坐席按字段匹配，任务编码支持包含查询。当前原型号码为脱敏样例，支持可见号码片段查询，完整手机号查询由正式接口实现。</p><div class="release-doc-links"><a href="DccLead_功能说明.html#sms-records-filters" target="_blank" rel="noopener">现行筛选规则与验收 ↗</a> <a href="DccLead_版本日志.html#v32-release-R6" target="_blank" rel="noopener">版本记录 ↗</a> <a href="../../../DccLead.html?prototypePage=sms-records#dcc-prototype" target="_blank" rel="noopener">打开原型：短信记录 ↗</a></div><pre class="mermaid">flowchart TD
+ A["进入短信记录，展示五项常用条件"] --> B["按需展开更多筛选"]
+ B --> C["填写常用或高级条件，列表暂不变化"]
+ C --> D{"操作"}
+ D -->|展开或收起| E["保留填写值，调整条件区显示"]
+ E --> C
+ D -->|重置| F["清空全部条件，恢复全部记录"]
+ D -->|查询| G{"日期起止合法？"}
+ G -->|否| H["提示日期错误，保留上次查询结果"]
+ H --> C
+ G -->|是| I["按全部条件取交集，更新条数与明细"]
+ I --> J{"有结果？"}
+ J -->|有| K["展示记录列表，可查看详情"]
+ J -->|无| L["展示空态，可调整条件后再查询"]
+ </pre></div>
 <div id="interaction-hqreport-01" class="chart-card" data-page="hqreport" data-op="hqreport-01">
   <h2><span class="card-index">01</span>初始预评分筛选查询<span class="page-badge">总部培育报表</span></h2>
   <div class="param-box">

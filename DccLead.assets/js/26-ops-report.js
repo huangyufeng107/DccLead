@@ -138,6 +138,7 @@ const opsManualTaskExportColumns = [
 ];
 
 function getOpsHqNurtureRowCount(tabKey) {
+  if (tabKey === 'messageRecord') return getFilteredOpsMessageRecords().length;
   if (tabKey === 'aiCallTaskDetail') {
     return (typeof opsAiCallTaskMockData !== 'undefined' ? opsAiCallTaskMockData : []).filter(item => {
       if (opsHqNurtureFilter.keyword && !item.taskCode.toLowerCase().includes(opsHqNurtureFilter.keyword.toLowerCase().trim())) return false;
@@ -630,94 +631,7 @@ function renderOpsHqFilterFields(tabKey) {
     `;
   }
 
-  if (tabKey === 'messageRecord') {
-    return `
-      <!-- 短信记录 4列全网格筛选条件 (10项字段与业务定义 1:1 精确对齐) -->
-      <!-- 第 1 行 (4列) -->
-      <label style="display:flex; flex-direction:column; font-size:12px; color:#334155; font-weight:500;">
-        任务编码：
-        <input class="form-input" id="hqFilterMsgTaskCode" placeholder="请输入任务编码" style="margin-top:6px; height:32px; padding:4px 11px; border:1px solid #d9d9d9; border-radius:4px; font-size:13px;" />
-      </label>
-      <label style="display:flex; flex-direction:column; font-size:12px; color:#334155; font-weight:500;">
-        发送手机：
-        <input class="form-input" id="hqFilterMsgPhone" placeholder="请输入发送手机号" style="margin-top:6px; height:32px; padding:4px 11px; border:1px solid #d9d9d9; border-radius:4px; font-size:13px;" />
-      </label>
-      <label style="display:flex; flex-direction:column; font-size:12px; color:#334155; font-weight:500;">
-        引用模版名称：
-        <select class="form-input" id="hqFilterMsgTemplate" style="margin-top:6px; height:32px; padding:4px 11px; border:1px solid #d9d9d9; border-radius:4px; font-size:13px; background:#fff;">
-          <option value="">全部模版</option>
-          <option value="预约到店试驾确认模板">预约到店试驾确认模板</option>
-          <option value="试驾邀约关怀模板">试驾邀约关怀模板</option>
-          <option value="未接通关怀短信模板">未接通关怀短信模板</option>
-          <option value="置换补贴专项优惠模板">置换补贴专项优惠模板</option>
-          <option value="试驾满意度回访模板">试驾满意度回访模板</option>
-          <option value="新车上市品鉴权益模板">新车上市品鉴权益模板</option>
-        </select>
-      </label>
-      <label style="display:flex; flex-direction:column; font-size:12px; color:#334155; font-weight:500;">
-        发送状态：
-        <select class="form-input" id="hqFilterMsgSendStatus" style="margin-top:6px; height:32px; padding:4px 11px; border:1px solid #d9d9d9; border-radius:4px; font-size:13px; background:#fff;">
-          <option value="">全部状态</option>
-          <option value="发送成功">发送成功</option>
-          <option value="发送失败">发送失败</option>
-          <option value="发送中">发送中</option>
-          <option value="待发送">待发送</option>
-        </select>
-      </label>
-
-      <!-- 第 2 行 (4列) -->
-      <label style="display:flex; flex-direction:column; font-size:12px; color:#334155; font-weight:500;">
-        发送坐席账号：
-        <select class="form-input" id="hqFilterMsgAgent" style="margin-top:6px; height:32px; padding:4px 11px; border:1px solid #d9d9d9; border-radius:4px; font-size:13px; background:#fff;">
-          <option value="">全部坐席</option>
-          <option value="电销A组-李雷">电销A组-李雷 (HQ_AGENT_02)</option>
-          <option value="电销B组-王五">电销B组-王五 (HQ_AGENT_03)</option>
-          <option value="电销C组-赵六">电销C组-赵六 (HQ_AGENT_04)</option>
-          <option value="电销D组-张敏">电销D组-张敏 (HQ_AGENT_01)</option>
-          <option value="系统自动推送">系统自动推送 (SYS_AUTO)</option>
-        </select>
-      </label>
-      <label style="display:flex; flex-direction:column; font-size:12px; color:#334155; font-weight:500;">
-        回复状态：
-        <select class="form-input" id="hqFilterMsgReplyStatus" style="margin-top:6px; height:32px; padding:4px 11px; border:1px solid #d9d9d9; border-radius:4px; font-size:13px; background:#fff;">
-          <option value="">全部</option>
-          <option value="已回复">已回复</option>
-          <option value="未回复">未回复</option>
-        </select>
-      </label>
-      <label style="display:flex; flex-direction:column; font-size:12px; color:#334155; font-weight:500;">
-        创建时间：
-        <div style="display:flex; gap:4px; margin-top:6px; align-items:center;">
-          <input class="form-input" type="date" value="2026-09-01" style="height:32px; padding:2px 8px; font-size:12px; border:1px solid #d9d9d9; border-radius:4px; width:46%;" />
-          <span style="color:#94a3b8; font-size:12px;">→</span>
-          <input class="form-input" type="date" value="2026-09-16" style="height:32px; padding:2px 8px; font-size:12px; border:1px solid #d9d9d9; border-radius:4px; width:46%;" />
-        </div>
-      </label>
-      <label style="display:flex; flex-direction:column; font-size:12px; color:#334155; font-weight:500;">
-        发送时间：
-        <div style="display:flex; gap:4px; margin-top:6px; align-items:center;">
-          <input class="form-input" type="date" value="2026-09-01" style="height:32px; padding:2px 8px; font-size:12px; border:1px solid #d9d9d9; border-radius:4px; width:46%;" />
-          <span style="color:#94a3b8; font-size:12px;">→</span>
-          <input class="form-input" type="date" value="2026-09-16" style="height:32px; padding:2px 8px; font-size:12px; border:1px solid #d9d9d9; border-radius:4px; width:46%;" />
-        </div>
-      </label>
-
-      <!-- 第 3 行 (4列) -->
-      <label style="display:flex; flex-direction:column; font-size:12px; color:#334155; font-weight:500;">
-        回复时间：
-        <div style="display:flex; gap:4px; margin-top:6px; align-items:center;">
-          <input class="form-input" type="date" value="2026-09-01" style="height:32px; padding:2px 8px; font-size:12px; border:1px solid #d9d9d9; border-radius:4px; width:46%;" />
-          <span style="color:#94a3b8; font-size:12px;">→</span>
-          <input class="form-input" type="date" value="2026-09-16" style="height:32px; padding:2px 8px; font-size:12px; border:1px solid #d9d9d9; border-radius:4px; width:46%;" />
-        </div>
-      </label>
-      <label style="display:flex; flex-direction:column; font-size:12px; color:#334155; font-weight:500; grid-column:span 2;">
-        短信内容关键字：
-        <input class="form-input" id="hqFilterMsgContentKey" placeholder="请输入短信正文关键字模糊匹配" style="margin-top:6px; height:32px; padding:4px 11px; border:1px solid #d9d9d9; border-radius:4px; font-size:13px;" />
-      </label>
-      <div></div>
-    `;
-  }
+  if (tabKey === 'messageRecord') return renderOpsSmsRecordFilterFields(false) + renderOpsSmsRecordFilterFields(true);
 
   if (tabKey === 'testDriveDetail') {
     return `
@@ -1202,6 +1116,134 @@ function renderOpsHqFilterFields(tabKey) {
   `;
 }
 
+const opsSmsColumns = [
+  ['index','序号',56], ['phone','发送手机',130], ['taskCode','任务编码',190], ['templateName','引用模板名称',200], ['content','短信内容',300], ['sendStatus','发送状态',110], ['createTime','创建时间',124], ['sendTime','发送时间',124], ['agentAccount','发送坐席账号',190]
+];
+let opsSmsSortField = 'sendTime';
+let opsSmsSortDirection = 'desc';
+let opsSmsVisibleFields = opsSmsColumns.map(c => c[0]);
+
+function renderOpsSmsColumns(html) {
+  const template = document.createElement('template'); template.innerHTML = html;
+  const table = template.content.querySelector('table');
+  const hidden = opsSmsColumns.map((c,i) => opsSmsVisibleFields.includes(c[0]) ? -1 : i).filter(i => i >= 0);
+  [...table.querySelectorAll('tr')].forEach(row => {
+    if (row.children.length > 1) hidden.slice().reverse().forEach(i => row.children[i].remove());
+    else row.firstElementChild.colSpan = opsSmsVisibleFields.length + 1;
+  });
+  hidden.slice().reverse().forEach(i => table.querySelector('colgroup').children[i].remove());
+  table.style.minWidth = (80 + opsSmsColumns.filter(c => opsSmsVisibleFields.includes(c[0])).reduce((sum,c)=>sum+c[2],0)) + 'px';
+  return template.innerHTML;
+}
+
+function refreshOpsSmsTable() {
+  const old = document.querySelector('#opsHqNurtureReportPage .sms-records-table-scroll'); if (!old) return;
+  const left = old.scrollLeft;
+  const template = document.createElement('template'); template.innerHTML = renderSpecificOpsHqNurtureTable('messageRecord');
+  const replacement = template.content.querySelector('.sms-records-table-scroll'); old.replaceWith(replacement); replacement.scrollLeft = left;
+}
+
+function changeOpsSmsSort() {
+  opsSmsSortField = document.getElementById('opsSmsSortField').value;
+  opsSmsSortDirection = document.getElementById('opsSmsSortDirection').value;
+  refreshOpsSmsTable();
+}
+
+function closeOpsSmsFieldPicker() {
+  document.getElementById('opsSmsFieldPicker')?.remove();
+  document.getElementById('opsSmsFieldTrigger')?.setAttribute('aria-expanded','false');
+}
+
+function toggleOpsSmsFieldPicker() {
+  if (document.getElementById('opsSmsFieldPicker')) { closeOpsSmsFieldPicker(); return; }
+  const trigger = document.getElementById('opsSmsFieldTrigger'), rect = trigger.getBoundingClientRect();
+  const panel = document.createElement('div'); panel.id = 'opsSmsFieldPicker'; panel.className = 'field-picker-panel show sms-records-field-panel';
+  panel.setAttribute('role','group'); panel.setAttribute('aria-label','选择显示字段');
+  panel.innerHTML = `<div class="field-picker-grid">${opsSmsColumns.map(c => `<label class="field-check"><input type="checkbox" value="${c[0]}" ${opsSmsVisibleFields.includes(c[0]) ? 'checked' : ''} onchange="toggleOpsSmsField(this)">${c[1]}</label>`).join('')}</div>`;
+  document.body.appendChild(panel);
+  panel.style.top = Math.max(8, Math.min(rect.bottom+8, window.innerHeight-panel.offsetHeight-12))+'px';
+  panel.style.left = Math.max(12, Math.min(rect.right-panel.offsetWidth,window.innerWidth-panel.offsetWidth-12))+'px';
+  trigger.setAttribute('aria-expanded','true'); panel.querySelector('input').focus();
+}
+
+function toggleOpsSmsField(input) {
+  if (!input.checked && opsSmsVisibleFields.length === 1) { input.checked = true; showToast('请至少保留一个显示字段',false); return; }
+  opsSmsVisibleFields = input.checked ? [...opsSmsVisibleFields,input.value] : opsSmsVisibleFields.filter(key=>key!==input.value);
+  refreshOpsSmsTable();
+}
+
+document.addEventListener('click', event => { if (!event.target.closest('#opsSmsFieldPicker,#opsSmsFieldTrigger')) closeOpsSmsFieldPicker(); });
+document.addEventListener('keydown', event => { if(event.key === 'Escape' && document.getElementById('opsSmsFieldPicker')) { closeOpsSmsFieldPicker(); document.getElementById('opsSmsFieldTrigger')?.focus(); } });
+window.addEventListener('resize',closeOpsSmsFieldPicker);
+window.addEventListener('scroll', event => { if (event.target !== document.getElementById('opsSmsFieldPicker') && !document.getElementById('opsSmsFieldPicker')?.contains(event.target)) closeOpsSmsFieldPicker(); },true);
+
+function exportOpsSmsRecords() {
+  const rows = getFilteredOpsMessageRecords(), columns = opsSmsColumns.filter(c=>opsSmsVisibleFields.includes(c[0]));
+  const csv = [columns.map(c=>csvEscape(c[1])).join(','), ...rows.map((row,i)=>columns.map(c=>csvEscape(c[0]==='index' ? i+1 : row[c[0]] || '')).join(','))];
+  downloadCsvFile('短信记录.csv',csv,`已导出 ${rows.length} 条短信记录`);
+}
+
+function renderOpsSmsRecordDateRange(prefix, title) {
+  return `<label class="sms-records-filter-field sms-records-date-field">
+    <span>${title}</span>
+    <div class="sms-records-date-range">
+      <input class="form-input" id="${prefix}StartDate" type="date" aria-label="${title}开始日期" />
+      <span>至</span>
+      <input class="form-input" id="${prefix}EndDate" type="date" aria-label="${title}结束日期" />
+    </div>
+  </label>`;
+}
+
+function renderOpsSmsRecordFilterFields(advanced) {
+  if (advanced) {
+    return `<label class="sms-records-filter-field sms-records-content-field"><span>短信内容关键字</span><input class="form-input" id="hqFilterMsgContentKey" placeholder="请输入短信正文关键字" /></label>
+      ${renderOpsSmsRecordDateRange('hqFilterMsgCreate', '创建时间')}
+      ${renderOpsSmsRecordDateRange('hqFilterMsgSend', '发送时间')}`;
+  }
+  const records = typeof opsMessageRecordMockData !== 'undefined' ? opsMessageRecordMockData : [];
+  const options = values => [...new Set(values)].map(value => `<option value="${escapeAttr(value)}">${escapeHtml(value)}</option>`).join('');
+  return `<label class="sms-records-filter-field"><span>任务编码</span><input class="form-input" id="hqFilterMsgTaskCode" placeholder="请输入任务编码" /></label>
+    <label class="sms-records-filter-field"><span>发送手机</span><input class="form-input" id="hqFilterMsgPhone" placeholder="请输入手机号或号码片段" /></label>
+    <label class="sms-records-filter-field"><span>引用模板名称</span><select class="form-input" id="hqFilterMsgTemplate"><option value="">全部模板</option>${options(records.map(item => item.templateName))}</select></label>
+    <label class="sms-records-filter-field"><span>发送状态</span><select class="form-input" id="hqFilterMsgSendStatus"><option value="">全部状态</option><option value="发送成功">发送成功</option><option value="发送失败">发送失败</option><option value="发送中">发送中</option><option value="待发送">待发送</option></select></label>
+    <label class="sms-records-filter-field"><span>发送坐席账号</span><select class="form-input" id="hqFilterMsgAgent"><option value="">全部坐席</option>${options(records.map(item => item.agentAccount))}</select></label>`;
+}
+
+function renderOpsSmsRecordFilter() {
+  return `<div class="sms-records-filter-panel">
+    <h3 class="sms-records-filter-title">筛选查询</h3>
+    <div class="sms-records-filter-grid sms-records-common">${renderOpsSmsRecordFilterFields(false)}
+      <div class="sms-records-filter-actions"><button type="button" class="btn-primary" onclick="applyOpsHqNurtureFilter()">查询</button><button type="button" class="btn-secondary" onclick="resetOpsHqNurtureFilter()">重置</button></div>
+    </div>
+    <div class="sms-records-filter-more-area">
+      <button type="button" class="hq-filter-expand sms-records-more" aria-expanded="${opsHqNurtureAdvancedExpanded}" aria-controls="hqSmsAdvancedFilters" onclick="toggleOpsHqAdvancedFilter()"><span id="hqAdvancedFilterText">更多筛选 <span>${opsHqNurtureAdvancedExpanded ? '收起' : '展开'}</span></span></button>
+      <div class="sms-records-filter-grid sms-records-advanced" id="hqSmsAdvancedFilters" ${opsHqNurtureAdvancedExpanded ? '' : 'hidden'}>${renderOpsSmsRecordFilterFields(true)}</div>
+    </div>
+  </div>`;
+}
+
+function matchesOpsSmsRecordDate(value, start, end) {
+  if (!start && !end) return true;
+  const day = String(value || '').slice(0, 10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(day) && (!start || day >= start) && (!end || day <= end);
+}
+
+function getFilteredOpsMessageRecords() {
+  const records = typeof opsMessageRecordMockData !== 'undefined' ? opsMessageRecordMockData : [];
+  const filter = opsHqNurtureDraftFilters.messageRecord || {};
+  const includes = (value, query) => !query || String(value || '').toLowerCase().includes(query.toLowerCase());
+  return records.filter(item => {
+    if (!includes(item.taskCode, filter.hqFilterMsgTaskCode)) return false;
+    if (!includes(item.phone, filter.hqFilterMsgPhone)) return false;
+    if (filter.hqFilterMsgTemplate && item.templateName !== filter.hqFilterMsgTemplate) return false;
+    if (filter.hqFilterMsgSendStatus && item.sendStatus !== filter.hqFilterMsgSendStatus) return false;
+    if (filter.hqFilterMsgAgent && item.agentAccount !== filter.hqFilterMsgAgent) return false;
+    if (!includes(item.content, filter.hqFilterMsgContentKey)) return false;
+    return matchesOpsSmsRecordDate(item.createTime, filter.hqFilterMsgCreateStartDate, filter.hqFilterMsgCreateEndDate)
+      && matchesOpsSmsRecordDate(item.sendTime, filter.hqFilterMsgSendStartDate, filter.hqFilterMsgSendEndDate);
+  }).sort((a,b) => { const result = String(a[opsSmsSortField] || '').localeCompare(String(b[opsSmsSortField] || ''), 'zh-CN', {numeric:true}); return opsSmsSortDirection === 'asc' ? result : -result; });
+}
+
 function renderOpsHqNurtureReportPage() {
   const container = document.getElementById('opsHqNurtureReportPage');
   if (!container) return;
@@ -1230,8 +1272,8 @@ function renderOpsHqNurtureReportPage() {
         `).join('')}
       </nav>`}
 
-      <section class="mw-report-filter-card ${isManualTestDriveLeadEntry ? 'appointment-manual-filter' : ''}" role="search" aria-label="${currentTabObj.label}筛选查询" style="background:#fff; border-radius:${isManualTestDriveLeadEntry ? '8px' : '10px'}; padding:16px 18px; margin-bottom:${isManualTestDriveLeadEntry ? '14px' : '16px'}; border:1px solid ${isManualTestDriveLeadEntry ? '#e4eaf3' : '#e2e8f0'}; box-shadow:${isManualTestDriveLeadEntry ? 'none' : '0 1px 3px rgba(0,0,0,0.02)'};">
-        ${isManualTestDriveLeadEntry ? `
+      <section class="mw-report-filter-card ${isManualTestDriveLeadEntry ? 'appointment-manual-filter' : ''} ${opsHqNurtureActiveTab === 'messageRecord' ? 'sms-records-filter-card' : ''}" role="search" aria-label="${currentTabObj.label}筛选查询" style="background:#fff; border-radius:${isManualTestDriveLeadEntry ? '8px' : '10px'}; padding:16px 18px; margin-bottom:${isManualTestDriveLeadEntry ? '14px' : '16px'}; border:1px solid ${isManualTestDriveLeadEntry ? '#e4eaf3' : '#e2e8f0'}; box-shadow:${isManualTestDriveLeadEntry ? 'none' : '0 1px 3px rgba(0,0,0,0.02)'};">
+        ${opsHqNurtureActiveTab === 'messageRecord' ? renderOpsSmsRecordFilter() : isManualTestDriveLeadEntry ? `
         <!-- 试驾排程工单：标准线索筛选器（首行6关键字段+查询重置，支持全渠道来源过滤，更多筛选按需折叠） -->
         <div class="lead-search-panel" style="display:flex; flex-direction:column; gap:12px; width:100%;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -1319,7 +1361,19 @@ function renderOpsHqNurtureReportPage() {
       </section>
 
       <section class="mw-report-table-card ${isManualTestDriveLeadEntry ? 'appointment-manual-list' : ''}" style="background:#fff; border-radius:${isManualTestDriveLeadEntry ? '8px' : '10px'}; padding:${isManualTestDriveLeadEntry ? '0' : '16px'}; border:1px solid ${isManualTestDriveLeadEntry ? '#e4eaf3' : '#e2e8f0'}; box-shadow:${isManualTestDriveLeadEntry ? 'none' : '0 1px 3px rgba(0,0,0,0.02)'}; margin-bottom:${isManualTestDriveLeadEntry ? '24px' : '16px'};">
-        ${isManualTestDriveLeadEntry ? '' : `
+        ${isManualTestDriveLeadEntry ? '' : opsHqNurtureActiveTab === 'messageRecord' ? `
+        <div class="hq-report-list-header sms-records-list-header">
+          <div class="sms-records-list-heading">
+            <h3>短信记录</h3>
+          </div>
+          <div class="hq-list-toolbar" role="group" aria-label="短信记录列表操作">
+            <button class="btn-secondary" type="button" onclick="exportOpsSmsRecords()">导出数据</button>
+            <select class="lead-select" id="opsSmsSortField" aria-label="排序字段" onchange="changeOpsSmsSort()">${opsSmsColumns.filter(c=>c[0]!=='index').map(c=>`<option value="${c[0]}" ${opsSmsSortField===c[0]?'selected':''}>${c[1]}</option>`).join('')}</select>
+            <select class="lead-select sms-records-sort-direction" id="opsSmsSortDirection" aria-label="排序方向" onchange="changeOpsSmsSort()"><option value="desc" ${opsSmsSortDirection==='desc'?'selected':''}>降序</option><option value="asc" ${opsSmsSortDirection==='asc'?'selected':''}>升序</option></select>
+            <button class="btn-secondary" id="opsSmsFieldTrigger" type="button" aria-expanded="false" aria-controls="opsSmsFieldPicker" onclick="toggleOpsSmsFieldPicker()">字段显示</button>
+          </div>
+        </div>
+        ` : `
         <div class="hq-report-list-header">
           <h3 style="margin:0; font-size:16px; font-weight:700; color:#0f172a;">${currentTabObj.label}</h3>
           <div class="hq-list-toolbar">
@@ -1349,6 +1403,7 @@ function restoreOpsHqNurtureDraftFilters(container) {
 }
 
 function applyOpsHqNurtureVisibleFilters(container) {
+  if (opsHqNurtureActiveTab === 'messageRecord') return;
   const saved = opsHqNurtureDraftFilters[opsHqNurtureActiveTab] || {};
   const terms = Object.entries(saved).filter(([id, value]) => value && !/Date|Time|Score/.test(id));
   const table = container.querySelector('.mw-report-table');
@@ -2480,71 +2535,36 @@ function renderSpecificOpsHqNurtureTable(tabKey) {
   }
 
   if (tabKey === 'messageRecord') {
-    const data = typeof opsMessageRecordMockData !== 'undefined' ? opsMessageRecordMockData : [];
-    return `
-      <section class="mw-report-summary" style="margin-bottom:16px; display:flex; gap:16px; background:#f8fafc; padding:12px 16px; border-radius:8px; border:1px solid #e2e8f0;">
-        <div style="flex:1;"><span>发送短信总数</span><strong style="font-size:18px; color:#0f172a;">1,480<small style="font-size:12px; font-weight:normal;"> 条</small></strong></div>
-        <div style="flex:1;"><span>发送成功率</span><strong style="font-size:18px; color:#059669;">98.2%<small style="font-size:12px; font-weight:normal;"> (1,453条送达)</small></strong></div>
-        <div style="flex:1;"><span>客户有效回复数</span><strong style="font-size:18px; color:#2563eb;">326<small style="font-size:12px; font-weight:normal;"> 条 (22.4%)</small></strong></div>
-        <div style="flex:1;"><span>试驾邀约转化</span><strong style="font-size:18px; color:#7c3aed;">92<small style="font-size:12px; font-weight:normal;"> 单成功预约</small></strong></div>
-        <div style="flex:1;"><span>发送异常待跟进</span><strong style="font-size:18px; color:#ea580c;">27<small style="font-size:12px; font-weight:normal;"> 条失败</small></strong></div>
-      </section>
-
-      <div class="mw-report-table-toolbar" style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
-        <h4 style="margin:0; font-size:14px; font-weight:700; color:#1e293b;">短信记录 (共 ${data.length} 条记录)</h4>
-        <div style="display:flex; gap:8px;">
-          <select class="form-input" style="height:30px; padding:2px 8px; font-size:12px;"><option>发送时间</option><option>创建时间</option><option>回复时间</option></select>
-          <select class="form-input" style="height:30px; padding:2px 8px; font-size:12px;"><option>降序</option><option>升序</option></select>
-          <button class="btn-outline-blue" type="button" style="padding:4px 12px; font-size:12px;">字段显示</button>
-        </div>
-      </div>
-
-      <div class="mw-report-table-scroll" style="overflow-x:auto;">
-        <table class="mw-report-table" style="width:100%; border-collapse:collapse; font-size:12px; text-align:left; white-space:nowrap;">
-          <thead>
-            <tr style="background:#f1f5f9; border-bottom:1px solid #e2e8f0; color:#334155; font-weight:600;">
-              <th style="padding:10px 8px;">序号</th>
-              <th style="padding:10px 8px;">发送手机</th>
-              <th style="padding:10px 8px;">任务编码</th>
-              <th style="padding:10px 8px;">引用模版名称</th>
-              <th style="padding:10px 8px;">短信内容</th>
-              <th style="padding:10px 8px;">发送状态</th>
-              <th style="padding:10px 8px;">创建时间</th>
-              <th style="padding:10px 8px;">发送时间</th>
-              <th style="padding:10px 8px;">发送坐席账号</th>
-              <th style="padding:10px 8px;">回复内容</th>
-              <th style="padding:10px 8px;">回复时间</th>
-              <th style="padding:10px 8px;">操作</th>
-            </tr>
-          </thead>
+    const data = getFilteredOpsMessageRecords();
+    const timeCell = value => value && value !== '-' ? `<span class="sms-records-date">${escapeHtml(value.slice(0, 10))}</span><span class="sms-records-secondary">${escapeHtml(value.slice(11))}</span>` : '<span class="sms-records-muted">—</span>';
+    const textCell = value => `<div class="sms-records-preview" title="${escapeAttr(value || '')}">${escapeHtml(value && value !== '-' ? value : '—')}</div>`;
+    return renderOpsSmsColumns(`
+      <div class="mw-report-table-scroll sms-records-table-scroll" role="region" aria-label="短信记录列表，可横向滚动" tabindex="0">
+        <table class="mw-report-table sms-records-table">
+          <colgroup>${[56,130,190,200,300,110,124,124,190,80].map(width => `<col style="width:${width}px">`).join('')}</colgroup>
+          <thead><tr>${['序号','发送手机','任务编码','引用模板名称','短信内容','发送状态','创建时间','发送时间','发送坐席账号','操作'].map(title => `<th scope="col">${title}</th>`).join('')}</tr></thead>
           <tbody>
-            ${data.map(item => `
-              <tr style="border-bottom:1px solid #f1f5f9; color:#334155;">
-                <td style="padding:10px 8px; color:#64748b;">${item.index}</td>
-                <td style="padding:10px 8px; font-family:monospace; font-weight:600; color:#0f172a;">${item.phone}</td>
-                <td style="padding:10px 8px; font-family:monospace; color:#2563eb; font-weight:700;">${item.taskCode}</td>
-                <td style="padding:10px 8px; font-weight:600; color:#4f46e5;">${item.templateName}</td>
-                <td style="padding:10px 8px; max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${item.content}">${item.content}</td>
-                <td style="padding:10px 8px;">
-                  <span style="padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600; background:${item.sendStatus === '发送成功' ? '#dcfce7' : item.sendStatus === '发送中' ? '#e0f2fe' : '#fee2e2'}; color:${item.sendStatus === '发送成功' ? '#166534' : item.sendStatus === '发送中' ? '#0369a1' : '#991b1b'};">${item.sendStatus}</span>
-                </td>
-                <td style="padding:10px 8px; color:#64748b;">${item.createTime}</td>
-                <td style="padding:10px 8px; color:#64748b;">${item.sendTime}</td>
-                <td style="padding:10px 8px; font-family:monospace; color:#334155;">${item.agentAccount}</td>
-                <td style="padding:10px 8px; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:${item.replyContent === '-' ? '#94a3b8' : '#047857'}; font-weight:${item.replyContent === '-' ? 'normal' : '500'};" title="${item.replyContent}">
-                  ${item.replyContent}
-                </td>
-                <td style="padding:10px 8px; color:${item.replyTime === '-' ? '#94a3b8' : '#2563eb'}; font-family:monospace;">${item.replyTime}</td>
-                <td style="padding:10px 8px;">
-                  <button class="mw-detail-link" type="button" style="border:none; background:none; color:#2563eb; font-weight:600; cursor:pointer;" onclick="openOpsMessageRecordDetailModal('${item.msgId}')">详情</button>
-                </td>
-              </tr>
-            `).join('')}
+            ${data.length ? data.map((item, index) => {
+              const agent = item.agentAccount.match(/^(.*?)\s*[（(]([^）)]+)[）)]$/);
+              const status = item.sendStatus === '发送成功' ? 'success' : item.sendStatus === '发送失败' ? 'failed' : 'pending';
+              return `<tr class="sms-records-row">
+                <td class="sms-records-muted">${index + 1}</td>
+                <td>${escapeHtml(item.phone)}</td>
+                <td>${escapeHtml(item.taskCode)}</td>
+                <td>${textCell(item.templateName)}</td>
+                <td>${textCell(item.content)}</td>
+                <td><span class="sms-records-status is-${status}">${escapeHtml(item.sendStatus)}</span></td>
+                <td>${timeCell(item.createTime)}</td>
+                <td>${timeCell(item.sendTime)}</td>
+                <td>${agent ? `<span>${escapeHtml(agent[1])}</span><span class="sms-records-secondary">${escapeHtml(agent[2])}</span>` : escapeHtml(item.agentAccount)}</td>
+                <td class="sms-records-operation"><button class="mw-detail-link" type="button" onclick="openOpsMessageRecordDetailModal('${item.msgId}')">详情</button></td>
+              </tr>`;
+            }).join('') : '<tr class="sms-records-empty"><td colspan="10">暂无符合条件的短信记录，请调整筛选条件</td></tr>'}
           </tbody>
         </table>
       </div>
       ${renderOpsReportPagination(data.length)}
-    `;
+    `);
   }
 
   if (tabKey === 'callTaskDetail') {
@@ -2725,6 +2745,19 @@ function openManualTestDriveAppointmentLeadPage() {
 
 function applyOpsHqNurtureFilter() {
   const reportPage = document.getElementById('opsHqNurtureReportPage');
+  if (opsHqNurtureActiveTab === 'messageRecord') {
+    const filter = Object.fromEntries([...reportPage.querySelectorAll('.sms-records-filter-card input[id], .sms-records-filter-card select[id]')].map(field => [field.id, field.value.trim()]));
+    for (const [prefix, label] of [['hqFilterMsgCreate', '创建时间'], ['hqFilterMsgSend', '发送时间']]) {
+      if (filter[prefix + 'StartDate'] && filter[prefix + 'EndDate'] && filter[prefix + 'StartDate'] > filter[prefix + 'EndDate']) {
+        showToast(label + '的开始日期不能晚于结束日期');
+        return;
+      }
+    }
+    opsHqNurtureDraftFilters.messageRecord = filter;
+    renderOpsHqNurtureReportPage();
+    showToast('短信记录筛选已更新', true);
+    return;
+  }
   opsHqNurtureDraftFilters[opsHqNurtureActiveTab] = Object.fromEntries(
     [...(reportPage?.querySelectorAll('.mw-report-filter-card input[id], .mw-report-filter-card select[id]') || [])]
       .map(field => [field.id, field.value.trim()])
@@ -2756,6 +2789,12 @@ function applyOpsHqNurtureFilter() {
 }
 
 function resetOpsHqNurtureFilter() {
+  if (opsHqNurtureActiveTab === 'messageRecord') {
+    delete opsHqNurtureDraftFilters.messageRecord;
+    renderOpsHqNurtureReportPage();
+    showToast('短信记录筛选条件已清空', true);
+    return;
+  }
   delete opsHqNurtureDraftFilters[opsHqNurtureActiveTab];
   opsHqNurtureFilter = { keyword: '', accessChannel: '', followStatus: '', customerName: '', phone: '', assignType: '', agentAccount: '', seriesCode: '', initScore: '', startDate: '2026-08-01', endDate: '2026-09-16' };
   renderOpsHqNurtureReportPage();
@@ -2763,6 +2802,13 @@ function resetOpsHqNurtureFilter() {
 }
 
 function toggleOpsHqAdvancedFilter() {
+  if (opsHqNurtureActiveTab === 'messageRecord') {
+    opsHqNurtureAdvancedExpanded = !opsHqNurtureAdvancedExpanded;
+    document.getElementById('hqSmsAdvancedFilters').hidden = !opsHqNurtureAdvancedExpanded;
+    document.querySelector('#opsHqNurtureReportPage .sms-records-more').setAttribute('aria-expanded', String(opsHqNurtureAdvancedExpanded));
+    document.getElementById('hqAdvancedFilterText').innerHTML = `更多筛选 <span>${opsHqNurtureAdvancedExpanded ? '收起' : '展开'}</span>`;
+    return;
+  }
   const reportPage = document.getElementById('opsHqNurtureReportPage');
   const manualFilterGrid = reportPage && reportPage.dataset.appointmentSourceEntry === 'manual'
     ? document.querySelector('#hqAdvancedFilterBox > div')
@@ -10340,9 +10386,7 @@ const opsMessageRecordMockData = [
     sendStatus: '发送成功',
     createTime: '2026-09-16 09:30:15',
     sendTime: '2026-09-16 09:30:18',
-    agentAccount: '电销D组-张敏 (HQ_AGENT_01)',
-    replyContent: '好的，已收到，周六上午10点准时到店试驾。',
-    replyTime: '2026-09-16 09:42:08'
+    agentAccount: '电销D组-张敏 (HQ_AGENT_01)'
   },
   {
     index: 2,
@@ -10354,9 +10398,7 @@ const opsMessageRecordMockData = [
     sendStatus: '发送成功',
     createTime: '2026-09-16 10:15:02',
     sendTime: '2026-09-16 10:15:05',
-    agentAccount: '电销A组-李雷 (HQ_AGENT_02)',
-    replyContent: '能安排周末下午上门试驾吗？我们在张江高科附近。',
-    replyTime: '2026-09-16 10:28:40'
+    agentAccount: '电销A组-李雷 (HQ_AGENT_02)'
   },
   {
     index: 3,
@@ -10368,9 +10410,7 @@ const opsMessageRecordMockData = [
     sendStatus: '发送成功',
     createTime: '2026-09-16 11:00:20',
     sendTime: '2026-09-16 11:00:23',
-    agentAccount: '电销B组-王五 (HQ_AGENT_03)',
-    replyContent: '刚才在开会，下午三点半之后再打过来吧。',
-    replyTime: '2026-09-16 11:15:30'
+    agentAccount: '电销B组-王五 (HQ_AGENT_03)'
   },
   {
     index: 4,
@@ -10382,9 +10422,7 @@ const opsMessageRecordMockData = [
     sendStatus: '发送失败',
     createTime: '2026-09-16 13:20:00',
     sendTime: '2026-09-16 13:20:05',
-    agentAccount: '电销C组-赵六 (HQ_AGENT_04)',
-    replyContent: '-',
-    replyTime: '-'
+    agentAccount: '电销C组-赵六 (HQ_AGENT_04)'
   },
   {
     index: 5,
@@ -10396,9 +10434,7 @@ const opsMessageRecordMockData = [
     sendStatus: '发送成功',
     createTime: '2026-09-16 14:45:10',
     sendTime: '2026-09-16 14:45:13',
-    agentAccount: '电销D组-张敏 (HQ_AGENT_01)',
-    replyContent: '1，顾问讲解很细致专业，体验不错！',
-    replyTime: '2026-09-16 14:52:19'
+    agentAccount: '电销D组-张敏 (HQ_AGENT_01)'
   }
 ];
 
@@ -10412,85 +10448,24 @@ function openOpsMessageRecordDetailModal(msgId) {
     document.body.appendChild(modalEl);
   }
 
+  const field = (label,value) => `<div class="sms-detail-field"><dt>${label}</dt><dd>${escapeHtml(value || '—')}</dd></div>`;
   modalEl.innerHTML = `
-    <div style="background:#fff; width:820px; max-width:96vw; max-height:90vh; border-radius:12px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); display:flex; flex-direction:column; overflow:hidden;">
-      <header style="padding:16px 20px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; background:#f8fafc;">
-        <div style="display:flex; align-items:center; gap:10px;">
-          <span style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:6px; background:#eff6ff; color:#2563eb; font-weight:bold;">✉️</span>
-          <h3 style="margin:0; font-size:16px; font-weight:700; color:#0f172a;">短信发送详情 - ${item.msgId}</h3>
-          <span style="padding:2px 8px; border-radius:4px; font-size:12px; font-weight:600; background:${item.sendStatus === '发送成功' ? '#dcfce7' : item.sendStatus === '发送中' ? '#e0f2fe' : '#fee2e2'}; color:${item.sendStatus === '发送成功' ? '#166534' : item.sendStatus === '发送中' ? '#0369a1' : '#991b1b'};">${item.sendStatus}</span>
-        </div>
-        <button type="button" style="border:none; background:none; font-size:20px; line-height:1; cursor:pointer; color:#64748b; padding:4px;" onclick="closeOpsMessageRecordDetailModal()">✕</button>
-      </header>
-
-      <div style="padding:20px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:18px; font-size:13px; color:#334155;">
-        <!-- 分组 1: 基本发送信息 -->
-        <div>
-          <div style="font-weight:700; font-size:14px; color:#0f172a; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
-            <span style="width:3px; height:14px; background:#2563eb; border-radius:2px; display:inline-block;"></span>
-            基本发送信息
-          </div>
-          <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; background:#f8fafc; padding:14px; border-radius:8px; border:1px solid #e2e8f0;">
-            <div><span style="color:#64748b;">发送手机：</span><strong style="font-family:monospace; color:#0f172a; font-size:14px;">${item.phone}</strong></div>
-            <div><span style="color:#64748b;">任务编码：</span><strong style="font-family:monospace; color:#2563eb;">${item.taskCode}</strong></div>
-            <div><span style="color:#64748b;">发送坐席账号：</span><span style="font-weight:500;">${item.agentAccount}</span></div>
-            <div><span style="color:#64748b;">引用模版名称：</span><strong style="color:#4f46e5;">${item.templateName}</strong></div>
-          </div>
-        </div>
-
-        <!-- 分组 2: 模版与短信内容详情 -->
-        <div>
-          <div style="font-weight:700; font-size:14px; color:#0f172a; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
-            <span style="width:3px; height:14px; background:#7c3aed; border-radius:2px; display:inline-block;"></span>
-            短信正文内容
-          </div>
-          <div style="background:#f8fafc; padding:14px; border-radius:8px; border:1px solid #e2e8f0; line-height:1.6; color:#1e293b;">
-            ${item.content}
-            <div style="margin-top:10px; font-size:11px; color:#94a3b8; display:flex; justify-content:space-between; border-top:1px dashed #e2e8f0; padding-top:8px;">
-              <span>计费计费条数：1 条（长度：${item.content.length} 字符）</span>
-              <span>通道类型：东风日产官方验证/通知通道 (1069)</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 分组 3: 发送时效与运营商状态 -->
-        <div>
-          <div style="font-weight:700; font-size:14px; color:#0f172a; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
-            <span style="width:3px; height:14px; background:#059669; border-radius:2px; display:inline-block;"></span>
-            发送时效与运营商回执
-          </div>
-          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; background:#f8fafc; padding:14px; border-radius:8px; border:1px solid #e2e8f0;">
-            <div><span style="color:#64748b;">创建时间：</span>${item.createTime}</div>
-            <div><span style="color:#64748b;">发送时间：</span><strong style="color:#0f172a;">${item.sendTime}</strong></div>
-            <div><span style="color:#64748b;">网关回执：</span><span style="font-family:monospace; color:${item.sendStatus === '发送成功' ? '#166534' : '#991b1b'};">${item.sendStatus === '发送成功' ? 'DELIVRD (手机终端成功接收)' : 'UNDELIV (用户关机/信号中断)'}</span></div>
-          </div>
-        </div>
-
-        <!-- 分组 4: 客户互动与回复记录 -->
-        <div>
-          <div style="font-weight:700; font-size:14px; color:#0f172a; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
-            <span style="width:3px; height:14px; background:#ea580c; border-radius:2px; display:inline-block;"></span>
-            客户回复内容与互动时间
-          </div>
-          <div style="background:#f8fafc; padding:14px; border-radius:8px; border:1px solid #e2e8f0;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:12px;">
-              <span style="color:#64748b;">回复时间：<strong style="color:#2563eb; font-family:monospace;">${item.replyTime}</strong></span>
-              <span style="padding:2px 8px; border-radius:4px; font-size:11px; background:${item.replyContent === '-' ? '#f1f5f9' : '#ecfdf5'}; color:${item.replyContent === '-' ? '#64748b' : '#047857'}; font-weight:600;">${item.replyContent === '-' ? '未回复' : '已收到回复'}</span>
-            </div>
-            <div style="font-size:13px; font-weight:${item.replyContent === '-' ? 'normal' : '500'}; color:${item.replyContent === '-' ? '#94a3b8' : '#047857'}; background:#fff; padding:10px 12px; border-radius:6px; border:1px solid #e2e8f0;">
-              ${item.replyContent === '-' ? '暂无客户上行回复内容' : item.replyContent}
-            </div>
-          </div>
-        </div>
+    <div class="sms-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="smsDetailTitle">
+      <header class="sms-detail-header"><div><h3 id="smsDetailTitle">短信发送详情</h3><div class="sms-detail-id">${escapeHtml(item.msgId)}</div></div><button class="sms-detail-close" type="button" aria-label="关闭详情" onclick="closeOpsMessageRecordDetailModal()">×</button></header>
+      <div class="sms-detail-body">
+        <section><h4>基本发送信息</h4><dl class="sms-detail-grid">${field('发送手机',item.phone)}${field('发送状态',item.sendStatus)}${field('任务编码',item.taskCode)}${field('引用模板名称',item.templateName)}${field('发送坐席账号',item.agentAccount)}</dl></section>
+        <section><h4>短信正文</h4><div class="sms-detail-content">${escapeHtml(item.content)}</div><div class="sms-detail-note">正文长度：${item.content.length} 字符</div></section>
+        <section><h4>发送时间</h4><dl class="sms-detail-grid">${field('创建时间',item.createTime)}${field('发送时间',item.sendTime)}</dl></section>
       </div>
-
-      <footer style="padding:14px 20px; border-top:1px solid #e2e8f0; display:flex; justify-content:flex-end; gap:10px; background:#f8fafc;">
-        <button type="button" style="height:32px; padding:0 16px; background:#fff; border:1px solid #d9d9d9; border-radius:4px; font-size:13px; cursor:pointer;" onclick="closeOpsMessageRecordDetailModal()">关闭</button>
-        <button type="button" style="height:32px; padding:0 16px; background:#2563eb; border:1px solid #2563eb; color:#fff; border-radius:4px; font-size:13px; cursor:pointer;" onclick="if(typeof showToast==='function') showToast('已成功复制短信内容！', true);">复制短信内容</button>
-      </footer>
-    </div>
-  `;
+      <footer class="sms-detail-footer"><button type="button" class="btn-secondary" onclick="closeOpsMessageRecordDetailModal()">关闭</button><button type="button" class="btn-primary" onclick="copyOpsSmsContent('${item.msgId}')">复制短信内容</button></footer>
+    </div>`;
   modalEl.style.display = 'flex';
+}
+
+async function copyOpsSmsContent(msgId) {
+  const item = opsMessageRecordMockData.find(row=>row.msgId===msgId); if(!item) return;
+  try { await navigator.clipboard.writeText(item.content); showToast('已复制短信内容',true); }
+  catch { showToast('复制失败，请选中短信正文手动复制',false); }
 }
 
 function closeOpsMessageRecordDetailModal() {

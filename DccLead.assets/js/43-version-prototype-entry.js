@@ -31,6 +31,7 @@
     'test-drive-report': () => showReportsPage('AI试驾排程效能看板'),
     'nev-daily': () => showReportsPage('总部NEV日报'),
     'nurture-report': () => showReportsPage('总部培育报表'),
+    'sms-records': () => { showReportsPage('总部培育报表'); switchOpsHqNurtureTab('messageRecord'); },
     'batch-dispatch': () => showReportsPage('批量下发'),
     'call-status': () => ai('call-status-policy'),
     'sms-dispatch': () => ai('sms-dispatch'),

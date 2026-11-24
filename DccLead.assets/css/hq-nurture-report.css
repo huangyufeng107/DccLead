@@ -63,3 +63,77 @@
 #opsHqNurtureReportPage .hq-nurture-report .hq-filter-actions{margin-top:0;min-height:36px}
 #opsHqNurtureReportPage .hq-nurture-report .hq-filter-actions button{height:36px!important}
 @media(max-width:680px){#opsHqNurtureReportPage .hq-nurture-report .hq-filter-grid>label{flex-basis:100%}#opsHqNurtureReportPage .hq-nurture-report .hq-filter-grid>label:has(input[type="date"]){flex-basis:100%}}
+
+/* 短信记录：标题、条数和操作合并为标准列表工具栏。 */
+#opsHqNurtureReportPage .sms-records-list-heading { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
+#opsHqNurtureReportPage .sms-records-list-heading h3 { margin:0; color:#0f172a; font-size:16px; font-weight:700; }
+#opsHqNurtureReportPage .sms-records-list-heading .hq-list-count { margin:0; }
+#opsHqNurtureReportPage .sms-records-list-header .form-input { box-sizing:border-box; width:120px; min-height:34px!important; height:34px!important; padding:0 10px; border:1px solid #d5deea; border-radius:6px; color:#334155; font-size:13px; background:#fff; }
+#opsHqNurtureReportPage .sms-records-list-header .sms-records-sort-direction { width:88px; }
+
+/* 短信记录沿用培育线索：常用条件同行操作，更多筛选在下方展开。 */
+#opsHqNurtureReportPage .sms-records-filter-panel { display:flex; flex-direction:column; gap:18px; }
+#opsHqNurtureReportPage .sms-records-filter-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px 12px; }
+#opsHqNurtureReportPage .sms-records-filter-grid[hidden] { display:none!important; }
+#opsHqNurtureReportPage .sms-records-filter-field { display:flex; flex-direction:column; gap:8px; min-width:0; color:#475569; font-size:13px; font-weight:500; }
+#opsHqNurtureReportPage .sms-records-filter-field .form-input { box-sizing:border-box; width:100%; min-width:0; min-height:36px!important; height:36px!important; margin:0; padding:0 10px; border:1px solid #d5deea; border-radius:6px; background:#fff; color:#334155; font-size:13px; }
+#opsHqNurtureReportPage .sms-records-date-range { display:flex; align-items:center; gap:8px; min-width:0; }
+#opsHqNurtureReportPage .sms-records-date-range .form-input { flex:1; width:0; }
+#opsHqNurtureReportPage .sms-records-date-range>span { flex:none; color:#94a3b8; }
+#opsHqNurtureReportPage .sms-records-date-field { grid-column:span 2; }
+#opsHqNurtureReportPage .sms-records-filter-title { margin:0; font-size:16px; font-weight:600; color:#1e293b; }
+#opsHqNurtureReportPage .sms-records-common { grid-template-columns:repeat(5,minmax(0,1fr)) auto; align-items:end; }
+#opsHqNurtureReportPage .sms-records-filter-more-area { border-top:1px solid #e8eef7; padding-top:14px; }
+#opsHqNurtureReportPage .sms-records-advanced { margin-top:16px; }
+#opsHqNurtureReportPage .sms-records-filter-actions { display:flex; gap:8px; justify-content:flex-end; }
+#opsHqNurtureReportPage .sms-records-filter-actions button { height:36px; min-width:58px; padding:0 12px; border-radius:6px; font-size:13px; }
+@media(max-width:1100px) { #opsHqNurtureReportPage .sms-records-filter-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:680px) { #opsHqNurtureReportPage .sms-records-filter-grid { grid-template-columns:minmax(0,1fr); } #opsHqNurtureReportPage .sms-records-date-field { grid-column:auto; } }
+
+/* 短信记录数据区：与培育线索列表保持一致的正文、留白与操作层级。 */
+#opsHqNurtureReportPage .sms-records-table-scroll { overflow-x:auto; scrollbar-width:thin; scrollbar-color:#c3c9d5 #f5f7fb; }
+#opsHqNurtureReportPage .hq-nurture-report .sms-records-table { width:100%; min-width:1504px; table-layout:fixed; border-collapse:separate; border-spacing:0; text-align:left; font-family:inherit; }
+#opsHqNurtureReportPage .hq-nurture-report .sms-records-table th { padding:16px 14px!important; height:52px; box-sizing:border-box; background:#f5f4ff!important; color:#475569!important; font-size:13px!important; }
+#opsHqNurtureReportPage .hq-nurture-report .sms-records-table td { padding:18px 14px!important; height:76px; box-sizing:border-box; vertical-align:middle; color:#1f2937; font-size:13px; font-weight:400; line-height:1.6; background:#fff; }
+#opsHqNurtureReportPage .sms-records-table .sms-records-secondary { display:block; color:#64748b; font-size:12px; margin-top:2px; font-variant-numeric:tabular-nums; }
+#opsHqNurtureReportPage .sms-records-date { display:block; font-variant-numeric:tabular-nums; }
+#opsHqNurtureReportPage .sms-records-preview { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; white-space:normal; overflow-wrap:anywhere; line-height:1.65; max-height:3.3em; }
+#opsHqNurtureReportPage .sms-records-table .sms-records-muted { color:#94a3b8; }
+#opsHqNurtureReportPage .sms-records-status { display:inline-block; padding:1px 8px; border:1px solid; border-radius:12px; font-size:12px; white-space:nowrap; }
+#opsHqNurtureReportPage .sms-records-status.is-success { color:#0f766e; background:#f0fdfa; border-color:#ccebe4; }
+#opsHqNurtureReportPage .sms-records-status.is-failed { color:#b91c1c; background:#fef2f2; border-color:#fecaca; }
+#opsHqNurtureReportPage .sms-records-status.is-pending { color:#1d4ed8; background:#eff6ff; border-color:#dbeafe; }
+#opsHqNurtureReportPage .sms-records-table th:last-child,
+#opsHqNurtureReportPage .sms-records-table td.sms-records-operation { position:sticky; right:0; z-index:1; text-align:center; box-shadow:none; border-left:1px solid #dfe6f1; }
+#opsHqNurtureReportPage .sms-records-operation .mw-detail-link { border:0; padding:4px 0; background:transparent; color:#0f766e; font:inherit; cursor:pointer; }
+#opsHqNurtureReportPage .sms-records-operation .mw-detail-link:hover { text-decoration:underline; }
+#opsHqNurtureReportPage .sms-records-table .sms-records-empty td { height:100px; text-align:center; color:#94a3b8; }
+
+/* 列表操作沿用培育线索的按钮、原生下拉箭头及字段勾选面板。 */
+#opsHqNurtureReportPage .sms-records-list-header .lead-select { width:120px; height:36px!important; min-height:36px!important; background-color:#fff; cursor:pointer; }
+#opsHqNurtureReportPage .sms-records-list-header .sms-records-sort-direction { width:88px; }
+#opsHqNurtureReportPage .sms-records-list-header .hq-list-toolbar button { height:36px; font-weight:600; }
+#opsHqNurtureReportPage .sms-records-list-header .hq-list-toolbar button:hover,
+#opsHqNurtureReportPage .sms-records-list-header .lead-select:hover { color:#2563eb; border-color:#93c5fd; background-color:#fff; }
+#opsHqNurtureReportPage .sms-records-list-header :is(button,select):focus-visible { outline:2px solid #bfdbfe; outline-offset:2px; }
+#opsHqNurtureReportPage #opsSmsFieldTrigger[aria-expanded="true"] { color:#2563eb; border-color:#93c5fd; }
+.sms-records-field-panel { position:fixed; z-index:10020; box-sizing:border-box; max-height:70vh; overflow:auto; }
+.sms-records-field-panel .field-check:hover { color:#2563eb; }
+.sms-records-field-panel input { accent-color:#2563eb; }
+/* 短信详情：统一标签、正文与间距，去除无数据支持的客户回复。 */
+.sms-detail-dialog { background:#fff; width:780px; max-width:calc(100vw - 32px); max-height:90vh; border-radius:10px; box-shadow:0 20px 50px #0f172a26; display:flex; flex-direction:column; overflow:hidden; color:#1f2937; font-size:14px; }
+.sms-detail-header { padding:20px 24px; display:flex; align-items:flex-start; justify-content:space-between; border-bottom:1px solid #e8eef7; }
+.sms-detail-header h3 { margin:0; font-size:18px; font-weight:600; }
+.sms-detail-id { margin-top:6px; color:#64748b; font-size:12px; }
+.sms-detail-close { padding:0 4px; border:0; background:none; color:#64748b; font-size:26px; cursor:pointer; }
+.sms-detail-close:hover { color:#1f2937; }
+.sms-detail-body { padding:24px; overflow-y:auto; display:flex; flex-direction:column; gap:26px; }
+.sms-detail-body h4 { margin:0 0 14px; font-size:14px; font-weight:600; color:#1f2937; }
+.sms-detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px 28px; margin:0; }
+.sms-detail-field dt { color:#64748b; font-size:12px; margin-bottom:6px; }
+.sms-detail-field dd { margin:0; color:#1f2937; line-height:1.6; overflow-wrap:anywhere; font-weight:400; }
+.sms-detail-content { border:1px solid #e2e8f0; border-radius:6px; background:#f8fafc; padding:16px; line-height:1.9; white-space:pre-wrap; overflow-wrap:anywhere; }
+.sms-detail-note { margin-top:8px; color:#64748b; font-size:12px; }
+.sms-detail-footer { padding:16px 24px; border-top:1px solid #e8eef7; display:flex; gap:10px; justify-content:flex-end; }
+.sms-detail-footer button { height:36px; padding:0 16px; border-radius:6px; font-size:13px; cursor:pointer; }
+@media(max-width:680px) { .sms-detail-grid { grid-template-columns:1fr; } .sms-detail-body,.sms-detail-header { padding:18px; } }

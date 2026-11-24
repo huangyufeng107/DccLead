@@ -1,5 +1,9 @@
 (() => {
   const data = window.dccMaskedWorklist;
+  const monitoring = window.maskedMonitoring;
+  let privacyTimer;
+  let remoteMonitorSettings;
+  const monitorLimits = () => remoteMonitorSettings || monitoring.settings();
   const params = new URLSearchParams(location.search);
   const local = params.get('dccMode') === 'local';
   const safe = value => String(value ?? '').replace(/[&<>"']/g, char =>
@@ -20,11 +24,14 @@
     rejected: '客户拒绝', busy: '忙音/秘书台', invalid: '空号'
   };
   const results = {
-    callback: '下次回访', completed: '回访完成', dispatch_store: '下发门店', candidate: '提交客户手机号核验'
+    callback: '下次回访', return_no_phone: '回访完成（未取得手机号）', candidate: '提交客户手机号核验'
   };
-  const savedResultLabel = result => result === 'recorded' ? '记录本次跟进' : results[result];
+  const savedResultLabel = result => results[result] || ({recorded:'记录本次跟进', completed:'回访完成', dispatch_store:'下发门店'})[result];
   const shanghai = new Intl.DateTimeFormat('sv-SE', {timeZone:'Asia/Shanghai', dateStyle:'short', timeStyle:'short'});
-  const dateTime = value => value ? shanghai.format(new Date(value)) : '';
+  const dateTime = value => {
+    const time = monitoring.timestamp(value);
+    return Number.isFinite(time) ? shanghai.format(time) : '';
+  };
   let activeQueue = 'new';
   let selected = '';
   let keyword = '';
@@ -45,7 +52,9 @@
   const canDial = row => data.privacyStatus(row) === 'available';
 
   function queueFor(row) {
-    const plannedDay = dateTime(row.manualFollowup?.nextVisitAt).slice(0, 10);
+    const plan = row.manualFollowup?.nextVisitAt;
+    if (plan && monitoring.timestamp(plan) <= Date.now()) return 'overdue';
+    const plannedDay = dateTime(plan).slice(0, 10);
     const today = dateTime(Date.now()).slice(0, 10);
     if (plannedDay) {
       if (plannedDay < today) return 'overdue';
@@ -74,8 +83,9 @@
       <div class="nt-section-header static"><span class="nt-section-title">回访提交</span>
         <span class="nt-masked-result">${verificationLabel(verification)}</span></div>
       <div class="nt-section-body">
-        ${visit ? `<p class="nt-visit-saved" role="status">最近保存 · ${safe(savedResultLabel(visit.result))} ·
-          ${safe(dateTime(visit.visitedAt))}${visit.nextVisitAt ? ` · 下次回访 ${safe(dateTime(visit.nextVisitAt))}` : ''}</p>` : ''}
+        ${visit?.nextVisitAt ? `<p class="nt-visit-saved nt-masked-current-plan" role="status">
+          <strong>当前预约</strong><time datetime="${safe(visit.nextVisitAt)}">${safe(dateTime(visit.nextVisitAt))}</time>
+        </p>` : visit ? `<p class="nt-visit-saved" role="status">上次回访结果 · ${safe(savedResultLabel(visit.result))}</p>` : ''}
         ${verification?.maskedPhone ? `<p class="nt-masked-meta">已提交号码 ${known(verification.maskedPhone)}</p>` : ''}
         ${visit?.note ? `<p class="nt-masked-visit-note">${safe(visit.note)}</p>` : ''}
         ${locked ? '' : `<form class="nt-masked-submit">
@@ -89,7 +99,7 @@
             <div class="nt-form-item nt-form-item-plain"><label>上次回访时间</label>
               <div class="nt-form-ctl nt-plain">${known(dateTime(visit?.visitedAt))}</div></div>
             <div class="nt-form-item" data-masked-field="nextVisitAt" hidden>
-              <label for="ntMaskedNextVisit">下次回访时间</label>
+              <label for="ntMaskedNextVisit">${visit?.nextVisitAt ? '重新安排回访时间' : '下次回访时间'}</label>
               <input type="datetime-local" class="nt-form-ctl nt-input" id="ntMaskedNextVisit" name="nextVisitAt"></div>
             <div class="nt-form-item" data-masked-field="phone" hidden>
               <label for="ntMaskedCustomerPhone">客户提供的手机号</label>
@@ -101,6 +111,7 @@
               <textarea id="ntMaskedVisitNote" class="nt-form-ctl nt-textarea" name="note" rows="3" maxlength="500"
                 placeholder="填写本次沟通内容和约定事项"></textarea></div>
           </div>
+          <p class="nt-masked-return-note" data-nt-masked-return-note hidden>确认客户仍不愿提供手机号后，填写跟进经过并退回临时池。临时池接收后，任务将退出您的待跟进。</p>
           <p class="nt-masked-feedback" role="status" data-nt-masked-submit-status></p>
           <div class="nt-form-actions"><button class="nt-btn nt-btn-primary" type="submit">回访提交</button></div>
         </form>`}
@@ -119,19 +130,28 @@
     return {pending:'核验中', timed_out:'核验超时待确认', failed:'核验未通过'}[verification.status] || '待核验';
   }
 
-  function card(row) {
+  function privacyReminder(row, now, limits) {
+    const alert = monitoring.privacyAlert(row, now, data.privacyStatus(row), limits);
+    if (alert?.type === 'expired') return '隐私号已失效';
+    if (alert?.type !== 'expiry' || alert.priority !== 0) return '';
+    return '隐私号即将失效 · 剩余 ' + monitoring.duration(alert.at - now);
+  }
+
+  function card(row, now, limits) {
     return `<button type="button" class="nt-task-card ${row.id === selected ? 'active' : ''}"
       data-nt-masked-task="${safe(row.id)}" aria-pressed="${row.id === selected}">
       <span class="nt-task-card-top"><span class="nt-task-name" title="${known(row.name || row.original || row.task)}">${known(row.name || row.original || row.task)}</span>
         <span class="sd-tag sd-tag-${data.privacyTones[data.privacyStatus(row)] || 'info'}">${privacyLabel(row)}</span></span>
       <span class="nt-task-card-bottom"><span class="nt-task-phone">${[data.phone(row), row.intentSeriesName || row.series].filter(Boolean).map(safe).join(' · ')}</span></span>
-      ${row.manualFollowup?.nextVisitAt ? `<span class="nt-masked-card-time">${safe(dateTime(row.manualFollowup.nextVisitAt))}</span>` : ''}</button>`;
+      <span class="nt-masked-privacy-card" data-privacy-card>${safe(privacyReminder(row, now, limits))}</span>
+      ${row.manualFollowup?.nextVisitAt ? `<span class="nt-masked-card-time">预约回访 ${safe(dateTime(row.manualFollowup.nextVisitAt))}</span>` : ''}</button>`;
   }
 
   function detail(row) {
     return `<section class="nt-masked-detail">
       <header><h3>${known(row.name || row.original || row.task)}</h3><span>人工跟进 · ${safe(account)}</span></header>
       <div class="nt-masked-follow-main">
+      <p class="nt-masked-privacy-banner" data-privacy-banner role="status"></p>
       <section class="nt-masked-section" aria-label="隐私号外呼">
         <div class="nt-masked-section-head"><h4>隐私号外呼</h4>
           <span class="sd-tag sd-tag-${data.privacyTones[data.privacyStatus(row)] || 'info'}">${privacyLabel(row)}</span></div>
@@ -165,8 +185,8 @@
     if (row && assistantTab === 'records') {
       body = records.map(record => `<article class="nt-masked-lead-group nt-masked-visit-record">
         <strong>${known(savedResultLabel(record.result))}</strong>
-        <div>${known(contacts[record.contactStatus] || (record.contactStatus === 'not_called' ? '未外呼' : ''))} · ${known(dateTime(record.visitedAt))}</div>
-        ${record.nextVisitAt ? `<div>下次回访 ${safe(dateTime(record.nextVisitAt))}</div>` : ''}
+        <div>${known(contacts[record.contactStatus] || (record.contactStatus === 'not_called' ? '未外呼' : ''))} · 跟进于 ${known(dateTime(record.visitedAt))}</div>
+        ${record.nextVisitAt ? `<div>当时预约 ${safe(dateTime(record.nextVisitAt))}</div>` : ''}
         ${record.note ? `<p>${safe(record.note)}</p>` : ''}
       </article>`).join('') || '<p class="nt-masked-assistant-empty">暂无回访记录。</p>';
     }
@@ -201,6 +221,7 @@
   }
 
   function render(page, tabs, switchScope, focus) {
+    clearTimeout(privacyTimer);
     const demoFocus = focus === '.nt-masked-demo summary';
     const centerScroll = demoFocus ? page.querySelector('.nt-masked-center')?.scrollTop : 0;
     const pending = pendingRows();
@@ -208,7 +229,12 @@
     if (loading === false && !matches.some(row => queueFor(row) === activeQueue) && focus === '[name="keyword"]' && keyword && matches.length) {
       activeQueue = queueFor(matches[0]);
     }
-    const visible = matches.filter(row => queueFor(row) === activeQueue);
+    const now = Date.now();
+    const limits = monitorLimits();
+    const urgent = row => monitoring.privacyAlert(row, now, data.privacyStatus(row), limits)?.type === 'expiry'
+      && Boolean(privacyReminder(row, now, limits));
+    const visible = matches.filter(row => queueFor(row) === activeQueue)
+      .sort((a, b) => Number(urgent(b)) - Number(urgent(a)));
     const current = visible.find(row => row.id === selected) || visible[0];
     selected = current?.id || '';
     const dialPhone = () => current && canDial(current) ? current.privacy?.number || null : null;
@@ -229,7 +255,7 @@
               <span>已完成 <b>${ownedRows().filter(row => row.followupComplete).length}</b></span></div>
             <p class="nt-masked-list-status" role="status">${safe(error || success || (loading ? '正在读取掩码待办…' : ''))}</p>
             ${renderQueues(pending)}
-            <div class="nt-queue-items nt-active-queue-items">${visible.length ? visible.map(card).join('') :
+            <div class="nt-queue-items nt-active-queue-items">${visible.length ? visible.map(row => card(row, now, limits)).join('') :
               `<div class="nt-queue-empty">${loading || error ? '' : keyword ? '暂无符合查询条件的掩码任务' : '暂无待跟进的掩码任务'}</div>`}</div>
           </div>
         </aside>
@@ -241,6 +267,46 @@
       </div>
       ${outboundToolbar.dialogs(dialPhone())}
     </div>`;
+    const shell = page.querySelector('.nt-masked-workspace');
+    const updatePrivacy = async (reloadLimits = false) => {
+      if (!shell.isConnected || !page.getClientRects().length) return;
+      if (reloadLimits && local && token) {
+        try {
+          const result = await data.request('monitor-settings', undefined, token);
+          if (!shell.isConnected) return;
+          if (monitoring.validSettings(result.monitorSettings)) remoteMonitorSettings = result.monitorSettings;
+        } catch { /* Keep the latest available threshold and retry next time. */ }
+      }
+      const time = Date.now();
+      const latest = monitorLimits();
+      const items = [...shell.querySelectorAll('[data-nt-masked-task]')];
+      const ranked = items.map(button => {
+        const row = visible.find(item => item.id === button.dataset.ntMaskedTask);
+        const reminder = privacyReminder(row, time, latest);
+        button.querySelector('[data-privacy-card]').textContent = reminder;
+        return {button, urgent: reminder.startsWith('隐私号即将失效')};
+      }).sort((a, b) => Number(b.urgent) - Number(a.urgent));
+      ranked.forEach(({button}, index) => {
+        if (button.parentElement.children[index] !== button) button.parentElement.insertBefore(button, button.parentElement.children[index]);
+      });
+      if (current) {
+        const banner = shell.querySelector('[data-privacy-banner]');
+        const reminder = privacyReminder(current, time, latest);
+        const deadline = current.privacy?.expiresAtRaw || current.privacy?.expiresAt;
+        banner.textContent = reminder.startsWith('隐私号即将失效')
+          ? reminder + '，截止 ' + dateTime(deadline) + '，请优先外呼。' : reminder;
+        const expired = reminder === '隐私号已失效';
+        if (expired) {
+          page.querySelectorAll('[data-nt-outbound-action="dial"], [data-nt-outbound-action="open-dial-modal"], [data-nt-outbound-action="submit-dial"]')
+            .forEach(button => { button.disabled = true; });
+          const status = shell.querySelector('[aria-label="隐私号外呼"] .sd-tag');
+          status.textContent = '已失效';
+          status.className = 'sd-tag sd-tag-danger';
+        }
+      }
+      privacyTimer = setTimeout(() => updatePrivacy(true), 30_000);
+    };
+    updatePrivacy();
     const updateAssistant = () => {
       const slot = page.querySelector('.nt-masked-assistant-slot');
       slot.hidden = assistantCollapsed;
@@ -258,6 +324,8 @@
       page.querySelector('.nt-page-shell').insertAdjacentHTML('beforeend', outboundToolbar.dialogs(dialPhone()));
       page.querySelector('.nt-outbound-modal-mask button')?.focus();
     };
+    const scopeSelector = page.querySelector('[data-task-scope-select]');
+    scopeSelector.addEventListener('change', () => switchScope(scopeSelector.value));
     page.onclick = event => {
       const outboundAction = event.target.closest('[data-nt-outbound-action], [data-nt-top-action]');
       if (outboundAction) {
@@ -281,11 +349,6 @@
         assistantKeyword = '';
         updateAssistant();
         page.querySelector('[data-masked-assistant-tab][aria-selected="true"]')?.focus();
-        return;
-      }
-      const scope = event.target.closest('[data-task-scope]');
-      if (scope && scope.dataset.taskScope !== 'masked') {
-        switchScope(scope.dataset.taskScope);
         return;
       }
       const queue = event.target.closest('[data-nt-masked-queue]');
@@ -370,7 +433,11 @@
           input.required = visible;
         });
         validatePhone();
-        form.querySelector('[type=submit]').textContent = result.value === 'candidate' ? '提交核验' : '回访提交';
+        const returning = result.value === 'return_no_phone';
+        form.elements.note.required = returning;
+        form.querySelector('[data-nt-masked-return-note]').hidden = !returning;
+        form.querySelector('[type=submit]').textContent = returning ? '确认退回临时池'
+          : result.value === 'candidate' ? '提交核验' : '回访提交';
       };
       form.onchange = sync;
       form.oninput = () => { delete form.dataset.submissionId; };
@@ -422,6 +489,7 @@
       const result = await data.request('tasks', undefined, session);
       if (version !== requestVersion) return;
       token = session;
+      if (monitoring.validSettings(result.monitorSettings)) remoteMonitorSettings = result.monitorSettings;
       rows = result.items.map(data.read);
       loaded = true;
     } catch {
@@ -440,6 +508,8 @@
     const {phone, ...visit} = Object.fromEntries(new FormData(form));
     visit.nextVisitAt ||= '';
     const submittingNumber = visit.result === 'candidate';
+    const returning = visit.result === 'return_no_phone';
+    if (returning && !visit.note.trim()) { feedback.textContent = '请填写跟进经过或客户未提供手机号的原因。'; return; }
     if (submittingNumber && !mobileNumber.test(phone || '')) { feedback.textContent = mobileError; return; }
     if (submittingNumber && !canDial(row)) { feedback.textContent = '隐私号当前不可拨。'; return; }
     if (!local && visit.result === 'callback' && visit.nextVisitAt <= dateTime(Date.now()).replace(' ', 'T')) {
@@ -475,7 +545,12 @@
           ...visit, nextVisitAt: visit.nextVisitAt ? visit.nextVisitAt + '+08:00' : null, visitedAt: new Date().toISOString()
         };
         if (visit.result === 'callback') message = '已安排下次回访。';
-        if (visit.result === 'dispatch_store') message = '已记录「下发门店」回访结果。';
+        if (returning) {
+          row.noPhoneReturn = local ? row.manualFollowup.noPhoneReturn : {status:'accepted'};
+          if (row.noPhoneReturn?.status !== 'accepted') throw new Error('暂未收到临时池确认，请重试。');
+          row.followupComplete = true;
+          message = local ? '临时池已接收，任务已退出待跟进。' : '演示退回临时池成功，任务已退出待跟进。';
+        }
       }
       row.manualFollowupHistory = [row.manualFollowup, ...previousRecords].slice(0, 30);
       if (form.isConnected) {
@@ -494,8 +569,8 @@
     count: () => local && !loaded ? null : pendingRows().length,
     show: (page, tabs, switchScope, toolbar) => {
       outboundToolbar = toolbar;
-      if (local) return load(page, tabs, switchScope, '[data-task-scope="masked"]');
-      return render(page, tabs, switchScope, '[data-task-scope="masked"]');
+      if (local) return load(page, tabs, switchScope, '[data-task-scope-select]');
+      return render(page, tabs, switchScope, '[data-task-scope-select]');
     }
   };
 })();

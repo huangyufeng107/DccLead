@@ -894,18 +894,19 @@ function renderNurtureFilterDialog() {
   </dialog>`;
 }
 
-function renderNurtureScopeTabs() {
+function renderNurtureScopeSelector() {
   const maskedCount = window.maskedSeatWorkbench.count();
   const tabs = [
     ['nurture', '培育任务', nurtureTaskItems.filter(item => !item.isDriveTask).length],
     ['drive', '试驾排程', nurtureTaskItems.filter(item => item.isDriveTask).length],
-    ['masked', '抖音掩码', maskedCount]
+    ['masked', '抖音掩码留资', maskedCount]
   ];
   const activeScope = maskedSeatOpen ? 'masked' : activeNurtureTaskScope;
-  return `<div class="nt-task-scope-tabs" role="tablist" aria-label="任务类型">
-    ${tabs.map(([scope,label,count]) => `<button type="button" role="tab" aria-selected="${activeScope === scope}"
-      class="nt-task-scope-tab ${activeScope === scope ? 'active' : ''}" data-task-scope="${scope}">
-      ${label}${count == null ? '' : ` <b>${count}</b>`}</button>`).join('')}
+  return `<div class="nt-task-scope-control">
+    <select class="nt-task-scope-select" data-task-scope-select aria-label="任务类型">
+      ${tabs.map(([scope, label, count]) => `<option value="${scope}" ${activeScope === scope ? 'selected' : ''}>
+        ${label}${count == null ? '' : ` · ${count} 条`}</option>`).join('')}
+    </select>
   </div>`;
 }
 
@@ -922,7 +923,7 @@ function switchNurtureTaskScope(nextScope) {
     if (nextScope === 'drive' && !['details', 'records', 'timeline'].includes(activeRightTab)) activeRightTab = 'details';
   }
   renderNurtureTaskPage();
-  if (!maskedSeatOpen) document.querySelector(`#nurtureTaskPage [data-task-scope="${nextScope}"]`)?.focus();
+  if (!maskedSeatOpen) document.querySelector('[data-task-scope-select]')?.focus({preventScroll: true});
 }
 
 window.openMaskedSeatWorkbench = () => switchNurtureTaskScope('masked');
@@ -936,7 +937,7 @@ function renderLeftPanel() {
   return `<aside class="nt-left-panel">
     <div class="nt-panel-head">
       <span class="nt-panel-title">外呼列表</span>
-      ${renderNurtureScopeTabs()}
+      ${renderNurtureScopeSelector()}
       <div class="nt-search-box">
         <input type="text" class="nt-search-input" placeholder="手机号搜索" id="nurtureSearchInput" value="${esc(nurtureSearchKeyword)}"/>
         <button type="button" class="nt-search-icon-btn" id="nurtureSearchBtn">
@@ -1919,7 +1920,7 @@ window.renderNurtureTaskPage = function() {
     visitScoreSession?.close();
     visitScoreSession = null;
     visitFormActive = false;
-    window.maskedSeatWorkbench.show(page, renderNurtureScopeTabs, switchNurtureTaskScope, maskedOutboundToolbar);
+    window.maskedSeatWorkbench.show(page, renderNurtureScopeSelector, switchNurtureTaskScope, maskedOutboundToolbar);
     return;
   }
   const task = getActiveTask();
@@ -1957,6 +1958,8 @@ function bindEvents() {
   const page = document.getElementById('nurtureMyTaskWorkspace') || document.getElementById('nurtureTaskPage');
   if (!page) return;
   bindCriticalReminderCountdown(page);
+  const scopeSelector = page.querySelector('[data-task-scope-select]');
+  scopeSelector.addEventListener('change', () => switchNurtureTaskScope(scopeSelector.value));
   page.onclick = function(e) {
     const scoreHelpTrigger = e.target.closest('[data-score-help]');
     page.querySelectorAll('.nt-score-help').forEach(help => {
@@ -2040,13 +2043,6 @@ function bindEvents() {
         if (firstOverdue) activeNurtureTaskId = firstOverdue.id;
       }
       renderNurtureTaskPage();
-      return;
-    }
-
-    // 队列折叠
-    const scopeTab = e.target.closest('[data-task-scope]');
-    if (scopeTab) {
-      switchNurtureTaskScope(scopeTab.dataset.taskScope);
       return;
     }
 
