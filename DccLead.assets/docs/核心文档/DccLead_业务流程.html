@@ -110,7 +110,7 @@
 <a class="scene-link" href="#FLOW-003-overview" data-scene-link="FLOW-003" aria-current="false"><span class="nav-code">FLOW-003</span><span class="scene-name">人工外呼与跟进记录</span><span class="scene-state">坐席处理流程</span></a>
 <a class="scene-link" href="#FLOW-004-overview" data-scene-link="FLOW-004" aria-current="false"><span class="nav-code">FLOW-004</span><span class="scene-name">AI试驾排程工单生成</span><span class="scene-state">预约转化流程</span></a>
 <a class="scene-link" href="#FLOW-005-overview" data-scene-link="FLOW-005" aria-current="false"><span class="nav-code">FLOW-005</span><span class="scene-name">AI外呼滞留队列与处理时段</span><span class="scene-state">队列时段控制</span></a>
-<a class="scene-link" href="#FLOW-012-overview" data-scene-link="FLOW-012"><span class="nav-code">FLOW-012</span><span class="scene-name">短信下发车系组合匹配</span><span class="scene-state">话单标签单值与选填车系条件</span></a>
+<a class="scene-link" href="#FLOW-012-overview" data-scene-link="FLOW-012"><span class="nav-code">FLOW-012</span><span class="scene-name">短信下发场景与条件匹配</span><span class="scene-state">场景区分、类型标签接口与条件匹配</span></a>
 <a class="scene-link" href="#FLOW-011-overview" data-scene-link="FLOW-011"><span class="nav-code">FLOW-011</span><span class="scene-name">线索分配规则编辑</span><span class="scene-state">更新人记录与 Agent 来源保留</span></a>
 <a class="scene-link" href="#FLOW-007-overview" data-scene-link="FLOW-007" aria-current="false"><span class="nav-code">FLOW-007</span><span class="scene-name">AI 策略建议、审核与发布</span><span class="scene-state">策略版本流程</span></a>
 <a class="scene-link" href="#FLOW-008-overview" data-scene-link="FLOW-008" aria-current="false"><span class="nav-code">FLOW-008</span><span class="scene-name">预测外呼话单生成回访工单</span><span class="scene-state">规则映射流程</span></a><a class="scene-link" href="#FLOW-009-overview" data-scene-link="FLOW-009" aria-current="false"><span class="nav-code">FLOW-009</span><span class="scene-name">预评分转换判定与处理</span><span class="scene-state">全局转换流程</span></a><a class="scene-link" href="#FLOW-010-overview" data-scene-link="FLOW-010"><span class="nav-code">FLOW-010</span><span class="scene-name">新能源培育线索分配与直派</span><span class="scene-state">常规直派与抖音接单分流</span></a>
@@ -830,40 +830,49 @@ Result -->|成功| Ok[返回成功状态]:::main --> Save[(保存总部培育任
 </section>
 </div>
 <div class="scene-content" data-scene-content="FLOW-012" hidden>
-<section class="card flow7-rules" id="FLOW-012-overview"><h2>场景：按话单返回的意向车系选择短信规则</h2>
-<p class="lead">运营为不同车系维护短信触达条件。AI外呼结束后，使用本次话单标签返回的车系名称，与通话状态、包含及排除标签共同判断短信规则。</p>
-<div class="chips"><span class="chip">入口：培育策略 → AI外呼配置 → 短信下发配置</span><span class="chip">车系选填多选 · 话单单值名称</span></div>
-<div class="release-doc-links"><a href="../../../DccLead.html?prototypePage=sms-dispatch#dcc-prototype" target="_blank" rel="noopener">打开原型：短信下发配置 ↗</a> <a href="DccLead_功能说明.html#sms-intent-series-rules" target="_blank" rel="noopener">车系条件规则 ↗</a> <a href="DccLead_功能说明.html#sms-intent-series-acceptance" target="_blank" rel="noopener">配置验收 ↗</a> <a href="DccLead_功能点清单.html#v32-feature-R4" target="_blank" rel="noopener">对应功能点 ↗</a> <a href="DccLead_页面交互图.html#interaction-aiwh-14" target="_blank" rel="noopener">新增配置交互 ↗</a> <a href="DccLead_页面交互图.html#interaction-aiwh-15" target="_blank" rel="noopener">编辑配置交互 ↗</a> <a href="DccLead_页面交互图.html#interaction-sms-dispatch-view" target="_blank" rel="noopener">查看配置交互 ↗</a> <a href="DccLead_版本日志.html#v32-release-R4" target="_blank" rel="noopener">V32-R4版本记录 ↗</a></div></section>
+<section class="card flow7-rules" id="FLOW-012-overview"><h2>场景：按来源场景、外呼类型和话单条件选择短信规则</h2>
+<p class="lead">运营为不同车系维护短信触达条件。运营先选择现有或智能外呼场景。智能外呼类型及标签由接口提供，AI外呼结束后在同来源场景内按本次话单字段组合判定。</p>
+<div class="chips"><span class="chip">入口：培育策略 → AI外呼配置 → 短信下发配置</span><span class="chip">场景隔离 · 智能类型接口单选 · 车系选填</span></div>
+<div class="release-doc-links"><a href="../../../DccLead.html?prototypePage=sms-dispatch#dcc-prototype" target="_blank" rel="noopener">打开原型：短信下发配置 ↗</a> <a href="DccLead_功能说明.html#sms-intent-series-rules" target="_blank" rel="noopener">车系条件规则 ↗</a> <a href="DccLead_功能说明.html#sms-intent-series-acceptance" target="_blank" rel="noopener">配置验收 ↗</a> <a href="DccLead_功能点清单.html#v32-feature-R4" target="_blank" rel="noopener">对应功能点 ↗</a> <a href="DccLead_页面交互图.html#interaction-aiwh-14" target="_blank" rel="noopener">新增配置交互 ↗</a> <a href="DccLead_页面交互图.html#interaction-aiwh-15" target="_blank" rel="noopener">编辑配置交互 ↗</a> <a href="DccLead_页面交互图.html#interaction-sms-dispatch-view" target="_blank" rel="noopener">查看配置交互 ↗</a> <a href="DccLead_版本日志.html#v32-release-R4" target="_blank" rel="noopener">V32-R4版本记录 ↗</a> <a href="DccLead_版本日志.html#v32-release-R5" target="_blank" rel="noopener">V32-R5场景及接口联动 ↗</a></div></section>
 <article class="card" id="FLOW-012-flow"><h2>处理流程</h2><div class="diagram-wrap"><pre class="mermaid">flowchart TB
- A["运营维护短信下发配置"] --> B["选择外呼类型与必填包含标签<br/>按需设置通话状态、排除标签和车系<br/>选择短信模板、权重及启停"]
- B --> C["保存配置<br/>未选车系保存为空集合，表示不限"]
- C --> D["AI外呼结束，话单回传<br/>读取本次单个意向车系名称及其他条件值"]
- D --> E["逐条判断启用的短信规则"]
- E --> F{"现有外呼类型、通话状态<br/>包含及排除标签条件满足？"}
- F -->|否| X["该规则不命中"]
- F -->|是| G{"配置选择了车系？"}
- G -->|未选或历史无字段| M["该规则命中"]
- G -->|已选| H{"本次话单车系有值<br/>且名称属于所选集合？"}
- H -->|否：空值或不匹配| X
- H -->|是| M
- X --> N["继续判断其余启用规则"]
- M --> N
- N --> O{"全部判断完毕？"}
- O -->|否| E
- O -->|是| P{"存在命中规则？"}
- P -->|否| Z["不发送短信"]
- P -->|是| Q["选择权重数字最小的规则<br/>同权重取创建时间倒序"]
- Q --> R{"关联短信模板可用？"}
- R -->|否| S["阻断发送并记录模板异常"]
- R -->|是| T["按选中模板执行既有短信下发流程"]
- T --> U["以短信平台回执确认发送结果"]</pre></div></article>
-<section class="card flow7-rules" id="FLOW-012-rules"><h2>匹配规则与数据来源</h2><p>「标签最新意向车系」为选填多选，选项取车系字典的启用名称。匹配值取本次参与短信判定的话单标签返回的单个车系名称。配置未选车系（包括历史配置无此字段）时不限制；已选时名称属于所选集合才满足，空值、缺失或不匹配时该规则不命中。车系条件与现有外呼类型、通话状态、包含及不包含标签条件组合判断，各条件同时满足；包含标签继续必填，内部且／或逻辑沿用配置。单条规则不命中时继续判断其他启用规则，全部未命中才不发送。多个规则命中时权重数字小者优先，同权重取创建时间倒序。</p>
+ A["运营新增或编辑短信配置"] --> B{"选择适用场景"}
+ B -->|现有场景| C["按原来源选择外呼类型<br/>支持多选及原标签条件"]
+ B -->|智能外呼场景| D["接口加载智能外呼类型<br/>每条规则单选一个类型"]
+ D --> E{"类型接口加载成功且有数据？"}
+ E -->|否| ERR["提示失败或空数据<br/>失败可重试，阻止保存"]
+ E -->|是| F["选择外呼类型<br/>接口加载该类型标签"]
+ F --> G{"标签接口加载成功且有数据？"}
+ G -->|否| ERR
+ G -->|是| H["勾选必填包含标签与选填排除标签"]
+ C --> I["配置车系、通话状态、权重、启停与模板"]
+ H --> I
+ I --> J["校验并保存配置<br/>切换场景清空类型与标签<br/>切换智能类型清空标签"]
+ J --> K["话单回传，识别其来源场景<br/>取同次话单的类型、标签、车系等字段"]
+ K --> L{"场景及类型可识别？"}
+ L -->|否| STOP["不发送，记录无法识别原因"]
+ L -->|是| M["仅取同场景的启用规则<br/>智能场景按类型及标签编码判断"]
+ M --> N{"类型、状态及标签条件满足？"}
+ N -->|否| MISS["该规则不命中，继续其余同场景规则"]
+ N -->|是| O{"配置选择了车系？"}
+ O -->|未选| HIT["该规则命中"]
+ O -->|已选| P{"本次话单车系名称属于所选集合？"}
+ P -->|是| HIT
+ P -->|空值或不匹配| MISS
+ MISS --> Q["汇总同场景命中规则"]
+ HIT --> Q
+ Q --> R{"有命中规则？"}
+ R -->|否| NONE["不发送短信"]
+ R -->|是| S["权重数字小者优先<br/>同权重取创建时间倒序"]
+ S --> T{"选中规则的短信模板可用？"}
+ T -->|否| BLOCK["阻断发送并记录模板异常"]
+ T -->|是| SEND["按模板执行短信下发<br/>通过通道回执核对结果"]</pre></div></article>
+<section class="card flow7-rules" id="FLOW-012-rules"><h2>匹配规则与数据来源</h2><p>适用场景为必选，分为「现有场景」「智能外呼场景」，新建默认现有场景，历史配置缺少scenario时归入现有场景。现有场景继续使用原外呼类型及标签来源、外呼类型多选。智能外呼场景每条规则单选一个外呼类型，类型及对应标签由智能外呼系统接口提供；选择类型后仅展示该类型的包含与排除标签。切换场景清空外呼类型和包含／排除标签，切换智能外呼类型清空包含／排除标签；配置名称、权重、启停、通话状态、车系及模板保持当前填写值。</p><p>话单处理须先识别来源场景，仅在同场景内按外呼类型、通话状态、标签和车系匹配，再比较权重。智能外呼场景使用callTypeCode及includeTagCodes／excludeTagCodes匹配，名称用于显示；车系仍使用本次话单返回的单个车系名称。场景及外呼类型编码缺失或无法识别时应停止该场景判定并记录原因。历史无场景的配置归入现有场景，不能将未识别来源的话单自动归入现有场景。</p><p>本地原型通过window.smsIntelligentOutboundApi.listCallTypes()及listTags(callTypeCode)预留数据接入，返回选项数组[{code,name,enabled?}]；代码和名称须有效，编码须稳定且集合内唯一。未提供正式契约时使用明确标注的原型接口示例响应。接口失败不回退至现有场景数据。实际URL、鉴权、上游响应适配、正式保存回读、来源场景标识、话单匹配及短信通道均需实施联调。</p><p>「标签最新意向车系」为选填多选，选项取车系字典的启用名称。匹配值取本次参与短信判定的话单标签返回的单个车系名称。配置未选车系（包括历史配置无此字段）时不限制；已选时名称属于所选集合才满足，空值、缺失或不匹配时该规则不命中。车系条件与现有外呼类型、通话状态、包含及不包含标签条件组合判断，各条件同时满足；包含标签继续必填，内部且／或逻辑沿用配置。单条规则不命中时继续判断其他启用规则，全部未命中才不发送。多个规则命中时权重数字小者优先，同权重取创建时间倒序。</p>
 <table><thead><tr><th>配置值</th><th>本次话单车系</th><th>车系条件结果</th></tr></thead><tbody>
 <tr><td>未选／历史配置无字段</td><td>N6、其他名称或空值</td><td>不限，通过该项，继续按其他条件判定</td></tr>
 <tr><td>N6、轩逸</td><td>N6或轩逸</td><td>通过该项，其他条件须同时满足</td></tr>
 <tr><td>N6、轩逸</td><td>探陆／空值／字段缺失</td><td>该规则不命中，继续其他规则</td></tr></tbody></table>
 <p class="section-note">现有原型示例「大模型线索未接通短信」（SMS-005）未设置包含标签。该数据早于本次车系条件调整，编辑保存时仍执行包含标签必填校验；有效标签需运营按真实话单数据补齐。当前示例配置保存在页面内存，浏览器刷新后恢复初始示例；正式保存与回读依赖服务接口。</p><p class="section-note">原型演示配置表单、保存及列表／详情回显。正式话单字段、车系名称一致性、服务端规则匹配、模板可用性校验、短信发送与回执需实施联调。</p></section>
-<section class="card flow7-rules" id="FLOW-012-acceptance"><h2>验收清单</h2><p>未选车系可保存，列表和详情显示“不限”；其他必填条件完整的历史配置可正常编辑保存。选择N6、轩逸后，话单返回N6或轩逸且其他条件满足时该规则命中，返回探陆或空值时该规则不命中。车系匹配但缺少包含标签时禁止保存，标签不满足时不命中。清空车系后恢复不限；取消编辑不改变原配置；查看模式只读。</p><p>两条规则同时命中时只选择优先规则执行；高优先级规则车系不匹配时，可由其他满足条件的规则命中。全部未命中时不调用短信发送。</p></section>
+<section class="card flow7-rules" id="FLOW-012-acceptance"><h2>验收清单</h2><p>分页下拉仅在选项变更后执行，点击展开不重建选项。关键字输入只响应输入事件，失焦后直接点击编辑不得被列表重绘吞掉。上游以同名新编码替换旧标签时，旧编码保持失效并阻断保存，运营清空后重选才能采用新编码；全选仅勾选当前有效标签。标签接口失败时保留已成功加载的类型，可重试或改选其他类型，保存仍须等待类型及标签全部加载成功。</p><p>历史五条配置均显示现有场景。现有场景外呼类型仍可多选。切换智能外呼场景后外呼类型单选，类型A与类型B标签分别加载，切换后旧包含和排除标签清空；必填包含标签、选填车系及模板校验继续执行。接口加载中、失败、空类型、空标签及失效选项均不可保存为有效智能外呼规则；失败可重试。快速切换场景／类型或关闭后重新打开时，迟到响应不能覆盖当前表单。列表按场景筛选，查看只读，取消不保存。</p><p>未选车系可保存，列表和详情显示“不限”；其他必填条件完整的历史配置可正常编辑保存。选择N6、轩逸后，话单返回N6或轩逸且其他条件满足时该规则命中，返回探陆或空值时该规则不命中。车系匹配但缺少包含标签时禁止保存，标签不满足时不命中。清空车系后恢复不限；取消编辑不改变原配置；查看模式只读。</p><p>两条规则同时命中时只选择优先规则执行；高优先级规则车系不匹配时，可由其他满足条件的规则命中。全部未命中时不调用短信发送。</p></section>
 </div>
 <div class="footer">DCC 培育 · 业务场景与流程</div></main>
 <aside class="outline"><div class="side-heading"><h2>本场景目录 <span class="side-count" id="outline-count"></span></h2><button class="side-toggle" type="button" id="hide-outline" aria-label="收起本场景目录">›</button></div><p class="outline-subtitle" id="outline-subtitle">FLOW-002 · AI 智能外呼与结果处理</p>
