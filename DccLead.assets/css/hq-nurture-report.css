@@ -137,3 +137,110 @@
 .sms-detail-footer { padding:16px 24px; border-top:1px solid #e8eef7; display:flex; gap:10px; justify-content:flex-end; }
 .sms-detail-footer button { height:36px; padding:0 16px; border-radius:6px; font-size:13px; cursor:pointer; }
 @media(max-width:680px) { .sms-detail-grid { grid-template-columns:1fr; } .sms-detail-body,.sms-detail-header { padding:18px; } }
+
+/* 人工外呼明细沿用培育线索的筛选卡，日期范围按两个控件预留宽度。 */
+.hq-manual-search-panel { container-type:inline-size; }
+.hq-manual-search-panel .hq-manual-search-primary {
+  grid-template-columns:repeat(4, minmax(0,1fr));
+}
+.hq-manual-search-panel .hq-manual-search-advanced {
+  grid-template-columns:repeat(4, minmax(0,1fr));
+}
+.hq-manual-search-panel .lead-search-grid > label {
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  min-width:0;
+  color:#475569!important;
+  font-size:12px!important;
+  font-weight:700!important;
+}
+.hq-manual-search-panel .lead-search-grid .form-input {
+  box-sizing:border-box;
+  width:100%!important;
+  min-width:0;
+  height:36px!important;
+  margin:0!important;
+  padding:0 10px!important;
+  border:1px solid #d5deea!important;
+  border-radius:6px!important;
+  background-color:#f8fafc!important;
+  color:#1f2937;
+  font-size:13px!important;
+  font-weight:400;
+}
+.hq-manual-search-panel .lead-search-grid .form-input:focus-visible {
+  border-color:#2563eb!important;
+  background-color:#fff!important;
+  outline:2px solid #bfdbfe;
+  outline-offset:0;
+}
+.hq-manual-search-panel .lead-search-grid .hq-report-range   { grid-column:span 2; }
+.hq-manual-search-panel .date-range { display:grid!important; gap:6px!important; margin:0!important; }
+.hq-manual-search-panel .lead-search-actions { justify-content:flex-end; }
+@container (min-width: 1170px) {
+  .hq-manual-search-panel .hq-manual-search-primary {
+    grid-template-columns:minmax(140px,1fr) minmax(256px,1.7fr) repeat(4,minmax(125px,1fr)) auto;
+  }
+  .hq-manual-search-panel .hq-manual-search-primary .hq-report-range { grid-column:auto; }
+  .hq-manual-search-panel .hq-manual-search-advanced { grid-template-columns:repeat(5,minmax(0,1fr)); }
+}
+@container (max-width: 840px) {
+  .hq-manual-search-panel .hq-manual-search-primary,
+  .hq-manual-search-panel .hq-manual-search-advanced { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@container (max-width: 460px) {
+  .hq-manual-search-panel .hq-manual-search-primary,
+  .hq-manual-search-panel .hq-manual-search-advanced { grid-template-columns:minmax(0,1fr); }
+  .hq-manual-search-panel .lead-search-grid .hq-report-range { grid-column:auto; }
+}
+#opsHqNurtureReportPage .hq-manual-report-table {
+  width:100%;
+  border-collapse:collapse;
+  text-align:left;
+  font-variant-numeric:tabular-nums;
+}
+#opsHqNurtureReportPage .hq-nurture-report .hq-masked-report-table { min-width:800px; }
+#opsHqNurtureReportPage .hq-manual-report-table thead th { background:#f6f7f9!important; }
+#opsHqNurtureReportPage .hq-manual-report-table tbody td { padding-block:10px!important; }
+#opsHqNurtureReportPage .hq-manual-report-table tbody tr:hover td,
+#opsHqNurtureReportPage .hq-manual-report-table tbody tr:focus-within td { background:#f8f9fb!important; }
+.hq-manual-table-link {
+  padding:0;
+  border:0;
+  background:transparent;
+  color:#2455a3;
+  font:inherit;
+  font-weight:600;
+  cursor:pointer;
+}
+.hq-manual-table-link:hover { text-decoration:underline; }
+.hq-manual-table-link:focus-visible { outline:2px solid #2455a3; outline-offset:3px; border-radius:2px; }
+.hq-manual-table-status {
+  display:inline-block;
+  padding:1px 7px;
+  border:1px solid #e1e5ea;
+  border-radius:4px;
+  background:#f3f4f6;
+  color:#475569;
+  font-size:12px;
+  font-weight:600;
+}
+.hq-masked-report-message { margin:0; padding:30px 16px; text-align:center; color:#64748b; }
+#opsManualWorkorderDetailPage .hq-workorder-detail-tabs { overflow-x:auto; }
+#opsManualWorkorderDetailPage .hq-workorder-detail-tabs button { flex:0 0 auto; white-space:nowrap; }
+.hq-masked-workorder-summary strong { white-space:normal; overflow-wrap:anywhere; }
+.hq-masked-workorder-body { padding:20px; color:#334155; font-size:13px; }
+.hq-masked-workorder-body h3 { margin:0 0 16px; color:#0f172a; font-size:16px; font-weight:800; }
+.hq-masked-workorder-heading { margin:0 0 14px; padding:6px 12px; border-radius:2px; background:#f1f5f9; color:#0f172a; font-size:14px; }
+.hq-masked-workorder-fields { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px 24px; margin:0 0 20px; }
+.hq-masked-workorder-fields > div { display:flex; align-items:baseline; gap:4px; min-width:0; }
+.hq-masked-workorder-fields dt { flex:0 0 auto; color:#64748b; }
+.hq-masked-workorder-fields dd { min-width:0; margin:0; overflow-wrap:anywhere; }
+.hq-masked-workorder-fields .hq-masked-workorder-note { grid-column:1 / -1; }
+.hq-masked-workorder-note dd { white-space:pre-wrap; }
+@media(max-width:1100px) { .hq-masked-workorder-fields { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:760px) {
+  .hq-masked-workorder-body { padding:12px 0; }
+  .hq-masked-workorder-fields { grid-template-columns:minmax(0,1fr); }
+}

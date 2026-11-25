@@ -140,7 +140,7 @@
   const optionDefaults = { 坐席账号: Object.keys(agents), 初始意向级别: ['H', 'A', 'B', 'C'], 分配规则: ['人工分配'] };
 
   function readIntake(snapshot) {
-    const {lead, taskId, dccTaskId, receiptStatus, receiptReason, events, owner, assignedAt, followupComplete, noPhoneReturn, followupVerification, manualFollowup, manualFollowupHistory, firstFollowupAt, privacy, routing} = snapshot;
+    const {lead, taskId, dccTaskId, receiptStatus, receiptReason, events, owner, assignedAt, followupComplete, noPhoneReturn, followupVerification, manualFollowup, manualFollowupHistory, manualFollowupCount, firstFollowupAt, privacy, routing} = snapshot;
     const accepted = receiptStatus === 'accepted';
     const recovered = events.some(event => event.kind === 'acceptance_checked' && event.status === 'accepted');
     const replayed = events.some(event => event.kind === 'duplicate_intake');
@@ -165,7 +165,7 @@
       association: lead.associationId, dispatch: taskId, status, reason: receiptReason,
       entry: lead.entry, channel: lead.rChannel, power: lead.powerType, series: lead.carSeriesId,
       intentionStore: lead.originalIntentionStoreId, store: lead.storeId, maskedPhone: lead.maskedPhone,
-      owner, routing, assignedAtRaw: assignedAt, assignedAt: assignedAt ? localTime.format(new Date(assignedAt)) : '', followupComplete, noPhoneReturn, followupVerification, manualFollowup, manualFollowupHistory, firstFollowupAt,
+      owner, routing, assignedAtRaw: assignedAt, assignedAt: assignedAt ? localTime.format(new Date(assignedAt)) : '', followupComplete, noPhoneReturn, followupVerification, manualFollowup, manualFollowupHistory, manualFollowupCount, firstFollowupAt,
       privacy: privacy ? {...privacy, availableAt: privacyReady?.at, expiresAtRaw: privacy.expiresAt,
         expiresAt: privacy.expiresAt ? localTime.format(new Date(privacy.expiresAt)) : ''} : null,
       smartcode: lead.smartcode, receivedAt: firstDispatch ? localTime.format(new Date(firstDispatch.at)) : '—', events: log
@@ -303,7 +303,6 @@
           <div class="lead-toolbar-right">
           <button class="btn-add" type="button" data-all>全部分配</button>
           <button class="btn-secondary" type="button" data-selected>执行分配</button>
-          <button class="btn-secondary" type="button" data-export>导出数据</button>
           <select class="lead-select" id="masked-sort" aria-label="排序字段">
             ${['任务接收时间','任务编码','线索编码'].map(label => `<option value="${label}">${label}</option>`).join('')}</select>
           <select class="lead-select" id="masked-direction" aria-label="排序方向">
@@ -384,7 +383,7 @@
               <thead><tr><th>坐席账号</th><th>今日已分配量</th><th>待跟进量</th><th>待首跟</th><th>预警任务</th>
                 <th id="masked-first-rate">首跟及时率</th><th>首跟耗时中位数</th><th>已完成量</th><th>操作</th></tr></thead><tbody></tbody>
             </table></div>
-            <p class="masked-monitor-footnote">首跟率样本包含已记录首跟或已达到首跟提醒时间的任务。完成量包含合格结果回传成功与临时池确认接收的未取得手机号任务。</p>
+            <p class="masked-monitor-footnote">首跟率样本包含已记录首跟或已达到首跟提醒时间的任务。完成量包含已取得临时池核验通过结果的任务，以及临时池已接收的无手机号退回任务。</p>
           </section>
         </section>
       </main>
@@ -625,8 +624,6 @@
       get('[data-all]').disabled = !canAssign.length;
       get('[data-selected]').disabled = !selected.size;
       get('[data-selected]').textContent = selected.size ? `执行分配 (${selected.size})` : '执行分配';
-      get('[data-export]').hidden = !isSupervisor();
-      get('[data-export]').disabled = !rows.length;
       get('[data-fields]').closest('.field-picker').hidden = ['errors', 'todo'].includes(scope);
       get('#masked-sort option[value="任务编码"]')?.toggleAttribute('disabled', scope === 'errors');
       get('#masked-list-title').textContent = poolTask ? '总部 DCC 接单联调记录' : scope === 'errors' ? '接单异常列表' : scope === 'todo' ? '抖音掩码留资待跟进' : '抖音掩码留资列表';
@@ -766,18 +763,6 @@
       get('#masked-target-count').textContent = `待分配：${targets.length} 条`;
       renderAgents();
       assign.showModal();
-    }
-
-    function exportRows() {
-      const headings = tableColumns().filter(([label]) => ['errors', 'todo'].includes(scope) || !hiddenColumns.has(label));
-      const cells = [headings.map(([label]) => label), ...currentRows().map(row => headings.map(([, read]) => read(row) || ''))];
-      const csv = cells.map(line => line.map(value => '"' + value.replaceAll('"', '""') + '"').join(',')).join('\r\n');
-      const url = URL.createObjectURL(new Blob(['\uFEFF', csv], {type: 'text/csv;charset=utf-8'}));
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = '抖音掩码留资-' + scopes[scope] + '-演示.csv';
-      link.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
     }
 
     function restart() {
@@ -954,7 +939,6 @@
         ids.forEach((id, index) => { counts[id] = Math.floor(targets.length / ids.length) + Number(index < targets.length % ids.length); });
         renderAgents(accountInput.value.trim());
       }
-      if (button.hasAttribute('data-export') && isSupervisor()) exportRows();
     });
     assign.querySelector('form').addEventListener('submit', async event => {
       event.preventDefault();

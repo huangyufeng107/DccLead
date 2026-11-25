@@ -2352,12 +2352,12 @@ flowchart TD
 </div>
 
 <div id="interaction-aiwh-14" class="chart-card" data-page="aiwh" data-op="aiwh-14">
-  <h2><span class="card-index">14</span>短信下发-新增<span class="page-badge">AI外呼配置</span></h2>
-  <p>适用场景为必选，分为「现有场景」「智能外呼场景」，新建默认现有场景，历史配置缺少scenario时归入现有场景。现有场景继续使用原外呼类型及标签来源、外呼类型多选。智能外呼场景每条规则单选一个外呼类型，类型及对应标签由智能外呼系统接口提供；选择类型后仅展示该类型的包含与排除标签。切换场景清空外呼类型和包含／排除标签，切换智能外呼类型清空包含／排除标签；配置名称、权重、启停、通话状态、车系及模板保持当前填写值。</p><p>本地原型通过window.smsIntelligentOutboundApi.listCallTypes()及listTags(callTypeCode)预留数据接入，返回选项数组[{code,name,enabled?}]；代码和名称须有效，编码须稳定且集合内唯一。未提供正式契约时使用明确标注的原型接口示例响应。接口失败不回退至现有场景数据。实际URL、鉴权、上游响应适配、正式保存回读、来源场景标识、话单匹配及短信通道均需实施联调。</p><div class="release-doc-links"><a href="DccLead_版本日志.html#v32-release-R5" target="_blank" rel="noopener">V32-R5场景及接口联动 ↗</a> <a href="DccLead_业务流程.html#FLOW-012-flow" target="_blank" rel="noopener">短信场景与条件匹配业务流程 ↗</a></div>
-  <p>「标签最新意向车系」为选填多选，选项取车系字典的启用名称。匹配值取本次参与短信判定的话单标签返回的单个车系名称。配置未选车系（包括历史配置无此字段）时不限制；已选时名称属于所选集合才满足，空值、缺失或不匹配时该规则不命中。车系条件与现有外呼类型、通话状态、包含及不包含标签条件组合判断，各条件同时满足；包含标签继续必填，内部且／或逻辑沿用配置。单条规则不命中时继续判断其他启用规则，全部未命中才不发送。多个规则命中时权重数字小者优先，同权重取创建时间倒序。</p>
+  <h2><span class="card-index">14</span>短信下发-新增<span class="page-badge">AI外呼配置</span></h2><p>字段展示名称按适用场景区分：现有场景显示“外呼类型”，智能外呼场景显示“智能外呼任务”；两个场景的车系字段统一显示“AI最新意向车系”。场景切换时同步标签与提示，列表中的车系摘要及查看／编辑使用该配置所属场景的名称；全部场景列表的共用列显示“外呼类型 / 智能外呼任务”，按单一场景筛选后使用该场景名称。仅调整展示文案，字段编码、选项来源和匹配规则沿用既有逻辑。</p>
+  <p>适用场景为必选，分为「现有场景」「智能外呼场景」，新建默认现有场景，历史配置缺少scenario时归入现有场景。现有场景继续使用原外呼类型及标签来源、外呼类型多选。智能外呼场景每条规则单选一个外呼类型，类型及对应标签由智能外呼系统接口提供；选择类型后仅展示该类型的包含与排除标签。切换场景清空外呼类型和包含／排除标签，切换外呼类型清空包含／排除标签；配置名称、权重、启停、通话状态、车系及模板保持当前填写值。</p><p>本地原型通过window.smsIntelligentOutboundApi.listCallTypes()及listTags(callTypeCode)预留数据接入，返回选项数组[{code,name,enabled?}]；代码和名称须有效，编码须稳定且集合内唯一。未提供正式契约时使用明确标注的原型接口示例响应。接口失败不回退至现有场景数据。实际URL、鉴权、上游响应适配、正式保存回读、来源场景标识、话单匹配及短信通道均需实施联调。</p><div class="release-doc-links"><a href="DccLead_版本日志.html#v32-release-R5" target="_blank" rel="noopener">V32-R5场景及接口联动 ↗</a> <a href="DccLead_业务流程.html#FLOW-012-flow" target="_blank" rel="noopener">短信场景与条件匹配业务流程 ↗</a></div>
+  <p>「AI最新意向车系」为选填多选，选项取车系字典的启用名称。匹配值取本次参与短信判定的话单标签返回的单个车系名称。配置未选车系（包括历史配置无此字段）时不限制；已选时名称属于所选集合才满足，空值、缺失或不匹配时该规则不命中。车系条件与现有外呼类型、通话状态、包含及不包含标签条件组合判断，各条件同时满足；包含标签继续必填，内部且／或逻辑沿用配置。单条规则不命中时继续判断其他启用规则，全部未命中才不发送。多个规则命中时权重数字小者优先，同权重取创建时间倒序。</p>
   <div class="release-doc-links"><a href="DccLead_业务流程.html#FLOW-012-flow" target="_blank" rel="noopener">短信下发业务流程（含车系组合判断） ↗</a> <a href="DccLead_功能说明.html#sms-intent-series-rules" target="_blank" rel="noopener">车系条件规则 ↗</a> <a href="DccLead_版本日志.html#v32-release-R4" target="_blank" rel="noopener">V32-R4版本记录 ↗</a></div>
   <div class="param-box">
-    <strong>接口入参（根据表单字段推导）：</strong>配置名称(configName), 权重(priority), 适用场景(scenario), 外呼类型(callTypes, 现有多选／智能单选), 智能外呼类型编码(callTypeCode), 包含／排除标签编码(includeTagCodes／excludeTagCodes), 通话状态(statuses, 多选), 通话状态判断条件(statusLogic, 且/或), 包含标签(tags, 多选), 标签判断条件(tagLogic, 且/或), 不包含标签(excludeTags, 多选), 排除判断条件(excludeTagLogic, 且/或), 标签最新意向车系(intentSeriesNames, 选填多选名称数组), 短信模板(template), 启用状态(enabled)【待确认：接口地址】<br>
+    <strong>接口入参（根据表单字段推导）：</strong>配置名称(configName), 权重(priority), 适用场景(scenario), 外呼类型(callTypes, 现有多选／智能单选), 外呼类型编码(callTypeCode), 包含／排除标签编码(includeTagCodes／excludeTagCodes), 通话状态(statuses, 多选), 通话状态判断条件(statusLogic, 且/或), 包含标签(tags, 多选), 标签判断条件(tagLogic, 且/或), 不包含标签(excludeTags, 多选), 排除判断条件(excludeTagLogic, 且/或), AI最新意向车系(intentSeriesNames, 选填多选名称数组), 短信模板(template), 启用状态(enabled)【待确认：接口地址】<br>
     <strong>接口出参（根据表单字段推导）：</strong>配置ID(id), 创建结果(success), 错误信息(errorMsg)
   </div>
   <pre class="mermaid">
@@ -2365,7 +2365,7 @@ flowchart TD
   A1["点击新增配置按钮"] --> A2["打开新增弹窗(3个Section)"]
   A2 --> A3["填写基础信息: 适用场景/名称/权重/状态"]
   A3 --> A4["按场景选择外呼类型: 现有多选／智能接口单选，再加载该类型标签"]
-  A4 --> A5["配置命中条件: 标签最新意向车系(选填多选) + 包含标签(必填)+判断条件 + 不包含标签+排除判断条件"]
+  A4 --> A5["配置命中条件: AI最新意向车系(选填多选) + 包含标签(必填)+判断条件 + 不包含标签+排除判断条件"]
   A5 --> A6["配置执行动作: 选择短信模板"]
   A6 --> D1{"校验必填项是否完整?"}
   D1 -->|否| A7["Toast提示缺少必填字段"]
@@ -2381,12 +2381,12 @@ flowchart TD
 </div>
 
 <div id="interaction-aiwh-15" class="chart-card" data-page="aiwh" data-op="aiwh-15">
-  <h2><span class="card-index">15</span>短信下发-编辑<span class="page-badge">AI外呼配置</span></h2>
-  <p>适用场景为必选，分为「现有场景」「智能外呼场景」，新建默认现有场景，历史配置缺少scenario时归入现有场景。现有场景继续使用原外呼类型及标签来源、外呼类型多选。智能外呼场景每条规则单选一个外呼类型，类型及对应标签由智能外呼系统接口提供；选择类型后仅展示该类型的包含与排除标签。切换场景清空外呼类型和包含／排除标签，切换智能外呼类型清空包含／排除标签；配置名称、权重、启停、通话状态、车系及模板保持当前填写值。</p><p>本地原型通过window.smsIntelligentOutboundApi.listCallTypes()及listTags(callTypeCode)预留数据接入，返回选项数组[{code,name,enabled?}]；代码和名称须有效，编码须稳定且集合内唯一。未提供正式契约时使用明确标注的原型接口示例响应。接口失败不回退至现有场景数据。实际URL、鉴权、上游响应适配、正式保存回读、来源场景标识、话单匹配及短信通道均需实施联调。</p><div class="release-doc-links"><a href="DccLead_版本日志.html#v32-release-R5" target="_blank" rel="noopener">V32-R5场景及接口联动 ↗</a> <a href="DccLead_业务流程.html#FLOW-012-flow" target="_blank" rel="noopener">短信场景与条件匹配业务流程 ↗</a></div>
-  <p>「标签最新意向车系」为选填多选，选项取车系字典的启用名称。匹配值取本次参与短信判定的话单标签返回的单个车系名称。配置未选车系（包括历史配置无此字段）时不限制；已选时名称属于所选集合才满足，空值、缺失或不匹配时该规则不命中。车系条件与现有外呼类型、通话状态、包含及不包含标签条件组合判断，各条件同时满足；包含标签继续必填，内部且／或逻辑沿用配置。单条规则不命中时继续判断其他启用规则，全部未命中才不发送。多个规则命中时权重数字小者优先，同权重取创建时间倒序。</p>
+  <h2><span class="card-index">15</span>短信下发-编辑<span class="page-badge">AI外呼配置</span></h2><p>字段展示名称按适用场景区分：现有场景显示“外呼类型”，智能外呼场景显示“智能外呼任务”；两个场景的车系字段统一显示“AI最新意向车系”。场景切换时同步标签与提示，列表中的车系摘要及查看／编辑使用该配置所属场景的名称；全部场景列表的共用列显示“外呼类型 / 智能外呼任务”，按单一场景筛选后使用该场景名称。仅调整展示文案，字段编码、选项来源和匹配规则沿用既有逻辑。</p>
+  <p>适用场景为必选，分为「现有场景」「智能外呼场景」，新建默认现有场景，历史配置缺少scenario时归入现有场景。现有场景继续使用原外呼类型及标签来源、外呼类型多选。智能外呼场景每条规则单选一个外呼类型，类型及对应标签由智能外呼系统接口提供；选择类型后仅展示该类型的包含与排除标签。切换场景清空外呼类型和包含／排除标签，切换外呼类型清空包含／排除标签；配置名称、权重、启停、通话状态、车系及模板保持当前填写值。</p><p>本地原型通过window.smsIntelligentOutboundApi.listCallTypes()及listTags(callTypeCode)预留数据接入，返回选项数组[{code,name,enabled?}]；代码和名称须有效，编码须稳定且集合内唯一。未提供正式契约时使用明确标注的原型接口示例响应。接口失败不回退至现有场景数据。实际URL、鉴权、上游响应适配、正式保存回读、来源场景标识、话单匹配及短信通道均需实施联调。</p><div class="release-doc-links"><a href="DccLead_版本日志.html#v32-release-R5" target="_blank" rel="noopener">V32-R5场景及接口联动 ↗</a> <a href="DccLead_业务流程.html#FLOW-012-flow" target="_blank" rel="noopener">短信场景与条件匹配业务流程 ↗</a></div>
+  <p>「AI最新意向车系」为选填多选，选项取车系字典的启用名称。匹配值取本次参与短信判定的话单标签返回的单个车系名称。配置未选车系（包括历史配置无此字段）时不限制；已选时名称属于所选集合才满足，空值、缺失或不匹配时该规则不命中。车系条件与现有外呼类型、通话状态、包含及不包含标签条件组合判断，各条件同时满足；包含标签继续必填，内部且／或逻辑沿用配置。单条规则不命中时继续判断其他启用规则，全部未命中才不发送。多个规则命中时权重数字小者优先，同权重取创建时间倒序。</p>
   <div class="release-doc-links"><a href="DccLead_业务流程.html#FLOW-012-flow" target="_blank" rel="noopener">短信下发业务流程（含车系组合判断） ↗</a> <a href="DccLead_功能说明.html#sms-intent-series-rules" target="_blank" rel="noopener">车系条件规则 ↗</a> <a href="DccLead_版本日志.html#v32-release-R4" target="_blank" rel="noopener">V32-R4版本记录 ↗</a></div>
   <div class="param-box">
-    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id), 配置名称(configName), 权重(priority), 适用场景(scenario), 外呼类型(callTypes), 智能外呼类型编码(callTypeCode), 包含／排除标签编码(includeTagCodes／excludeTagCodes), 通话状态(statuses), 通话状态判断条件(statusLogic), 包含标签(tags), 标签判断条件(tagLogic), 不包含标签(excludeTags), 排除判断条件(excludeTagLogic), 标签最新意向车系(intentSeriesNames, 选填多选名称数组), 短信模板(template), 启用状态(enabled)【待确认：接口地址】<br>
+    <strong>接口入参（根据表单字段推导）：</strong>配置ID(id), 配置名称(configName), 权重(priority), 适用场景(scenario), 外呼类型(callTypes), 外呼类型编码(callTypeCode), 包含／排除标签编码(includeTagCodes／excludeTagCodes), 通话状态(statuses), 通话状态判断条件(statusLogic), 包含标签(tags), 标签判断条件(tagLogic), 不包含标签(excludeTags), 排除判断条件(excludeTagLogic), AI最新意向车系(intentSeriesNames, 选填多选名称数组), 短信模板(template), 启用状态(enabled)【待确认：接口地址】<br>
     <strong>接口出参（根据表单字段推导）：</strong>更新结果(success), 错误信息(errorMsg)
   </div>
   <pre class="mermaid">
@@ -2412,13 +2412,13 @@ flowchart TD
 </div>
 
 <div id="interaction-sms-dispatch-view" class="chart-card" data-page="aiwh" data-op="sms-dispatch-view">
-  <h2><span class="card-index">32</span>短信下发-查看<span class="page-badge">AI外呼配置</span></h2>
-  <p>适用场景为必选，分为「现有场景」「智能外呼场景」，新建默认现有场景，历史配置缺少scenario时归入现有场景。现有场景继续使用原外呼类型及标签来源、外呼类型多选。智能外呼场景每条规则单选一个外呼类型，类型及对应标签由智能外呼系统接口提供；选择类型后仅展示该类型的包含与排除标签。切换场景清空外呼类型和包含／排除标签，切换智能外呼类型清空包含／排除标签；配置名称、权重、启停、通话状态、车系及模板保持当前填写值。</p><p>本地原型通过window.smsIntelligentOutboundApi.listCallTypes()及listTags(callTypeCode)预留数据接入，返回选项数组[{code,name,enabled?}]；代码和名称须有效，编码须稳定且集合内唯一。未提供正式契约时使用明确标注的原型接口示例响应。接口失败不回退至现有场景数据。实际URL、鉴权、上游响应适配、正式保存回读、来源场景标识、话单匹配及短信通道均需实施联调。</p><div class="release-doc-links"><a href="DccLead_版本日志.html#v32-release-R5" target="_blank" rel="noopener">V32-R5场景及接口联动 ↗</a> <a href="DccLead_业务流程.html#FLOW-012-flow" target="_blank" rel="noopener">短信场景与条件匹配业务流程 ↗</a></div>
-  <p>「标签最新意向车系」为选填多选，选项取车系字典的启用名称。匹配值取本次参与短信判定的话单标签返回的单个车系名称。配置未选车系（包括历史配置无此字段）时不限制；已选时名称属于所选集合才满足，空值、缺失或不匹配时该规则不命中。车系条件与现有外呼类型、通话状态、包含及不包含标签条件组合判断，各条件同时满足；包含标签继续必填，内部且／或逻辑沿用配置。单条规则不命中时继续判断其他启用规则，全部未命中才不发送。多个规则命中时权重数字小者优先，同权重取创建时间倒序。</p>
+  <h2><span class="card-index">32</span>短信下发-查看<span class="page-badge">AI外呼配置</span></h2><p>字段展示名称按适用场景区分：现有场景显示“外呼类型”，智能外呼场景显示“智能外呼任务”；两个场景的车系字段统一显示“AI最新意向车系”。场景切换时同步标签与提示，列表中的车系摘要及查看／编辑使用该配置所属场景的名称；全部场景列表的共用列显示“外呼类型 / 智能外呼任务”，按单一场景筛选后使用该场景名称。仅调整展示文案，字段编码、选项来源和匹配规则沿用既有逻辑。</p>
+  <p>适用场景为必选，分为「现有场景」「智能外呼场景」，新建默认现有场景，历史配置缺少scenario时归入现有场景。现有场景继续使用原外呼类型及标签来源、外呼类型多选。智能外呼场景每条规则单选一个外呼类型，类型及对应标签由智能外呼系统接口提供；选择类型后仅展示该类型的包含与排除标签。切换场景清空外呼类型和包含／排除标签，切换外呼类型清空包含／排除标签；配置名称、权重、启停、通话状态、车系及模板保持当前填写值。</p><p>本地原型通过window.smsIntelligentOutboundApi.listCallTypes()及listTags(callTypeCode)预留数据接入，返回选项数组[{code,name,enabled?}]；代码和名称须有效，编码须稳定且集合内唯一。未提供正式契约时使用明确标注的原型接口示例响应。接口失败不回退至现有场景数据。实际URL、鉴权、上游响应适配、正式保存回读、来源场景标识、话单匹配及短信通道均需实施联调。</p><div class="release-doc-links"><a href="DccLead_版本日志.html#v32-release-R5" target="_blank" rel="noopener">V32-R5场景及接口联动 ↗</a> <a href="DccLead_业务流程.html#FLOW-012-flow" target="_blank" rel="noopener">短信场景与条件匹配业务流程 ↗</a></div>
+  <p>「AI最新意向车系」为选填多选，选项取车系字典的启用名称。匹配值取本次参与短信判定的话单标签返回的单个车系名称。配置未选车系（包括历史配置无此字段）时不限制；已选时名称属于所选集合才满足，空值、缺失或不匹配时该规则不命中。车系条件与现有外呼类型、通话状态、包含及不包含标签条件组合判断，各条件同时满足；包含标签继续必填，内部且／或逻辑沿用配置。单条规则不命中时继续判断其他启用规则，全部未命中才不发送。多个规则命中时权重数字小者优先，同权重取创建时间倒序。</p>
   <div class="release-doc-links"><a href="DccLead_业务流程.html#FLOW-012-flow" target="_blank" rel="noopener">短信下发业务流程（含车系组合判断） ↗</a> <a href="DccLead_功能说明.html#sms-intent-series-rules" target="_blank" rel="noopener">车系条件规则 ↗</a> <a href="DccLead_版本日志.html#v32-release-R4" target="_blank" rel="noopener">V32-R4版本记录 ↗</a></div>
   <div class="param-box">
     <strong>接口入参（根据表单字段推导）：</strong>配置ID(id)【待确认：查看短信下发配置详情接口地址】<br>
-    <strong>接口出参（根据表单字段推导）：</strong>配置ID(id), 配置名称(configName), 权重(priority), 适用场景(scenario), 外呼类型(callTypes), 智能外呼类型编码(callTypeCode), 包含／排除标签编码(includeTagCodes／excludeTagCodes), 通话状态(statuses), 通话状态判断条件(statusLogic), 包含标签(tags), 标签判断条件(tagLogic), 不包含标签(excludeTags), 排除判断条件(excludeTagLogic), 标签最新意向车系(intentSeriesNames, 选填多选名称数组), 短信模板(template), 状态(enabled)
+    <strong>接口出参（根据表单字段推导）：</strong>配置ID(id), 配置名称(configName), 权重(priority), 适用场景(scenario), 外呼类型(callTypes), 外呼类型编码(callTypeCode), 包含／排除标签编码(includeTagCodes／excludeTagCodes), 通话状态(statuses), 通话状态判断条件(statusLogic), 包含标签(tags), 标签判断条件(tagLogic), 不包含标签(excludeTags), 排除判断条件(excludeTagLogic), AI最新意向车系(intentSeriesNames, 选填多选名称数组), 短信模板(template), 状态(enabled)
   </div>
   <pre class="mermaid">
 flowchart TD

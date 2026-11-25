@@ -32,10 +32,11 @@
     const time = monitoring.timestamp(value);
     return Number.isFinite(time) ? shanghai.format(time) : '';
   };
-  let activeQueue = 'new';
+  let activeQueue = !local && ['today', 'completed'].includes(params.get('maskedQueue')) ? params.get('maskedQueue') : 'new';
   let selected = '';
   let keyword = '';
   let outboundToolbar;
+  let intentCatalog;
   let demoOpen = false;
   let assistantCollapsed = false;
   let assistantTab = 'details';
@@ -46,12 +47,13 @@
 
   const ownedRows = () => (local ? rows : data.demoRows(account)).filter(row => row.owner === account);
   const pendingRows = () => ownedRows().filter(data.pendingFollowup);
-  const matchingRows = () => pendingRows().filter(row => [row.task, row.original, row.name, data.phone(row)]
+  const matchingRows = rows => rows.filter(row => [row.task, row.original, row.name, data.phone(row)]
     .some(value => String(value || '').toLowerCase().includes(keyword.toLowerCase())));
   const privacyLabel = row => data.privacyLabels[data.privacyStatus(row)] || '待取号';
-  const canDial = row => data.privacyStatus(row) === 'available';
+  const canDial = row => !row.followupComplete && data.privacyStatus(row) === 'available';
 
   function queueFor(row) {
+    if (row.followupComplete) return 'completed';
     const plan = row.manualFollowup?.nextVisitAt;
     if (plan && monitoring.timestamp(plan) <= Date.now()) return 'overdue';
     const plannedDay = dateTime(plan).slice(0, 10);
@@ -73,20 +75,42 @@
     </div>`;
   }
 
+  function currentIntent(row) {
+    return {carSeriesId: row.series || null, storeId: row.intentionStore || null, ...row.manualFollowup?.intent};
+  }
+
+  function seriesLabel(code, row) {
+    if (row?.series === code && row.intentSeriesName) return row.intentSeriesName;
+    return ({'DEMO-NEV-01': '新能源车系 A（演示）', 'DEMO-NEV-02': '新能源车系 B（演示）'})[code] || code;
+  }
+
+  function renderIntentField(name, label, selected, choices) {
+    if (selected && !choices.has(selected)) choices.set(selected, selected);
+    return `<div class="nt-form-item"><label for="ntMaskedIntent-${name}">${label}</label>
+      <select id="ntMaskedIntent-${name}" name="${name}" class="nt-form-ctl nt-input">
+        <option value="">暂未确认</option>
+        ${[...choices].map(([code, text]) => `<option value="${safe(code)}" ${code === selected ? 'selected' : ''}>${safe(text)}</option>`).join('')}
+      </select></div>`;
+  }
+
   function renderFollowupForm(row) {
     const verification = row.followupVerification;
     const visit = row.manualFollowup;
-    const locked = verification && verification.status !== 'failed';
+    const locked = row.followupComplete || verification && verification.status !== 'failed';
+    const intent = currentIntent(row);
+    const series = new Map(intentCatalog.series.map(code => [code, code]));
+    for (const code of ['DEMO-NEV-01', 'DEMO-NEV-02']) series.set(code, seriesLabel(code, row));
     const options = values => Object.entries(values).map(([key, label]) =>
       `<option value="${key}">${label}</option>`).join('');
     return `<section class="nt-section nt-visit-form-section nt-masked-visit" aria-label="回访提交">
       <div class="nt-section-header static"><span class="nt-section-title">回访提交</span>
-        <span class="nt-masked-result">${verificationLabel(verification)}</span></div>
+        <span class="nt-masked-result">${verification ? '手机号核验' : row.followupComplete ? '已完成' : '待提交'}</span></div>
       <div class="nt-section-body">
         ${visit?.nextVisitAt ? `<p class="nt-visit-saved nt-masked-current-plan" role="status">
           <strong>当前预约</strong><time datetime="${safe(visit.nextVisitAt)}">${safe(dateTime(visit.nextVisitAt))}</time>
-        </p>` : visit ? `<p class="nt-visit-saved" role="status">上次回访结果 · ${safe(savedResultLabel(visit.result))}</p>` : ''}
-        ${verification?.maskedPhone ? `<p class="nt-masked-meta">已提交号码 ${known(verification.maskedPhone)}</p>` : ''}
+        </p>` : visit && visit.result !== 'candidate' ? `<p class="nt-visit-saved" role="status">上次回访结果 · ${safe(savedResultLabel(visit.result))}</p>` : ''}
+        ${verification ? renderVerificationProgress(row) : row.noPhoneReturn
+          ? '<p class="nt-visit-saved">未取得手机号，已退回临时池。</p>' : ''}
         ${visit?.note ? `<p class="nt-masked-visit-note">${safe(visit.note)}</p>` : ''}
         ${locked ? '' : `<form class="nt-masked-submit">
           <div class="nt-form-grid">
@@ -107,6 +131,17 @@
                 autocomplete="off" pattern="${mobilePattern}" aria-describedby="ntMaskedMobileError"
                 placeholder="输入 11 位手机号">
               <p id="ntMaskedMobileError" class="nt-masked-field-error" aria-live="polite" hidden></p></div>
+            <div class="nt-form-grid nt-form-item-wide">
+              ${renderIntentField('carSeriesId', '当前意向车系', intent.carSeriesId, series)}
+              <div class="nt-form-item">
+                <label for="ntMaskedIntentStore">当前意向专营店</label>
+                <input type="hidden" name="storeId" value="${safe(intent.storeId)}">
+                <button type="button" id="ntMaskedIntentStore" class="nt-form-ctl nt-select-nav" data-masked-store-picker aria-haspopup="dialog">
+                  <span class="nt-select-value ${intent.storeId ? '' : 'placeholder'}">${safe(intentCatalog.storeName(intent.storeId) || '请选择意向专营店')}</span>
+                  <span class="nt-select-arrow-r" aria-hidden="true">›</span>
+                </button>
+              </div>
+            </div>
             <div class="nt-form-item nt-form-item-wide"><label for="ntMaskedVisitNote">回访描述</label>
               <textarea id="ntMaskedVisitNote" class="nt-form-ctl nt-textarea" name="note" rows="3" maxlength="500"
                 placeholder="填写本次沟通内容和约定事项"></textarea></div>
@@ -122,12 +157,32 @@
   function verificationLabel(verification) {
     if (!verification) return '待提交';
     if (verification.status === 'passed') {
-      if (verification.callbackStatus === 'accepted') return '合格结果已回传';
-      if (verification.callbackStatus === 'pending_confirmation') return '合格回传待核对';
-      if (verification.callbackStatus === 'rejected' || verification.callbackStatus === 'not_received') return '合格回传未成功';
-      return '合格结果待回传';
+      return '核验通过，任务已完成';
     }
-    return {pending:'核验中', timed_out:'核验超时待确认', failed:'核验未通过'}[verification.status] || '待核验';
+    return {pending:'已提交，核验中', timed_out:'核验超时待确认', failed:'核验未通过'}[verification.status] || '待核验';
+  }
+
+  function verificationTone(verification) {
+    if (verification.status === 'passed') return 'success';
+    if (verification.status === 'failed') return 'danger';
+    return verification.status === 'timed_out' ? 'warning' : 'info';
+  }
+
+  function renderVerificationProgress(row) {
+    const verification = row.followupVerification;
+    const label = verificationLabel(verification);
+    const guidance = verification.status === 'failed'
+      ? (canDial(row) ? '可继续跟进，确认后提交更正号码。' : '隐私号当前不可拨，请查看任务状态。')
+      : verification.status === 'passed'
+        ? '总部 DCC 已取得临时池的核验通过结果。'
+        : '等待临时池反馈核验结果，任务暂留在待跟进。';
+    return `<div class="nt-masked-verification" data-tone="${verificationTone(verification)}" role="status">
+      <strong>${label}</strong>
+      <div class="nt-masked-verification-meta"><span>已提交号码 ${known(verification.maskedPhone)}</span>
+        <span>提交时间 ${known(dateTime(verification.submittedAt))}</span></div>
+      ${verification.status === 'failed' && verification.reason ? `<div>未通过原因编码 ${safe(verification.reason)}</div>` : ''}
+      <div>${guidance}</div>
+    </div>`;
   }
 
   function privacyReminder(row, now, limits) {
@@ -141,8 +196,9 @@
     return `<button type="button" class="nt-task-card ${row.id === selected ? 'active' : ''}"
       data-nt-masked-task="${safe(row.id)}" aria-pressed="${row.id === selected}">
       <span class="nt-task-card-top"><span class="nt-task-name" title="${known(row.name || row.original || row.task)}">${known(row.name || row.original || row.task)}</span>
-        <span class="sd-tag sd-tag-${data.privacyTones[data.privacyStatus(row)] || 'info'}">${privacyLabel(row)}</span></span>
-      <span class="nt-task-card-bottom"><span class="nt-task-phone">${[data.phone(row), row.intentSeriesName || row.series].filter(Boolean).map(safe).join(' · ')}</span></span>
+        ${row.followupComplete ? '' : `<span class="sd-tag sd-tag-${data.privacyTones[data.privacyStatus(row)] || 'info'}">${privacyLabel(row)}</span>`}</span>
+      <span class="nt-task-card-bottom"><span class="nt-task-phone">${[data.phone(row), seriesLabel(currentIntent(row).carSeriesId, row)].filter(Boolean).map(safe).join(' · ')}</span></span>
+      ${row.followupVerification ? `<span class="nt-masked-verification-card sd-tag sd-tag-${verificationTone(row.followupVerification)}">${verificationLabel(row.followupVerification)}</span>` : ''}
       <span class="nt-masked-privacy-card" data-privacy-card>${safe(privacyReminder(row, now, limits))}</span>
       ${row.manualFollowup?.nextVisitAt ? `<span class="nt-masked-card-time">预约回访 ${safe(dateTime(row.manualFollowup.nextVisitAt))}</span>` : ''}</button>`;
   }
@@ -154,7 +210,8 @@
       <p class="nt-masked-privacy-banner" data-privacy-banner role="status"></p>
       <section class="nt-masked-section" aria-label="隐私号外呼">
         <div class="nt-masked-section-head"><h4>隐私号外呼</h4>
-          <span class="sd-tag sd-tag-${data.privacyTones[data.privacyStatus(row)] || 'info'}">${privacyLabel(row)}</span></div>
+          ${row.followupComplete ? '<span class="sd-tag sd-tag-info">任务已完成</span>'
+            : `<span class="sd-tag sd-tag-${data.privacyTones[data.privacyStatus(row)] || 'info'}">${privacyLabel(row)}</span>`}</div>
         <dl class="nt-masked-fields"><div><dt>隐私号</dt><dd>${known(row.privacy?.number)}</dd></div>
         <div><dt>失效截止时间</dt><dd>${known(row.privacy?.expiresAt)}</dd></div></dl>
         ${row.privacy?.reason ? `<p class="nt-masked-feedback">${safe(row.privacy.reason)}</p>` : ''}
@@ -169,7 +226,9 @@
     const groups = row ? [
       ['基础信息', [['客户姓名', row.name], ['原始掩码号', data.phone(row)], ['隐私号状态', privacyLabel(row)]]],
       ['来源与意向信息', [['线索来源', row.entry], ['渠道编码', row.channel], ['SmartCode', data.smartcode(row)],
-        ['意向车系', row.intentSeriesName || row.series], ['原意向门店 ID', row.intentionStore], ['送池门店 ID', row.store]]],
+        ['原意向车系', row.intentSeriesName || row.series], ['原意向门店 ID', row.intentionStore], ['送池门店 ID', row.store],
+        ...(row.manualFollowup?.intent ? [['当前意向车系', seriesLabel(currentIntent(row).carSeriesId, row) || '暂未确认'],
+          ['当前意向专营店', intentCatalog.storeName(currentIntent(row).storeId) || '暂未确认']] : [])]],
       ['业务标识信息', [['任务编码', row.task], ['原线索 ID', row.original]]]
     ] : [];
     const filtered = groups.map(([title, fields]) => [title, fields.filter(([label, value]) =>
@@ -187,6 +246,10 @@
         <strong>${known(savedResultLabel(record.result))}</strong>
         <div>${known(contacts[record.contactStatus] || (record.contactStatus === 'not_called' ? '未外呼' : ''))} · 跟进于 ${known(dateTime(record.visitedAt))}</div>
         ${record.nextVisitAt ? `<div>当时预约 ${safe(dateTime(record.nextVisitAt))}</div>` : ''}
+        ${record.intent ? `<div>${[
+          Object.hasOwn(record.intent, 'carSeriesId') ? '意向车系 ' + (seriesLabel(record.intent.carSeriesId, row) || '暂未确认') : '',
+          Object.hasOwn(record.intent, 'storeId') ? '意向专营店 ' + (intentCatalog.storeName(record.intent.storeId) || '暂未确认') : ''
+        ].filter(Boolean).map(safe).join(' · ')}</div>` : ''}
         ${record.note ? `<p>${safe(record.note)}</p>` : ''}
       </article>`).join('') || '<p class="nt-masked-assistant-empty">暂无回访记录。</p>';
     }
@@ -225,7 +288,9 @@
     const demoFocus = focus === '.nt-masked-demo summary';
     const centerScroll = demoFocus ? page.querySelector('.nt-masked-center')?.scrollTop : 0;
     const pending = pendingRows();
-    const matches = matchingRows();
+    const completed = ownedRows().filter(row => row.followupComplete);
+    const completeView = activeQueue === 'completed';
+    const matches = matchingRows(completeView ? completed : pending);
     if (loading === false && !matches.some(row => queueFor(row) === activeQueue) && focus === '[name="keyword"]' && keyword && matches.length) {
       activeQueue = queueFor(matches[0]);
     }
@@ -251,12 +316,14 @@
               </button>
             </form></div>
           <div class="nt-queue-list">
-            <div class="nt-masked-counts"><span>待跟进 <b>${pending.length}</b></span>
-              <span>已完成 <b>${ownedRows().filter(row => row.followupComplete).length}</b></span></div>
+            <div class="nt-masked-counts">
+              <button type="button" data-nt-mask-phase="pending" aria-pressed="${!completeView}">待跟进 <b>${pending.length}</b></button>
+              <button type="button" data-nt-mask-phase="complete" aria-pressed="${completeView}">已完成 <b>${completed.length}</b></button>
+            </div>
             <p class="nt-masked-list-status" role="status">${safe(error || success || (loading ? '正在读取掩码待办…' : ''))}</p>
-            ${renderQueues(pending)}
+            ${completeView ? '' : renderQueues(pending)}
             <div class="nt-queue-items nt-active-queue-items">${visible.length ? visible.map(row => card(row, now, limits)).join('') :
-              `<div class="nt-queue-empty">${loading || error ? '' : keyword ? '暂无符合查询条件的掩码任务' : '暂无待跟进的掩码任务'}</div>`}</div>
+              `<div class="nt-queue-empty">${loading || error ? '' : keyword ? '暂无符合查询条件的掩码任务' : completeView ? '暂无已完成的掩码任务' : '暂无待跟进的掩码任务'}</div>`}</div>
           </div>
         </aside>
         <main class="nt-center-panel nt-masked-center">
@@ -327,6 +394,20 @@
     const scopeSelector = page.querySelector('[data-task-scope-select]');
     scopeSelector.addEventListener('change', () => switchScope(scopeSelector.value));
     page.onclick = event => {
+      const storeTrigger = event.target.closest('[data-masked-store-picker]');
+      if (storeTrigger) {
+        const form = storeTrigger.form;
+        const field = form.elements.storeId;
+        intentCatalog.pickStore(field.value, storeTrigger, store => {
+          if (!form.isConnected) return;
+          field.value = store?.code || '';
+          const value = storeTrigger.querySelector('.nt-select-value');
+          value.textContent = store?.name || '请选择意向专营店';
+          value.classList.toggle('placeholder', !store);
+          delete form.dataset.submissionId;
+        });
+        return;
+      }
       const outboundAction = event.target.closest('[data-nt-outbound-action], [data-nt-top-action]');
       if (outboundAction) {
         outboundToolbar.handle(page, outboundAction.dataset.ntOutboundAction || outboundAction.dataset.ntTopAction,
@@ -349,6 +430,15 @@
         assistantKeyword = '';
         updateAssistant();
         page.querySelector('[data-masked-assistant-tab][aria-selected="true"]')?.focus();
+        return;
+      }
+      const phase = event.target.closest('[data-nt-mask-phase]');
+      if (phase) {
+        const nextQueue = phase.dataset.ntMaskPhase === 'complete' ? 'completed' : completeView ? 'new' : activeQueue;
+        if (nextQueue === activeQueue) return;
+        activeQueue = nextQueue;
+        selected = assistantKeyword = '';
+        render(page, tabs, switchScope, '[data-nt-mask-phase][aria-pressed="true"]');
         return;
       }
       const queue = event.target.closest('[data-nt-masked-queue]');
@@ -455,7 +545,7 @@
   function watchVerification(page, tabs, switchScope, current) {
     clearTimeout(verificationTimer);
     const verification = current?.followupVerification;
-    if (!local || loading || !token || !verification || verification.status === 'failed') return;
+    if (!local || loading || !token || current?.followupComplete || !verification || verification.status === 'failed') return;
     const panel = page.querySelector('.nt-masked-workspace');
     const status = verificationLabel(verification);
     const version = requestVersion;
@@ -466,7 +556,7 @@
         if (!panel.isConnected || version !== requestVersion) return;
         rows = result.items.map(data.read);
         const updated = rows.find(row => row.id === current.id);
-        if (updated?.followupComplete) success = '合格结果已回传，任务已计入已完成。';
+        if (updated?.followupComplete) success = '已取得临时池的核验通过结果，任务已计入已完成。';
         if (!updated || updated.followupComplete || verificationLabel(updated.followupVerification) !== status) {
           render(page, tabs, switchScope);
           return;
@@ -502,10 +592,15 @@
   }
 
   async function submit(page, tabs, switchScope, form, row) {
-    const button = form.querySelector('button');
+    const button = form.querySelector('button[type=submit]');
     const feedback = form.querySelector('[data-nt-masked-submit-status]');
     if (button.disabled) return;
-    const {phone, ...visit} = Object.fromEntries(new FormData(form));
+    const {phone, carSeriesId, storeId, ...visit} = Object.fromEntries(new FormData(form));
+    const originalIntent = currentIntent(row);
+    const selectedIntent = {carSeriesId: carSeriesId || null, storeId: storeId || null};
+    const updates = Object.entries(selectedIntent).filter(([key, value]) => value !== originalIntent[key]);
+    if (updates.length) visit.intent = Object.fromEntries(updates);
+    const savedIntent = {...row.manualFollowup?.intent, ...visit.intent};
     visit.nextVisitAt ||= '';
     const submittingNumber = visit.result === 'candidate';
     const returning = visit.result === 'return_no_phone';
@@ -531,18 +626,20 @@
         if (local) {
           form.dataset.submissionId ||= crypto.randomUUID();
           row.followupVerification = await data.request(prefix + 'candidates',
-            {submissionId: form.dataset.submissionId, phone, visitNote: visit.note}, token);
-          message = '已提交号码核验，回传成功后计入已完成。';
+            {submissionId: form.dataset.submissionId, phone, visitNote: visit.note, ...(visit.intent ? {intent: visit.intent} : {})}, token);
+          message = '已提交临时池核验，收到核验通过结果后计入已完成。';
         } else {
           row.followupVerification = {maskedPhone: phone.slice(0,3) + '****' + phone.slice(-4),
-            status: 'passed', callbackStatus: 'accepted'};
+            status: 'passed'};
           row.followupComplete = true;
-          message = '演示回传成功，任务已计入已完成。';
+          message = '演示核验通过，任务已计入已完成。';
         }
-        row.manualFollowup = {...visit, visitedAt: new Date().toISOString()};
+        row.manualFollowup = {...visit, ...(Object.keys(savedIntent).length ? {intent: savedIntent} : {}),
+          visitedAt: row.followupVerification.submittedAt || new Date().toISOString(),
+          submittedBy: account, submittedMaskedPhone: row.followupVerification.maskedPhone};
       } else {
         row.manualFollowup = local ? await data.request(prefix + 'followup', visit, token) : {
-          ...visit, nextVisitAt: visit.nextVisitAt ? visit.nextVisitAt + '+08:00' : null, visitedAt: new Date().toISOString()
+          ...visit, ...(Object.keys(savedIntent).length ? {intent: savedIntent} : {}), nextVisitAt: visit.nextVisitAt ? visit.nextVisitAt + '+08:00' : null, visitedAt: new Date().toISOString(), submittedBy: account
         };
         if (visit.result === 'callback') message = '已安排下次回访。';
         if (returning) {
@@ -555,7 +652,7 @@
       row.manualFollowupHistory = [row.manualFollowup, ...previousRecords].slice(0, 30);
       if (form.isConnected) {
         success = message;
-        activeQueue = queueFor(row);
+        if (!row.followupComplete) activeQueue = queueFor(row);
         render(page, tabs, switchScope, '[data-nt-masked-queue][aria-pressed="true"]');
       }
     } catch (err) {
@@ -567,8 +664,9 @@
 
   window.maskedSeatWorkbench = {
     count: () => local && !loaded ? null : pendingRows().length,
-    show: (page, tabs, switchScope, toolbar) => {
+    show: (page, tabs, switchScope, toolbar, catalog) => {
       outboundToolbar = toolbar;
+      intentCatalog = catalog;
       if (local) return load(page, tabs, switchScope, '[data-task-scope-select]');
       return render(page, tabs, switchScope, '[data-task-scope-select]');
     }

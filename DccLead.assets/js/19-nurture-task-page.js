@@ -129,6 +129,14 @@ function getIntentStoreName(code) {
     || code;
 }
 
+window.getNurtureIntentStoreName = getIntentStoreName;
+
+const maskedIntentCatalog = {
+  series: carSeriesOptions,
+  storeName: getIntentStoreName,
+  pickStore: openMaskedIntentStorePicker
+};
+
 let storePickerState = null;
 
 function makeLeadInfo(overrides) {
@@ -1920,7 +1928,7 @@ window.renderNurtureTaskPage = function() {
     visitScoreSession?.close();
     visitScoreSession = null;
     visitFormActive = false;
-    window.maskedSeatWorkbench.show(page, renderNurtureScopeSelector, switchNurtureTaskScope, maskedOutboundToolbar);
+    window.maskedSeatWorkbench.show(page, renderNurtureScopeSelector, switchNurtureTaskScope, maskedOutboundToolbar, maskedIntentCatalog);
     return;
   }
   const task = getActiveTask();
@@ -2434,15 +2442,39 @@ function setFormField(field, value) {
 function openStorePicker() {
   const task = getActiveTask();
   if (!task) return;
-  const current = task.formData?.intentStore || '';
-  const currentRow = intentStorePickerRows.find(row => row.code === current || row.name === current);
+  startStorePicker({
+    rows: intentStorePickerRows,
+    current: task.formData?.intentStore || '',
+    series: 'N7',
+    trigger: document.activeElement,
+    onSelect: store => {
+      setFormField('intentStore', store.code);
+      renderNurtureTaskPage();
+      showToast?.('已选择：' + store.name, true);
+    }
+  });
+}
+
+function openMaskedIntentStorePicker(current, trigger, onSelect) {
+  const rows = intentStorePickerRows.filter(row => row.status === '启用');
+  for (const store of intentStoreOptions) {
+    if (rows.some(row => row.code === store.code)) continue;
+    rows.push({...store, series: '', province: '', city: '', district: '', network: '', status: '启用'});
+  }
+  startStorePicker({rows, current, trigger, onSelect, allowClear: true});
+}
+
+function startStorePicker({rows, current, series = '', trigger, onSelect, allowClear = false}) {
+  const currentRow = rows.find(row => row.code === current || row.name === current);
   storePickerState = {
+    rows, trigger, onSelect, allowClear,
     selectedCode: currentRow?.code || current,
     searchDraft: { code: '', name: '' },
-    code: '', name: '', series: 'N7', province: '', city: '', district: '', raceGroup: '', network: '', status: '',
+    code: '', name: '', series, province: '', city: '', district: '', raceGroup: '', network: '', status: '',
     page: 1, collapsed: true
   };
   renderStorePickerModal();
+  document.querySelector('#intentStorePickerModal [data-picker-filter="name"]')?.focus({preventScroll: true});
 }
 
 function storePickerEsc(value) {
@@ -2466,7 +2498,7 @@ function renderStorePickerModal(preserveScroll = false) {
     : [];
   const s = storePickerState;
   const raceConfigByStoreCode = new Map((DICTIONARY_ITEMS.NEV_TEST_DRIVE_DEALER || []).map(item => [item.code, item]));
-  const storeRows = intentStorePickerRows.map(row => {
+  const storeRows = s.rows.map(row => {
     const raceConfig = raceConfigByStoreCode.get(row.code);
     return {
       ...row,
@@ -2496,9 +2528,9 @@ function renderStorePickerModal(preserveScroll = false) {
   const firstRow = (s.page - 1) * pageSize;
   const pageRows = filtered.slice(firstRow, firstRow + pageSize);
   const activeExtraFilters = [s.province, s.city, s.district, s.raceGroup, s.network, s.status].filter(Boolean).length;
-  const provinces = [...new Set(intentStorePickerRows.map(row => row.province))];
-  const cities = [...new Set(intentStorePickerRows.filter(row => !s.province || row.province === s.province).map(row => row.city))];
-  const districts = [...new Set(storesInRegion.map(row => row.district))];
+  const provinces = [...new Set(s.rows.map(row => row.province).filter(Boolean))];
+  const cities = [...new Set(s.rows.filter(row => !s.province || row.province === s.province).map(row => row.city).filter(Boolean))];
+  const districts = [...new Set(storesInRegion.map(row => row.district).filter(Boolean))];
   const raceGroupPlaceholder = raceGroups.length ? '不限赛马小组' : '当前地区暂无赛马小组';
   const option = (value, label, selected) => `<option value="${storePickerEsc(value)}"${selected ? ' selected' : ''}>${storePickerEsc(label)}</option>`;
   const select = (label, key, values, placeholder) => `<label class="isp-filter-field"><span>${label}</span><select class="filter-select" data-picker-filter="${key}"${values.length ? '' : ' disabled'}>${option('', placeholder, !s[key])}${values.map(value => option(value, value, s[key] === value)).join('')}</select></label>`;
@@ -2564,7 +2596,11 @@ function renderStorePickerModal(preserveScroll = false) {
           <button type="button" class="btn-secondary" data-picker-action="next" ${s.page === pageCount ? 'disabled' : ''}>下一页</button>
         </div>
       </nav>` : ''}
-    </div><div class="intent-store-picker-footer"><span>${s.selectedCode ? `已选择：${storePickerEsc(intentStorePickerRows.find(row => row.code === s.selectedCode)?.name || s.selectedCode)}` : '请选择 1 家门店'}</span><div><button type="button" class="btn-secondary" data-picker-action="close">取消</button><button type="button" class="btn-primary" data-picker-action="confirm" ${s.selectedCode ? '' : 'disabled'}>确认</button></div></div>
+    </div><div class="intent-store-picker-footer"><span>${s.selectedCode ? `已选择：${storePickerEsc(s.rows.find(row => row.code === s.selectedCode)?.name || s.selectedCode)}` : '请选择 1 家门店'}</span><div>
+      ${s.allowClear && s.selectedCode ? '<button type="button" class="btn-secondary" data-picker-action="clear">设为暂未确认</button>' : ''}
+      <button type="button" class="btn-secondary" data-picker-action="close">取消</button>
+      <button type="button" class="btn-primary" data-picker-action="confirm" ${s.rows.some(row => row.code === s.selectedCode) ? '' : 'disabled'}>确认</button>
+    </div></div>
   </div>`;
   overlay.querySelectorAll('select[data-picker-filter]').forEach(input => input.addEventListener('change', () => {
     const key = input.dataset.pickerFilter;
@@ -2580,9 +2616,21 @@ function renderStorePickerModal(preserveScroll = false) {
     renderStorePickerModal(true);
     overlay.querySelector('[data-picker-select]:checked')?.focus({ preventScroll: true });
   }));
+  const close = () => {
+    overlay.remove();
+    storePickerState = null;
+    s.trigger?.focus({preventScroll: true});
+  };
+  overlay.onkeydown = event => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      close();
+    }
+  };
   overlay.querySelectorAll('[data-picker-action]').forEach(button => button.addEventListener('click', () => {
     const action = button.dataset.pickerAction;
-    if (action === 'close') { overlay.remove(); storePickerState = null; return; }
+    if (action === 'close') { close(); return; }
+    if (action === 'clear') { close(); s.onSelect(null); return; }
     if (action === 'reset') {
       Object.assign(s, { searchDraft: { code: '', name: '' }, code:'', name:'', series:'', province:'', city:'', district:'', raceGroup:'', network:'', status:'', page:1 });
       renderStorePickerModal();
@@ -2613,14 +2661,13 @@ function renderStorePickerModal(preserveScroll = false) {
       return;
     }
     if (action === 'confirm') {
-      const selected = intentStorePickerRows.find(row => row.code === storePickerState.selectedCode);
+      const selected = s.rows.find(row => row.code === s.selectedCode);
       if (!selected) return;
-      setFormField('intentStore', selected.code);
-      overlay.remove(); storePickerState = null; renderNurtureTaskPage();
-      showToast?.('已选择：' + selected.name, true);
+      close();
+      s.onSelect(selected);
     }
   }));
-  overlay.onclick = event => { if (event.target === overlay) { overlay.remove(); storePickerState = null; } };
+  overlay.onclick = event => { if (event.target === overlay) close(); };
   scrollPositions.forEach(({ selector, scrollTop, scrollLeft }) => {
     const region = overlay.querySelector(selector);
     region.scrollTop = scrollTop;

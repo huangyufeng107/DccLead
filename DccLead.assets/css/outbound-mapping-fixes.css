@@ -3107,3 +3107,24 @@
 .nt-masked-return-note[hidden] { display: none; }
 
 .nt-masked-current-plan { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; }
+
+.nt-masked-verification-card { display: inline-flex; max-width: 100%; margin-top: 7px; white-space: normal; }
+.nt-masked-verification {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  border: 1px solid #d4e3f6;
+  border-radius: 7px;
+  background: #f0f6ff;
+  color: #244770;
+  font-size: 13px;
+}
+.nt-masked-verification[data-tone="warning"] { border-color: #f2dfb4; background: #fff8e9; color: #795211; }
+.nt-masked-verification[data-tone="danger"] { border-color: #efc9cd; background: #fff3f4; color: #952e39; }
+.nt-masked-verification[data-tone="success"] { border-color: #b8e0cf; background: #effaf4; color: #166544; }
+.nt-masked-verification-meta { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+
+.nt-masked-counts button { border: 1px solid transparent; border-radius: 5px; padding: 4px 7px; background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.nt-masked-counts button:hover { background: #f0f5ff; }
+.nt-masked-counts button[aria-pressed="true"] { border-color: #d5e3f8; background: #eef5ff; color: #1d4ed8; }

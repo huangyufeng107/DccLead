@@ -31,6 +31,21 @@ function getSmsDispatchScenario(rule) {
   return rule?.scenario || 'existing';
 }
 
+function getSmsDispatchFieldLabels(rule) {
+  return getSmsDispatchScenario(rule) === 'intelligent'
+    ? { callType: '智能外呼任务', intentSeries: 'AI最新意向车系' }
+    : { callType: '外呼类型', intentSeries: 'AI最新意向车系' };
+}
+
+function syncSmsDispatchListFieldLabels() {
+  const scene = document.getElementById('smsDispatchScenarioFilter')?.value;
+  const label = scene ? getSmsDispatchFieldLabels({scenario:scene}).callType : '外呼类型 / 智能外呼任务';
+  const filter = document.getElementById('smsDispatchCallTypeLabel');
+  const header = document.getElementById('smsDispatchCallTypeHeader');
+  if (filter) filter.textContent = label + '：';
+  if (header) header.textContent = label;
+}
+
 function getSmsDispatchScenarioName(rule) {
   return getSmsDispatchScenario(rule) === 'intelligent' ? '智能外呼场景' : '现有场景';
 }
@@ -104,7 +119,7 @@ function changeSmsDispatchScenario() {
   const rule = { ...readSmsDispatchForm(), callTypes: [], callTypeCode: '', tags: [], excludeTags: [] };
   refreshSmsDispatchForm(rule);
   if (rule.scenario === 'intelligent') loadSmsIntelligentFormOptions();
-  showToast('已切换场景，请重新选择外呼类型和标签');
+  showToast('已切换场景，请重新选择' + getSmsDispatchFieldLabels(rule).callType + '和标签');
 }
 
 function changeSmsIntelligentCallType() {
@@ -119,14 +134,14 @@ function renderSmsDispatchCallTypeInput(rule) {
   const catalog = smsIntelligentCatalog;
   const missing = rule.callTypeCode && !catalog.types.some(item => item.code === rule.callTypeCode);
   return `<select class="form-input" id="smsFormIntelligentCallType" ${catalog.status === 'loading' || (catalog.status === 'error' && !catalog.types.length) ? 'disabled' : ''} ${renderUiActionCallback('sms-intelligent-type-change')}>
-    <option value="">${catalog.status === 'loading' ? '正在加载智能外呼类型…' : '请选择智能外呼类型'}</option>
+    <option value="">${catalog.status === 'loading' ? '正在加载智能外呼任务…' : '请选择智能外呼任务'}</option>
     ${catalog.types.map(item => `<option value="${escapeAttr(item.code)}" ${rule.callTypeCode === item.code ? 'selected' : ''}>${escapeHtml(item.name)}</option>`).join('')}
     ${missing ? `<option value="${escapeAttr(rule.callTypeCode)}" selected>${escapeHtml(rule.callTypes?.[0] || rule.callTypeCode)}${catalog.status === 'ready' ? '（已失效）' : ''}</option>` : ''}
-  </select><div class="series-form-hint">${window.smsIntelligentOutboundApi ? '类型及标签由智能外呼系统提供' : '当前为原型接口示例数据'}；每条规则选择一个外呼类型。</div>
+  </select><div class="series-form-hint">${window.smsIntelligentOutboundApi ? '任务及其标签由智能外呼系统提供' : '当前为原型接口示例数据'}；每条规则选择一个智能外呼任务。</div>
   ${catalog.status === 'error' ? `<div role="alert">${escapeHtml(catalog.error)} <button class="btn-secondary" type="button" ${renderUiActionCallback('sms-intelligent-retry')}>重试</button></div>` : ''}
-  ${catalog.status === 'ready' && !catalog.types.length ? '<div role="status">智能外呼系统暂无可用外呼类型</div>' : ''}
+  ${catalog.status === 'ready' && !catalog.types.length ? '<div role="status">智能外呼系统暂无可用智能外呼任务</div>' : ''}
   <div id="smsIntelligentTagsAlert" role="alert" ${catalog.status === 'ready' && hasInvalidSmsIntelligentTags(rule) ? '' : 'hidden'}>原配置包含已失效的标签，请清空后重新选择</div>
-  ${catalog.status === 'ready' && rule.callTypeCode && !catalog.tags.length ? '<div role="status">该外呼类型暂无可用标签，请选择其他类型</div>' : ''}`;
+  ${catalog.status === 'ready' && rule.callTypeCode && !catalog.tags.length ? '<div role="status">该智能外呼任务暂无可用标签，请选择其他任务</div>' : ''}`;
 }
 
 function changeSmsDispatchScenarioFilter() {
@@ -135,6 +150,7 @@ function changeSmsDispatchScenarioFilter() {
     ? [...new Set(smsDispatchRules.filter(rule => getSmsDispatchScenario(rule) === 'intelligent').flatMap(rule => rule.callTypes || []))]
     : [...new Set([...getSmsDispatchAllCallTypes(), ...smsDispatchRules.flatMap(rule => rule.callTypes || [])])];
   document.getElementById('smsDispatchCallTypeFilter').innerHTML = '<option value="">全部</option>' + types.map(name => `<option value="${escapeAttr(name)}">${escapeHtml(name)}</option>`).join('');
+  syncSmsDispatchListFieldLabels();
   filterSmsDispatchRuleTable();
 }
 
@@ -156,7 +172,7 @@ function renderSmsDispatchPolicyPage() {
     <div class="page-hero">
       <div>
         <div class="page-title">短信下发配置</div>
-        <div class="page-desc">用于配置 AI 外呼结束后的短信触达规则，先按适用场景区分数据来源，再按外呼类型、通话状态、外呼标签、标签最新意向车系和优先级判断是否下发短信，并关联具体短信模板。命中后系统按规则自动选择模板触达客户，让高意向、活动权益、未接通等场景的后续沟通更标准、可追踪。</div>
+        <div class="page-desc">用于配置 AI 外呼结束后的短信触达规则，先按适用场景区分数据来源，再按外呼类型（智能外呼场景显示为智能外呼任务）、通话状态、外呼标签、对应场景的最新意向车系和优先级判断是否下发短信，并关联具体短信模板。命中后系统按规则自动选择模板触达客户，让高意向、活动权益、未接通等场景的后续沟通更标准、可追踪。</div>
       </div>
       ${renderSmsDispatchSummary()}
     </div>
@@ -167,7 +183,7 @@ function renderSmsDispatchPolicyPage() {
       </select>
       <span class="filter-label">关键字：</span>
       <input class="lead-input" style="width:130px; margin-right: 12px;" id="smsDispatchKeywordFilter" placeholder="请输入" ${renderUiActionCallback('sms-filter')} />
-      <span class="filter-label">外呼类型：</span>
+      <span class="filter-label" id="smsDispatchCallTypeLabel">外呼类型 / 智能外呼任务：</span>
       <select class="filter-select" id="smsDispatchCallTypeFilter" ${renderUiActionCallback('sms-filter')}>
         <option value="">全部</option>
         ${[...new Set([...getSmsDispatchAllCallTypes(), ...smsDispatchRules.flatMap(rule => rule.callTypes || [])])].map(type => `<option value="${type}">${type}</option>`).join('')}
@@ -204,7 +220,7 @@ function renderSmsDispatchPolicyPage() {
             <th style="width:64px">权重</th>
             <th>配置名称</th>
             <th>适用场景</th>
-            <th>外呼类型</th>
+            <th id="smsDispatchCallTypeHeader">外呼类型 / 智能外呼任务</th>
             <th>命中条件</th>
             <th>短信模板</th>
             <th style="width:80px">状态</th>
@@ -340,7 +356,7 @@ function renderSmsDispatchConditionSummary(rule) {
   const parts = [
     `通话状态（${rule.statusLogic || '或'}）：${(rule.statuses || []).slice(0, 3).join('、') || '不限'}${(rule.statuses || []).length > 3 ? '…' : ''}`,
     `包含标签（${rule.tagLogic || '或'}）：${(rule.tags || []).slice(0, 3).join('、') || '—'}${(rule.tags || []).length > 3 ? '…' : ''}`,
-    `标签最新意向车系：${(rule.intentSeriesNames || []).join('、') || '不限'}`
+    `${getSmsDispatchFieldLabels(rule).intentSeries}：${(rule.intentSeriesNames || []).join('、') || '不限'}`
   ];
   if (rule.excludeTags && rule.excludeTags.length) {
     parts.push(`排除标签（${rule.excludeTagLogic || '或'}）：${rule.excludeTags.slice(0, 3).join('、')}${rule.excludeTags.length > 3 ? '…' : ''}`);
@@ -408,8 +424,8 @@ function renderSmsDispatchRuleDetail(rule) {
       <div class="rule-detail-section">
         <div class="rule-detail-title">命中条件</div>
         <div class="rule-detail-body">
-          <div class="rule-detail-field"><div class="rule-detail-label">外呼类型</div><div class="rule-detail-value">${(rule.callTypes || []).join('、') || '—'}</div></div>
-          <div class="rule-detail-field"><div class="rule-detail-label">标签最新意向车系</div><div class="rule-detail-value">${detailValue((rule.intentSeriesNames || []).join("、") || "不限")}</div></div>
+          <div class="rule-detail-field"><div class="rule-detail-label">${getSmsDispatchFieldLabels(rule).callType}</div><div class="rule-detail-value">${(rule.callTypes || []).join('、') || '—'}</div></div>
+          <div class="rule-detail-field"><div class="rule-detail-label">${getSmsDispatchFieldLabels(rule).intentSeries}</div><div class="rule-detail-value">${detailValue((rule.intentSeriesNames || []).join("、") || "不限")}</div></div>
           <div class="rule-detail-field"><div class="rule-detail-label">通话状态</div><div class="rule-detail-value">${detailValue(`${rule.statusLogic || '或'}：${(rule.statuses || []).join('、') || '不限'}`)}</div></div>
           <div class="rule-detail-field"><div class="rule-detail-label">包含标签</div><div class="rule-detail-value">${detailValue(`${rule.tagLogic || '或'}：${(rule.tags || []).join('、') || '—'}`)}</div></div>
           <div class="rule-detail-field"><div class="rule-detail-label">不包含标签</div><div class="rule-detail-value">${detailValue(`${rule.excludeTagLogic || '或'}：${(rule.excludeTags || []).join('、') || '—'}`)}</div></div>
@@ -460,11 +476,11 @@ function renderSmsDispatchRuleForm(rule) {
         <div class="dispatch-section-title">命中条件</div>
         <div class="dispatch-form-grid">
           <div class="form-group wide">
-            <div class="form-label">外呼类型 <span class="required">*</span></div>
+            <div class="form-label">${getSmsDispatchFieldLabels(rule).callType} <span class="required">*</span></div>
             ${renderSmsDispatchCallTypeInput(rule)}
           </div>
           <div class="form-group wide">
-            <div class="form-label">标签最新意向车系</div>
+            <div class="form-label">${getSmsDispatchFieldLabels(rule).intentSeries}</div>
             ${renderCallTypeTagPicker({ idPrefix: 'smsDispatchIntentSeries', inputName: 'smsDispatchIntentSeries', options: getSmsDispatchIntentSeriesOptions(rule.intentSeriesNames), selected: rule.intentSeriesNames || [], placeholder: '不限' })}
             <div class="series-form-hint">不选表示不限；选择后，按本次话单标签返回的单个车系名称匹配，多个选项满足任意一个即可。</div>
           </div>
@@ -806,10 +822,10 @@ function saveSmsDispatchRule() {
   if (!['existing', 'intelligent'].includes(payload.scenario)) return showToast('请选择有效的适用场景');
   if (payload.scenario === 'intelligent') {
     const catalog = smsIntelligentCatalog;
-    if (catalog.status !== 'ready') return showToast('请等待智能外呼类型和标签加载成功后保存');
-    if (!catalog.types.some(item => item.code === payload.callTypeCode)) return showToast('请选择有效的智能外呼类型');
+    if (catalog.status !== 'ready') return showToast('请等待智能外呼任务和标签加载成功后保存');
+    if (!catalog.types.some(item => item.code === payload.callTypeCode)) return showToast('请选择有效的智能外呼任务');
     if (catalog.typeCode !== payload.callTypeCode || hasInvalidSmsIntelligentTags(payload)) {
-      return showToast('标签不属于当前外呼类型或已失效，请重新选择');
+      return showToast('标签不属于当前智能外呼任务或已失效，请重新选择');
     }
     payload.includeTagCodes = payload.tags.map(name => catalog.tags.find(item => item.name === name).code);
     payload.excludeTagCodes = payload.excludeTags.map(name => catalog.tags.find(item => item.name === name).code);
@@ -830,7 +846,7 @@ function saveSmsDispatchRule() {
     return;
   }
   if (!payload.callTypes.length) {
-    showToast('请选择外呼类型');
+    showToast('请选择' + getSmsDispatchFieldLabels(payload).callType);
     return;
   }
   if (!payload.tags.length) {
