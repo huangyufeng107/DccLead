@@ -2442,36 +2442,26 @@ function formatOptionalCompareDisplay(value, unit = '秒', valueKey = 'seconds')
 }
 
 function formatReturnVisitOrderIntentLevel(value = '') {
-  const labels = {
-    'E': 'E - E(智能体级别)',
-    'H': 'H - H(高意向)',
-    'A': 'A - A(一周内买车)',
-    'B': 'B - B(计划三个月内买车)',
-    'C': 'C - C(计划三个月后买车)',
-    'F': 'F - F(战败)',
-    'L': 'L - L(休眠)',
-    'N': 'N - N(阶段性战败)'
-  };
-  return labels[value] || value;
+  return DccLeadIntent.display(value);
 }
 
 function getReturnVisitOrderIntentLevelOptions(nurtureResult) {
   switch (nurtureResult) {
     case '下次回访':
-      return ['E', 'A', 'B', 'C'];
+      return DccLeadIntent.codes(['E', 'A', 'B', 'C']);
     case '试驾排程下发':
     case '试驾线索下发':
-      return ['H'];
+      return DccLeadIntent.codes(['H']);
     case '意向线索下发':
-      return ['H', 'A', 'B', 'C'];
+      return DccLeadIntent.codes(['H', 'A', 'B', 'C']);
     case '无人接听下发':
     case '无人接下发':
-      return ['C'];
+      return DccLeadIntent.codes(['C']);
     case '休眠失联':
     case '休眠未购':
-      return ['L'];
+      return DccLeadIntent.codes(['L']);
     case '战败':
-      return ['F'];
+      return DccLeadIntent.codes(['F']);
     case '无效结案':
     default:
       return ['不更新'];
@@ -2957,7 +2947,8 @@ function collectStrategyConfiguratorFormValue(def) {
       value = el.value.trim();
     }
     if (field.field === 'belongType' && value === '请选择') return { ok: false, message: '请选择命中类型' };
-    if (field.required && field.defaultValue && value === field.defaultValue) return { ok: false, message: `请选择${field.label}` };
+    // 回访配置的默认状态“启用”是有效业务值，不是请选择占位项。
+    if (field.required && field.defaultValue && value === field.defaultValue && !(strategyConfiguratorEditing.key === 'returnVisitOrder' && field.field === 'status')) return { ok: false, message: `请选择${field.label}` };
     if (field.required && (!value || (Array.isArray(value) && !value.length))) return { ok: false, message: `请选择${field.label}` };
     if (field.type === 'number') {
       const numberValue = Number(value);

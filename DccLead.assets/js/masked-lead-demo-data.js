@@ -57,15 +57,18 @@
     {contactStatus: 'no_answer', result: 'callback', visitedAt: fromNow(-2880), nextVisitAt: fromNow(-1440),
       submittedBy: 'A001', note: '首次外呼无人接听，安排次日再联系。'}
   ];
+  const aiHandoffLead = {
+    id: '022', original: 'DY-HQ-DEMO-022', name: '刘女士（AI 转人工演示）', entry: 'E3 日产总部抖音号', channel: 'R4', power: '新能源车',
+    status: 'accepted', receivedAt: ago(2940), captureTime: ago(2945), series: 'DEMO-NEV-01', intentSeriesName: '新能源车系 A（演示）',
+    intentionStore: 'DEMO-STORE-A', store: 'DEMO-STORE-B'
+  };
   const multiVisitSample = {
-    id: '022', name: '刘女士（多次回访演示）', entry: 'E3 日产总部抖音号', channel: 'R4', power: '新能源车',
-    status: 'accepted', owner: 'A001', time: ago(2940).slice(11), receivedAt: ago(2940),
-    assignedAt: ago(2910), captureTime: ago(2945), series: 'DEMO-NEV-01', intentSeriesName: '新能源车系 A（演示）',
-    intentionStore: 'DEMO-STORE-A', store: 'DEMO-STORE-B',
+    ...aiHandoffLead, id: '023', name: '刘女士（多次回访演示）', owner: 'A001',
+    time: ago(2940).slice(11), assignedAt: ago(2910),
     privacy: {status: 'available', number: '170****6122', availableAt: fromNow(-2940),
       expiresAt: ago(-1440), expiresAtRaw: fromNow(1440)},
     manualFollowup: multiVisitHistory[0], manualFollowupHistory: multiVisitHistory,
-    followupVerification: {candidateId: 'CAND-DEMO-R4-022', maskedPhone: multiVisitMaskedPhone,
+    followupVerification: {candidateId: 'CAND-DEMO-R4-023', maskedPhone: multiVisitMaskedPhone,
       submittedAt: multiVisitHistory[0].visitedAt, ...multiVisitIntent, status: 'passed'},
     followupComplete: true
   };
@@ -85,7 +88,7 @@
     { id: '001', entry: 'E8 日产新能源经销商', power: '新能源车', channel: 'R6', time: '09:06:12', status: 'accepted',
       name: '周先生（演示）', gender: '男', type: '置换', captureTime: '2026-11-23 09:02:08', intentionStore: 'DEMO-STORE-A',
       privacy: { number: '170****6091', availableAt: fromNow(-25), expiresAt: '2027-02-21 09:06:14', status: 'available' },
-      series: 'DEMO-NEV-01', intentSeriesName: '新能源车系 A（演示）', store: 'DEMO-STORE-A', owner: 'A001', assignedAt: ago(25), followupComplete: true,
+      series: 'DEMO-NEV-01', intentSeriesName: '新能源车系 A（演示）', store: 'DEMO-STORE-A', owner: 'A001', assignedAt: ago(25),
       manualFollowup: {contactStatus: 'connected', result: 'candidate', visitedAt: fromNow(-12)} },
     { id: '006', entry: 'E3 日产总部抖音号', power: '新能源车', channel: 'R4', time: '08:45:05', status: 'accepted',
       privacy: { status: 'processing' }, bucket: 'old', previousAgent: 'A002', store: 'DEMO-STORE-B' },
@@ -121,5 +124,5 @@
   const phone = row => '*******' + String(3090 + Number(row.id)).slice(-4);
   const smartcode = row => smartcodes[row.poolChannel || row.channel] || 'DEMO-SC-NEV-UNMAPPED';
 
-  window.maskedLeadDemo = { headquarters, stores, date: demoDate, phone, smartcode };
+  window.maskedLeadDemo = { headquarters, stores, aiHandoffLead, date: demoDate, phone, smartcode };
 })();

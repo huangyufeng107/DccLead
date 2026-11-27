@@ -73,11 +73,16 @@
       }
       events.sort(([timeA], [timeB]) => timeA.localeCompare(timeB));
     }
-    if (record.owner) events.push([record.assignedAt?.slice(11) || '09:07:20', '主管人工派单', displayOwner(record.owner)]);
+    const firstAssignment = record.demoTransfers?.[0];
+    if (record.owner) events.push([(firstAssignment?.previousAssignedAt || record.assignedAt)?.slice(11) || '09:07:20',
+      '主管人工派单', displayOwner(firstAssignment?.fromOwner || record.owner)]);
+    for (const transfer of record.demoTransfers || []) {
+      events.push([transfer.assignedAt, '主管转派', displayOwner(transfer.fromOwner) + ' → ' + displayOwner(transfer.owner)]);
+    }
     return events;
   };
 
-  const scopes = { new: '新任务分配', old: '旧任务分配', overdue: '逾期任务分配', todo: '待跟进', stats: '任务统计', errors: '接单异常' };
+  const scopes = { new: '新任务分配', old: '旧任务分配', overdue: '逾期任务分配', todo: '待跟进', stats: '人工任务统计', errors: '接单异常' };
   const receivedAt = row => row.local ? row.receivedAt : demoDate + ' ' + row.time;
   const routingLabels = {
     ai: 'AI跟进', manual: '人工待分配', unmatched: '未命中 · 待人工分配',
@@ -137,7 +142,7 @@
   const todoColumns = ['任务编码', '线索编码', '客户姓名', '联系电话', '意向车系', '坐席账号',
     '隐私号状态', '隐私号失效截止时间'];
   const privacyTones = { available: 'success', processing: 'info', timeout: 'warning', failed: 'danger', expired: 'danger' };
-  const optionDefaults = { 坐席账号: Object.keys(agents), 初始意向级别: ['H', 'A', 'B', 'C'], 分配规则: ['人工分配'] };
+  const optionDefaults = { 坐席账号: Object.keys(agents), 初始意向级别: DccLeadIntent.codes('high'), 分配规则: ['人工分配'] };
 
   function readIntake(snapshot) {
     const {lead, taskId, dccTaskId, receiptStatus, receiptReason, events, owner, assignedAt, followupComplete, noPhoneReturn, followupVerification, manualFollowup, manualFollowupHistory, manualFollowupCount, firstFollowupAt, privacy, routing} = snapshot;
@@ -153,7 +158,8 @@
     };
     const log = events.map(event => [
       localTime.format(new Date(event.at)), titles[event.kind],
-      event.receiverTaskId || event.reason || (event.kind === 'privacy_requested'
+      event.kind === 'dcc_task_transferred' ? displayOwner(event.fromOwner) + ' → ' + displayOwner(event.owner)
+        : event.receiverTaskId || event.reason || (event.kind === 'privacy_requested'
         ? `第 ${event.attempt} 次请求 · 原推送 ID ${event.originalPushId}`
         : event.kind === 'duplicate_intake' ? '沿用原接单记录' : taskId)
     ]);
@@ -231,13 +237,15 @@
     const selected = new Set();
     const counts = {};
     const get = selector => root.querySelector(selector);
+    const isManualTask = row => Boolean(row.task) && row.routing?.state !== 'ai';
+    const assignmentOptions = read => [...new Set(records.filter(row => poolTask || isManualTask(row)).map(read).filter(Boolean))];
     const renderFilter = ([label, value = byColumn[label], type]) => {
       if (type === 'text') return `<label class="search-field"><span class="masked-filter-label">${label}</span>
         <input class="lead-input" name="${label}" aria-label="${label}" placeholder="请输入${label}"></label>`;
       if (type === 'date') return `<fieldset class="masked-filter-range"><legend class="masked-filter-label">${label}</legend>
         <div class="date-range"><input class="lead-input" type="date" name="${label}开始" aria-label="${label}开始">
         <span class="date-range-sep">至</span><input class="lead-input" type="date" name="${label}结束" aria-label="${label}结束"></div></fieldset>`;
-      const options = optionDefaults[label] || [...new Set(records.map(value).filter(Boolean))];
+      const options = optionDefaults[label] || assignmentOptions(value);
       return `<label class="search-field"><span class="masked-filter-label">${label}</span>
         <select class="lead-select" name="${label}" aria-label="${label}" data-filter-options="${label}">
           <option value="">${label === '意向车系' ? '全部车系' : '全部'}</option>
@@ -273,6 +281,9 @@
               <option value="">全部状态</option><option value="waiting">待取号</option>
               ${Object.entries(privacyLabels).map(([value,label])=>`<option value="${value}">${label}</option>`).join('')}
             </select></label>
+            <label class="search-field" data-transfer-filter><span class="masked-filter-label">转派状态</span>
+              <select class="lead-select" name="transferability"><option value="">全部待跟进</option><option value="eligible">仅看可转派</option></select>
+            </label>
             <div class="lead-search-actions"><button class="btn-add" type="submit">查询</button><button class="btn-secondary" type="reset">重置</button></div>
           </div>
         </div></form>
@@ -334,8 +345,8 @@
             </div>
           </footer>
         </section>
-        <section class="card masked-intake-results" id="masked-statistics" aria-label="抖音掩码留资任务统计" hidden>
-          <div class="lead-toolbar"><div class="section-title">抖音掩码留资任务统计</div><div id="masked-statistics-controls"><button type="button" class="btn-secondary" data-monitor-settings>总部预警配置</button></div></div>
+        <section class="card masked-intake-results" id="masked-statistics" aria-labelledby="masked-statistics-title" hidden>
+          <div class="lead-toolbar"><div class="section-title" id="masked-statistics-title">抖音掩码留资人工任务统计</div><div id="masked-statistics-controls"><button type="button" class="btn-secondary" data-monitor-settings>总部预警配置</button></div></div>
           <div id="masked-statistics-summary" class="masked-statistics-summary" aria-live="polite"></div>
           <p class="masked-monitor-rule">首跟按演示班次 09:00–18:00 累计。回访到约定时间即逾期，隐私号临期按实际截止时间倒推。</p>
           <form id="masked-monitor-settings" class="masked-monitor-settings" aria-label="总部预警配置" hidden>
@@ -428,6 +439,26 @@
             <button class="sd-btn sd-btn-primary" type="submit">确定</button>
           </div>
         </form>
+      </dialog>
+      <dialog class="masked-intake-assign masked-intake-transfer" aria-labelledby="masked-transfer-title">
+        <form>
+          <header class="sd-modal-header"><h2 class="sd-modal-title" id="masked-transfer-title">转派任务</h2></header>
+          <div class="sd-modal-body">
+            <dl class="masked-transfer-summary">
+              <div><dt>任务编码</dt><dd data-transfer-task></dd></div>
+              <div><dt>当前坐席</dt><dd data-transfer-current></dd></div>
+            </dl>
+            <label class="search-field" for="masked-transfer-owner">新坐席
+              <select class="lead-select" id="masked-transfer-owner" name="owner" required></select>
+            </label>
+            <p class="masked-transfer-note">转派后，原坐席退出该任务，新坐席按本次派单重新计算首跟时间。</p>
+            <p data-transfer-feedback role="status"></p>
+          </div>
+          <div class="sd-modal-footer">
+            <button class="sd-btn" type="button" data-transfer-cancel>取消</button>
+            <button class="sd-btn sd-btn-primary" type="submit">确认转派</button>
+          </div>
+        </form>
       </dialog>`;
 
     const forms = { tasks: get('.masked-intake-filters'), todo: get('.masked-todo-filters'), errors: get('.masked-error-filters') };
@@ -441,14 +472,32 @@
     let detailTrigger;
     const assign = get('.masked-intake-assign');
     const accountInput = assign.querySelector('[name=account]');
+    const transfer = get('.masked-intake-transfer');
+    const transferForm = transfer.querySelector('form');
+    const transferFeedback = transfer.querySelector('[data-transfer-feedback]');
+    let transferTarget;
     const isSupervisor = () => role.value === 'supervisor';
     const canSee = row => isSupervisor() || role.value === row.owner;
-    const eligible = row => !poolTask && isSupervisor() && row.task && row.status !== 'pending' && !row.owner && row.routing?.state !== 'ai';
+    const eligible = row => !poolTask && isSupervisor() && isManualTask(row) && row.status !== 'pending' && !row.owner;
+    const transferFilter = get('[data-transfer-filter]');
+    const transferBlockReason = row => {
+      if (!pendingFollowup(row) || (row.local && !row.assignedAtRaw)) return '暂无可转派的派单';
+      const verification = row.followupVerification?.status;
+      if (verification === 'pending') return '手机号核验中';
+      if (verification === 'timed_out') return '核验结果待确认';
+      if (verification === 'passed') return '号码核验已通过';
+      if (row.local ? row.firstFollowupAt : row.manualFollowup) return '已有首跟记录';
+      return '';
+    };
+    const canTransfer = row => !poolTask && isSupervisor() && !transferBlockReason(row);
     const matches = row => {
       if (!canSee(row)) return false;
       if (scope === 'errors' && row.task) return false;
       if (scope === 'todo' && !pendingFollowup(row)) return false;
-      if (!['errors', 'todo'].includes(scope) && (!row.task || (row.bucket || 'new') !== scope)) return false;
+      if (scope !== 'errors' && scope !== 'todo') {
+        if (poolTask ? !row.task : !isManualTask(row)) return false;
+        if ((row.bucket || 'new') !== scope) return false;
+      }
       if (scope === 'errors') {
         const fields = criteria.errors;
         const identifier = (fields.get('identifier') || '').trim().toLowerCase();
@@ -466,7 +515,8 @@
       if (scope === 'todo') {
         const owner = fields.get('owner');
         const privacy = fields.get('privacy');
-        return (!owner || owner === row.owner) && (!privacy || privacy === (privacyStatus(row) || 'waiting'));
+        return (!owner || owner === row.owner) && (!privacy || privacy === (privacyStatus(row) || 'waiting'))
+          && (fields.get('transferability') !== 'eligible' || canTransfer(row));
       }
       return filtersList.every(([label, value = byColumn[label], type]) => {
         const actual = value(row) || '';
@@ -490,7 +540,7 @@
       : scope === 'todo' ? todoColumns.map(label => [label, byColumn[label]]) : columns;
 
     function seatStats(account) {
-      const owned = records.filter(row => row.owner === account);
+      const owned = records.filter(row => isManualTask(row) && row.owner === account);
       return {
         assignedToday: owned.filter(row => row.assignedAt?.slice(0, 10) === today()).length,
         pending: owned.filter(pendingFollowup).length,
@@ -507,21 +557,23 @@
 
     function renderStatistics() {
       const now = Date.now();
-      const visible = records.filter(row => row.task && canSee(row));
-      const manual = visible.filter(row => row.owner && row.status !== 'pending' && row.routing?.state !== 'ai');
+      const visible = records.filter(row => isManualTask(row) && canSee(row));
+      const assigned = visible.filter(row => row.owner && row.status !== 'pending');
       const limits = monitorLimits();
-      const measured = manual.map(row => monitoring.task(row, now, privacyStatus(row), limits));
+      const measured = assigned.map(row => monitoring.task(row, now, privacyStatus(row), limits));
       get('#masked-first-rate').textContent = limits.firstWarning + ' 分钟内首跟率';
       const pending = visible.filter(pendingFollowup).length;
+      const completed = visible.filter(row => row.followupComplete);
+      const returned = completed.filter(row => row.noPhoneReturn).length;
       const summary = [
         ['待跟进', pending, 'pending'],
         ['可拨', visible.filter(row => pendingFollowup(row) && privacyStatus(row) === 'available').length, 'available'],
-        ['已完成', visible.filter(row => row.followupComplete).length, 'completed']
+        ['已完成', completed.length, 'completed']
       ];
       if (isSupervisor()) summary.unshift(['待分配', visible.filter(eligible).length, 'unassigned']);
       get('#masked-statistics-summary').innerHTML = summary.map(([label, count, tone]) =>
-        `<div class="masked-metric" data-tone="${tone}"><span>${label}</span><strong>${count}</strong><span>条</span>${tone === 'completed' && visible.some(row => row.noPhoneReturn)
-          ? `<small class="masked-metric-note">其中退回临时池 ${visible.filter(row => row.noPhoneReturn).length} 条</small>` : ''}</div>`
+        `<div class="masked-metric" data-tone="${tone}"><span>${label}</span><strong>${count}</strong><span>条</span>${tone === 'completed' && returned
+          ? `<small class="masked-metric-note">其中退回临时池 ${returned} 条</small>` : ''}</div>`
       ).join('');
       monitorSeat.closest('label').hidden = !isSupervisor();
       get('#masked-statistics-controls [data-monitor-settings]').hidden = !isSupervisor();
@@ -532,7 +584,7 @@
       get('#masked-monitor-updated').textContent = statisticsStatus ||
         (lastStatisticsRead ? `最近更新 ${formatTime(lastStatisticsRead)} · 每 30 秒更新` : '正在读取本地任务');
       const riskTasks = measured.concat(isSupervisor() ? visible.filter(row =>
-        !row.owner && row.status !== 'pending' && row.routing?.state !== 'ai'
+        !row.owner && row.status !== 'pending'
       ).map(row => monitorTask(row, now)) : []);
       renderAlerts(riskTasks, now);
 
@@ -579,16 +631,20 @@
         .find(button => button.dataset.maskedMonitorDetail === activeTask)?.focus({preventScroll: true});
     }
 
+    async function readStatistics() {
+      if (localWorkspace) await refreshDccWorklist(false, true);
+      else {
+        lastStatisticsRead = Date.now();
+        renderStatistics();
+      }
+    }
+
     function scheduleStatisticsRead() {
       clearTimeout(statisticsTimer);
       if (scope !== 'stats' || list.hidden || !detail.hidden) return;
       statisticsTimer = setTimeout(async () => {
         if (!list.isConnected || list.hidden || scope !== 'stats') return;
-        if (localWorkspace) await refreshDccWorklist(false, true);
-        else {
-          lastStatisticsRead = Date.now();
-          renderStatistics();
-        }
+        await readStatistics();
         scheduleStatisticsRead();
       }, 30_000);
     }
@@ -597,6 +653,10 @@
       const statistics = scope === 'stats';
       forms.tasks.hidden = ['errors', 'todo', 'stats'].includes(scope);
       forms.todo.hidden = scope !== 'todo';
+      const showTransferStatus = scope === 'todo' && !poolTask && isSupervisor();
+      transferFilter.hidden = !showTransferStatus;
+      forms.todo.classList.toggle('has-transfer-filter', showTransferStatus);
+      forms.todo.elements.transferability.disabled = !showTransferStatus;
       const ownerOptions = forms.todo.elements.owner.options;
       for (const option of ownerOptions) option.hidden = Boolean(option.value) && !isSupervisor() && option.value !== role.value;
       const roleHost = statistics ? get('#masked-statistics-controls') : toolbar;
@@ -626,14 +686,14 @@
       get('[data-selected]').textContent = selected.size ? `执行分配 (${selected.size})` : '执行分配';
       get('[data-fields]').closest('.field-picker').hidden = ['errors', 'todo'].includes(scope);
       get('#masked-sort option[value="任务编码"]')?.toggleAttribute('disabled', scope === 'errors');
-      get('#masked-list-title').textContent = poolTask ? '总部 DCC 接单联调记录' : scope === 'errors' ? '接单异常列表' : scope === 'todo' ? '抖音掩码留资待跟进' : '抖音掩码留资列表';
+      get('#masked-list-title').textContent = poolTask ? '总部 DCC 接单联调记录' : scope === 'errors' ? '接单异常列表' : scope === 'todo' ? '抖音掩码留资待跟进' : '人工任务分配列表';
       const selection = selectable ? `<th><input type="checkbox" aria-label="全选可分配任务" data-select-all ${canAssign.length ? '' : 'disabled'} ${canAssign.length && canAssign.every(row => selected.has(row.id)) ? 'checked' : ''}></th>` : '';
       get('.masked-intake-table').classList.toggle('masked-todo-table', scope === 'todo');
       get('.masked-intake-table thead').innerHTML = `<tr>${selection}<th>序号</th>${headings.map(([label]) => {
         const active = sort === label;
         return `<th scope="col"${active ? ` aria-sort="${direction === 'asc' ? 'ascending' : 'descending'}"` : ''}>
           ${label}${active ? ` <span class="masked-sort-mark" aria-hidden="true">${direction === 'asc' ? '↑' : '↓'}</span>` : ''}</th>`;
-      }).join('')}<th scope="col">操作</th></tr>`;
+      }).join('')}<th scope="col">${showTransferStatus ? '转派状态 / 操作' : '操作'}</th></tr>`;
       get('.masked-intake-table tbody').innerHTML = rows.length ? rows.slice(offset, offset + size).map((row, index) => {
         const checkbox = selectable ? `<td><input type="checkbox" aria-label="选择 ${row.task}" data-select-row="${row.id}" ${eligible(row) ? '' : 'disabled'} ${selected.has(row.id) ? 'checked' : ''}></td>` : '';
         const values = headings.map(([label, read]) => {
@@ -646,9 +706,13 @@
           const mono = ['任务编码', '线索编码', '联系电话', 'SMARTCODE'].includes(label) ? ' class="is-mono"' : '';
           return `<td${mono}>${escape(text)}</td>`;
         }).join('');
+        const reason = showTransferStatus ? transferBlockReason(row) : '';
+        const transferStatus = showTransferStatus
+          ? `<div class="masked-transfer-status"><strong>${reason ? '不可转派' : '可转派'}</strong><span>${escape(reason || '尚未首跟')}</span></div>`
+          : '';
         return `<tr class="${selected.has(row.id) ? 'is-selected' : ''}">${checkbox}<td>${offset + index + 1}</td>${values}
-          <td><div class="action-btns">${action('详情', 'view', 'masked-detail', row.id)}${eligible(row) ? action('分配', 'edit', 'masked-assign', row.id) : ''}</div></td></tr>`;
-      }).join('') : `<tr><td colspan="${headings.length + (selectable ? 3 : 2)}" class="sd-table-empty">暂无数据</td></tr>`;
+          <td>${transferStatus}<div class="action-btns">${action('详情', 'view', 'masked-detail', row.id)}${eligible(row) ? action('分配', 'edit', 'masked-assign', row.id) : ''}${showTransferStatus && !reason ? action('转派', 'edit', 'masked-transfer', row.id) : ''}</div></td></tr>`;
+      }).join('') : `<tr><td colspan="${headings.length + (selectable ? 3 : 2)}" class="sd-table-empty">${showTransferStatus && criteria.todo.get('transferability') === 'eligible' ? '暂无符合筛选条件的可转派任务' : '暂无数据'}</td></tr>`;
       get('#masked-count').textContent = `共 ${rows.length} 条记录，当前第 ${page} / ${totalPages} 页`;
       get('#masked-page').innerHTML = Array.from({length: totalPages}, (_, index) => `<option value="${index + 1}">第 ${index + 1} 页</option>`).join('');
       get('#masked-page').value = String(page);
@@ -711,7 +775,7 @@
         <div class="detail-tab-panel" id="masked-detail-logs">
           <div class="log-table-card"><table class="log-table"><thead><tr><th>时间</th><th>节点</th><th>说明</th></tr></thead>
           <tbody>${eventsFor(row).map(([time,title,description]) =>
-            `<tr><td>${escape(row.local ? time : demoDate + ' ' + time)}</td><td>${title}</td><td>${escape(description)}</td></tr>`).join('')}</tbody></table></div>
+            `<tr><td>${escape(row.local || time.length > 8 ? time : demoDate + ' ' + time)}</td><td>${title}</td><td>${escape(description)}</td></tr>`).join('')}</tbody></table></div>
         </div>`;
       if (!refresh) {
         listScroll = scrollArea.scrollTop;
@@ -733,7 +797,10 @@
       setPageName('NEV培育 / 培育任务');
       scrollArea.scrollTop = listScroll;
       detailTrigger?.focus({preventScroll: true});
-      if (scope === 'stats') scheduleStatisticsRead();
+      if (scope === 'stats') {
+        readStatistics();
+        scheduleStatisticsRead();
+      }
     }
 
     function updateCounts() {
@@ -928,6 +995,22 @@
         }
       }
       if (maskedAssign) openAssign(records.filter(row => row.id === maskedAssign));
+      if (button.dataset.maskedTransfer) {
+        const row = records.find(item => item.id === button.dataset.maskedTransfer);
+        if (row && canTransfer(row)) {
+          transferTarget = row;
+          transfer.querySelector('[data-transfer-task]').textContent = row.task;
+          transfer.querySelector('[data-transfer-current]').textContent = displayOwner(row.owner);
+          transferForm.elements.owner.replaceChildren(new Option('请选择新坐席', ''));
+          for (const seat of Object.keys(agents).filter(seat => seat !== row.owner)) {
+            transferForm.elements.owner.add(new Option(displayOwner(seat), seat));
+          }
+          transferFeedback.textContent = '';
+          transferForm.querySelector('[type=submit]').disabled = false;
+          transfer.showModal();
+          transferForm.elements.owner.focus();
+        }
+      }
       if (button.hasAttribute('data-all')) openAssign(currentRows());
       if (button.hasAttribute('data-selected')) openAssign(currentRows().filter(row => selected.has(row.id)));
       if (button.hasAttribute('data-return-list')) showList();
@@ -975,6 +1058,53 @@
       get('#masked-feedback').textContent = `已分配 ${assignments.length} 条任务。`;
     });
     const workspaceRequest = (action, body) => requestMaskedWorkspace(action, body, localToken);
+
+    transfer.querySelector('[data-transfer-cancel]').addEventListener('click', () => transfer.close());
+    transfer.addEventListener('cancel', event => {
+      if (saving) event.preventDefault();
+    });
+    transferForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      const row = transferTarget;
+      const owner = transferForm.elements.owner.value;
+      if (saving || !row || !canTransfer(row) || !Object.hasOwn(agents, owner) || owner === row.owner) return;
+      const controls = [...transferForm.querySelectorAll('button, select')];
+      saving = true;
+      controls.forEach(control => { control.disabled = true; });
+      transferFeedback.textContent = '';
+      try {
+        if (localWorkspace) {
+          const saved = await workspaceRequest('transfer', {taskId: row.id, fromOwner: row.owner, fromAssignedAt: row.assignedAtRaw, owner});
+          row.owner = saved.owner;
+          row.assignedAtRaw = saved.assignedAt;
+          row.assignedAt = localTime.format(new Date(saved.assignedAt));
+          render();
+          await refreshDccWorklist();
+        } else {
+          const assignedAt = localTime.format(new Date());
+          (row.demoTransfers ||= []).push({fromOwner: row.owner, previousAssignedAt: row.assignedAt, owner, assignedAt});
+          row.previousAgent = row.owner;
+          row.owner = owner;
+          row.assignedAt = assignedAt;
+          render();
+        }
+        transfer.close();
+        get('#masked-feedback').textContent = `任务 ${row.task} 已转派给 ${displayOwner(owner)}。`;
+        ([...list.querySelectorAll('[data-masked-transfer]')].find(link => link.dataset.maskedTransfer === row.id) || forms.todo.elements.owner).focus();
+      } catch (error) {
+        transferFeedback.textContent = error.message;
+        if (localWorkspace) await refreshDccWorklist();
+        transferTarget = records.find(item => item.id === row.id && item.owner === row.owner && item.assignedAtRaw === row.assignedAtRaw);
+      } finally {
+        saving = false;
+        controls.forEach(control => { control.disabled = false; });
+        if (transfer.open && (!transferTarget || !canTransfer(transferTarget))) {
+          transferForm.querySelector('[type=submit]').disabled = true;
+          transfer.querySelector('[data-transfer-cancel]').focus();
+        }
+      }
+    });
+
 
     async function updatePrivacy(kind, id, button) {
       if (!localWorkspace || !isSupervisor()) return;
@@ -1038,7 +1168,7 @@
           const select = forms.tasks.elements.namedItem(label);
           const saved = select.value;
           select.options.length = 1;
-          for (const option of new Set(records.map(value).filter(Boolean))) select.add(new Option(option));
+          for (const option of assignmentOptions(value)) select.add(new Option(option));
           select.value = [...select.options].some(option => option.value === saved) ? saved : '';
           if (saved && !select.value) criteria.tasks.delete(label);
         }
@@ -1071,13 +1201,14 @@
 
     const linkedLead = params.get('maskedLead');
     const linkedRow = records.find(row => row.original === linkedLead);
-    if (linkedRow) {
+    if (linkedRow && linkedRow.routing?.state !== 'ai') {
       scope = linkedRow.task ? linkedRow.bucket || 'new' : 'errors';
       const kind = linkedRow.task ? 'tasks' : 'errors';
       forms[kind].elements.namedItem(linkedRow.task ? 'original' : 'identifier').value = linkedRow.original;
       criteria[kind] = new FormData(forms[kind]);
     }
     render();
+    if (linkedRow?.routing?.state === 'ai') showDetail(linkedRow);
     if (poolTask) refreshDccIntake();
     if (localWorkspace) refreshDccWorklist();
   };

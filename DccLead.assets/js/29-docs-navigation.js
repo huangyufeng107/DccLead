@@ -7,11 +7,11 @@
     ['prototype', '产品原型', './DccLead.html'],
     ['requirements', '需求说明', 'DccLead.assets/docs/需求说明/index.html?v=20261104-review-cleanup'],
     ['blueprint', '系统蓝图', 'DccLead.assets/docs/核心文档/DccLead_系统蓝图.html?v=20261119-blueprint-refresh'],
-    ['manual', '功能说明', 'DccLead.assets/docs/核心文档/DccLead_功能说明.html?v=20261119-manual-links'],
-    ['interaction', '页面交互图', 'DccLead.assets/docs/核心文档/DccLead_页面交互图.html?v=20261118-sync-date-filter'],
-    ['sequence', '业务流程', 'DccLead.assets/docs/核心文档/DccLead_业务流程.html?v=20261119-flow-viewer'],
-    ['features', '功能点清单', 'DccLead.assets/docs/核心文档/DccLead_功能点清单.html?v=20261118-sync-date-filter'],
-    ['versions', '版本日志', 'DccLead.assets/docs/核心文档/DccLead_版本日志.html?v=20261119-docs-organized']
+    ['manual', '功能说明', 'DccLead.assets/docs/核心文档/DccLead_功能说明.html?v=20261126-v33-page-scope'],
+    ['interaction', '页面交互图', 'DccLead.assets/docs/核心文档/DccLead_页面交互图.html?v=20261126-v33-page-scope'],
+    ['sequence', '业务流程', 'DccLead.assets/docs/核心文档/DccLead_业务流程.html?v=20261126-v33-page-scope'],
+    ['features', '功能点清单', 'DccLead.assets/docs/核心文档/DccLead_功能点清单.html?v=20261126-v33-page-scope'],
+    ['versions', '版本日志', 'DccLead.assets/docs/核心文档/DccLead_版本日志.html?v=20261127-v33-doc-links']
   ];
   const primaryTabs = ['prototype', 'manual', 'sequence', 'versions'];
   const primaryTabFor = { requirements: 'manual', blueprint: 'manual', interaction: 'manual', features: 'versions' };

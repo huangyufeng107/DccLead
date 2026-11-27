@@ -312,27 +312,13 @@ const leadDispatchAbnormalReasonMap = {
   '总部_战败': ['等待期长', '价格因素', '品牌偏好', '金融方案', '产品设计和配置', '服务不满', '其他'],
   '总部_无效': ['明确空号', '错号', '停机']
 };
-const leadDispatchIntentLevelOptions = [
-  '',
-  'H - H(高意向)',
-  'A - A(一周内买车)',
-  'B - B(计划三个月内买车)',
-  'C - C(计划三个月后买车)',
-  'F - F(战败)',
-  'L - L(休眠)',
-  'N - N(阶段性战败)'
-];
-const highIntentLevelOptions = [
-  'H - H(高意向)',
-  'A - A(一周内买车)',
-  'B - B(计划三个月内买车)',
-  'C - C(计划三个月后买车)'
-];
+const leadDispatchIntentLevelOptions = ['', ...DccLeadIntent.values('dispatch')];
+const highIntentLevelOptions = DccLeadIntent.values('high');
 const leadStatusIntentLevelMap = {
-  '总部_休眠未购': 'L - L(休眠)',
-  '总部_休眠失联': 'L - L(休眠)',
-  '总部_战败': 'F - F(战败)',
-  '总部_阶段性战败': 'N - N(阶段性战败)',
+  '总部_休眠未购': DccLeadIntent.legacy('L'),
+  '总部_休眠失联': DccLeadIntent.legacy('L'),
+  '总部_战败': DccLeadIntent.legacy('F'),
+  '总部_阶段性战败': DccLeadIntent.legacy('N'),
   '总部_无效': ''
 };
 let leadDispatchRules = [

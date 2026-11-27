@@ -1,6 +1,10 @@
 // ===== Nurture Leads =====
 function initNurtureLeadPage() {
   initNurtureLeadSelectors();
+  const levelSelect = document.getElementById('leadSearchLevel');
+  const selectedLevel = levelSelect.value;
+  levelSelect.innerHTML = '<option value="">全部</option>' + DccLeadIntent.codes('dispatch').map(code=>`<option value="${code}">${escapeHtml(DccLeadIntent.display(code))}</option>`).join('');
+  levelSelect.value = selectedLevel;
   const sortSelect = document.getElementById('leadSortField');
   if (sortSelect && sortSelect.options.length === 0) {
     sortSelect.innerHTML = nurtureLeadColumns

@@ -346,7 +346,7 @@ function renderLeadDispatchOptionList(options, selectedValue = '', emptyText = '
   const selected = selectedValue || '';
   const list = options.includes(selected) ? options : [...options, selected];
   return list.map(value => `
-    <option value="${escapeAttr(value)}" ${value === selected ? 'selected' : ''}>${value || emptyText}</option>
+    <option value="${escapeAttr(value)}" ${value === selected ? 'selected' : ''}>${escapeHtml(value ? DccLeadIntent.display(value) : emptyText)}</option>
   `).join('');
 }
 
@@ -404,12 +404,12 @@ function isLeadStatusIntentLevelLocked(statusValue = '') {
 }
 
 function getLeadDispatchIntentLevelOptions(statusValue = '', currentValue = '') {
-  const managedOptions = getManagedDictionaryOptionNames('INTENT_LEVEL', leadDispatchIntentLevelOptions);
-  const baseOptions = (statusValue || '') === '总部_高意向'
-    ? managedOptions.filter(item => highIntentLevelOptions.includes(item))
-    : managedOptions;
-  if (!currentValue || baseOptions.includes(currentValue)) return baseOptions;
-  return [...baseOptions, currentValue];
+  // 线索级别 H/A/B/C/F/L/N 与通话状态的高/中/低字典属于不同业务域。
+  // 不回填不属于当前状态的旧值，避免状态切换后保留非法组合。
+  if (isLeadStatusIntentLevelLocked(statusValue)) {
+    return [leadStatusIntentLevelMap[statusValue]].filter(Boolean);
+  }
+  return (statusValue === '总部_高意向' ? highIntentLevelOptions : leadDispatchIntentLevelOptions).filter(Boolean);
 }
 
 function getLeadStatusLockedIntentLevel(statusValue = '', currentValue = '') {
@@ -421,8 +421,7 @@ function getLeadStatusLockedIntentLevel(statusValue = '', currentValue = '') {
 
 function isLeadDispatchIntentLevelValid(statusValue = '', intentLevel = '') {
   if (isLeadStatusIntentLevelLocked(statusValue || '')) return intentLevel === leadStatusIntentLevelMap[statusValue || ''];
-  if ((statusValue || '') === '总部_高意向') return highIntentLevelOptions.includes(intentLevel || '');
-  return true;
+  return getLeadDispatchIntentLevelOptions(statusValue).includes(intentLevel || '');
 }
 
 function isLeadDispatchIntentLevelRequired(statusValue = '') {

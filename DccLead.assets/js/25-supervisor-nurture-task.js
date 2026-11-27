@@ -9,7 +9,7 @@
   const CAR_SERIES_OPTIONS = ['Model Y', 'Model 3', 'Model X', 'Model S', '理想L7', '理想L8', '蔚来ET5', '蔚来ES6', '比亚迪汉', '比亚迪海豹', '小鹏G6', '问界M7'];
   const LEAD_SOURCES = ['专营店新建', '搜索引擎', '信息流广告', '自然流量', '老客户推荐', '社群营销', '官网直接访问'];
   const R_CHANNELS = ['R1-百度SEM', 'R2-抖音信息流', 'R3-天网行动', 'R4-微信朋友圈', 'R5-官网SEO', 'R6-小红书', 'R7-懂车帝'];
-  const LEAD_LEVELS = ['H', 'A', 'B', 'C'];
+  const LEAD_LEVELS = DccLeadIntent.codes('high');
   const ASSIGN_RULES = ['自动分配', '平均分配', '能力优先', '就近分配', '随机(按顺序轮流分配)', '智能分配'];
   const DEALERS = ['NEV零售中心F-N2512', '深圳南山中心店', '深圳福田旗舰店', '广州天河体验中心', '东莞南城交付中心', '佛山顺德门店'];
   const TEST_DRIVE_SCHEDULES = ['是', '否'];
@@ -1786,11 +1786,7 @@
             <div class="sd-audit-form-item">
               <label class="required">意向级别</label>
               <select class="sd-audit-form-select">
-                <option>H</option>
-                <option>A</option>
-                <option>B</option>
-                <option>C</option>
-                <option selected>E</option>
+                ${DccLeadIntent.codes('taskAudit').map(code => `<option ${code === 'E' ? 'selected' : ''}>${code}</option>`).join('')}
               </select>
             </div>
             <div class="sd-audit-form-item">
@@ -1938,11 +1934,7 @@
             <div class="sd-audit-form-item">
               <label class="required">意向级别</label>
               <select class="sd-audit-form-select">
-                <option>H</option>
-                <option>A</option>
-                <option>B</option>
-                <option>C</option>
-                <option selected>E</option>
+                ${DccLeadIntent.codes('taskAudit').map(code => `<option ${code === 'E' ? 'selected' : ''}>${code}</option>`).join('')}
               </select>
             </div>
             <div class="sd-audit-form-item">

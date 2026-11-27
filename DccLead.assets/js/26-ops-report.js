@@ -71,6 +71,17 @@ const opsManualCallTaskMockData = [
     receiveTime: '2026-09-16 14:30:00', lastFollowTime: '2026-09-16 14:50:00', isOverdue: '否', overdueStatus: '正常', timelyFirstTouch: '是',
     manualDispatch: '否', manualDispatchTime: '-', noConnectScene: '否', pushPreCallStatus: '同步失败', driveSchedule: '否',
     initialClueSource: '抖音留资表单', isInfoNotFull: '是', newTaskType: '首次线索任务', taskExpReason: '手机关机拦截'
+  },
+  {
+    id: 6, taskCode: 'TASK20260916006', clueCode: 'HDCLUE-DEMO-006', rChannel: 'R11-总部自媒体',
+    custName: '钟先生（演示）', phone: '*******1051', series: 'NX8', latestSeries: 'NX8',
+    followStatus: '任务终止', followCount: 3, taskType: '人工外呼', initialClueStatus: '培育中',
+    initialLevel: 'H级', assignTime: '2026-09-14 14:48:36', agentAccount: '演示坐席E',
+    lastReturnResult: '下次回访', lastTouchStatus: '无人接听', lastLevel: 'E级',
+    nextReviewTime: '2026-09-18 19:00:00', receiveTime: '2026-09-10 15:55:11',
+    lastFollowTime: '2026-09-16 14:20:48', isOverdue: '否', noConnectScene: '是',
+    pushPreCallStatus: '已收到外呼反馈', driveSchedule: '否', newTaskType: '重复线索任务',
+    initialClueSource: 'DNDC-车巴巴'
   }
 ];
 
@@ -143,16 +154,6 @@ const opsManualTaskExportColumns = [
 
 function getOpsHqNurtureRowCount(tabKey) {
   if (tabKey === 'messageRecord') return getFilteredOpsMessageRecords().length;
-  if (tabKey === 'aiCallTaskDetail') {
-    return (typeof opsAiCallTaskMockData !== 'undefined' ? opsAiCallTaskMockData : []).filter(item => {
-      if (opsHqNurtureFilter.keyword && !item.taskCode.toLowerCase().includes(opsHqNurtureFilter.keyword.toLowerCase().trim())) return false;
-      if (opsHqNurtureFilter.customerName && !item.customerName.includes(opsHqNurtureFilter.customerName.trim())) return false;
-      if (opsHqNurtureFilter.phone && !item.phone.includes(opsHqNurtureFilter.phone.trim())) return false;
-      if (opsHqNurtureFilter.seriesCode && !item.intentSeries.includes(opsHqNurtureFilter.seriesCode)) return false;
-      if (opsHqNurtureFilter.initScore && !matchInitScoreFilter(item.initScore, opsHqNurtureFilter.initScore)) return false;
-      return true;
-    }).length;
-  }
   if (tabKey === 'testDriveDetail' && typeof getSortedTestDriveData === 'function') return getSortedTestDriveData().length;
   return 5;
 }
@@ -384,6 +385,7 @@ function renderOpsHqTestDriveAdvancedFields() {
 }
 
 function renderOpsHqFilterFields(tabKey) {
+  if (tabKey === 'aiCallTaskDetail') return renderOpsAiTaskFilters();
   if (tabKey === 'infoNotFullDetail') {
     return `
       <!-- 留资未满任务明细 4列全网格筛选条件 (28项字段 1:1 对齐) -->
@@ -473,14 +475,14 @@ function renderOpsHqFilterFields(tabKey) {
         初始意向级别：
         <select class="form-input" id="hqFilterNfInitLevel" style="margin-top:6px; height:32px; padding:4px 11px; border:1px solid #d9d9d9; border-radius:4px; font-size:13px; background:#fff;">
           <option value="">请选择</option>
-          ${['H', 'A', 'B', 'C', 'L', 'F', 'Z', 'O', 'T', 'D'].map(lvl => `<option value="${lvl}">${lvl}级</option>`).join('')}
+          ${DccLeadIntent.codes('report').map(lvl => `<option value="${lvl}">${lvl}级</option>`).join('')}
         </select>
       </label>
       <label style="display:flex; flex-direction:column; font-size:12px; color:#334155; font-weight:500;">
         最新意向级别：
         <select class="form-input" id="hqFilterNfLatestLevel" style="margin-top:6px; height:32px; padding:4px 11px; border:1px solid #d9d9d9; border-radius:4px; font-size:13px; background:#fff;">
           <option value="">请选择</option>
-          ${['H', 'A', 'B', 'C', 'L', 'F', 'Z', 'O', 'T', 'D'].map(lvl => `<option value="${lvl}">${lvl}级</option>`).join('')}
+          ${DccLeadIntent.codes('report').map(lvl => `<option value="${lvl}">${lvl}级</option>`).join('')}
         </select>
       </label>
 
@@ -929,7 +931,8 @@ function renderOpsHqFilterFields(tabKey) {
         <option value="R1-官网预约">R1-官网预约</option>
         <option value="R2-垂媒引流">R2-垂媒引流</option>
         <option value="R3-车展留资">R3-车展留资</option>
-        <option value="R6-总部新媒体">R6-总部新媒体</option>`}
+        <option value="R6-总部新媒体">R6-总部新媒体</option>
+        <option value="R11-总部自媒体">R11-总部自媒体</option>`}
       </select>
     </label>
 
@@ -970,17 +973,17 @@ function renderOpsHqFilterFields(tabKey) {
 
     <!-- 第 3 行 -->
     <label style="display:flex; flex-direction:column; font-size:12px; color:#334155; font-weight:500;">
-      最新线索状态：
+      跟进状态：
       <select class="form-input" id="hqFilterFollowStatus" style="margin-top:6px; height:32px; padding:4px 11px; border:1px solid #d9d9d9; border-radius:4px; font-size:13px; background:#fff;">
         <option value="">请选择</option>
-        ${['跟进中', '已完成', '待跟进', '暂缓'].map(v => `<option value="${v}" ${opsHqNurtureFilter.followStatus === v ? 'selected' : ''}>${v}</option>`).join('')}
+        ${['跟进中', '已完成', '待跟进', '暂缓', '任务终止'].map(v => `<option value="${v}" ${opsHqNurtureFilter.followStatus === v ? 'selected' : ''}>${v}</option>`).join('')}
       </select>
     </label>
     <label style="display:flex; flex-direction:column; font-size:12px; color:#334155; font-weight:500;">
       最新意向级别：
       <select class="form-input" id="hqFilterLastLevel" style="margin-top:6px; height:32px; padding:4px 11px; border:1px solid #d9d9d9; border-radius:4px; font-size:13px; background:#fff;">
         <option value="">请选择</option>
-        ${['H', 'A', 'B', 'C', 'L', 'F', 'Z', 'O', 'T', 'D'].map(lvl => `<option value="${lvl}">${lvl}级</option>`).join('')}
+        ${DccLeadIntent.codes('report').map(lvl => `<option value="${lvl}">${lvl}级</option>`).join('')}
       </select>
     </label>
     <label style="display:flex; flex-direction:column; font-size:12px; color:#334155; font-weight:500;">
@@ -997,7 +1000,7 @@ function renderOpsHqFilterFields(tabKey) {
       首次意向级别：
       <select class="form-input" id="hqFilterInitialLevel" style="margin-top:6px; height:32px; padding:4px 11px; border:1px solid #d9d9d9; border-radius:4px; font-size:13px; background:#fff;">
         <option value="">请选择</option>
-        ${['H', 'A', 'B', 'C', 'L', 'F', 'Z', 'O', 'T', 'D'].map(lvl => `<option value="${lvl}">${lvl}级</option>`).join('')}
+        ${DccLeadIntent.codes('report').map(lvl => `<option value="${lvl}">${lvl}级</option>`).join('')}
       </select>
     </label>
 
@@ -1339,7 +1342,8 @@ function maskOpsWorkorderNote(value) {
 
 function openOpsMaskedReportDetail(row, visits) {
   const worklist = window.dccMaskedWorklist;
-  const latest = row.manualFollowup || visits[0];
+  const latest = row.manualFollowup || visits[0] || {};
+  const aiHandoff = row.aiHandoff;
   const intent = {carSeriesId: row.series, storeId: row.intentionStore, ...latest.intent};
   const storeName = code => code ? window.getNurtureIntentStoreName(code) : '';
   const planned = !row.followupComplete ? latest.nextVisitAt : null;
@@ -1352,16 +1356,25 @@ function openOpsMaskedReportDetail(row, visits) {
   const verification = opsMaskedVerification[getOpsMaskedVerificationState(row)];
   opsMaskedDetailItem = {
     taskId: row.task, customerName: row.name, phone, followStatus: opsMaskedFollowStatus(row),
-    intentSeries: currentSeries, assignTime: row.assignedAt, agentAccount,
-    facts: [
-      ['接收时间', row.receivedAt || (row.time ? window.maskedLeadDemo.date + ' ' + row.time : '')],
-      ['跟进状态', opsMaskedFollowStatus(row)], ['跟进次数', followCount],
-      ['最新跟进时间', opsMaskedReportDate(latest.visitedAt)], ['计划下次回访时间', opsMaskedReportDate(planned)],
+    aiHandoff,
+    intentSeries: currentSeries, assignTime: opsMaskedReportDate(row.assignedAt), agentAccount,
+    overview: [
+      ['最新回访结果', opsMaskedReportResults[latest.result]],
+      ['最新跟进时间', opsMaskedReportDate(latest.visitedAt)],
+      ['计划下次回访时间', opsMaskedReportDate(planned)],
+      ['跟进状态', opsMaskedFollowStatus(row)], ['跟进次数', followCount], ['手机号核验', verification],
+      ['最新接触状态', opsMaskedReportContacts[latest.contactStatus]],
       ['是否逾期', Number.isFinite(overdue) ? (overdue <= Date.now() ? '是' : '否') : ''],
-      ['最新回访结果', opsMaskedReportResults[latest.result]], ['最新接触状态', opsMaskedReportContacts[latest.contactStatus]],
-      ['手机号核验', verification], ['初始意向级别', row.intent], ['初始预评分', '不适用'],
+      ['接收时间', row.generatedAt || opsMaskedReportDate(row.receivedAt) || (row.time ? window.maskedLeadDemo.date + ' ' + row.time : '')]
+    ],
+    processing: [
+      ['初始意向级别', row.intent], ['初始预评分', '不适用'],
       ['线索R渠道', row.channel], ['媒体名称', '抖音'], ['业务来源', '抖音掩码留资'],
-      ['任务异常原因', maskOpsWorkorderNote(row.reason)]
+      ['任务异常原因', maskOpsWorkorderNote(row.reason), 'wide'],
+      ...(aiHandoff ? [
+        ['来源 AI 任务编码', aiHandoff.taskCode], ['AI 外呼结束时间', aiHandoff.flow.completedAt],
+        ['人工工单生成时间', row.generatedAt], ['命中话单标签', aiHandoff.rounds.at(-1)?.tag]
+      ] : [])
     ],
     lead: [
       ['培育线索编码（原线索编码）', row.original], ['联系电话（原始掩码号）', phone], ['客户姓名', row.name],
@@ -1373,23 +1386,23 @@ function openOpsMaskedReportDetail(row, visits) {
       ['隐私号截止时间', row.privacy?.expiresAt]
     ],
     assignment: [
-      ['分配时间', row.assignedAt], ['坐席账号', agentAccount], ['任务类型', '人工外呼'],
+      ['分配账号', row.owner], ['分配账号名称', worklist.agents[row.owner]], ['分配时间', opsMaskedReportDate(row.assignedAt)], ['任务类型', '人工外呼'],
       ['临时池派单标识', row.dispatch], ['入池关联标识', row.association], ['送池门店', storeName(row.store)]
     ],
-    visits: visits.map((visit, index) => {
+    visits: visits.map(visit => {
       const savedIntent = {carSeriesId: row.series, storeId: row.intentionStore, ...visit.intent};
-      return [
-        ['提交时间', opsMaskedReportDate(visit.visitedAt)],
-        ['接触状态', opsMaskedReportContacts[visit.contactStatus]],
+      const fields = [
         ['回访结果', opsMaskedReportResults[visit.result]],
-        ['上次回访时间', opsMaskedReportDate(visits[index + 1]?.visitedAt)],
-        ...(visit.result === 'callback' ? [['下次回访时间', opsMaskedReportDate(visit.nextVisitAt)]] : []),
+        ['接触状态', opsMaskedReportContacts[visit.contactStatus]],
+        ['提交状态', '已提交'], ['提交时间', opsMaskedReportDate(visit.visitedAt)],
+        ['沟通方式', '人工外呼-隐私号'],
+        ...(visit.result === 'callback' ? [['计划下次回访时间', opsMaskedReportDate(visit.nextVisitAt)]] : []),
         ...(visit.result === 'candidate' ? [['客户提供的手机号（脱敏）', maskOpsWorkorderNote(visit.submittedMaskedPhone)]] : []),
         ['当前意向车系', savedIntent.carSeriesId === row.series ? originalSeries : savedIntent.carSeriesId],
         ['当前意向专营店', storeName(savedIntent.storeId)],
-        ['提交人', visit.submittedBy ? [worklist.agents[visit.submittedBy], visit.submittedBy].filter(Boolean).join(' · ') : ''],
-        ['回访描述', maskOpsWorkorderNote(visit.note)]
+        ['提交人', visit.submittedBy ? [worklist.agents[visit.submittedBy], visit.submittedBy].filter(Boolean).join(' · ') : '']
       ];
+      return { fields, notes: [['回访描述', maskOpsWorkorderNote(visit.note)]] };
     }), followCount
   };
   showOpsManualWorkorderDetail(opsMaskedDetailItem, 'masked');
@@ -1399,6 +1412,7 @@ function returnToOpsManualWorkorderList() {
   const source = opsManualWorkorderReportSource;
   opsMaskedReportReturnTask = opsMaskedDetailItem?.taskId || '';
   opsMaskedDetailItem = null;
+  opsActiveManualWorkorder = null;
   opsManualWorkorderReportSource = '';
   if (source) {
     opsHqNurtureActiveTab = 'callTaskDetail';
@@ -1408,25 +1422,18 @@ function returnToOpsManualWorkorderList() {
 }
 
 function renderOpsMaskedFullDetail(item) {
-  const panel = opsManualWorkorderDetailTab;
-  const cell = formatOpsHqCellValue;
-  const heading = label => `<h4 class="hq-masked-workorder-heading">${label}</h4>`;
-  const fields = facts => `<dl class="hq-masked-workorder-fields">${facts.map(([label, value]) =>
-    `<div${label === '回访描述' ? ' class="hq-masked-workorder-note"' : ''}><dt>${label}：</dt><dd>${cell(value)}</dd></div>`).join('')}</dl>`;
-  if (panel === 'detail') {
-    return `<div class="hq-masked-workorder-body">
-      <h3>任务编码： ${cell(item.taskId)}</h3>
-      ${fields(item.facts)}
-      ${heading('线索记录')}${fields(item.lead)}
-      ${heading('分配信息')}${fields(item.assignment)}
-      ${item.followCount > item.visits.length ? `<p>显示最近 ${item.visits.length} 条回访记录，共 ${item.followCount} 条。</p>` : ''}
-      ${item.visits.map((visit, index) => heading('回访记录 ' + (index + 1)) + fields(visit)).join('')}
-    </div>`;
-  }
-  return `<div class="hq-masked-workorder-body">${heading('AI外呼录音')}<p class="hq-masked-report-message">暂无AI外呼录音记录</p></div>`;
+  const notice = item.followCount > item.visits.length ? `显示最近 ${item.visits.length} 条回访记录，共 ${item.followCount} 条。` : '';
+  return renderOpsWorkorderSections(item, [
+    ['跟进概况', item.overview],
+    ['任务处理信息', item.processing],
+    ['线索记录', item.lead],
+    ['分配信息', item.assignment],
+    ...item.visits.map(({ fields, notes }, index) => ['回访记录 ' + (index + 1), fields, notes])
+  ], notice);
 }
 
 function opsMaskedFollowStatus(row) {
+  if (row.aiHandoff && !row.owner) return '待分配';
   if (row.noPhoneReturn?.status === 'accepted') return '已退回临时池';
   if (row.followupComplete) return '已完成';
   if (row.followupVerification?.status === 'pending') return '待核验';
@@ -1462,24 +1469,29 @@ function bindOpsMaskedManualReport(container) {
         rows = (await worklist.request('tasks', null, token)).items.map(worklist.read);
       } else {
         rows = Object.keys(worklist.agents).flatMap(worklist.demoRows);
+        const aiHandoff = opsMaskedAiDemoTasks.find(item => item.flow?.manualOrder);
+        if (aiHandoff) {
+          const order = aiHandoff.flow.manualOrder;
+          rows.push({...window.maskedLeadDemo.aiHandoffLead, task: order.taskId, generatedAt: order.generatedAt, aiHandoff});
+        }
       }
       if (version !== requestVersion || !results.isConnected) return;
-      const reportRows = rows.filter(row => row.task && row.status !== 'pending' && (row.manualFollowup || row.manualFollowupHistory?.length));
+      const reportRows = rows.filter(row => row.task && row.status !== 'pending' && (row.manualFollowup || row.manualFollowupHistory?.length || row.aiHandoff));
       const selectedChannel = channelField.value || filter.hqFilterRChannel;
       for (const channel of new Set([...reportRows.map(row => row.channel), selectedChannel].filter(Boolean))) {
         if (![...channelField.options].some(option => option.value === channel)) channelField.add(new Option(channel, channel));
       }
       channelField.value = selectedChannel || '';
-      const items = reportRows.map(row => ({row, visits: row.manualFollowupHistory?.length ? row.manualFollowupHistory : [row.manualFollowup]}))
+      const items = reportRows.map(row => ({row, visits: row.manualFollowupHistory?.length ? row.manualFollowupHistory : row.manualFollowup ? [row.manualFollowup] : []}))
         .filter(({row, visits}) => opsManualValueMatches(row.task, filter.hqFilterTaskCode)
           && opsManualValueMatches(row.original, filter.hqFilterClueCode)
           && opsManualValueMatches(row.name, filter.hqFilterCustName)
           && (!filter.hqFilterRChannel || row.channel === filter.hqFilterRChannel)
           && (!filter.hqFilterVerification || getOpsMaskedVerificationState(row) === filter.hqFilterVerification)
           && opsManualValueMatches([row.owner, worklist.agents[row.owner]].join(' '), filter.hqFilterAgentAccount)
-          && opsManualReportDateMatches(opsMaskedReportDate((row.manualFollowup || visits[0]).visitedAt).slice(0, 10), filter))
-        .sort((a, b) => window.maskedMonitoring.timestamp((b.row.manualFollowup || b.visits[0]).visitedAt)
-          - window.maskedMonitoring.timestamp((a.row.manualFollowup || a.visits[0]).visitedAt));
+          && opsManualReportDateMatches(opsMaskedReportDate((row.manualFollowup || visits[0])?.visitedAt || row.generatedAt).slice(0, 10), filter))
+        .sort((a, b) => window.maskedMonitoring.timestamp((b.row.manualFollowup || b.visits[0])?.visitedAt || b.row.generatedAt)
+          - window.maskedMonitoring.timestamp((a.row.manualFollowup || a.visits[0])?.visitedAt || a.row.generatedAt));
       const summary = `<div class="pagination"><span>共 ${items.length} 条记录</span></div>`;
       if (!items.length) {
         results.innerHTML = '<p class="hq-masked-report-message" role="status">暂无符合条件的回访记录</p>' + summary;
@@ -1490,7 +1502,7 @@ function bindOpsMaskedManualReport(container) {
         <table class="mw-report-table hq-manual-report-table hq-masked-report-table">
           <thead><tr>${opsMaskedColumns.map(label => `<th scope="col">${label}</th>`).join('')}</tr></thead>
           <tbody>${items.map(({row, visits}, index) => {
-            const latest = row.manualFollowup || visits[0];
+            const latest = row.manualFollowup || visits[0] || {};
             const originalSeries = row.intentSeriesName || row.series;
             const currentSeries = Object.hasOwn(latest.intent || {}, 'carSeriesId') && latest.intent.carSeriesId !== row.series
               ? latest.intent.carSeriesId : originalSeries;
@@ -1554,6 +1566,7 @@ function renderOpsHqNurtureReportPage() {
   ];
 
   const manualReport = opsHqNurtureActiveTab === 'callTaskDetail';
+  const aiReport = opsHqNurtureActiveTab === 'aiCallTaskDetail';
   const maskedManual = isOpsMaskedManualReport();
   const currentTabObj = tabs.find(t => t.key === opsHqNurtureActiveTab) || tabs[0];
 
@@ -1569,7 +1582,7 @@ function renderOpsHqNurtureReportPage() {
         `).join('')}
       </nav>`}
       <section class="mw-report-filter-card ${isManualTestDriveLeadEntry ? 'appointment-manual-filter' : ''} ${opsHqNurtureActiveTab === 'messageRecord' ? 'sms-records-filter-card' : ''}" role="search" aria-label="${currentTabObj.label}筛选查询" style="background:#fff; border-radius:${isManualTestDriveLeadEntry ? '8px' : '10px'}; padding:16px 18px; margin-bottom:${isManualTestDriveLeadEntry ? '14px' : '16px'}; border:1px solid ${isManualTestDriveLeadEntry ? '#e4eaf3' : '#e2e8f0'}; box-shadow:${isManualTestDriveLeadEntry ? 'none' : '0 1px 3px rgba(0,0,0,0.02)'};">
-        ${opsHqNurtureActiveTab === 'callTaskDetail' ? renderOpsHqFilterFields('callTaskDetail')
+        ${manualReport || aiReport ? renderOpsHqFilterFields(opsHqNurtureActiveTab)
           : opsHqNurtureActiveTab === 'messageRecord' ? renderOpsSmsRecordFilter() : isManualTestDriveLeadEntry ? `
         <!-- 试驾排程工单：标准线索筛选器（首行6关键字段+查询重置，支持全渠道来源过滤，更多筛选按需折叠） -->
         <div class="lead-search-panel" style="display:flex; flex-direction:column; gap:12px; width:100%;">
@@ -1673,14 +1686,14 @@ function renderOpsHqNurtureReportPage() {
         ` : `
         <div class="hq-report-list-header">
           <h3 style="margin:0; font-size:16px; font-weight:700; color:#0f172a;">${currentTabObj.label}</h3>
-          ${maskedManual ? '' : `<div class="hq-list-toolbar">
-            ${manualReport ? '' : `<span class="hq-list-count">共 ${getOpsHqNurtureRowCount(opsHqNurtureActiveTab)} 条记录</span>`}
+          ${maskedManual || opsAiMaskedSource() ? '' : `<div class="hq-list-toolbar">
+            ${manualReport || aiReport ? '' : `<span class="hq-list-count">共 ${getOpsHqNurtureRowCount(opsHqNurtureActiveTab)} 条记录</span>`}
             ${opsHqNurtureActiveTab === 'testDriveDetail' ? '' : '<button type="button" onclick="exportOpsHqNurtureReport()">导出数据</button>'}
-            ${manualReport ? '' : '<button type="button" onclick="renderOpsHqNurtureReportPage()">刷新</button>'}
+            ${manualReport || aiReport ? '' : '<button type="button" onclick="renderOpsHqNurtureReportPage()">刷新</button>'}
           </div>`}
         </div>
         `}
-        ${maskedManual ? '<div id="opsMaskedReportResults"></div>' : ['callTaskDetail', 'aiCallTaskDetail'].includes(opsHqNurtureActiveTab) ? renderSpecificOpsHqNurtureTable(opsHqNurtureActiveTab) : `<div style="overflow-x:auto;">${renderSpecificOpsHqNurtureTable(opsHqNurtureActiveTab)}</div>`}
+        ${maskedManual ? '<div id="opsMaskedReportResults"></div>' : aiReport ? `<div id="opsAiTaskReportResults">${renderOpsAiTaskTable()}</div>` : manualReport ? renderSpecificOpsHqNurtureTable(opsHqNurtureActiveTab) : `<div style="overflow-x:auto;">${renderSpecificOpsHqNurtureTable(opsHqNurtureActiveTab)}</div>`}
       </section>
     </div>
   `;
@@ -1704,7 +1717,7 @@ function restoreOpsHqNurtureDraftFilters(container) {
 }
 
 function applyOpsHqNurtureVisibleFilters(container) {
-  if (opsHqNurtureActiveTab === 'messageRecord') return;
+  if (['messageRecord', 'aiCallTaskDetail'].includes(opsHqNurtureActiveTab)) return;
   const saved = opsHqNurtureDraftFilters[opsHqNurtureActiveTab] || {};
   const terms = Object.entries(saved).filter(([id, value]) => value && !/Date|Time|Score/.test(id)
     && !(opsHqNurtureActiveTab === 'callTaskDetail' && opsManualSharedFields.includes(id)));
@@ -2405,24 +2418,27 @@ document.addEventListener('click', (e) => {
   }
 });
 
-function renderOpsReportPagination(totalCount, pageSize = 10, currentPage = 1, totalPages = 1) {
+function renderOpsReportPagination(totalCount, pageSize = 10, currentPage = 1, totalPages = 1, onChange) {
   return `
     <div class="pagination">
       <span>共 ${totalCount} 条记录，当前第 ${currentPage} / ${totalPages} 页</span>
       <div class="pagination-btns">
-        <select class="hit-page-size">
+        <select class="hit-page-size" ${onChange ? `aria-label="每页条数" onchange="${onChange}(1, Number(this.value), '每页条数')"` : ''}>
           <option value="5"${pageSize === 5 ? ' selected' : ''}>每页 5 条</option>
           <option value="10"${pageSize === 10 ? ' selected' : ''}>每页 10 条</option>
           <option value="20"${pageSize === 20 ? ' selected' : ''}>每页 20 条</option>
           <option value="50"${pageSize === 50 ? ' selected' : ''}>每页 50 条</option>
         </select>
-        <button class="page-btn disabled" type="button" disabled>
+        <button class="page-btn${!onChange || currentPage <= 1 ? ' disabled' : ''}" type="button" aria-label="上一页" ${!onChange || currentPage <= 1 ? 'disabled' : `onclick="${onChange}(${currentPage - 1}, ${pageSize}, '上一页')"`}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
-        <select class="hit-page-size">
-          <option value="${currentPage}" selected>第 ${currentPage} 页</option>
+        <select class="hit-page-size" ${onChange ? `aria-label="当前页" onchange="${onChange}(Number(this.value), ${pageSize}, '当前页')"` : ''}>
+          ${onChange ? Array.from({ length: totalPages }, (_, index) => {
+            const page = index + 1;
+            return `<option value="${page}"${page === currentPage ? ' selected' : ''}>第 ${page} 页</option>`;
+          }).join('') : `<option value="${currentPage}" selected>第 ${currentPage} 页</option>`}
         </select>
-        <button class="page-btn disabled" type="button" disabled>
+        <button class="page-btn${!onChange || currentPage >= totalPages ? ' disabled' : ''}" type="button" aria-label="下一页" ${!onChange || currentPage >= totalPages ? 'disabled' : `onclick="${onChange}(${currentPage + 1}, ${pageSize}, '下一页')"`}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
       </div>
@@ -2435,103 +2451,6 @@ function formatOpsHqCellValue(value) {
 }
 
 function renderSpecificOpsHqNurtureTable(tabKey) {
-  if (tabKey === 'aiCallTaskDetail') {
-    const data = opsAiCallTaskMockData.filter(item => {
-      if (opsHqNurtureFilter.keyword && !item.taskCode.toLowerCase().includes(opsHqNurtureFilter.keyword.toLowerCase().trim())) return false;
-      if (opsHqNurtureFilter.customerName && !item.customerName.includes(opsHqNurtureFilter.customerName.trim())) return false;
-      if (opsHqNurtureFilter.phone && !item.phone.includes(opsHqNurtureFilter.phone.trim())) return false;
-      if (opsHqNurtureFilter.seriesCode && !item.intentSeries.includes(opsHqNurtureFilter.seriesCode)) return false;
-      if (opsHqNurtureFilter.initScore && !matchInitScoreFilter(item.initScore, opsHqNurtureFilter.initScore)) return false;
-      return true;
-    });
-    return `
-      <div class="hq-report-table-scroll" role="region" aria-label="AI外呼任务明细列表，可横向滚动" tabindex="0">
-        <table class="mw-report-table" style="width:100%; border-collapse:collapse; font-size:12px; text-align:left; white-space:nowrap;">
-          <thead>
-            <tr style="background:#f8fafc; color:#64748b;">
-              <th style="padding:10px 8px;">序号</th>
-              <th style="padding:10px 8px;">回访工单编码</th>
-              <th style="padding:10px 8px;">意向车系</th>
-              <th style="padding:10px 8px;">意向专营店</th>
-              <th style="padding:10px 8px;">最新线索状态</th>
-              <th style="padding:10px 8px;">最新意向级别</th>
-              <th style="padding:10px 8px; color:#2563eb;">初始预评分</th>
-              <th style="padding:10px 8px;">SMARTCODE</th>
-              <th style="padding:10px 8px;">首次线索状态</th>
-              <th style="padding:10px 8px;">首次意向级别</th>
-              <th style="padding:10px 8px;">首次线索来源</th>
-              <th style="padding:10px 8px;">培育沟通方式</th>
-              <th style="padding:10px 8px;">外呼类型</th>
-              <th style="padding:10px 8px;">同步外呼系统状态</th>
-              <th style="padding:10px 8px;">同步外呼系统时间</th>
-              <th style="padding:10px 8px;">人工客服外呼编码</th>
-              <th style="padding:10px 8px;">AI智能外呼编码</th>
-              <th style="padding:10px 8px;">AI外呼通话ID</th>
-              <th style="padding:10px 8px;">更新时间</th>
-              <th style="padding:10px 8px;">是否逾期</th>
-              <th style="padding:10px 8px;">超期状态</th>
-              <th style="padding:10px 8px;">及时首触</th>
-              <th style="padding:10px 8px;">人工手动下发</th>
-              <th style="padding:10px 8px;">人工手动下发更新时间</th>
-              <th style="padding:10px 8px;">人工外呼无人接通场景</th>
-              <th style="padding:10px 8px;">初始线索来源</th>
-              <th style="padding:10px 8px;">是否留资未满</th>
-              <th style="padding:10px 8px;">线索来源平台</th>
-              <th style="padding:10px 8px;">操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${data.length === 0 ? `
-              <tr>
-                <td colspan="29" style="padding:36px; text-align:center; color:#94a3b8; font-size:13px;">
-                  暂无符合当前“初始预评分”等条件的AI外呼任务记录
-                </td>
-              </tr>
-            ` : data.map((item, idx) => `
-              <tr style="border-bottom:1px solid #eef2f7;">
-                <td style="padding:10px 8px; text-align:center;">${idx + 1}</td>
-                <td style="padding:10px 8px; font-weight:600; color:#0f172a;">${formatOpsHqCellValue(item.taskCode)}</td>
-                <td style="padding:10px 8px;">${formatOpsHqCellValue(item.intentSeries)}</td>
-                <td style="padding:10px 8px;">${formatOpsHqCellValue(item.dealerName)}</td>
-                <td style="padding:10px 8px;">${formatOpsHqCellValue(item.latestStatus)}</td>
-                <td style="padding:10px 8px; font-weight:bold; color:#d97706;">${formatOpsHqCellValue(item.latestLevel)}</td>
-                <td style="padding:10px 8px; font-weight:700; color:#2563eb;">${item.initScore !== undefined && item.initScore !== null ? item.initScore + '分' : '—'}</td>
-                <td style="padding:10px 8px; font-family:monospace;">${formatOpsHqCellValue(item.smartCode)}</td>
-                <td style="padding:10px 8px;">${formatOpsHqCellValue(item.firstStatus ?? item.initialStatus)}</td>
-                <td style="padding:10px 8px;">${formatOpsHqCellValue(item.firstLevel ?? item.initialLevel)}</td>
-                <td style="padding:10px 8px;">${formatOpsHqCellValue(item.firstSource)}</td>
-                <td style="padding:10px 8px;">${formatOpsHqCellValue(item.commMethod)}</td>
-                <td style="padding:10px 8px;">${formatOpsHqCellValue(item.outboundType)}</td>
-                <td style="padding:10px 8px;">
-                  <span style="display:inline-block; padding:2px 6px; border-radius:4px; font-size:11px; background:${item.syncStatus === '成功' ? '#dcfce7' : item.syncStatus === '失败' ? '#fee2e2' : '#f1f5f9'}; color:${item.syncStatus === '成功' ? '#166534' : item.syncStatus === '失败' ? '#991b1b' : '#64748b'};">${formatOpsHqCellValue(item.syncStatus)}</span>
-                </td>
-                <td style="padding:10px 8px; color:#64748b;">${formatOpsHqCellValue(item.syncTime)}</td>
-                <td style="padding:10px 8px;">${formatOpsHqCellValue(item.manualAgentCode)}</td>
-                <td style="padding:10px 8px;">${formatOpsHqCellValue(item.aiAgentCode)}</td>
-                <td style="padding:10px 8px; font-family:monospace;">${formatOpsHqCellValue(item.aiCallId)}</td>
-                <td style="padding:10px 8px; color:#64748b;">${formatOpsHqCellValue(item.updatedAt)}</td>
-                <td style="padding:10px 8px; text-align:center;">${formatOpsHqCellValue(item.isOverdue)}</td>
-                <td style="padding:10px 8px; text-align:center;">${formatOpsHqCellValue(item.overdueStatus)}</td>
-                <td style="padding:10px 8px; text-align:center;">${formatOpsHqCellValue(item.promptFirstTouch)}</td>
-                <td style="padding:10px 8px;">${formatOpsHqCellValue(item.manualDispatch)}</td>
-                <td style="padding:10px 8px; color:#64748b;">${formatOpsHqCellValue(item.manualDispatchTime)}</td>
-                <td style="padding:10px 8px; color:#64748b;">${formatOpsHqCellValue(item.manualUnconnectedScene)}</td>
-                <td style="padding:10px 8px;">${formatOpsHqCellValue(item.leadSource)}</td>
-                <td style="padding:10px 8px; text-align:center;">${formatOpsHqCellValue(item.isInfoIncomplete)}</td>
-                <td style="padding:10px 8px;">${formatOpsHqCellValue(item.leadPlatform)}</td>
-                <td style="padding:10px 8px;">
-                  <button class="mw-detail-link" type="button" onclick="openOpsAiCallWorkorderDetailModal('${item.taskCode}')">详情</button>
-                  <button type="button" style="border:none; background:none; color:#059669; font-weight:600; cursor:pointer; margin-left:6px;" onclick="openOpsAiCallWorkorderDetailModal('${item.taskCode}'); switchOpsAiCallWorkorderDetailTab('${item.taskCode}', 'aiCall');">听录音</button>
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-      ${renderOpsReportPagination(data.length)}
-    `;
-  }
-
   if (tabKey === 'testDriveDetail') {
     const data = getSortedTestDriveData();
     return `
@@ -3047,13 +2966,18 @@ function openManualTestDriveAppointmentLeadPage() {
 
 function applyOpsHqNurtureFilter() {
   const reportPage = document.getElementById('opsHqNurtureReportPage');
-  if (opsHqNurtureActiveTab === 'callTaskDetail') {
+  if (['callTaskDetail', 'aiCallTaskDetail'].includes(opsHqNurtureActiveTab)) {
     const filter = readOpsReportFilters(reportPage);
     if (filter.hqFilterStartDate && filter.hqFilterEndDate && filter.hqFilterStartDate > filter.hqFilterEndDate) {
-      showToast('开始日期不能晚于结束日期');
+      showToast('开始日期不能晚于结束日期', false);
+      reportPage.querySelector('#hqFilterStartDate')?.focus();
       return;
     }
-    if (isOpsMaskedManualReport()) opsMaskedReportFilter = filter;
+    if (opsHqNurtureActiveTab === 'aiCallTaskDetail') {
+      delete filter.hqFilterAiSource;
+      opsAiTaskReportState().filter = filter;
+      opsAiTaskReportState().page = 1;
+    } else if (isOpsMaskedManualReport()) opsMaskedReportFilter = filter;
     else opsHqNurtureDraftFilters.callTaskDetail = filter;
     renderOpsHqNurtureReportPage();
     return;
@@ -3093,8 +3017,6 @@ function applyOpsHqNurtureFilter() {
       showToast('短信记录筛选已更新', true);
     } else if (opsHqNurtureActiveTab === 'callTaskDetail') {
       showToast('人工外呼任务筛选已更新', true);
-    } else if (opsHqNurtureActiveTab === 'aiCallTaskDetail') {
-      showToast('AI外呼任务筛选已更新', true);
     } else {
       showToast('培育报表筛选条件已更新', true);
     }
@@ -3102,6 +3024,11 @@ function applyOpsHqNurtureFilter() {
 }
 
 function resetOpsHqNurtureFilter() {
+  if (opsHqNurtureActiveTab === 'aiCallTaskDetail') {
+    Object.assign(opsAiTaskReportState(), { filter: {}, page: 1 });
+    renderOpsHqNurtureReportPage();
+    return;
+  }
   if (isOpsMaskedManualReport()) {
     opsMaskedReportFilter = {};
     renderOpsHqNurtureReportPage();
@@ -3150,7 +3077,16 @@ function toggleOpsHqAdvancedFilter() {
 }
 
 function exportOpsHqNurtureReport() {
-  if (isOpsMaskedManualReport()) return;
+  if (isOpsMaskedManualReport() || opsAiMaskedSource()) return;
+  if (opsHqNurtureActiveTab === 'aiCallTaskDetail') {
+    const data = getFilteredOpsAiTasks();
+    if (!data.length) { showToast('暂无符合条件的AI外呼任务可导出', false); return; }
+    downloadExcelWorkbookFile('AI外呼任务明细_' + new Date().toISOString().slice(0, 10) + '.xls', [{
+      name: 'AI外呼任务明细', columns: ['序号', ...opsRegularAiTaskColumns.map(([label]) => label)],
+      rows: data.map((item, index) => [index + 1, ...opsRegularAiTaskColumns.map(([, key]) => item[key] ?? '—')])
+    }], '已导出 ' + data.length + ' 条AI外呼任务明细');
+    return;
+  }
   if (opsHqNurtureActiveTab === 'callTaskDetail') {
     const data = getFilteredOpsManualCallTasks();
     if (!data.length) { showToast('暂无符合条件的人工外呼任务可导出', false); return; }
@@ -7700,7 +7636,7 @@ function aiQualityTab1HTML() {
       ${aiTd(r.jtRateReference)}
     </tr>`).join('');
   return `
-    <div class="ai-quality-table-wrap">
+    <div class="ai-quality-table-wrap" role="region" aria-label="报表数据" tabindex="0">
       <table class="ai-quality-table">
         <thead>${head}</thead>
         <tbody>${body}</tbody>
@@ -7737,7 +7673,7 @@ function aiQualityTab2HTML() {
       ${aiTd(r.jtMgRateAbn, { abn: true })}
     </tr>`).join('');
   return `
-    <div class="ai-quality-table-wrap">
+    <div class="ai-quality-table-wrap" role="region" aria-label="报表数据" tabindex="0">
       <table class="ai-quality-table">
         <thead>${head}</thead>
         <tbody>${body}</tbody>
@@ -7772,7 +7708,7 @@ function aiQualityTab3HTML() {
       ${aiTd(r.pvClueCode)}
     </tr>`).join('');
   return `
-    <div class="ai-quality-table-wrap">
+    <div class="ai-quality-table-wrap" role="region" aria-label="报表数据" tabindex="0">
       <table class="ai-quality-table">
         <thead>${head}</thead>
         <tbody>${body}</tbody>
@@ -7794,8 +7730,13 @@ function aiQualitySearch() {
   opsAiQualityFilter.dateFrom = from;
   opsAiQualityFilter.dateTo = to;
   opsAiQualityFilter.channel = document.getElementById('aiQChannel').value;
-  opsAiQualityFilter.project = document.getElementById('aiQProject').value;
-  opsAiQualityFilter.cultivateType = document.getElementById('aiQCultivate').value;
+  if (opsAiQualityActiveTab !== 'taskStatistics') {
+    opsAiQualityFilter.project = document.getElementById('aiQProject').value;
+    opsAiQualityFilter.cultivateType = document.getElementById('aiQCultivate').value;
+    opsAiQualityFilter.source = document.getElementById('aiQSource').value;
+    opsAiQualityFilter.maskedVendor = document.getElementById('aiQMaskedVendor').value.trim();
+    opsAiQualityFilter.maskedTaskCode = document.getElementById('aiQMaskedTaskCode').value.trim();
+  }
   opsAiQualityApplied = Object.assign({}, opsAiQualityFilter);
   opsAiQualityPages = { qualityDailyReport: 1, errorDailyReport: 1, errorDailyList: 1 };
   renderOpsAiChannelQualityDailyPage();
@@ -7803,7 +7744,9 @@ function aiQualitySearch() {
 }
 function aiQualityReset() {
   const dr = aiQualityDefaultRange();
-  opsAiQualityFilter = { dateFrom: dr[0], dateTo: dr[1], channel: 'all', project: 'all', cultivateType: 'all' };
+  const common = { dateFrom: dr[0], dateTo: dr[1], channel: 'all' };
+  opsAiQualityFilter = opsAiQualityActiveTab === 'taskStatistics' ? { ...opsAiQualityFilter, ...common }
+    : { ...common, project: 'all', cultivateType: 'all' };
   opsAiQualityApplied = Object.assign({}, opsAiQualityFilter);
   opsAiQualityPages = { qualityDailyReport: 1, errorDailyReport: 1, errorDailyList: 1 };
   renderOpsAiChannelQualityDailyPage();
@@ -7816,6 +7759,77 @@ function aiQualityExport() {
   } else if (typeof showToast === 'function') showToast('下载列表尚未就绪，请刷新页面后重试', false);
 }
 
+function getMaskedAiQualityTasks() {
+  const filter = opsAiQualityApplied;
+  return opsMaskedAiDemoTasks.filter(row => row.date >= filter.dateFrom && row.date <= filter.dateTo &&
+    (filter.channel === 'all' || row.channel === filter.channel) &&
+    (opsAiQualityActiveTab === 'taskStatistics' || (filter.project === 'all' && filter.cultivateType !== '人工')) &&
+    (opsAiQualityActiveTab !== 'errorDailyList' || (
+      opsManualValueMatches(row.vendor, filter.maskedVendor) && opsManualValueMatches(row.taskCode, filter.maskedTaskCode))));
+}
+
+function renderMaskedAiTaskStatistics(tasks) {
+  const statusLabels = ['待派发', '处理中', '已完成', '转人工待分配'];
+  const countByStatus = rows => {
+    const groups = Map.groupBy(rows, row => statusLabels.includes(row.status) ? row.status : '处理中');
+    return statusLabels.map(status => groups.get(status)?.length || 0);
+  };
+  const labels = ['DCC 原任务', ...statusLabels];
+  const counts = [tasks.length, ...countByStatus(tasks)];
+  const columns = ['统计日期', 'R渠道', ...labels, '其中已退回', 'AI 子任务', '实际外呼', '到期拦截'];
+  const breakdown = [...Map.groupBy(tasks, row => row.date)].flatMap(([date, dated]) =>
+    [...Map.groupBy(dated, row => row.channel)].map(([channel, rows]) => {
+      const rounds = rows.flatMap(row => row.rounds);
+      return [date, channel, rows.length, ...countByStatus(rows), rows.filter(row => row.returned).length,
+        rounds.length, rounds.filter(round => round.call).length,
+        rows.filter(row => row.exception === '到期拦截' || row.flow?.blockedAtExpiry).length];
+    }));
+  return `
+    <dl class="ai-task-statistics-summary" aria-label="原任务状态总览">
+      ${labels.map((label, index) => `<div><dt>${label}</dt><dd>${aiQualityNf(counts[index])}</dd></div>`).join('')}
+    </dl>
+    <div class="ai-quality-table-wrap" role="region" aria-label="按日期和渠道统计" tabindex="0">
+      <table class="ai-quality-table"><thead><tr>${columns.map(label => `<th class="ai-quality-th" scope="col">${label}</th>`).join('')}</tr></thead>
+        <tbody>${breakdown.map(row => `<tr>${row.map(value => `<td class="ai-quality-td">${formatOpsHqCellValue(value)}</td>`).join('')}</tr>`).join('') ||
+        `<tr><td class="ai-quality-td" colspan="${columns.length}">暂无符合条件的 AI 原任务</td></tr>`}</tbody></table>
+    </div>
+    <p class="ai-quality-note">按原任务统计当前状态，已确认退回计入已完成。实际外呼按已有通话记录计数。</p>`;
+}
+
+function renderMaskedAiQualityRows(tasks) {
+  const groups = Map.groupBy(tasks, row => row.channel);
+  const exceptions = tasks.filter(row => row.exception);
+  const count = (rows, status) => rows.filter(row => row.exception === status).length;
+  const totals = [...groups].map(([channel, rows]) => {
+    const rounds = rows.flatMap(row => row.rounds);
+    const verified = rounds.filter(round => ['核验通过', '核验不通过'].includes(round.verification));
+    const passed = verified.filter(round => round.verification === '核验通过').length;
+    return [opsMaskedAiDay, channel, rows.length, rounds.length, rounds.filter(round => round.receipt === '已接单').length,
+      rounds.filter(round => round.call).length, rows.filter(row => row.exception === '到期拦截' || row.flow?.blockedAtExpiry).length, rounds.filter(round => round.candidate).length,
+      passed, verified.length - passed, verified.length ? `${Math.round(passed / verified.length * 100)}%` : '—',
+      rows.reduce((sum, row) => sum + Math.max(0, row.rounds.length - 1), 0),
+      rows.reduce((sum, row) => sum + (row.flow?.retries ?? row.receiptCheck?.retries ?? 0), 0),
+      rows.filter(row => row.returned).length, rows.filter(row => row.status === '转人工待分配').length];
+  });
+  const detail = opsAiQualityActiveTab === 'errorDailyList';
+  const daily = opsAiQualityActiveTab === 'errorDailyReport';
+  const labels = detail ? ['日期','R渠道','DCC任务编码','供应商','异常类型','DCC任务状态','处理结果'] :
+    daily ? ['日期','R渠道','接单待核对','确认未接单','供应商拒收','到期拦截','停拨待确认','未取得号码','退回待核对','回传待核对'] :
+    ['日期','R渠道','原任务量','AI任务量','供应商接单量','实际外呼量','到期拦截量','候选提交量','核验通过','核验不通过','核验通过率','重推量','接口补发量','已退回量','转人工待分配量'];
+  const rows = detail ? exceptions.map(row => [row.date, row.channel, row.taskCode, row.vendor, row.exception, row.status,
+    row.exception === '回传待核对' ? 'DCC已结案，临时池继续核对车巴巴回执' : row.result]) :
+    daily ? [...Map.groupBy(exceptions, row => row.channel)].map(([channel, group]) => [opsMaskedAiDay, channel,
+      ...labels.slice(2).map(label => count(group, label))]) : totals;
+  const html = `<div class="ai-quality-table-wrap" role="region" aria-label="抖音掩码AI统计" tabindex="0">
+    <table class="ai-quality-table"><thead><tr>${labels.map(label => `<th class="ai-quality-th" scope="col">${label}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map(row => `<tr>${row.map((value, index) => `<td class="ai-quality-td">${detail && index === 2
+      ? `<button type="button" class="hq-manual-table-link" onclick="showOpsAiCallWorkorderDetailPage('${value}', true)">${value}</button>`
+      : formatOpsHqCellValue(value)}</td>`).join('')}</tr>`).join('') ||
+      `<tr><td class="ai-quality-td" colspan="${labels.length}">暂无符合条件的抖音掩码留资记录</td></tr>`}</tbody></table></div>
+    ${!daily && !detail ? '<p class="ai-quality-note">核验通过率按已出结果的候选计算。到期拦截和接口补发不计入实际外呼量。</p>' : ''}`;
+  return {html, count: rows.length};
+}
+
 /* —— 主渲染函数 —— */
 function renderOpsAiChannelQualityDailyPage() {
   aiQualityCloseHelp();
@@ -7824,6 +7838,7 @@ function renderOpsAiChannelQualityDailyPage() {
 
   const tabs = [
     { key: 'qualityDailyReport', label: 'AI渠道质量日报' },
+    { key: 'taskStatistics', label: 'AI任务统计' },
     { key: 'errorDailyReport', label: '异常情况日报' },
     { key: 'errorDailyList', label: '异常情况明细清单' }
   ];
@@ -7835,32 +7850,41 @@ function renderOpsAiChannelQualityDailyPage() {
 
   const f = opsAiQualityFilter;
   const projectOpts = ['<option value="all">全部</option>'].concat(AI_DAILY_PROJECTS.map(p => `<option value="${p}"${f.project === p ? ' selected' : ''}>${p}</option>`)).join('');
-  const channelOpts = ['<option value="all">全部</option>'].concat(AI_DAILY_CHANNELS.map(c => `<option value="${c}"${f.channel === c ? ' selected' : ''}>${c}</option>`)).join('');
+  const channels = [...AI_DAILY_CHANNELS, 'R11'];
+  const channelOpts = ['<option value="all">全部</option>'].concat(channels.map(c => `<option value="${c}"${f.channel === c ? ' selected' : ''}>${c}</option>`)).join('');
 
+  const taskStatistics = opsAiQualityActiveTab === 'taskStatistics';
+  const statisticsTasks = taskStatistics ? getMaskedAiQualityTasks() : null;
+  const maskedRows = !taskStatistics && opsAiQualityApplied.source === 'masked' ? renderMaskedAiQualityRows(getMaskedAiQualityTasks()) : null;
   let tableBody = '';
-  if (opsAiQualityActiveTab === 'qualityDailyReport') tableBody = aiQualityTab1HTML();
+  if (taskStatistics) tableBody = renderMaskedAiTaskStatistics(statisticsTasks);
+  else if (maskedRows) tableBody = maskedRows.html;
+  else if (opsAiQualityActiveTab === 'qualityDailyReport') tableBody = aiQualityTab1HTML();
   else if (opsAiQualityActiveTab === 'errorDailyReport') tableBody = aiQualityTab2HTML();
   else tableBody = aiQualityTab3HTML();
 
-  const activeLabel = tabs.find(tab => tab.key === opsAiQualityActiveTab)?.label || tabs[0].label;
-  const activeTotal = opsAiQualityActiveTab === 'qualityDailyReport' ? aiQualityRows().length : opsAiQualityActiveTab === 'errorDailyReport' ? aiQualityErrorRows().length : aiQualityDetailRows().length;
+  const activeTotal = statisticsTasks?.length ?? maskedRows?.count ?? (opsAiQualityActiveTab === 'qualityDailyReport' ? aiQualityRows().length : opsAiQualityActiveTab === 'errorDailyReport' ? aiQualityErrorRows().length : aiQualityDetailRows().length);
   container.innerHTML = `
     <div class="ai-quality-page">
-      <div class="page-hero ai-quality-hero"><div><div class="page-title">AI渠道质量日报</div><div class="page-desc">按统计日期、R渠道、大项目及培育类型查看渠道质量与异常情况。</div></div><div class="summary-strip"><div class="summary-card"><div class="summary-label">当前报表</div><div class="summary-value ai-quality-summary-text">${activeLabel}</div></div><div class="summary-card"><div class="summary-label">当前结果</div><div class="summary-value">${activeTotal}</div></div></div></div>
-      <section class="ai-quality-filter-card" aria-label="筛选查询">
-        <div class="ai-quality-section-title">筛选查询</div>
-        <div class="ai-quality-filter-grid">
+      <nav class="strategy-config-tabs show" role="tablist" aria-label="报表类型">${tabs.map(t => `<button type="button" role="tab" aria-selected="${opsAiQualityActiveTab === t.key}" class="strategy-config-tab${opsAiQualityActiveTab === t.key ? ' active' : ''}" onclick="opsAiQualityActiveTab='${t.key}'; renderOpsAiChannelQualityDailyPage();">${t.label}</button>`).join('')}</nav>
+      <section class="card ai-quality-filter-card" aria-label="筛选查询">
+        <div class="lead-search-title">筛选查询</div>
+        <div class="ai-quality-filter-grid${taskStatistics ? ' is-task-statistics' : ''}">
+          ${taskStatistics ? '' : `<label class="ai-quality-field">业务来源<select class="form-input" id="aiQSource" onchange="document.getElementById('aiQMaskedDrilldown').hidden = this.value !== 'masked' || opsAiQualityActiveTab !== 'errorDailyList'"><option value="" ${f.source !== 'masked' ? 'selected' : ''}>常规培育</option><option value="masked" ${f.source === 'masked' ? 'selected' : ''}>抖音掩码留资</option></select></label>`}
           <label class="ai-quality-field ai-quality-date-field">统计日期<div class="ai-quality-date-range"><input class="form-input" type="date" id="aiQDateFrom" value="${f.dateFrom}" min="${minDate}" max="${maxDate}" aria-label="开始日期"><span>至</span><input class="form-input" type="date" id="aiQDateTo" value="${f.dateTo}" min="${minDate}" max="${maxDate}" aria-label="结束日期"></div></label>
-          <label class="ai-quality-field">R渠道<select class="form-input" id="aiQChannel">${channelOpts}</select></label>
-          <label class="ai-quality-field">大项目名<select class="form-input" id="aiQProject">${projectOpts}</select></label>
-          <label class="ai-quality-field">培育类型<select class="form-input" id="aiQCultivate"><option value="all"${f.cultivateType === 'all' ? ' selected' : ''}>全部</option><option value="AI"${f.cultivateType === 'AI' ? ' selected' : ''}>AI</option><option value="人工"${f.cultivateType === '人工' ? ' selected' : ''}>人工</option></select></label>
-          <div class="ai-quality-filter-actions"><button class="btn-blue-primary" type="button" onclick="aiQualitySearch()">查询</button><button class="btn-secondary" type="button" onclick="aiQualityReset()">重置</button></div>
+          <label class="ai-quality-field">R渠道<select class="form-input" id="aiQChannel" aria-label="R渠道">${channelOpts}</select></label>
+          ${taskStatistics ? '' : `<label class="ai-quality-field">大项目名<select class="form-input" id="aiQProject">${projectOpts}</select></label>
+          <label class="ai-quality-field">培育类型<select class="form-input" id="aiQCultivate"><option value="all"${f.cultivateType === 'all' ? ' selected' : ''}>全部</option><option value="AI"${f.cultivateType === 'AI' ? ' selected' : ''}>AI</option><option value="人工"${f.cultivateType === '人工' ? ' selected' : ''}>人工</option></select></label>`}
+          <div class="ai-quality-filter-actions"><button class="btn-add" type="button" onclick="aiQualitySearch()">查询</button><button class="btn-secondary" type="button" onclick="aiQualityReset()">重置</button></div>
+        </div>
+        <div class="ai-quality-drilldown" id="aiQMaskedDrilldown" ${f.source === 'masked' && opsAiQualityActiveTab === 'errorDailyList' ? '' : 'hidden'}>
+          <label class="ai-quality-field">供应商<input class="form-input" id="aiQMaskedVendor" value="${escapeHtml(f.maskedVendor || '')}"></label>
+          <label class="ai-quality-field">DCC任务编码<input class="form-input" id="aiQMaskedTaskCode" value="${escapeHtml(f.maskedTaskCode || '')}"></label>
         </div>
       </section>
-      <section class="ai-quality-results">
-        <div class="ai-quality-toolbar"><div class="ai-quality-section-title">报表结果 <span class="ai-quality-result-count">共 ${activeTotal} 条</span></div><div class="ai-quality-toolbar-actions"><button class="btn-secondary" type="button" onclick="openAiDailyEmailDrawer()">发送邮件</button><button class="btn-outline-blue" type="button" onclick="aiQualityExport()">创建示例导出任务</button></div></div>
-        <nav class="ai-quality-tabs" role="tablist" aria-label="报表类型">${tabs.map(t => `<button type="button" role="tab" aria-selected="${opsAiQualityActiveTab === t.key}" class="ai-quality-tab${opsAiQualityActiveTab === t.key ? ' active' : ''}" onclick="opsAiQualityActiveTab='${t.key}'; renderOpsAiChannelQualityDailyPage();">${t.label}</button>`).join('')}</nav>
-        <div class="ai-quality-table-panel">${tableBody}</div>
+      <section class="card ai-quality-results" aria-label="报表结果">
+        <div class="lead-toolbar ai-quality-toolbar">${taskStatistics ? '<div class="section-title">抖音掩码留资 <span class="ai-quality-result-count">演示数据</span></div>' : `<div class="section-title">报表结果 <span class="ai-quality-result-count">共 ${activeTotal} 条</span></div>${maskedRows ? '' : '<div class="ai-quality-toolbar-actions"><button class="btn-secondary" type="button" onclick="openAiDailyEmailDrawer()">发送邮件</button><button class="btn-add" type="button" onclick="aiQualityExport()">创建示例导出任务</button></div>'}`}</div>
+        ${tableBody}
       </section>
     </div>
   `;
@@ -8355,7 +8379,9 @@ const opsManualWorkordersMockData = [
 
 let opsManualWorkordersFilter = { startDate: '2026-08-01', endDate: '2026-08-26', keyword: '', followStatus: '', assignType: '', agentAccount: '' };
 let opsManualWorkorderDetailTab = 'detail';
-let opsActiveManualWorkorderDetailId = '';
+let opsActiveManualWorkorder = null;
+let opsManualVisitSelection = 'all';
+let opsManualCallSelection = null;
 let opsManualWorkorderReportSource = '';
 
 function renderOpsManualWorkordersPage() {
@@ -8436,41 +8462,25 @@ function exportOpsManualWorkordersReport() {
 }
 
 function showOpsManualWorkorderDetailPage(taskId, reportSource) {
-  let item = opsManualWorkordersMockData.find(d => d.taskId === taskId);
-  if (!item && typeof opsManualCallTaskMockData !== 'undefined') {
-    const manualTask = opsManualCallTaskMockData.find(d => d.taskCode === taskId);
-    if (manualTask) {
-      item = {
-        taskId: manualTask.taskCode,
-        leadId: manualTask.clueCode,
-        channelR: manualTask.rChannel,
-        customerName: manualTask.custName,
-        phone: manualTask.phone,
-        intentSeries: manualTask.series,
-        latestSeries: manualTask.latestSeries,
-        followStatus: manualTask.followStatus,
-        followCount: manualTask.followCount,
-        taskType: manualTask.taskType,
-        initialStatus: manualTask.initialClueStatus,
-        initialLevel: manualTask.initialLevel ? manualTask.initialLevel.replace('级', '') : 'H',
-        initScore: manualTask.initScore,
-        assignType: manualTask.assignType,
-        assignTime: manualTask.assignTime,
-        agentAccount: manualTask.agentAccount,
-        store: '广州天河专营店',
-        city: '广州',
-        notes: manualTask.lastResultReason
-      };
-    }
+  const task = opsManualCallTaskMockData.find(row => row.taskCode === taskId);
+  const item = task ? {
+    ...task, taskId: task.taskCode, leadId: task.clueCode, channelR: task.rChannel,
+    customerName: task.custName, intentSeries: task.series, initialStatus: task.initialClueStatus
+  } : opsManualWorkordersMockData.find(row => row.taskId === taskId);
+  if (!item) {
+    showToast('未找到对应的人工外呼工单', false);
+    return;
   }
   opsMaskedDetailItem = null;
-  showOpsManualWorkorderDetail(item || opsManualWorkordersMockData[0], reportSource);
+  showOpsManualWorkorderDetail(item, reportSource);
 }
 
 function showOpsManualWorkorderDetail(item, reportSource = '') {
   opsManualWorkorderReportSource = reportSource;
   const section = reportSource ? '总部培育报表' : '人工坐席工单';
-  opsActiveManualWorkorderDetailId = item.taskId;
+  opsActiveManualWorkorder = item;
+  opsManualVisitSelection = 'all';
+  opsManualCallSelection = null;
   opsManualWorkorderDetailTab = 'detail';
   document.querySelector('nav[aria-label="培育策略三级菜单"]')?.classList.add('hidden');
   document.querySelector('.leads-nav')?.classList.remove('show');
@@ -8478,26 +8488,67 @@ function showOpsManualWorkorderDetail(item, reportSource = '') {
   if (typeof setReportsNavActive === 'function') setReportsNavActive(section);
   if (typeof setSidebarActiveByName === 'function') setSidebarActiveByName('统计报表');
   if (typeof hideLeadPages === 'function') hideLeadPages();
+  if (typeof setPolicyContentVisible === 'function') setPolicyContentVisible(false);
   document.getElementById('designStage')?.classList.remove('show');
   if (typeof setPageName === 'function') setPageName(`业务模块 / 统计报表 / ${section} / 工单详情`);
   renderOpsManualWorkorderDetailPage(item);
   document.getElementById('opsManualWorkorderDetailPage')?.classList.add('show');
-  if (item === opsMaskedDetailItem) document.querySelector('#opsManualWorkorderDetailPage .detail-page-title')?.focus();
+  document.querySelector('#opsManualWorkorderDetailPage .detail-page-title')?.focus();
+}
+
+const opsWorkorderDetailTabs = [
+  ['detail', '任务详情'], ['aiCall', 'AI外呼录音'], ['tags', '对话标签'],
+  ['quality', '员工质检'], ['review', '智能预评'], ['timeline', '时光轴']
+];
+
+function renderOpsWorkorderDetailFrame(pageId, view) {
+  const page = document.getElementById(pageId);
+  if (!page) return;
+  const summary = [
+    ['任务编码', view.taskCode],
+    ['任务状态', view.status, view.status === '已完成' ? 'success' : 'primary'],
+    [view.masked ? '客户姓名/电话（脱敏）' : '客户姓名/电话', [view.customerName, view.phone].filter(Boolean).join(' ')],
+    ['意向车系', view.intentSeries],
+    ...view.summary
+  ];
+  const tabs = opsWorkorderDetailTabs.filter(([key]) => view.tabs.includes(key));
+  page.innerHTML = `
+    <header class="detail-page-header mw-workorder-detail-header">
+      <div>
+        <h1 class="detail-page-title hq-workorder-heading" tabindex="-1">${view.title}</h1>
+        <div class="detail-page-subtitle">业务模块 / 统计报表 / ${escapeHtml(view.path)} / ${formatOpsHqCellValue(view.taskCode)}</div>
+      </div>
+      <div class="lead-toolbar-right"><button class="btn-secondary" type="button" data-return-workorder>返回列表</button></div>
+    </header>
+    <section class="mw-workorder-detail-summary hq-workorder-summary" aria-label="${view.summaryLabel}">
+      ${summary.map(([label, value, tone]) => `<div><span>${label}</span><strong class="${tone || ''}">${formatOpsHqCellValue(value)}</strong></div>`).join('')}
+    </section>
+    <section class="mw-workorder-detail-content hq-shared-workorder-content">
+      <div class="hq-workorder-detail-tabs" role="group" aria-label="${view.tabsLabel}">
+        ${tabs.map(([key, label]) => `<button type="button" aria-pressed="${view.activeTab === key}" data-workorder-tab="${key}">${label}</button>`).join('')}
+      </div>
+      <div class="hq-workorder-detail-pane">${view.body}</div>
+    </section>`;
+  page.querySelector('[data-return-workorder]').onclick = view.onReturn;
+  for (const button of page.querySelectorAll('[data-workorder-tab]')) {
+    button.onclick = () => view.onTab(button.dataset.workorderTab);
+  }
 }
 
 function renderOpsManualWorkorderDetailPage(item) {
-  const page = document.getElementById('opsManualWorkorderDetailPage');
-  if (!page) return;
+  const source = opsManualWorkorderReportSource;
   const masked = item === opsMaskedDetailItem;
-  const cell = formatOpsHqCellValue;
-  const path = opsManualWorkorderReportSource
-    ? `总部培育报表 / 人工外呼任务明细 / ${masked ? '抖音掩码留资' : '常规培育'}`
+  const path = source
+    ? `总部培育报表 / 人工外呼任务明细 / ${source === 'masked' ? '抖音掩码留资' : '常规培育'}`
     : '人工坐席工单';
-  page.innerHTML = `
-    <div class="detail-page-header mw-workorder-detail-header"><div><div class="detail-page-title" tabindex="-1">查看人工坐席工单</div><div class="detail-page-subtitle">业务模块 / 统计报表 / ${path} / ${cell(item.taskId)}</div></div><div class="lead-toolbar-right"><button class="btn-secondary" type="button" onclick="returnToOpsManualWorkorderList()">返回列表</button></div></div>
-    <section class="mw-workorder-detail-summary ${masked ? 'hq-masked-workorder-summary' : ''}"><div><span>人工回访工单</span><strong>${cell(item.taskId)}</strong></div><div><span>跟进状态</span><strong class="${item.followStatus === '已完成' ? 'success' : 'primary'}">${cell(item.followStatus)}</strong></div><div><span>客户信息</span><strong>${cell([item.customerName, item.phone].filter(Boolean).join(' '))}</strong></div><div><span>意向车系</span><strong>${cell(item.intentSeries)}</strong></div><div><span>分配时间</span><strong>${cell(item.assignTime)}</strong></div><div><span>坐席账号</span><strong>${cell(item.agentAccount)}</strong></div></section>
-    <section class="mw-workorder-detail-content">${renderOpsManualWorkorderDetailContent(item)}</section>
-  `;
+  renderOpsWorkorderDetailFrame('opsManualWorkorderDetailPage', {
+    title: '查看人工坐席工单', path, taskCode: item.taskId, status: item.followStatus,
+    customerName: item.customerName, phone: item.phone, intentSeries: item.intentSeries, masked,
+    summaryLabel: '工单摘要', summary: [['责任坐席', item.agentAccount], ['下次回访时间', item.nextReviewTime || (masked ? new Map(item.overview).get('计划下次回访时间') : '')]],
+    tabsLabel: '工单详情分区', tabs: masked ? ['detail', 'aiCall'] : opsWorkorderDetailTabs.map(([key]) => key),
+    activeTab: opsManualWorkorderDetailTab, body: renderOpsManualWorkorderDetailContent(item),
+    onReturn: returnToOpsManualWorkorderList, onTab: tab => switchOpsManualWorkorderDetailTab(item.taskId, tab)
+  });
 }
 
 function openOpsWorkorderDetailModal(taskId, reportSource) {
@@ -8505,262 +8556,425 @@ function openOpsWorkorderDetailModal(taskId, reportSource) {
 }
 
 function switchOpsManualWorkorderDetailTab(taskId, tab) {
-  if (opsMaskedDetailItem?.taskId === taskId) {
-    opsManualWorkorderDetailTab = tab;
-    renderOpsManualWorkorderDetailPage(opsMaskedDetailItem);
-    document.querySelector('#opsManualWorkorderDetailPage [aria-pressed="true"]')?.focus();
-    return;
-  }
-  let item = opsManualWorkordersMockData.find(d => d.taskId === taskId);
-  if (!item && typeof opsManualCallTaskMockData !== 'undefined') {
-    const manualTask = opsManualCallTaskMockData.find(d => d.taskCode === taskId);
-    if (manualTask) {
-      item = {
-        taskId: manualTask.taskCode,
-        leadId: manualTask.clueCode,
-        channelR: manualTask.rChannel,
-        customerName: manualTask.custName,
-        phone: manualTask.phone,
-        intentSeries: manualTask.series,
-        latestSeries: manualTask.latestSeries,
-        followStatus: manualTask.followStatus,
-        followCount: manualTask.followCount,
-        taskType: manualTask.taskType,
-        initialStatus: manualTask.initialClueStatus,
-        initialLevel: manualTask.initialLevel ? manualTask.initialLevel.replace('级', '') : 'H',
-        initScore: manualTask.initScore,
-        assignType: manualTask.assignType,
-        assignTime: manualTask.assignTime,
-        agentAccount: manualTask.agentAccount,
-        store: '广州天河专营店',
-        city: '广州',
-        notes: manualTask.lastResultReason
-      };
-    }
-  }
-  if (!item) item = opsManualWorkordersMockData[0];
+  if (opsActiveManualWorkorder?.taskId !== taskId) return;
   opsManualWorkorderDetailTab = tab;
-  if (document.getElementById('opsManualWorkorderDetailPage')?.classList.contains('show')) {
-    renderOpsManualWorkorderDetailPage(item);
+  renderOpsManualWorkorderDetailPage(opsActiveManualWorkorder);
+  document.querySelector('#opsManualWorkorderDetailPage .hq-workorder-detail-tabs [aria-pressed="true"]')?.focus();
+}
+
+// 使用原型中的演示客户和演示编号，补齐复查样例的回访、通话及质检数据。
+const opsManualDetailSamples = {
+  TASK20260916001: {
+    media: '微信公众号', project: '总部新能源小程序预约试驾（演示）',
+    aiCount: 3, manualCount: 4, leadStatus: '高意向', leadType: '一般留资线索',
+    leadSource: 'DNDC-车巴巴', capturedAt: '2026-09-16 09:12:00', gender: '男',
+    store: '广州天河专营店', ipLocation: '广州', smartcode: 'DEMO-SC-001',
+    ruleName: '渠道配置器', ruleId: 'DEMO-RULE-001', ruleVersion: '3',
+    agentLogin: 'demo-agent-d',
+    review: { label: '无效号码', score: 10, reason: '预评时判断该号码无法触达客户。',
+      summary: '最近一次留资日期为 2026-09-16，有效留资次数为 0。',
+      tags: [['最近一次留资日期', '2026-09-16'], ['有效留资次数', 0]] },
+    visits: [
+      { createdAt: '2026-09-16 09:42:03', description: '客户关注购车补贴，约定下次确认。', converted: '否' },
+      { createdAt: '2026-09-16 09:39:10', submittedAt: '2026-09-16 09:40:12', contact: '无人接听',
+        result: '下次回访', nextVisitAt: '2026-09-16 19:00:00', level: 'E', converted: '否',
+        description: '本次未接通，安排下次回访。', note: '无人接听' },
+      { createdAt: '2026-09-16 09:33:20', submittedAt: '2026-09-16 09:36:48', contact: '正常接通',
+        result: '下次回访', level: 'E', converted: '否', description: '确认意向车系，客户同意稍后联系。',
+        note: '客户关注试驾及车辆权益。', calls: [{
+          id: 'DEMO-MANUAL-CALL-003', duration: 74,
+          transcript: [
+            ['坐席', '2026-09-16 09:34:02', '您好，我是总部的试驾顾问，请问您还在关注探陆吗？'],
+            ['客户', '2026-09-16 09:34:08', '对，我还想了解一下试驾和置换政策。'],
+            ['坐席', '2026-09-16 09:34:14', '可以，我先介绍车辆权益，再跟您确认试驾时间。']
+          ],
+          summary: '客户关注探陆的试驾安排和置换权益。',
+          tags: [['客户意向信息', '探陆、置换'], ['时间信息', '稍后联系']],
+          concerns: ['试驾安排', '置换权益'],
+          quality: { base: 100, deduction: 35, compliance: [],
+            strengths: '开场身份清楚，能介绍车辆权益并主动了解试驾意愿。',
+            advice: '补充购车时间和用途的询问，结束前确认后续联系安排。',
+            groups: [
+              { name: '销售引导及话术标准', score: 57, passed: ['报品牌+自我介绍', '确认留资意愿', '问客户城市', '问购车方式', '主动邀请到店试驾', '主动报车辆权益', '主动报车辆价格'], missing: ['问购车时间', '问购车用途', '确认客户姓氏', '添加客户微信', '礼貌结束'] },
+              { name: '应对技巧', score: 50, passed: ['置换政策应答', '价格问题应答'], missing: ['不关注挽回技巧', '交叉引导应答', '产品配置应答', '贷款政策应答'] },
+              { name: '服务态度', score: 100, passed: ['服务热情度', '通话礼仪'], missing: [] },
+              { name: '通话行为', score: 100, passed: ['无效沟通', '静默回复'], missing: [] }
+            ] }
+        }] },
+      { createdAt: '2026-09-16 09:31:00', submittedAt: '2026-09-16 09:31:19', contact: '客户拒绝',
+        result: '下次回访', level: 'E', converted: '否', description: '本次通话很短，安排后续回访。',
+        calls: [{ id: 'DEMO-MANUAL-CALL-004', duration: 12, skipReason: '时长未达30秒的录音' }] }
+    ]
+  },
+  TASK20260916006: {
+    media: '总部自媒体-抖音', project: '总部自媒体直播投放（演示）',
+    aiCount: 3, manualCount: 3, leadStatus: '高意向', leadType: '一般留资线索',
+    capturedAt: '2026-09-10 15:54:12', gender: '男', intentLevel: 'B（计划3个月内购车）',
+    store: '赣州南康专营店（演示）', ipLocation: '赣州', smartcode: 'DEMO-SC-006',
+    ruleName: '渠道配置器', ruleId: 'DEMO-RULE-006', ruleVersion: '3', agentLogin: 'demo-agent-e',
+    visits: [
+      { createdAt: '2026-09-16 14:19:49', converted: '否',
+        description: '总部验证号码有效，本次未接通，请门店跟进处理。', note: '无人接听' },
+      { createdAt: '2026-09-16 11:25:46', submittedAt: '2026-09-16 11:26:29',
+        contact: '无人接听', result: '下次回访', level: 'E', nextVisitAt: '2026-09-16 19:00:00',
+        converted: '否', description: '本次未接通，安排下次回访。', note: '无人接听' },
+      { createdAt: '2026-09-14 14:48:54', submittedAt: '2026-09-14 14:48:59',
+        contact: '客户拒绝', result: '下次回访', level: 'E', nextVisitAt: '2026-09-17 19:00:00',
+        converted: '否', description: '客户未继续沟通。' }
+    ]
   }
+};
+
+function getOpsRegularManualVisits(item) {
+  const sample = opsManualDetailSamples[item.taskId];
+  const latest = item.lastFollowTime ? {
+    submittedAt: item.lastFollowTime, contact: item.lastTouchStatus, result: item.lastReturnResult,
+    nextVisitAt: item.nextReviewTime, level: item.lastLevel, reason: item.lastResultReason
+  } : null;
+  if (!sample?.visits.length) return latest ? [latest] : [];
+  return [{ ...latest, ...sample.visits[0] }, ...sample.visits.slice(1)];
+}
+
+function renderOpsRegularWorkorderDetail(item) {
+  const sample = opsManualDetailSamples[item.taskId] || {};
+  const visits = getOpsRegularManualVisits(item);
+  const sections = [
+    ['跟进概况', [
+      ['接收时间', item.receiveTime], ['跟进状态', item.followStatus], ['跟进次数', item.followCount],
+      ['最新跟进时间', item.lastFollowTime], ['计划下次回访时间', item.nextReviewTime], ['是否逾期', item.isOverdue],
+      ['最新回访结果', item.lastReturnResult], ['最新接触状态', item.lastTouchStatus], ['最新意向级别', item.lastLevel],
+      ['最新线索结果原因', item.lastResultReason, 'wide']
+    ]],
+    ['任务处理信息', [
+      ['初始意向级别', item.initialLevel], ['初始化预评分', item.initScore == null ? '' : item.initScore + '分'],
+      ['初始线索状态', item.initialStatus], ['线索R渠道', item.channelR], ['媒体名称', sample.media],
+      ['新任务类型', item.newTaskType], ['大项目名', sample.project, 'wide'],
+      ['人工手动下发', item.manualDispatch], ['人工手动下发更新时间', item.manualDispatchTime],
+      ['人工外呼无人接通场景', item.noConnectScene], ['推送到预外呼状态', item.pushPreCallStatus],
+      ['试驾排程试点线索', item.driveSchedule], ['任务异常原因', item.taskExpReason],
+      ['培育次数-AI', sample.aiCount], ['培育次数-人工', sample.manualCount]
+    ]],
+    ['线索记录', [
+      ['培育线索编码', item.leadId], ['联系电话', item.phone], ['客户姓名', item.customerName],
+      ['性别', sample.gender], ['备用电话', sample.backupPhone], ['意向门店', sample.store ?? item.store],
+      ['意向级别', sample.intentLevel], ['意向车辆', item.intentSeries], ['最新留资车系', item.latestSeries],
+      ['留资时间', sample.capturedAt], ['线索类型', sample.leadType], ['线索来源', sample.leadSource ?? item.initialClueSource],
+      ['用户微信号', sample.wechat], ['线索描述', sample.leadDescription], ['IP归属地', sample.ipLocation],
+      ['SC', sample.smartcode], ['线索备注', sample.leadNote ?? item.notes], ['线索状态', sample.leadStatus],
+      ['保客车型', sample.retainedSeries], ['规则名称', sample.ruleName], ['规则ID', sample.ruleId],
+      ['规则版本', sample.ruleVersion], ['策略版本名称', sample.strategyName], ['策略版本ID', sample.strategyId]
+    ]],
+    ['分配信息', [
+      ['分配账号', sample.agentLogin], ['分配账号名称', item.agentAccount], ['分配时间', item.assignTime],
+      ['分配规则', item.assignRule]
+    ]],
+    ...visits.map((visit, index) => ['回访记录 ' + (index + 1), [
+      ['创建时间', visit.createdAt], ['提交状态', visit.submittedAt ? '已提交' : ''], ['提交时间', visit.submittedAt],
+      ['沟通方式', '人工外呼-官方号'], ['接触状态', visit.contact], ['回访结果', visit.result],
+      ['意向级别', visit.level], ['客户性别', sample.gender], ['计划下次回访时间', visit.nextVisitAt],
+      ['下发门店', visit.store], ['意向车辆', item.intentSeries], ['购车方式', visit.purchaseMethod],
+      ['计划购买时间', visit.purchaseTime], ['备用电话', visit.backupPhone], ['预计到店时间', visit.arrivalTime],
+      ['添加企微', visit.wechat], ['结果原因', visit.reason], ['提交人', sample.agentLogin ? sample.agentLogin + ' · ' + item.agentAccount : ''],
+      ['预评级分数', visit.score], ['异常原因', visit.exception], ['是否预评分转换', visit.converted]
+    ], [
+      ['回访描述', visit.description], ['备注信息', visit.note],
+      ['通话文本', visit.calls?.flatMap(call => call.transcript || [])], ['下发原因小结', visit.dispatchSummary]
+    ]])
+  ];
+  const notice = [
+    item.followStatus === '任务终止' && item.nextReviewTime && item.nextReviewTime !== '-' ? '任务已终止，计划下次回访时间为历史记录。' : '',
+    item.followCount > visits.length ? `当前可查看 ${visits.length} 条回访记录，任务累计跟进 ${item.followCount} 次。` : ''
+  ].filter(Boolean).join(' ');
+  return renderOpsWorkorderSections(item, sections, notice);
+}
+
+function renderOpsWorkorderFields(fields) {
+  return fields.map(([label, value, layout, tone]) => {
+    const empty = !hasOpsWorkorderValue(value);
+    const wide = !empty && (layout === 'wide' && String(value).length > 24 || String(value).length > 40);
+    const valueClass = empty ? 'is-empty' : tone ? `is-${tone}` : label === '初始化预评分' ? 'is-primary' : '';
+    return `<div${wide ? ' class="is-wide"' : ''}>
+      <dt>${escapeHtml(label)}</dt><dd${valueClass ? ` class="${valueClass}"` : ''}>${empty ? '—' : formatOpsHqCellValue(value)}</dd>
+    </div>`;
+  }).join('');
+}
+
+function hasOpsWorkorderValue(value) {
+  return value != null && !['', '-', '—'].includes(String(value).trim());
+}
+
+function renderOpsWorkorderVisit(title, fields, notes = []) {
+  const visitOrder = ['创建时间', '提交状态', '提交时间', '沟通方式', '接触状态', '回访结果',
+    '意向级别', '客户性别', '计划下次回访时间', '下发门店', '意向车辆', '购车方式'];
+  const descriptions = notes.filter(([label, value]) => label !== '通话文本' && hasOpsWorkorderValue(value));
+  const lines = notes.find(([label]) => label === '通话文本')?.[1];
+  return `<section class="hq-workorder-visit">
+    <h3 class="hq-classic-section-title">${escapeHtml(title)}</h3>
+    <dl class="hq-task-field-grid">${renderOpsWorkorderFields(orderOpsWorkorderFields(fields, visitOrder))}</dl>
+    ${descriptions.length ? `<dl class="hq-task-visit-notes">${renderOpsWorkorderFields(descriptions)}</dl>` : ''}
+    ${lines?.length ? renderOpsWorkorderTranscriptDisclosure(title, lines) : ''}
+  </section>`;
+}
+
+function renderOpsWorkorderTranscriptDisclosure(title, lines) {
+  return `<details class="wod-chat-stream">
+        <summary class="wod-chat-summary">
+          <span class="wod-chat-heading"><strong>通话录音转写</strong><span>${lines.length} 条</span></span>
+          <span class="wod-chat-action"><span class="wod-chat-expand">展开</span><span class="wod-chat-collapse">收起</span></span>
+        </summary>
+        <div class="wod-chat-scroll" role="region" aria-label="${escapeHtml(title)}的通话录音转写" tabindex="0">
+          <ul class="wod-chat-list">
+          ${lines.map(([speaker, time, text]) => {
+            const isCust = speaker === '客户';
+            return `<li class="wod-chat-bubble${isCust ? '' : ' is-agent'}">
+              <div class="wod-chat-meta">
+                <span class="wod-pill ${isCust ? 'wod-pill-gray' : 'wod-pill-blue'}">${escapeHtml(speaker)}</span>
+                <time>${escapeHtml(time)}</time>
+              </div>
+              <div class="wod-chat-text">${escapeHtml(text)}</div>
+            </li>`;
+          }).join('')}
+          </ul>
+        </div>
+      </details>`;
+}
+
+function renderOpsWorkorderConversation(lines) {
+  if (!lines?.length) return '<p>暂无通话文本</p>';
+  return `<ol>${lines.map(([speaker, time, message]) => `<li>
+    <div class="hq-visit-speaker"><span class="${speaker === '客户' ? 'is-customer' : ''}">${escapeHtml(speaker)}</span><time>${escapeHtml(time)}</time></div>
+    <div class="hq-visit-message">${escapeHtml(message)}</div>
+  </li>`).join('')}</ol>`;
+}
+
+function orderOpsWorkorderFields(fields, order) {
+  const orderedFields = new Map(fields.map(field => [field[0], field]));
+  return [...order.map(label => orderedFields.get(label)).filter(Boolean),
+    ...fields.filter(([label]) => !order.includes(label))];
+}
+
+function renderOpsWorkorderSections(task, sections, notice = '') {
+  const mainSectionNames = ['跟进概况', '任务处理信息'];
+  const overview = sections.filter(([title]) => mainSectionNames.includes(title)).flatMap(([, fields]) => fields);
+  const order = [
+    '接收时间', '跟进状态', '跟进次数', '最新跟进时间', '计划下次回访时间', '是否逾期',
+    '最新回访结果', '最新线索结果原因', '初始意向级别', '初始化预评分', '最新意向级别', '线索R渠道',
+    '媒体名称', '大项目名', '初始线索状态', '人工手动下发', '人工手动下发更新时间', '人工外呼无人接通场景',
+    '推送到预外呼状态', '试驾排程试点线索', '新任务类型', '任务异常原因', '培育次数-AI', '培育次数-人工'
+  ];
+  const commonLeadFields = ['培育线索编码', '培育线索编码（原线索编码）', '线索R渠道', '客户姓名',
+    '联系电话', '联系电话（原始掩码号）', '意向车辆', '当前意向车系', '线索来源'];
+  const channel = overview.find(([label]) => label === '线索R渠道');
+  const otherSections = sections.filter(([title]) => !mainSectionNames.includes(title));
+  return `<div class="hq-classic-workorder-body">
+    <h2 class="hq-classic-task-id">任务编码 <strong>${formatOpsHqCellValue(task.taskId)}</strong></h2>
+    <dl class="hq-task-field-grid hq-task-overview">${renderOpsWorkorderFields(orderOpsWorkorderFields(overview.filter(field => field !== channel), order))}</dl>
+    ${otherSections.map(([title, fields, notes]) => title.startsWith('回访记录')
+      ? renderOpsWorkorderVisit(title, fields, notes)
+      : `<section>
+        <h3 class="hq-classic-section-title">${escapeHtml(title)}</h3>
+        <dl class="hq-task-field-grid">${renderOpsWorkorderFields(title === '线索记录'
+          ? orderOpsWorkorderFields(channel ? [...fields, channel] : fields, commonLeadFields) : fields)}</dl>
+      </section>`).join('')}
+    ${notice ? `<p class="hq-workorder-section-note">${escapeHtml(notice)}</p>` : ''}
+  </div>`;
+}
+
+function renderOpsManualTranscript(lines) {
+  if (!lines?.length) return '<p class="hq-workorder-section-note">暂无通话文本</p>';
+  return `<ol class="hq-manual-transcript">${lines.map(([speaker, time, text]) => `<li>
+    <span>${escapeHtml(speaker)} · ${escapeHtml(time)}</span><div>${escapeHtml(text)}</div>
+  </li>`).join('')}</ol>`;
+}
+
+function getOpsManualDetailCalls() {
+  if (!opsActiveManualWorkorder || opsActiveManualWorkorder === opsMaskedDetailItem) return [];
+  return getOpsRegularManualVisits(opsActiveManualWorkorder).flatMap((visit, index) =>
+    (visit.calls || []).map(call => ({ ...call, visit: index })));
+}
+
+function updateOpsManualCallSelection(visit, callIndex, focusId) {
+  opsManualVisitSelection = visit;
+  opsManualCallSelection = callIndex;
+  renderOpsManualWorkorderDetailPage(opsActiveManualWorkorder);
+  document.getElementById(focusId)?.focus();
+}
+
+function exportOpsManualCallData(callIndex, kind) {
+  const call = getOpsManualDetailCalls()[callIndex];
+  const tags = kind === 'tags';
+  const records = tags ? call?.tags : call?.transcript;
+  if (!records?.length) return;
+  const title = tags ? '客户标签' : '通话文本';
+  const columns = tags ? ['类别', '标签'] : ['角色', '时间', '通话文本'];
+  const csv = [columns, ...records].map(row => row.map(csvEscape).join(','));
+  downloadCsvFile(call.id + '_' + title + '.csv', csv, '已导出当前通话' + title);
+}
+
+function renderOpsManualQualityResult(quality, appeals) {
+  const score = quality.base - quality.deduction;
+  const summary = `<section class="hq-workorder-section">
+    <h3>本次质检</h3>
+    <div class="hq-quality-overview">
+      <div class="hq-quality-score">
+        <span>质检总分</span>
+        <div class="hq-quality-score-value"><strong>${score}</strong><span>分</span></div>
+        <dl><div><dt>满分基准</dt><dd>${quality.base} 分</dd></div>
+          <div><dt>指标细项扣分</dt><dd>−${quality.deduction} 分</dd></div></dl>
+      </div>
+      <div class="hq-quality-dimensions">
+        <h4>模型诊断</h4>
+        ${quality.groups.map(({ name, score: points }) => `<div class="hq-quality-dimension">
+          <div><span>${escapeHtml(name)}</span><strong>${points} 分</strong></div>
+          <meter min="0" max="100" value="${points}" aria-label="${escapeHtml(name)}"></meter>
+        </div>`).join('')}
+      </div>
+      <div class="hq-quality-guidance">
+        <h4>诊断内容及建议</h4>
+        <dl><div><dt>优势</dt><dd>${formatOpsHqCellValue(quality.strengths)}</dd></div>
+          <div><dt>改进建议</dt><dd>${formatOpsHqCellValue(quality.advice)}</dd></div></dl>
+      </div>
+    </div>
+  </section>`;
+  const standards = `<section class="hq-workorder-section hq-quality-standards">
+    <header><h3>客服规范</h3><p>可申诉细项 ${appeals} 个</p></header>
+    ${quality.groups.map(({name, passed, missing}) => `<details>
+      <summary><span>${escapeHtml(name)}</span><small>${missing.length ? missing.length + ' 项未完成' : '全部达标'}</small></summary>
+      <ul>${[...missing.map(label => [label, '未完成']), ...passed.map(label => [label, '已达标'])].map(([label, status]) => `
+        <li><span>${escapeHtml(label)}</span><span>${status}</span></li>`).join('')}</ul>
+    </details>`).join('')}
+  </section>`;
+  return { summary, standards };
+}
+
+function renderOpsManualCallReview(item, qualityMode) {
+  const visits = getOpsRegularManualVisits(item);
+  const allCalls = getOpsManualDetailCalls();
+  const visibleCalls = allCalls.map((call, index) => ({ call, index })).filter(({ call }) =>
+    opsManualVisitSelection === 'all' || call.visit === opsManualVisitSelection);
+  const current = visibleCalls.find(({ index }) => index === opsManualCallSelection) || visibleCalls[0];
+  const call = current?.call;
+  const panel = (title, body) => `<section class="hq-workorder-section"><h3>${title}</h3>${body}</section>`;
+  const layout = qualityMode ? 'hq-workorder-sections hq-quality-layout' : 'hq-workorder-sections';
+  const button = (label, id, checked, action) => `<button class="${qualityMode ? 'hq-quality-picker' : 'btn-secondary'}" type="button" id="${id}" aria-pressed="${checked}" onclick="${action}">${label}</button>`;
+  const appealCount = records => records.reduce((count, entry) => count +
+    (entry.quality?.groups.reduce((total, group) => total + group.missing.length, 0) || 0), 0);
+  const visitName = (label, records) => {
+    const count = appealCount(records);
+    return qualityMode && count ? label + ' · ' + count + ' 项可申诉' : label;
+  };
+  const selectVisit = (label, value, records) => {
+    const id = 'opsManualReviewVisit-' + value;
+    return button(visitName(label, records), id, opsManualVisitSelection === value,
+      `updateOpsManualCallSelection(${value === 'all' ? "'all'" : value}, null, '${id}')`);
+  };
+  const selectors = panel('回访与通话', visits.length ? `
+    <div class="hq-manual-review-buttons" role="group" aria-label="筛选回访">
+      ${qualityMode ? '<span class="hq-quality-picker-label">回访</span>' : ''}
+      ${selectVisit('全部回访', 'all', allCalls)}
+      ${visits.map((_, index) => selectVisit('回访记录 ' + (index + 1), index, allCalls.filter(call => call.visit === index))).join('')}
+    </div>
+    <div class="hq-manual-review-buttons" role="group" aria-label="选择通话">
+      ${qualityMode && visibleCalls.length ? '<span class="hq-quality-picker-label">通话</span>' : ''}
+      ${visibleCalls.map(({ index, call: entry }) => button(visitName('通话记录 ' + (index + 1), [entry]),
+        'opsManualReviewCall-' + index, index === current.index,
+        `updateOpsManualCallSelection(${entry.visit === opsManualVisitSelection ? entry.visit : "'all'"}, ${index}, 'opsManualReviewCall-${index}')`)).join('')}
+    </div>
+    ${call ? `<p class="hq-workorder-section-note">归属回访记录 ${call.visit + 1} · 通话时长 ${call.duration} 秒
+      ${call.audioUrl ? '' : ' · 暂无可播放的录音'}</p>
+      ${call.audioUrl ? `<audio controls preload="none" src="${escapeHtml(call.audioUrl)}" aria-label="播放当前通话录音"></audio>` : ''}`
+      : '<p class="hq-workorder-section-note">所选回访暂无通话记录</p>'}`
+    : '<p class="hq-workorder-section-note">暂无回访记录</p>');
+  if (!call) return `<div class="${layout}">${selectors}</div>`;
+
+  const exportButton = call.transcript?.length
+    ? `<button type="button" class="hq-manual-table-link" onclick="exportOpsManualCallData(${current.index}, 'transcript')">导出录音文本</button>` : '';
+  if (qualityMode) {
+    const transcript = `<section class="hq-workorder-section hq-visit-conversation hq-quality-transcript">
+      <header><h3>当前通话会话记录</h3>${exportButton}</header>
+      ${renderOpsWorkorderConversation(call.transcript)}
+    </section>`;
+    const quality = call.quality;
+    if (!quality) {
+      const message = call.skipReason ? '不质检原因 · ' + escapeHtml(call.skipReason) : '暂无质检结果';
+      return `<div class="${layout}">${selectors}${panel('本次质检', `<p class="hq-quality-empty">${message}</p>`)}${transcript}</div>`;
+    }
+    const { summary, standards } = renderOpsManualQualityResult(quality, appealCount([call]));
+    const compliance = panel('合规及红线', quality.compliance.length
+      ? `<ul>${quality.compliance.map(entry => `<li>${escapeHtml(entry)}</li>`).join('')}</ul>`
+      : '<p class="hq-quality-empty">可申诉项 0</p>');
+    return `<div class="${layout}">${selectors}${summary}
+      <div class="hq-quality-evidence"><div class="hq-quality-checks">${standards}${compliance}</div>${transcript}</div>
+    </div>`;
+  }
+  const transcript = panel('当前通话会话记录', exportButton + renderOpsManualTranscript(call.transcript));
+  const tags = panel('标签信息', `
+    ${call.tags?.length ? `<button type="button" class="hq-manual-table-link" onclick="exportOpsManualCallData(${current.index}, 'tags')">导出客户标签</button>` : ''}
+    ${call.skipReason ? `<p class="hq-workorder-section-note">不质检原因 · ${escapeHtml(call.skipReason)}</p>` : ''}
+    <h4>客户小结</h4><p>${formatOpsHqCellValue(call.summary || '暂无客户小结')}</p>
+    ${call.tags?.length ? `<dl>${call.tags.map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`).join('')}</dl>`
+      : '<p class="hq-workorder-section-note">暂无标签信息</p>'}
+    <h4>关注点</h4><p>${formatOpsHqCellValue(call.concerns?.join('、') || '暂无关注点')}</p>`);
+  return `<div class="hq-workorder-sections">${selectors}<div class="hq-manual-review-split">${transcript}${tags}</div></div>`;
+}
+
+function renderOpsManualAiRecordingList(item) {
+  const columns = [
+    ['总部线索ID', 'leadId'], ['总部培育线索编码', 'clueCode'], ['总部培育线索AI回访编码', 'taskCode'],
+    ['外呼类型', 'outboundType'], ['通话ID', 'callId'], ['电话号码', 'phone'],
+    ['通话标签', 'tags'], ['微信号', 'wechat'], ['通话开始', 'startedAt']
+  ];
+  const masked = item === opsMaskedDetailItem;
+  const ai = item.aiHandoff;
+  const rows = ai ? ai.rounds.filter(round => round.call).map(round => ({
+    leadId: ai.leadId, taskCode: ai.taskCode, outboundType: 'AI外呼', callId: round.call, phone: ai.phone,
+    tags: round.tag, startedAt: round.at && `${ai.date} ${round.at}`
+  })) : masked ? [] : (item.aiRecordings || []);
+  return `<section class="hq-workorder-section"><h3>AI外呼录音</h3>
+    ${ai ? `<button type="button" class="hq-manual-table-link" onclick="showOpsAiCallWorkorderDetailPage('${ai.taskCode}')">查看来源 AI 外呼与核验记录</button>
+      ${renderOpsAiDetailFields(ai.rounds.filter(round => round.candidateId).map(round => [round.candidateId,
+        [round.call, round.verification].filter(Boolean).join(' · ')]))}` : ''}
+    <div class="hq-report-table-scroll hq-manual-ai-recordings" role="region" aria-label="AI外呼录音列表" tabindex="0">
+      <table class="mw-report-table"><thead><tr><th scope="col">序号</th>${columns.map(([label]) => `<th scope="col">${label}</th>`).join('')}<th scope="col">操作</th></tr></thead>
+      <tbody>${rows.map((row, index) => `<tr><td>${index + 1}</td>${columns.map(([, key]) => `<td>${formatOpsHqCellValue(row[key])}</td>`).join('')}
+        <td>${row.audioUrl ? `<audio controls preload="none" src="${escapeHtml(row.audioUrl)}" aria-label="播放AI外呼录音"></audio>` : '暂无录音文件'}</td></tr>`).join('')
+        || `<tr><td colspan="${columns.length + 2}" class="hq-manual-recording-empty">暂无AI外呼录音记录</td></tr>`}</tbody></table>
+    </div></section>`;
+}
+
+function renderOpsManualSmartReview(item) {
+  const review = opsManualDetailSamples[item.taskId]?.review;
+  if (!review) return '<section class="hq-workorder-section"><h3>智能预评</h3><p class="hq-workorder-section-note">暂无智能预评结果</p></section>';
+  return `<section class="hq-workorder-section"><h3>智能预评</h3>
+    <div class="hq-manual-review-rating"><strong>${escapeHtml(review.label)} · ${review.score}分</strong>
+      <meter min="0" max="100" value="${review.score}" aria-label="智能预评分"></meter></div>
+    <p>${escapeHtml(review.reason)}</p><h4>客户特征</h4><h5>画像小结</h5><p>${escapeHtml(review.summary)}</p>
+    <h5>行为标签</h5><dl>${review.tags.map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${formatOpsHqCellValue(value)}</dd></div>`).join('')}</dl>
+  </section>`;
+}
+
+function renderOpsManualWorkorderTimeline(item) {
+  const events = [
+    [item.receiveTime, '任务接收'],
+    [item.assignTime, '任务分配', item.agentAccount],
+    ...getOpsRegularManualVisits(item).map(visit => [visit.submittedAt, '回访已提交', [visit.contact, visit.result].filter(Boolean).join(' · ')])
+  ].filter(([time]) => time).sort((left, right) => right[0].localeCompare(left[0]));
+  return `<section class="hq-workorder-section"><h3>时光轴</h3>
+    ${events.length ? `<ol class="hq-manual-transcript">${events.map(([time, title, note]) => `<li>
+      <span>${escapeHtml(time)}</span><div><strong>${title}</strong>${note ? ' · ' + escapeHtml(note) : ''}</div>
+    </li>`).join('')}</ol>` : '<p class="hq-workorder-section-note">暂无任务事件</p>'}</section>`;
 }
 
 function renderOpsManualWorkorderDetailContent(item) {
-  const tabs = item === opsMaskedDetailItem
-    ? [['detail', '任务详情'], ['aiCall', 'AI外呼录音']]
-    : [['detail', '任务详情'], ['quality', '员工质检'], ['tags', '对话标签'],
-       ['aiCall', 'AI外呼录音'], ['timeline', '时光轴']];
-
-  // 1. 顶部 Tab 导航条 (与 Ant Design Drawer 顶部页签样式 1:1 对齐)
-  const tabsHeaderHtml = `
-    <div class="hq-workorder-detail-tabs" role="group" aria-label="工单详情分区" style="display:flex; gap:28px; border-bottom:1px solid #e2e8f0; margin-bottom:20px; padding:0 12px; background:#fff;">
-      ${tabs.map(([key, label]) => `
-        <button type="button" aria-pressed="${opsManualWorkorderDetailTab === key}" 
-                style="padding:12px 4px; border:none; background:none; font-size:14px; font-weight:${opsManualWorkorderDetailTab === key ? '700' : '400'}; color:${opsManualWorkorderDetailTab === key ? '#2563eb' : '#475569'}; border-bottom:${opsManualWorkorderDetailTab === key ? '3px solid #2563eb' : '3px solid transparent'}; cursor:pointer; transition:all 0.2s;"
-                onclick="switchOpsManualWorkorderDetailTab('${item.taskId}', '${key}')">
-          ${label}
-        </button>
-      `).join('')}
-    </div>
-  `;
-
-  if (item === opsMaskedDetailItem) return tabsHeaderHtml + renderOpsMaskedFullDetail(item);
-
-  // 2. 数据准备与分类面板 HTML 填充
-  let bodyContent = '';
-
-  const ratingByLevel = { H: { text: '高', score: 80, color: '#be123c' }, A: { text: '中', score: 68, color: '#d97706' }, B: { text: '中', score: 65, color: '#d97706' }, C: { text: '低', score: 45, color: '#2563eb' } };
-  const rating = ratingByLevel[item.initialLevel] || ratingByLevel.H;
-  const ratingTags = {
-    basic: [['年龄段', '25-35岁'], ['职业', '企业管理人员'], ['预测婚否', '已婚'], ['预测是否有孩', '有'], ['预测消费水平', '中高'], ['预测收入水平', '中高'], ['预测人生阶段', '家庭成长期'], ['预测人生关键节点', '换购期'], ['预测是否有车', '是'], ['预测有车品牌', '日产'], ['有车品牌等级', '合资'], ['职业_外部', '企业管理'], ['常住城市等级', '新一线'], ['城市组合', item.city || '广州'], ['区县组合', '天河区'], ['最新车品牌', '日产'], ['最新车车系', item.intentSeries || '轩逸'], ['预测手机品牌', '华为'], ['预测性别', '男'], ['预测学历', '本科']],
-    interaction: [['最近一次留资距今天数', '5天'], ['有效留资次数', '3次'], ['最近一次试驾距今天数', '3天'], ['最近一次到店距今天数', '3天'], ['试驾次数', '1次'], ['到店次数', '2次']],
-    preference: [['近三月平台访问次数', '28次'], ['融合兴趣标签(30天)', '科技数码']],
-    purchase: [['预约到店日期', '2026-09-18'], ['预计用车时间', '1个月内'], ['品牌认知', '高'], ['购车预算', '16-20万'], ['关注竞品', '比亚迪宋PLUS'], ['购车关注点', '智能化'], ['购车顾虑点', '保值率'], ['用车场景', '家庭出游'], ['购买形态', '换购'], ['付款方式', '贷款']]
-  };
-  const renderRatingGroup = (title, values) => `<section class="rating-feature-group" style="margin-top:12px;"><div class="rating-feature-heading" style="font-weight:700; color:#334155; margin-bottom:8px;"><h6>${title}</h6></div><div class="rating-feature-tags" style="display:flex; flex-wrap:wrap; gap:8px;">${values.map(([label, value]) => `<span style="background:#f1f5f9; padding:4px 8px; border-radius:4px; font-size:12px;"><em style="color:#64748b; margin-right:4px; font-style:normal;">${label}:</em><strong style="color:#0f172a;">${value}</strong></span>`).join('')}</div></section>`;
-  const ratingContent = `<div class="nurture-rating-panel mw-rating-panel" style="padding:16px; background:#fff; border-radius:8px;"><div class="rating-result-label" style="font-size:14px; font-weight:700; margin-bottom:12px;">对话标签与意向预评</div><div class="rating-score-strip" style="display:flex; align-items:center; gap:12px; margin-bottom:16px;"><strong class="rating-level" style="color:${rating.color}; font-size:20px;">${rating.text}级意向</strong><strong class="rating-score" style="font-size:24px; font-weight:800;">${rating.score}<small style="font-size:12px;">分</small></strong></div><section class="rating-summary-block" style="background:#f8fafc; padding:12px; border-radius:6px; margin-bottom:16px;"><div class="rating-summary-copy" style="font-size:13px; color:#334155;">当前评为<strong>${rating.text}等级</strong>：计划<strong>1个月内</strong>购车，关注<strong>${item.intentSeries || '探陆'}</strong>，预算<strong>16-20万</strong>；已产生<strong>${item.followCount || 4}次</strong>跟进，建议重点围绕到店试驾与补贴政策推进。</div></section><section class="rating-features-block"><h5 style="margin:0 0 8px 0; font-size:13px; font-weight:700;">客户特征标签</h5>${renderRatingGroup('基础画像', ratingTags.basic)}${renderRatingGroup('互动表现', ratingTags.interaction)}${renderRatingGroup('兴趣偏好', ratingTags.preference)}${renderRatingGroup('购车需求', ratingTags.purchase)}</section></div>`;
-
-  if (opsManualWorkorderDetailTab === 'quality') {
-    bodyContent = `<section class="mw-detail-pane" style="padding:16px; background:#fff; border-radius:8px;">
-      <div class="mw-quality-score" style="display:flex; align-items:center; gap:16px; margin-bottom:20px; padding:16px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px;">
-        <span style="font-size:14px; color:#166534; font-weight:600;">本次质检得分</span>
-        <strong style="font-size:32px; font-weight:800; color:#15803d;">92<small style="font-size:14px;"> 分</small></strong>
-        <span style="padding:2px 10px; background:#22c55e; color:#fff; font-size:12px; border-radius:12px; font-weight:700;">质检通过</span>
-      </div>
-      <div class="mw-quality-list" style="display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; margin-bottom:16px;">
-        <div style="background:#f8fafc; padding:12px; border-radius:6px; display:flex; justify-content:space-between;"><span>开场及身份确认</span><b style="color:#16a34a;">合规</b></div>
-        <div style="background:#f8fafc; padding:12px; border-radius:6px; display:flex; justify-content:space-between;"><span>需求信息确认</span><b style="color:#16a34a;">完整</b></div>
-        <div style="background:#f8fafc; padding:12px; border-radius:6px; display:flex; justify-content:space-between;"><span>产品与权益介绍</span><b style="color:#16a34a;">准确</b></div>
-        <div style="background:#f8fafc; padding:12px; border-radius:6px; display:flex; justify-content:space-between;"><span>服务规范与结束语</span><b style="color:#16a34a;">合规</b></div>
-      </div>
-      <p class="mw-detail-note" style="color:#475569; font-size:13px; line-height:1.6; background:#f1f5f9; padding:12px; border-radius:6px;"><strong>质检评语：</strong> 坐席话术标准规范，开场自我介绍清晰，成功引导客户确认下次回访时间与意向车系试驾要点。</p>
-    </section>`;
-  } else if (opsManualWorkorderDetailTab === 'tags') {
-    bodyContent = ratingContent;
-  } else if (opsManualWorkorderDetailTab === 'aiCall') {
-    bodyContent = `<section class="mw-detail-pane" style="padding:16px; background:#fff; border-radius:8px;">
-      <h4 style="margin:0 0 12px 0; font-size:14px; font-weight:700; color:#0f172a;">AI 外呼通话录音及转写明细</h4>
-      <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:16px; margin-bottom:16px;">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-          <div><span style="font-weight:700; font-size:13px; color:#0f172a;">通话时长: 1分25秒</span> <span style="font-size:12px; color:#64748b; margin-left:12px;">对话轮次: 6轮</span></div>
-          <span style="padding:2px 8px; background:#dbeafe; color:#1e40af; font-size:12px; border-radius:4px; font-weight:600;">科大讯飞AI语音引擎</span>
-        </div>
-        <audio controls style="width:100%; margin-bottom:12px;">
-          <source src="https://www.w3schools.com/html/horse.mp3" type="audio/mpeg">
-          您的浏览器不支持音频播放。
-        </audio>
-      </div>
-      <div style="font-size:13px; font-weight:700; color:#0f172a; margin-bottom:8px;">对话文字转写：</div>
-      <div style="display:flex; flex-direction:column; gap:10px; max-height:300px; overflow-y:auto; padding:12px; background:#fafafa; border:1px solid #f1f5f9; border-radius:6px;">
-        <div style="display:flex; gap:8px;"><strong style="color:#2563eb; min-width:48px;">AI坐席:</strong><span>您好！请问是${item.customerName || 'su测试1'}吗？这边是东风日产总部客户服务中心。</span></div>
-        <div style="display:flex; gap:8px;"><strong style="color:#059669; min-width:48px;">客户:</strong><span>是的，是我。</span></div>
-        <div style="display:flex; gap:8px;"><strong style="color:#2563eb; min-width:48px;">AI坐席:</strong><span>注意到您近期关注了${item.intentSeries || 'NX8'}，目前新车提供置换补贴与置换礼包，请问您方便预约本周去专营店试驾体验吗？</span></div>
-        <div style="display:flex; gap:8px;"><strong style="color:#059669; min-width:48px;">客户:</strong><span>可以的，本周六下午有空。</span></div>
-        <div style="display:flex; gap:8px;"><strong style="color:#2563eb; min-width:48px;">AI坐席:</strong><span>好的，已为您记录预约意向，稍后将安排专属电销顾问与您联系确认，祝您生活愉快！</span></div>
-      </div>
-    </section>`;
-  } else if (opsManualWorkorderDetailTab === 'timeline') {
-    bodyContent = `<section class="mw-detail-pane" style="padding:16px; background:#fff; border-radius:8px;">
-      <h4 style="margin:0 0 16px 0; font-size:14px; font-weight:700; color:#0f172a;">全旅程线索时光轴 (Timeline)</h4>
-      <div class="mw-workorder-timeline" style="border-left:2px solid #e2e8f0; padding-left:16px; margin-left:8px; display:flex; flex-direction:column; gap:16px;">
-        <div style="position:relative;">
-          <i style="position:absolute; left:-23px; top:4px; width:12px; height:12px; border-radius:50%; background:#2563eb;"></i>
-          <time style="font-size:12px; color:#64748b;">${item.assignTime || '2026-09-08 16:49:19'}</time>
-          <div style="font-size:13px; font-weight:700; color:#0f172a; margin-top:2px;">线索分配成功</div>
-          <div style="font-size:12px; color:#475569;">系统根据【按当前负载优先分配】规则，分配至坐席 ${item.agentAccount || 'dfn_cip_ob_nev_lc'}</div>
-        </div>
-        <div style="position:relative;">
-          <i style="position:absolute; left:-23px; top:4px; width:12px; height:12px; border-radius:50%; background:#16a34a;"></i>
-          <time style="font-size:12px; color:#64748b;">2026-09-08 16:52:46</time>
-          <div style="font-size:13px; font-weight:700; color:#0f172a; margin-top:2px;">人工外呼完成并提交记录</div>
-          <div style="font-size:12px; color:#475569;">接触状态: 无人接听 | 最新回访结果: 下次回访 | 意向级别: E级</div>
-        </div>
-        <div style="position:relative;">
-          <i style="position:absolute; left:-23px; top:4px; width:12px; height:12px; border-radius:50%; background:#eab308;"></i>
-          <time style="font-size:12px; color:#64748b;">2026-09-08 16:53:43</time>
-          <div style="font-size:13px; font-weight:700; color:#0f172a; margin-top:2px;">计划下次回访节点</div>
-          <div style="font-size:12px; color:#475569;">系统预定提醒回访</div>
-        </div>
-      </div>
-    </section>`;
-  } else {
-    // Default 'detail' Tab (任务详情): 包含完全对齐 media_1789525222159.png 的 3 列网格与灰色分类标题栏
-    bodyContent = `
-      <div style="background:#fff; padding:20px; border-radius:8px; font-size:13px; color:#334155;">
-        
-        <!-- 任务编码标题 -->
-        <div style="font-size:16px; font-weight:800; color:#0f172a; margin-bottom:16px; display:flex; align-items:center; gap:8px;">
-          <span>任务编码：</span>
-          <span>${item.taskId || '20260908164900000005'}</span>
-        </div>
-
-        <!-- 区域 1: 任务详情 3列网格 -->
-        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px 24px; margin-bottom:20px;">
-          <div><span style="color:#64748b;">接收时间：</span><span>${item.assignTime || '2026-09-08 16:49:19'}</span></div>
-          <div><span style="color:#64748b;">跟进状态：</span><span>${item.followStatus || '智能填单审核中'}</span></div>
-          <div><span style="color:#64748b;">跟进次数：</span><span>${item.followCount || 2}</span></div>
-
-          <div><span style="color:#64748b;">最新跟进时间：</span><span>2026-09-08 16:52:46</span></div>
-          <div><span style="color:#64748b;">计划下次回访时间：</span><span>2026-09-08 16:53:43</span></div>
-          <div><span style="color:#64748b;">是否逾期：</span><span>否</span></div>
-
-          <div><span style="color:#64748b;">最新回访结果：</span><span>下次回访</span></div>
-          <div><span style="color:#64748b;">最新线索结果原因：</span><span></span></div>
-          <div><span style="color:#64748b;">初始意向级别：</span><span>${item.initialLevel ? item.initialLevel + '级' : 'A级'}</span></div>
-
-          <div><span style="color:#64748b;">初始预评分：</span><strong style="color:#2563eb; font-weight:700;">${item.initScore !== undefined && item.initScore !== null ? item.initScore + '分' : '85分'}</strong></div>
-          <div><span style="color:#64748b;">最新意向级别：</span><span>${item.lastLevel || 'E级'}</span></div>
-          <div><span style="color:#64748b;">线索R渠道：</span><span>${item.channelR || 'R3-天网行动'}</span></div>
-          <div><span style="color:#64748b;">媒体名称：</span><span>百度有驾</span></div>
-
-          <div><span style="color:#64748b;">大项目名：</span><span>东风日产-总部-2025-2029-新能源小程序-预约试驾</span></div>
-          <div><span style="color:#64748b;">初始线索状态：</span><span>培育中</span></div>
-          <div><span style="color:#64748b;">人工手动下发：</span><span>-</span></div>
-
-          <div><span style="color:#64748b;">人工手动下发更新时间：</span><span>-</span></div>
-          <div><span style="color:#64748b;">人工外呼无人接通场景：</span><span>否</span></div>
-          <div><span style="color:#64748b;">推送到预外呼状态：</span><span>已收到外呼反馈</span></div>
-
-          <div><span style="color:#64748b;">试驾排程试点线索：</span><span>否</span></div>
-          <div><span style="color:#64748b;">新任务类型：</span><span>首次线索任务</span></div>
-          <div><span style="color:#64748b;">任务异常原因：</span><span></span></div>
-
-          <div><span style="color:#64748b;">培育次数-AI：</span><span>-</span></div>
-          <div><span style="color:#64748b;">培育次数-人工：</span><span>-</span></div>
-        </div>
-
-        <!-- 区域 2: 线索记录 灰色分界头 + 3列网格 -->
-        <div style="background:#f1f5f9; padding:6px 12px; font-weight:700; font-size:14px; color:#0f172a; margin-bottom:14px; border-radius:2px;">线索记录</div>
-        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px 24px; margin-bottom:20px;">
-          <div><span style="color:#64748b;">培育线索编码：</span><span>${item.leadId || '1808390868654300036867'}</span></div>
-          <div><span style="color:#64748b;">联系电话：</span><span>${item.phone || '15054288636'}</span></div>
-          <div><span style="color:#64748b;">客户姓名：</span><span>${item.customerName || 'su测试1'}</span></div>
-
-          <div><span style="color:#64748b;">性别：</span><span>男</span></div>
-          <div><span style="color:#64748b;">备用电话：</span><span>13609779076</span></div>
-          <div><span style="color:#64748b;">意向门店：</span><span>id:H2901-广州风日</span></div>
-
-          <div><span style="color:#64748b;">意向级别：</span><span>计划一个月内买车</span></div>
-          <div><span style="color:#64748b;">意向车辆：</span><span>${item.intentSeries || 'NX8'} - NX8</span></div>
-          <div><span style="color:#64748b;">最新留资车系：</span><span>-</span></div>
-
-          <div><span style="color:#64748b;">留资时间：</span><span>2026-01-14 17:30:00</span></div>
-          <div><span style="color:#64748b;">线索类型：</span><span>线索类型名称</span></div>
-          <div><span style="color:#64748b;">线索来源：</span><span>DNDC-车巴巴</span></div>
-
-          <div><span style="color:#64748b;">用户微信号：</span><span></span></div>
-          <div><span style="color:#64748b;">线索描述：</span><span>测试</span></div>
-          <div><span style="color:#64748b;">IP归属地：</span><span>广东广州</span></div>
-
-          <div><span style="color:#64748b;">SC：</span><span>C2025-51382-9599-617-2623061</span></div>
-          <div><span style="color:#64748b;">线索备注：</span><span>测试</span></div>
-          <div><span style="color:#64748b;">线索状态：</span><span>培育中</span></div>
-
-          <div><span style="color:#64748b;">保客车型：</span><span>444</span></div>
-        </div>
-
-        <!-- 区域 3: 分配信息 灰色分界头 -->
-        <div style="background:#f1f5f9; padding:6px 12px; font-weight:700; font-size:14px; color:#0f172a; margin-bottom:14px; border-radius:2px;">分配信息</div>
-        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px 24px; margin-bottom:20px; font-size:13px;">
-          <div><span style="color:#64748b;">分配账号：</span><span>dfn_cip_ob_nev_lc</span></div>
-          <div><span style="color:#64748b;">分配账号名称：</span><span>${item.agentAccount || '电销D组张敏'}</span></div>
-          <div><span style="color:#64748b;">分配时间：</span><span>${item.assignTime || '2026-09-08 16:49:19'}</span></div>
-          <div><span style="color:#64748b;">分配规则：</span><span>按当前负载优先分配</span></div>
-        </div>
-
-        <!-- 区域 4: 回访记录1 灰色分界头 + 3列网格 -->
-        <div style="background:#f1f5f9; padding:6px 12px; font-weight:700; font-size:14px; color:#0f172a; margin-bottom:14px; border-radius:2px;">回访记录1</div>
-        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px 24px; font-size:13px;">
-          <div><span style="color:#64748b;">创建时间：</span><span>2026-09-08 16:52:46</span></div>
-          <div><span style="color:#64748b;">提交状态：</span><span>已提交</span></div>
-          <div><span style="color:#64748b;">提交时间：</span><span>2026-09-08 16:52:46</span></div>
-
-          <div><span style="color:#64748b;">沟通方式：</span><span>人工外呼-官方号</span></div>
-          <div><span style="color:#64748b;">接触状态：</span><span>无人接听</span></div>
-          <div><span style="color:#64748b;">回访结果：</span><span>下次回访</span></div>
-
-          <div><span style="color:#64748b;">意向级别：</span><span>E</span></div>
-          <div><span style="color:#64748b;">客户性别：</span><span>男</span></div>
-          <div><span style="color:#64748b;">计划下次回访时间：</span><span>2026-09-08 16:53:43</span></div>
-
-          <div><span style="color:#64748b;">下发门店：</span><span></span></div>
-          <div><span style="color:#64748b;">意向车辆：</span><span>id:-</span></div>
-          <div><span style="color:#64748b;">购车方式：</span><span></span></div>
-
-          <div><span style="color:#64748b;">计划购买时间：</span><span></span></div>
-          <div><span style="color:#64748b;">备用电话：</span><span></span></div>
-          <div><span style="color:#64748b;">预计到店时间：</span><span></span></div>
-
-          <div><span style="color:#64748b;">添加企微：</span><span>不同意</span></div>
-          <div><span style="color:#64748b;">结果原因：</span><span></span></div>
-          <div><span style="color:#64748b;">提交人：</span><span>dfn_cip_ob_nev_lc@default-NEV线秀总部培育人工外呼2</span></div>
-        </div>
-
-      </div>
-    `;
+  const masked = item === opsMaskedDetailItem;
+  switch (opsManualWorkorderDetailTab) {
+    case 'aiCall': return renderOpsManualAiRecordingList(item);
+    case 'quality': return renderOpsManualCallReview(item, true);
+    case 'tags': return renderOpsManualCallReview(item, false);
+    case 'review': return renderOpsManualSmartReview(item);
+    case 'timeline': return renderOpsManualWorkorderTimeline(item);
+    default: return (masked ? renderOpsMaskedFullDetail(item) : renderOpsRegularWorkorderDetail(item));
   }
-
-  return tabsHeaderHtml + bodyContent;
 }
 
 
@@ -9050,8 +9264,249 @@ const opsAiCallTaskMockData = [
   }
 ];
 
-function showOpsAiCallWorkorderDetailPage(taskCode) {
-  const item = opsAiCallTaskMockData.find(d => d.taskCode === taskCode) || opsAiCallTaskMockData[0];
+const opsMaskedAiDay = new Intl.DateTimeFormat('sv-SE', {timeZone: 'Asia/Shanghai', dateStyle: 'short'})
+  .format(Date.now() - 86400000);
+const opsMaskedAiDemoTasks = [
+  {
+    taskCode: 'DCC-DY-AI-001', name: '林女士（演示）', phone: '*******4501',
+    status: '已完成', verification: '核验通过', result: '核验通过结案', exception: '回传待核对',
+    rounds: [
+      {id: 'DEMO-AI-001-01', receipt: '已接单', call: 'DEMO-CALL-001', at: '10:08', verification: '核验不通过', candidate: '138****4501'},
+      {id: 'DEMO-AI-001-02', receipt: '已接单', call: 'DEMO-CALL-002', at: '10:35', verification: '核验通过', candidate: '139****4511'}
+    ],
+    events: [
+      ['10:00', '下发隐私号及有效期，供应商确认接单'],
+      ['10:10', '临时池返回核验不通过，命中「掩码核验不通过」，在有效期内生成第 2 轮'],
+      ['10:36', '临时池确认当前候选核验通过，DCC 结案'],
+      ['10:37', '车巴巴合格回传待核对']
+    ]
+  },
+  {
+    taskCode: 'DCC-DY-AI-002', name: '周先生（演示）', phone: '*******4502',
+    status: '接单待核对', verification: '未提交', result: '按原 AI 子任务号查询供应商接单结果', exception: '接单待核对',
+    receiptCheck: { time: '11:00', result: 'unknown', retries: 0 },
+    rounds: [{id: 'DEMO-AI-002-01', receipt: '待核对'}],
+    events: [['11:00', '派单未取得有效回执，保留原 AI 子任务号']]
+  },
+  {
+    taskCode: 'DCC-DY-AI-003', name: '吴女士（演示）', phone: '*******4503',
+    status: '主管待处理', verification: '未提交', result: '排队后到期，拨前拦截', exception: '到期拦截',
+    rounds: [{id: 'DEMO-AI-003-01', receipt: '已接单'}],
+    events: [['14:30', '发布「隐私号即将失效」事件，供应商确认接收'], ['15:00', '发布「隐私号已失效」事件，供应商确认取消排队，未发起通话']]
+  },
+  {
+    taskCode: 'DCC-DY-AI-004', name: '高先生（演示）', phone: '*******4504',
+    status: '停拨待确认', verification: '未提交', result: '客户拒绝继续联系，等待供应商停拨确认', exception: '停拨待确认',
+    rounds: [{id: 'DEMO-AI-004-01', receipt: '已接单', call: 'DEMO-CALL-004', at: '13:20'}],
+    events: [['13:22', '发送停拨指令，保留拒绝联系标记']]
+  },
+  {
+    taskCode: 'DCC-DY-AI-005', name: '李女士（演示）', phone: '*******4505',
+    status: '退回待核对', verification: '未提交', result: '本轮外呼结束，未取得号码，等待临时池接收确认', exception: '退回待核对',
+    rounds: [{id: 'DEMO-AI-005-01', receipt: '已接单', call: 'DEMO-CALL-005', at: '13:40'}],
+    events: [['13:45', '拨打额度用尽，提交无号码退回']]
+  },
+  {
+    taskCode: 'DCC-DY-AI-006', name: '陈先生（演示）', phone: '*******4506',
+    status: '已完成', verification: '未提交', result: '临时池确认接收退回，DCC 结案', returned: true,
+    rounds: [{id: 'DEMO-AI-006-01', receipt: '已接单', call: 'DEMO-CALL-006', at: '14:05'}],
+    events: [['14:08', '无号码退回已取得临时池接收回执']]
+  },
+  {
+    taskCode: 'DCC-DY-AI-007', name: '赵女士（演示）', phone: '*******4507',
+    status: '核验中', verification: '核验中', result: '本轮外呼结束，已取得候选号，等待临时池',
+    rounds: [{id: 'DEMO-AI-007-01', receipt: '已接单', call: 'DEMO-CALL-007', at: '14:10', verification: '核验中', candidate: '138****4507'}],
+    events: [['14:12', 'DCC 提交候选号，暂停后续外呼']]
+  },
+  {
+    taskCode: 'DCC-DY-AI-008', name: '供应商联调样例', phone: '*******4588',
+    status: '待派发', verification: '未提交', result: '等待派发首轮 AI 子任务',
+    rounds: [], events: [], flow: maskedAiDemo.state()
+  },
+  {
+    taskCode: 'DCC-DY-AI-022', name: window.maskedLeadDemo.aiHandoffLead.name,
+    phone: window.maskedLeadDemo.phone(window.maskedLeadDemo.aiHandoffLead), leadId: window.maskedLeadDemo.aiHandoffLead.original,
+    manualTaskId: 'DCC-DY-DEMO-022', handoffTag: '需人工跟进',
+    status: '待派发', verification: '未提交', result: '等待派发首轮 AI 子任务',
+    rounds: [], events: [], flow: maskedAiDemo.state()
+  }
+].map((task, index) => ({
+  ...task, masked: true, leadId: task.leadId || 'DY-AI-DEMO-' + task.taskCode.slice(-3), channel: index < 5 ? 'R11' : 'R4', date: opsMaskedAiDay,
+  expiry: `${opsMaskedAiDay} 15:00:00`, vendor: 'AI 外呼供应商（演示）'
+}));
+
+let opsAiTaskSource = '';
+const opsAiTaskReports = {
+  regular: { filter: {}, page: 1, pageSize: 10 },
+  masked: { filter: {}, page: 1, pageSize: 10 }
+};
+
+const opsRegularAiTaskColumns = [
+  ['任务编码', 'taskCode'], ['培育线索编码', 'leadId'], ['线索R渠道', 'channelR'],
+  ['客户姓名', 'customerName'], ['联系电话', 'phone'], ['意向车系', 'intentSeries'],
+  ['外呼结果', 'callResult'], ['外呼次数', 'callCount'], ['更新时间', 'updatedAt'],
+  ['最新留资车系', 'latestSeries'], ['最新意向级别', 'latestLevel'], ['初始预评分', 'initScore'],
+  ['外呼类型', 'outboundType'], ['首次线索状态', 'firstStatus'], ['首次意向级别', 'firstLevel'],
+  ['最新回访结果', 'returnResult'], ['最新接触状态', 'touchStatus'],
+  ['意向专营店', 'dealerName'], ['最新线索状态', 'latestStatus'], ['SMARTCODE', 'smartCode'],
+  ['首次线索来源', 'firstSource'], ['培育沟通方式', 'commMethod'],
+  ['同步外呼系统状态', 'syncStatus'], ['同步外呼系统时间', 'syncTime'],
+  ['人工客服外呼编码', 'manualAgentCode'], ['AI智能外呼编码', 'aiAgentCode'], ['AI外呼通话ID', 'aiCallId'],
+  ['是否逾期', 'isOverdue'], ['超期状态', 'overdueStatus'], ['及时首触', 'promptFirstTouch'],
+  ['人工手动下发', 'manualDispatch'], ['人工手动下发更新时间', 'manualDispatchTime'],
+  ['人工外呼无人接通场景', 'manualUnconnectedScene'], ['初始线索来源', 'leadSource'],
+  ['是否留资未满', 'isInfoIncomplete'], ['线索来源平台', 'leadPlatform']
+];
+
+const opsMaskedAiTaskColumns = [
+  ['DCC任务编码', 'taskCode'], ['原线索编码', 'leadId'], ['线索R渠道', 'channelR'],
+  ['客户姓名', 'customerName'], ['联系电话（掩码）', 'phone'],
+  ['DCC任务状态', 'status'], ['手机号核验', 'verification'], ['AI外呼轮次', 'roundCount'],
+  ['隐私号截止时间', 'expiry'], ['最新处理结果', 'result'], ['最后更新时间', 'updatedAt'],
+  ['AI外呼供应商', 'vendor']
+];
+
+function opsAiMaskedSource() {
+  return opsHqNurtureActiveTab === 'aiCallTaskDetail' && opsAiTaskSource === 'masked';
+}
+
+function opsAiTaskReportState() {
+  return opsAiTaskReports[opsAiMaskedSource() ? 'masked' : 'regular'];
+}
+
+function switchOpsAiMaskedSource(value) {
+  opsAiTaskSource = value;
+  renderOpsHqNurtureReportPage();
+  document.getElementById('hqFilterAiSource')?.focus();
+}
+
+function getOpsAiTaskReportRows() {
+  if (opsAiMaskedSource()) {
+    return opsMaskedAiDemoTasks.map(row => ({
+      ...row, customerName: row.name, channelR: row.channel, roundCount: row.rounds.length,
+      updatedAt: row.events.length ? row.date + ' ' + row.events.at(-1)[0] : row.date
+    }));
+  }
+  return opsAiCallTaskMockData.map(row => ({
+    ...row, updatedAt: row.updatedAt ?? row.latestFollowTime, outboundType: row.outboundType ?? row.taskType,
+    firstStatus: row.firstStatus ?? row.initialStatus, firstLevel: row.firstLevel ?? row.initialLevel
+  }));
+}
+
+const opsAiSharedFilterFields = [
+  ['hqFilterTaskCode', '任务编码', 'taskCode'], ['hqFilterClueCode', '线索编码', 'leadId'],
+  ['hqFilterAiChannel', '线索R渠道', 'channelR', 'select'], ['hqFilterCustName', '客户姓名', 'customerName']
+];
+const opsAiRegularFilterFields = [
+  ['hqFilterCustTel', '联系电话', 'phone'], ['hqFilterSeries', '意向车系', 'intentSeries'],
+  ['hqFilterAiResult', '外呼结果', 'callResult', 'select'], ['hqFilterInitScore', '初始预评分', 'initScore', 'score'],
+  ['hqFilterAiOutboundType', '外呼类型', 'outboundType', 'select'],
+  ['hqFilterInitialStatus', '首次线索状态', 'firstStatus', 'select'],
+  ['hqFilterInitialLevel', '首次意向级别', 'firstLevel', 'select'],
+  ['hqFilterLatestLevel', '最新意向级别', 'latestLevel', 'select'],
+  ['hqFilterAiTouchStatus', '最新接触状态', 'touchStatus', 'select'],
+  ['hqFilterIsOverdue', '是否逾期', 'isOverdue', 'select'],
+  ['hqFilterInitialSource', '初始线索来源', 'leadSource', 'select']
+];
+const opsAiMaskedFilterFields = [
+  ['hqFilterCustTel', '联系电话', 'phone'],
+  ['hqFilterAiState', 'DCC任务状态', 'status', 'select'],
+  ['hqFilterAiVerification', '手机号核验', 'verification', 'select'],
+  ['hqFilterAiVendor', 'AI外呼供应商', 'vendor', 'select']
+];
+
+function getOpsAiTaskFilter() {
+  return {
+    hqFilterStartDate: opsAiMaskedSource() ? '' : '2026-08-01',
+    hqFilterEndDate: opsAiMaskedSource() ? '' : '2026-09-16',
+    ...opsAiTaskReportState().filter
+  };
+}
+
+function getFilteredOpsAiTasks() {
+  const filter = getOpsAiTaskFilter();
+  const advanced = opsAiMaskedSource() ? opsAiMaskedFilterFields : opsAiRegularFilterFields;
+  const fields = [...opsAiSharedFilterFields, ...advanced];
+  return getOpsAiTaskReportRows().filter(row =>
+    opsManualReportDateMatches(row.updatedAt?.slice(0, 10) || '', filter) &&
+    fields.every(([id, , key, type]) => {
+      if (!filter[id]) return true;
+      if (type === 'select') return row[key] === filter[id];
+      if (type === 'score') return matchInitScoreFilter(row[key], filter[id]);
+      return opsManualValueMatches(row[key], filter[id]);
+    }));
+}
+
+function renderOpsAiTaskFilters() {
+  const masked = opsAiMaskedSource();
+  const filter = getOpsAiTaskFilter();
+  const rows = getOpsAiTaskReportRows();
+  const field = ([id, label, key, type]) => {
+    const value = escapeHtml(filter[id] || '');
+    if (type === 'select') {
+      const values = [...new Set(rows.map(row => row[key]).filter(Boolean))];
+      return `<label for="${id}">${label}<select class="form-input" id="${id}">
+        <option value="">全部</option>${values.map(option => `<option value="${escapeHtml(option)}"${option === filter[id] ? ' selected' : ''}>${escapeHtml(option)}</option>`).join('')}
+      </select></label>`;
+    }
+    const placeholder = type === 'score' ? '例如 60-90' : '请输入';
+    return `<label for="${id}">${label}<input class="form-input" id="${id}" value="${value}" placeholder="${placeholder}"></label>`;
+  };
+  const primary = `
+    <label for="hqFilterAiSource">业务来源
+      <select class="form-input" id="hqFilterAiSource" onchange="switchOpsAiMaskedSource(this.value)">
+        <option value="">常规培育</option><option value="masked" ${masked ? 'selected' : ''}>抖音掩码留资</option>
+      </select>
+    </label>
+    <label class="hq-report-range"><span>更新时间</span><div class="date-range">
+      <input class="form-input date-input" type="date" id="hqFilterStartDate" aria-label="开始日期" value="${escapeHtml(filter.hqFilterStartDate)}">
+      <span class="date-range-sep">至</span>
+      <input class="form-input date-input" type="date" id="hqFilterEndDate" aria-label="结束日期" value="${escapeHtml(filter.hqFilterEndDate)}">
+    </div></label>
+    ${opsAiSharedFilterFields.map(field).join('')}`;
+  return renderOpsManualReportFilters(primary, (masked ? opsAiMaskedFilterFields : opsAiRegularFilterFields).map(field).join(''));
+}
+
+function renderOpsAiTaskTable() {
+  const masked = opsAiMaskedSource();
+  const columns = masked ? opsMaskedAiTaskColumns : opsRegularAiTaskColumns;
+  const rows = getFilteredOpsAiTasks();
+  const state = opsAiTaskReportState();
+  const pages = Math.max(1, Math.ceil(rows.length / state.pageSize));
+  state.page = Math.min(state.page, pages);
+  const offset = (state.page - 1) * state.pageSize;
+  const label = masked ? '抖音掩码AI外呼任务列表' : 'AI外呼任务明细列表';
+  const cell = (row, key) => {
+    const value = row[key];
+    if (key === 'taskCode') {
+      return `<button class="hq-manual-table-link" type="button" onclick="showOpsAiCallWorkorderDetailPage('${value}')">${escapeHtml(value)}</button>`;
+    }
+    if (['callResult', 'status', 'verification'].includes(key)) return renderOpsManualReportStatus(value);
+    if (key === 'initScore' && value != null) return formatOpsHqCellValue(value + '分');
+    return formatOpsHqCellValue(value);
+  };
+  return `<div class="hq-report-table-scroll" role="region" aria-label="${label}" tabindex="0">
+    <table class="mw-report-table hq-manual-report-table hq-ai-report-table">
+      <thead><tr><th scope="col">序号</th>${columns.map(([title]) => `<th scope="col">${title}</th>`).join('')}${masked ? '' : '<th scope="col" class="hq-ai-report-action">操作</th>'}</tr></thead>
+      <tbody>${rows.slice(offset, offset + state.pageSize).map((row, index) => `<tr>
+        <td>${offset + index + 1}</td>${columns.map(([, key]) => `<td>${cell(row, key)}</td>`).join('')}
+        ${masked ? '' : `<td class="hq-ai-report-action"><button type="button" class="hq-manual-table-link" onclick="showOpsAiCallWorkorderDetailPage('${row.taskCode}'); switchOpsAiCallWorkorderDetailTab('${row.taskCode}', 'aiCall');">听录音</button></td>`}
+      </tr>`).join('') || `<tr><td colspan="${columns.length + (masked ? 1 : 2)}" class="hq-ai-report-empty">暂无符合条件的AI外呼任务</td></tr>`}</tbody>
+    </table></div>
+    ${renderOpsReportPagination(rows.length, state.pageSize, state.page, pages, 'changeOpsAiTaskPage')}`;
+}
+
+function changeOpsAiTaskPage(page, pageSize = opsAiTaskReportState().pageSize, control) {
+  Object.assign(opsAiTaskReportState(), { page, pageSize });
+  const results = document.getElementById('opsAiTaskReportResults');
+  results.innerHTML = renderOpsAiTaskTable();
+  const target = results.querySelector(`[aria-label="${control}"]`);
+  (target?.disabled ? results.querySelector('[aria-label="当前页"]') : target)?.focus();
+}
+
+function showOpsAiCallWorkorderDetailPage(taskCode, fromQuality = false) {
+  const item = opsMaskedAiDemoTasks.find(row => row.taskCode === taskCode) ||
+    opsAiCallTaskMockData.find(d => d.taskCode === taskCode) || opsAiCallTaskMockData[0];
   opsActiveAiCallWorkorderDetailId = item.taskCode;
   opsAiCallWorkorderDetailTab = 'detail';
   document.querySelector('nav[aria-label="培育策略三级菜单"]')?.classList.add('hidden');
@@ -9060,130 +9515,307 @@ function showOpsAiCallWorkorderDetailPage(taskCode) {
   if (typeof setReportsNavActive === 'function') setReportsNavActive('总部培育报表');
   if (typeof setSidebarActiveByName === 'function') setSidebarActiveByName('统计报表');
   if (typeof hideLeadPages === 'function') hideLeadPages();
+  if (typeof setPolicyContentVisible === 'function') setPolicyContentVisible(false);
   document.getElementById('designStage')?.classList.remove('show');
   if (typeof setPageName === 'function') setPageName('业务模块 / 统计报表 / 总部培育报表 / AI外呼工单详情');
-  renderOpsAiCallWorkorderDetailPage(item);
+  if (item.masked) renderOpsMaskedAiDetail(item, fromQuality);
+  else renderOpsAiCallWorkorderDetailPage(item);
   document.getElementById('opsAiCallWorkorderDetailPage')?.classList.add('show');
+}
+
+function returnFromOpsAiDetail(fromQuality, taskCode) {
+  if (!fromQuality) opsHqNurtureActiveTab = 'aiCallTaskDetail';
+  showOpsReportPage(fromQuality ? 'AI渠道质量日报' : '总部培育报表');
+  const container = document.getElementById(fromQuality ? 'opsAiChannelQualityDailyPage' : 'opsHqNurtureReportPage');
+  [...(container?.querySelectorAll('button') || [])].find(button => button.textContent.trim() === taskCode)?.focus();
+}
+
+const opsAiReceiptResults = {
+  accepted: '已接单',
+  missing: '确认未接单',
+  unknown: '仍无法确认'
+};
+
+function renderOpsAiReceiptPanel(item, fromQuality) {
+  if (!item.receiptCheck) return '';
+  const round = item.rounds[0];
+  const state = item.receiptCheck;
+  const accepted = round.receipt === '已接单';
+  const acceptedFeedback = item.exception === '停拨待确认' ? item.result : '供应商已接单，无需补发。';
+  const closed = accepted || item.status === '主管待处理';
+  return `<section class="hq-workorder-section hq-ai-receipt-panel" aria-labelledby="opsAiReceiptHeading">
+    <h3 id="opsAiReceiptHeading" tabindex="-1">供应商接单核对</h3>
+    <p class="hq-workorder-section-note">本地演示 · 使用模拟供应商回执和北京时间，无实际外呼。</p>
+    <dl>
+      <div><dt>原 AI 子任务号</dt><dd>${escapeHtml(round.id)}</dd></div>
+      <div><dt>接单回执</dt><dd>${escapeHtml(round.receipt)}</dd></div>
+      <div><dt>接口补发次数</dt><dd>${state.retries}</dd></div>
+    </dl>
+    ${closed ? `<p class="hq-ai-receipt-feedback" role="status">${escapeHtml(accepted ? acceptedFeedback : item.result)}</p>` : `
+      <div class="hq-ai-receipt-controls">
+        <div>
+          <label for="opsAiReceiptTime">演示操作时间</label>
+          <input id="opsAiReceiptTime" class="form-input" type="time" min="${state.time}" value="${state.time}">
+        </div>
+        ${round.receipt === '待核对' ? `<div>
+          <label for="opsAiReceiptResult">模拟核对结果</label>
+          <select id="opsAiReceiptResult" class="form-input">${Object.entries(opsAiReceiptResults).map(([value, label]) =>
+            `<option value="${value}"${value === state.result ? ' selected' : ''}>${label}</option>`).join('')}</select>
+        </div>` : ''}
+        <button type="button" class="btn-secondary" id="opsAiReceiptAction"
+          onclick="handleOpsAiReceiptAction('${item.taskCode}', ${fromQuality})">${round.receipt === '待核对' ? '核对接单结果' : '补发原 AI 子任务'}</button>
+      </div>
+      <p class="hq-ai-receipt-feedback" id="opsAiReceiptFeedback" role="status">${escapeHtml(item.result)}</p>`}
+    <details>
+      <summary>查看派发报文字段</summary>
+      <pre>${escapeHtml(JSON.stringify({
+        dccTaskId: item.taskCode, aiTaskId: round.id, privacyExpiresAt: item.expiry.replace(' ', 'T') + '+08:00'
+      }, null, 2))}</pre>
+    </details>
+  </section>`;
+}
+
+function handleOpsAiReceiptAction(taskCode, fromQuality) {
+  const item = opsMaskedAiDemoTasks.find(task => task.taskCode === taskCode);
+  const state = item?.receiptCheck;
+  if (!state || item.taskCode !== opsActiveAiCallWorkorderDetailId) return;
+  const round = item.rounds[0];
+  if (round.receipt === '已接单' || item.status === '主管待处理') return;
+  const timeField = document.getElementById('opsAiReceiptTime');
+  const feedback = document.getElementById('opsAiReceiptFeedback');
+  const time = timeField.value;
+  if (!time || !timeField.checkValidity() || time < state.time) {
+    feedback.textContent = '请选择不早于上一次操作的演示时间。';
+    timeField.focus();
+    return;
+  }
+  const result = document.getElementById('opsAiReceiptResult')?.value;
+  const retry = round.receipt === '确认未接单';
+  const operationAt = Date.parse(item.date + 'T' + time + ':00+08:00');
+  const expiryAt = Date.parse(item.expiry.replace(' ', 'T') + '+08:00');
+  const canDispatch = Number.isFinite(operationAt) && Number.isFinite(expiryAt) && operationAt < expiryAt;
+  if (retry) {
+    if (!canDispatch) {
+      feedback.textContent = '隐私号已到达失效截止时间，无法补发。';
+      timeField.focus();
+      return;
+    }
+    state.retries += 1;
+    Object.assign(item, { status: '待外呼', exception: '', result: '沿用原 AI 子任务补发成功，模拟供应商已接单' });
+    round.receipt = '已接单';
+  } else {
+    if (!Object.hasOwn(opsAiReceiptResults, result)) return;
+    state.result = result;
+    if (result === 'accepted') {
+      Object.assign(item, canDispatch
+        ? { status: '待外呼', exception: '', result: '核对确认供应商已接单，沿用原 AI 子任务等待外呼' }
+        : { status: '停拨待确认', exception: '停拨待确认', result: '核对确认供应商已接单，隐私号已失效，需核对停拨回执' });
+      round.receipt = '已接单';
+    } else if (result === 'missing') {
+      Object.assign(item, canDispatch
+        ? { status: '待补发', exception: '确认未接单', result: '供应商确认未接单，可在隐私号截止前补发原 AI 子任务' }
+        : { status: '主管待处理', exception: '确认未接单', result: '供应商确认未接单，隐私号已失效，无法补发' });
+      round.receipt = '确认未接单';
+    } else {
+      item.result = '供应商接单结果仍待核对，暂不可补发';
+    }
+  }
+  state.time = time;
+  item.events.push([time, item.result]);
+  renderOpsMaskedAiDetail(item, fromQuality);
+  (document.getElementById('opsAiReceiptAction') || document.getElementById('opsAiReceiptHeading'))?.focus();
+}
+
+function getOpsMaskedAiWorkflowPolicies() {
+  const enabled = aiRedialRules.filter(rule => rule.enabled && rule.outboundType === 'AI外呼'
+    && rule.newOutboundType === '原外呼类型').sort((a, b) =>
+      Number(Boolean(a.demoDefault)) - Number(Boolean(b.demoDefault)) || a.sortOrder - b.sortOrder);
+  return {
+    verification: enabled.find(rule => rule.attributeType === aiRedialMaskedVerificationFailure),
+    unanswered: enabled.find(rule => rule.attributeType === '通话状态' &&
+      (rule.callStatuses || [rule.callStatus]).includes('客户未接听') && !rule.outboundLabel && !rule.outboundLabels?.length)
+  };
+}
+
+function renderOpsMaskedAiWorkflow(item, fromQuality, message = '') {
+  if (!item.flow) return '';
+  const flow = item.flow;
+  const available = maskedAiDemo.available(item);
+  const payload = maskedAiDemo.dispatchFields(item);
+  const policies = getOpsMaskedAiWorkflowPolicies();
+  const round = item.rounds.at(-1);
+  const notificationFields = flow.notifications.length ? `<ul class="hq-ai-notifications">${flow.notifications.map(event => `
+    <li><strong>${event.label}</strong><span>${item.date} ${event.time}</span>
+      <span>${event.acknowledged ? '已确认接收' : '待确认接收'}</span><code>${event.id}</code><span>版本 ${event.version}</span></li>`).join('')}</ul>`
+    : '<p class="hq-workorder-section-note">暂无临期或失效通知。</p>';
+  return `<section class="hq-workorder-section hq-ai-receipt-panel" aria-labelledby="opsAiWorkflowTitle">
+    <h3 id="opsAiWorkflowTitle" tabindex="-1">AI 任务联调演示</h3>
+    <p class="hq-workorder-section-note">按北京时间推进演示。供应商、核验和退回均使用模拟回执，状态在刷新后重置。</p>
+    <dl>
+      <div><dt>当前演示时间</dt><dd>${item.date} ${flow.time}</dd></div>
+      <div><dt>当前 AI 子任务号</dt><dd>${formatOpsHqCellValue(round?.id)}</dd></div>
+      <div><dt>接口补发次数</dt><dd>${flow.retries}</dd></div>
+      <div><dt>掩码核验重推规则</dt><dd>${formatOpsHqCellValue(policies.verification?.ruleName || '暂无启用规则')}</dd></div>
+      ${flow.doNotContact ? '<div><dt>客户联系限制</dt><dd>拒绝继续联系</dd></div>' : ''}
+      ${flow.returnId ? `<div><dt>临时池退回标识</dt><dd>${flow.returnId}</dd></div>` : ''}
+      ${item.handoffTag ? `<div><dt>演示转人工标签</dt><dd>${escapeHtml(item.handoffTag)}</dd></div>` : ''}
+      ${flow.manualOrder ? `<div><dt>人工工单</dt><dd>${formatOpsHqCellValue(flow.manualOrder.taskId)}</dd></div>` : ''}
+    </dl>
+    ${available.length ? `<form class="hq-ai-receipt-controls" id="opsAiWorkflowForm" data-task="${item.taskCode}"
+      data-quality="${fromQuality}" data-round="${round?.id || ''}" data-candidate="${round?.candidateId || ''}"
+      data-return-id="${flow.returnId || ''}" onsubmit="submitOpsMaskedAiWorkflow(event)">
+      <div><label for="opsAiWorkflowTime">演示操作时间</label>
+        <input id="opsAiWorkflowTime" name="time" class="form-input" type="time" min="${flow.time}" value="${flow.time}" required></div>
+      <div><label for="opsAiWorkflowAction">演示操作</label>
+        <select id="opsAiWorkflowAction" name="action" class="form-input" onchange="updateOpsMaskedAiWorkflowOptions(this.form)">
+          ${available.map(([id, label]) => `<option value="${id}">${label}</option>`).join('')}
+        </select></div>
+      <div id="opsAiWorkflowChoice" hidden><label for="opsAiWorkflowResult">模拟结果</label>
+        <select id="opsAiWorkflowResult" name="result" class="form-input" disabled></select></div>
+      <button class="btn-secondary" id="opsAiWorkflowSubmit" type="submit">执行演示操作</button>
+    </form>` : ''}
+    <p role="status" class="hq-ai-receipt-feedback">${escapeHtml(message || item.result)}</p>
+    <details><summary>查看派发报文字段</summary><pre>${escapeHtml(JSON.stringify(payload, null, 2))}</pre></details>
+    <h4 class="hq-ai-notifications-title">隐私号状态通知</h4>
+    ${notificationFields}
+  </section>`;
+}
+
+function updateOpsMaskedAiWorkflowOptions(form) {
+  const choices = maskedAiDemo.choices[form.elements.action.value];
+  const result = form.elements.result;
+  document.getElementById('opsAiWorkflowChoice').hidden = !choices;
+  result.disabled = !choices;
+  result.replaceChildren(...Object.entries(choices || {}).map(([value, name]) => new Option(name, value)));
+}
+
+function submitOpsMaskedAiWorkflow(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const item = opsMaskedAiDemoTasks.find(task => task.taskCode === form.dataset.task);
+  if (!item?.flow || item.taskCode !== opsActiveAiCallWorkorderDetailId) return;
+  const { action, result, time } = form.elements;
+  const context = action.value === 'verify' ? form.dataset.candidate : action.value === 'returnReceipt' ? form.dataset.returnId : form.dataset.round;
+  const message = maskedAiDemo.step(item, action.value, time.value, result.value, getOpsMaskedAiWorkflowPolicies(), context);
+  renderOpsMaskedAiDetail(item, form.dataset.quality === 'true', message);
+  (document.getElementById('opsAiWorkflowAction') || document.getElementById('opsAiWorkflowTitle'))?.focus();
+}
+
+function renderOpsAiDetailCard(title, content) {
+  return `<section class="hq-ai-detail-card"><h3>${escapeHtml(title)}</h3><div class="hq-ai-detail-card-body">${content}</div></section>`;
+}
+
+function renderOpsAiDetailFields(fields) {
+  return `<dl class="hq-task-field-grid">${renderOpsWorkorderFields(fields.map(([label, value, tone]) =>
+    [label, value, '', tone]))}</dl>`;
+}
+
+function renderOpsAiDetailFrame(item, summary, body, fromQuality = false) {
+  const source = item.masked ? '抖音掩码留资' : '常规培育';
+  const origin = fromQuality ? 'AI渠道质量日报' : '总部培育报表 / AI外呼任务明细';
+  renderOpsWorkorderDetailFrame('opsAiCallWorkorderDetailPage', {
+    title: '查看AI外呼任务工单', path: `${origin} / ${source}`, taskCode: item.taskCode,
+    status: item.masked ? item.status : item.taskStatus, customerName: item.masked ? item.name : item.customerName,
+    phone: item.phone, intentSeries: item.intentSeries, masked: item.masked,
+    summaryLabel: '任务概况', summary, tabsLabel: 'AI工单详情分区',
+    tabs: ['detail', 'aiCall', 'tags', 'quality', 'timeline'], activeTab: opsAiCallWorkorderDetailTab, body,
+    onReturn: () => returnFromOpsAiDetail(fromQuality, item.taskCode),
+    onTab: tab => switchOpsAiCallWorkorderDetailTab(item.taskCode, tab, fromQuality)
+  });
+}
+
+function renderOpsMaskedAiDetail(item, fromQuality, message) {
+  const summary = [['外呼供应商', item.vendor], ['手机号核验', item.verification]];
+  const calls = item.rounds.filter(round => round.call);
+  const events = `<ol class="hq-ai-task-events">${item.events.map(([time, event]) => `<li><time>${escapeHtml(item.date)} ${escapeHtml(time)}</time>　${escapeHtml(event)}</li>`).join('')}</ol>`;
+  const history = item.events.length ? events : '<p class="hq-workorder-section-note">暂无任务事件</p>';
+  const roundsTable = `
+<div class="hq-report-table-scroll" tabindex="0" role="region" aria-label="AI外呼与核验记录">
+          <table class="mw-report-table hq-manual-report-table hq-ai-masked-table">
+            <thead><tr>${['轮次','供应商任务号','接单回执','通话ID','实际拨号时间','候选号（脱敏）','核验结果'].map(label => `<th scope="col">${label}</th>`).join('')}</tr></thead>
+            <tbody>${item.rounds.map((round, index) => `<tr>${[index + 1, round.id, round.receipt, round.call,
+              round.at && item.date + ' ' + round.at, round.candidate, round.verification].map(value => `<td>${formatOpsHqCellValue(value)}</td>`).join('')}</tr>`).join('')
+              || '<tr><td colspan="7">尚未派发 AI 子任务</td></tr>'}</tbody>
+          </table>
+        </div>`;
+  const callFields = calls.map(round => [round.call, [round.at && `${item.date} ${round.at}`, round.contact, round.candidateId].filter(Boolean).join(' · ')]);
+  const recording = calls.length ? renderOpsAiDetailFields(callFields) +
+    '<p class="hq-workorder-section-note">已有通话记录，暂无可播放的录音或转写。</p>' :
+    '<p class="hq-workorder-section-note">暂无AI外呼通话记录。</p>';
+  let body;
+  switch (opsAiCallWorkorderDetailTab) {
+    case 'aiCall': body = renderOpsAiDetailCard('AI外呼录音', recording); break;
+    case 'tags': body = renderOpsAiDetailCard('对话标签', calls.some(round => round.tag)
+      ? renderOpsAiDetailFields(calls.filter(round => round.tag).map(round => [round.call, round.tag]))
+      : '<p class="hq-workorder-section-note">暂无对话标签。</p>'); break;
+    case 'quality': body = renderOpsAiDetailCard('员工质检', '<p class="hq-workorder-section-note">暂无质检结果。</p>'); break;
+    case 'timeline': body = renderOpsAiDetailCard('时光轴', history); break;
+    default:
+      body = [
+        renderOpsAiDetailCard('1. 线索记录', renderOpsAiDetailFields([
+          ['DCC任务编码', item.taskCode], ['培育线索编码', item.leadId], ['线索R渠道', item.channel],
+          ['客户姓名', item.name], ['联系电话（脱敏）', item.phone], ['线索来源', '抖音掩码留资']
+        ])),
+        renderOpsAiDetailCard('2. AI外呼与执行记录', renderOpsAiDetailFields([
+          ['外呼供应商', item.vendor], ['实际外呼次数', calls.length], ['AI子任务数', item.rounds.length],
+          ['手机号核验', item.verification], ['最新处理结果', item.result]
+        ]) + roundsTable + (item.flow && calls.length ? `<h4>通话与候选关联</h4>${recording}` : '')),
+        renderOpsAiDetailCard('3. 分配与排程信息', renderOpsAiDetailFields([
+          ['DCC任务状态', item.status], ['隐私号截止时间', item.expiry], ['异常原因', item.exception]
+        ]) + '<h4>任务进度</h4>' + history),
+        renderOpsAiReceiptPanel(item, fromQuality),
+        renderOpsMaskedAiWorkflow(item, fromQuality, message)
+      ].join('');
+  }
+  renderOpsAiDetailFrame(item, summary, `<div class="hq-ai-detail-sections">${body}</div>`, fromQuality);
 }
 
 function openOpsAiCallWorkorderDetailModal(taskCode) {
   showOpsAiCallWorkorderDetailPage(taskCode);
 }
 
-function switchOpsAiCallWorkorderDetailTab(taskCode, tab) {
-  const item = opsAiCallTaskMockData.find(d => d.taskCode === taskCode) || opsAiCallTaskMockData[0];
+function switchOpsAiCallWorkorderDetailTab(taskCode, tab, fromQuality = false) {
+  const page = document.getElementById('opsAiCallWorkorderDetailPage');
+  const item = opsMaskedAiDemoTasks.find(row => row.taskCode === taskCode) ||
+    opsAiCallTaskMockData.find(row => row.taskCode === taskCode);
+  if (!item || !page?.classList.contains('show')) return;
   opsAiCallWorkorderDetailTab = tab;
-  if (document.getElementById('opsAiCallWorkorderDetailPage')?.classList.contains('show')) {
-    renderOpsAiCallWorkorderDetailPage(item);
-  }
+  if (item.masked) renderOpsMaskedAiDetail(item, fromQuality);
+  else renderOpsAiCallWorkorderDetailPage(item);
+  page.querySelector('.hq-workorder-detail-tabs button[aria-pressed="true"]')?.focus();
 }
 
 function renderOpsAiCallWorkorderDetailPage(item) {
-  const page = document.getElementById('opsAiCallWorkorderDetailPage');
-  if (!page) return;
-  page.innerHTML = `
-    <div class="detail-page-header mw-workorder-detail-header">
-      <div>
-        <div class="detail-page-title">查看AI外呼任务工单</div>
-        <div class="detail-page-subtitle">业务模块 / 统计报表 / 总部培育报表 / AI外呼任务明细 / ${item.taskCode}</div>
-      </div>
-      <div class="lead-toolbar-right">
-        <button class="btn-secondary" type="button" onclick="showOpsReportPage('总部培育报表')">返回列表</button>
-      </div>
-    </div>
-    <section class="mw-workorder-detail-summary" style="margin-bottom:16px;">
-      <div><span>AI任务编码</span><strong>${item.taskCode}</strong></div>
-      <div><span>外呼结果</span><strong class="${item.callResult.includes('已接通') ? 'success' : 'danger'}">${item.callResult}</strong></div>
-      <div><span>客户姓名/电话</span><strong>${item.customerName} ${item.phone}</strong></div>
-      <div><span>意向车系</span><strong>${item.intentSeries}</strong></div>
-      <div><span>AI机器人引擎</span><strong>${item.robotEngine}</strong></div>
-      <div><span>通话时长/轮次</span><strong>${item.duration}秒 / ${item.rounds}轮</strong></div>
-    </section>
-    <section class="mw-workorder-detail-content">${renderOpsAiCallWorkorderDetailContent(item)}</section>
-  `;
+  const summary = [
+    ['AI机器人引擎', item.robotEngine], ['外呼结果', item.callResult, item.callResult.includes('已接通') ? 'success' : 'danger']
+  ];
+  renderOpsAiDetailFrame(item, summary, renderOpsAiCallWorkorderDetailContent(item));
 }
 
 function renderOpsAiCallWorkorderDetailContent(item) {
-  const tabs = [
-    ['detail', '任务详情'],
-    ['aiCall', 'AI外呼录音'],
-    ['tags', '对话标签'],
-    ['quality', '员工质检'],
-    ['timeline', '时光轴']
-  ];
-
-  const tabsHeaderHtml = `
-    <div style="display:flex; gap:28px; border-bottom:1px solid #e2e8f0; margin-bottom:20px; padding:0 12px; background:#fff;">
-      ${tabs.map(([key, label]) => `
-        <button type="button" 
-                style="padding:12px 4px; border:none; background:none; font-size:14px; font-weight:${opsAiCallWorkorderDetailTab === key ? '700' : '400'}; color:${opsAiCallWorkorderDetailTab === key ? '#2563eb' : '#475569'}; border-bottom:${opsAiCallWorkorderDetailTab === key ? '3px solid #2563eb' : '3px solid transparent'}; cursor:pointer; transition:all 0.2s;"
-                onclick="switchOpsAiCallWorkorderDetailTab('${item.taskCode}', '${key}')">
-          ${label}
-        </button>
-      `).join('')}
-    </div>
-  `;
-
   let bodyContent = '';
   if (opsAiCallWorkorderDetailTab === 'detail') {
-    bodyContent = `
-      <div style="display:flex; flex-direction:column; gap:20px;">
-        <div style="background:#fff; border-radius:8px; border:1px solid #e2e8f0; overflow:hidden;">
-          <div style="background:#f1f5f9; padding:10px 16px; font-weight:700; color:#334155; font-size:14px; border-bottom:1px solid #e2e8f0;">
-            1. 线索记录
-          </div>
-          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; padding:16px; font-size:13px;">
-            <div><span style="color:#64748b;">AI任务编码：</span><strong>${item.taskCode}</strong></div>
-            <div><span style="color:#64748b;">培育线索编码：</span><strong>${item.leadId}</strong></div>
-            <div><span style="color:#64748b;">线索R渠道：</span><strong>${item.channelR}</strong></div>
-            <div><span style="color:#64748b;">客户姓名：</span><strong>${item.customerName}</strong></div>
-            <div><span style="color:#64748b;">联系电话：</span><strong>${item.phone}</strong></div>
-            <div><span style="color:#64748b;">意向车系：</span><strong>${item.intentSeries}</strong></div>
-            <div><span style="color:#64748b;">最新留资车系：</span><strong>${item.latestSeries}</strong></div>
-            <div><span style="color:#64748b;">初始线索状态：</span><strong>${item.initialStatus}</strong></div>
-            <div><span style="color:#64748b;">初始意向级别：</span><strong>${item.initialLevel}级</strong></div>
-            <div><span style="color:#64748b;">初始预评分：</span><strong style="color:#2563eb; font-weight:700;">${item.initScore !== undefined && item.initScore !== null ? item.initScore + '分' : '—'}</strong></div>
-            <div><span style="color:#64748b;">最新意向级别：</span><strong style="color:#2563eb;">${item.latestLevel}级</strong></div>
-            <div><span style="color:#64748b;">线索来源：</span><strong>${item.leadSource}</strong></div>
-            <div><span style="color:#64748b;">信息是否未满：</span><strong>${item.isInfoIncomplete}</strong></div>
-          </div>
-        </div>
-
-        <div style="background:#fff; border-radius:8px; border:1px solid #e2e8f0; overflow:hidden;">
-          <div style="background:#f1f5f9; padding:10px 16px; font-weight:700; color:#334155; font-size:14px; border-bottom:1px solid #e2e8f0;">
-            2. AI外呼与执行记录
-          </div>
-          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; padding:16px; font-size:13px;">
-            <div><span style="color:#64748b;">机器人账号引擎：</span><strong style="color:#6366f1;">${item.robotEngine}</strong></div>
-            <div><span style="color:#64748b;">AI外呼结果：</span><strong style="color:#059669;">${item.callResult}</strong></div>
-            <div><span style="color:#64748b;">挂断原因：</span><strong>${item.hangupReason}</strong></div>
-            <div><span style="color:#64748b;">拨打次数：</span><strong>${item.callCount} 次</strong></div>
-            <div><span style="color:#64748b;">交互轮次：</span><strong>${item.rounds} 轮</strong></div>
-            <div><span style="color:#64748b;">通话时长：</span><strong>${item.duration} 秒</strong></div>
-            <div><span style="color:#64748b;">计划拨打时间：</span><strong>${item.plannedCallTime}</strong></div>
-            <div><span style="color:#64748b;">实际拨打时间：</span><strong>${item.actualCallTime}</strong></div>
-            <div><span style="color:#64748b;">最新跟进时间：</span><strong>${item.latestFollowTime}</strong></div>
-          </div>
-        </div>
-
-        <div style="background:#fff; border-radius:8px; border:1px solid #e2e8f0; overflow:hidden;">
-          <div style="background:#f1f5f9; padding:10px 16px; font-weight:700; color:#334155; font-size:14px; border-bottom:1px solid #e2e8f0;">
-            3. 分配与排程信息
-          </div>
-          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px; padding:16px; font-size:13px;">
-            <div><span style="color:#64748b;">分配类型：</span><strong>${item.assignType}</strong></div>
-            <div><span style="color:#64748b;">分配时间：</span><strong>${item.assignTime}</strong></div>
-            <div><span style="color:#64748b;">是否逾期：</span><strong>${item.isOverdue}</strong></div>
-            <div><span style="color:#64748b;">超期状态：</span><strong>${item.overdueStatus}</strong></div>
-            <div><span style="color:#64748b;">及时首触：</span><strong>${item.promptFirstTouch}</strong></div>
-            <div><span style="color:#64748b;">试驾排程：</span><strong style="color:#2563eb;">${item.testDriveScheduled}</strong></div>
-            <div><span style="color:#64748b;">推送到预外呼状态：</span><strong>${item.pushPreCallStatus}</strong></div>
-            <div><span style="color:#64748b;">识别意向标签：</span><strong>${item.intentTags}</strong></div>
-            <div><span style="color:#64748b;">任务异常原因：</span><strong>${item.exceptionReason}</strong></div>
-          </div>
-        </div>
-      </div>
-    `;
+    const sections = [
+      ['1. 线索记录', [
+        ['AI任务编码', item.taskCode], ['培育线索编码', item.leadId], ['线索R渠道', item.channelR],
+        ['客户姓名', item.customerName], ['联系电话', item.phone], ['意向车系', item.intentSeries],
+        ['最新留资车系', item.latestSeries], ['初始线索状态', item.initialStatus],
+        ['初始意向级别', item.initialLevel && item.initialLevel + '级'], ['初始预评分', item.initScore == null ? '' : item.initScore + '分', 'primary'],
+        ['最新意向级别', item.latestLevel && item.latestLevel + '级', 'primary'], ['线索来源', item.leadSource], ['信息是否未满', item.isInfoIncomplete]
+      ]],
+      ['2. AI外呼与执行记录', [
+        ['机器人账号引擎', item.robotEngine, 'engine'], ['AI外呼结果', item.callResult, 'result'], ['挂断原因', item.hangupReason],
+        ['拨打次数', item.callCount + ' 次'], ['交互轮次', item.rounds + ' 轮'], ['通话时长', item.duration + ' 秒'],
+        ['计划拨打时间', item.plannedCallTime], ['实际拨打时间', item.actualCallTime], ['最新跟进时间', item.latestFollowTime]
+      ]],
+      ['3. 分配与排程信息', [
+        ['分配类型', item.assignType], ['分配时间', item.assignTime], ['是否逾期', item.isOverdue],
+        ['超期状态', item.overdueStatus], ['及时首触', item.promptFirstTouch], ['试驾排程', item.testDriveScheduled, 'primary'],
+        ['推送到预外呼状态', item.pushPreCallStatus], ['识别意向标签', item.intentTags], ['任务异常原因', item.exceptionReason]
+      ]]
+    ];
+    bodyContent = `<div class="hq-ai-detail-sections">${sections.map(([title, fields]) =>
+      renderOpsAiDetailCard(title, renderOpsAiDetailFields(fields))).join('')}</div>`;
   } else if (opsAiCallWorkorderDetailTab === 'aiCall') {
     bodyContent = `
       <div style="background:#fff; border-radius:8px; border:1px solid #e2e8f0; padding:20px;">
@@ -9287,7 +9919,7 @@ function renderOpsAiCallWorkorderDetailContent(item) {
     `;
   }
 
-  return tabsHeaderHtml + bodyContent;
+  return bodyContent;
 }
 
 window.showOpsAiCallWorkorderDetailPage = showOpsAiCallWorkorderDetailPage;

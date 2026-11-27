@@ -6,17 +6,21 @@ const aiRedialLeadStatusOptions = leadDispatchLeadStatusOptions.filter(Boolean);
 const aiRedialPushDelayOptions = ['立即', '30分钟', '2小时', '1天', '3天'];
 const aiRedialCountOptions = ['1次', '2次', '3次', '4次'];
 const aiRedialIntervalOptions = ['立即', '30分钟', '2小时', '1天', '2天', '3天'];
-const aiRedialAttributeOptions = ['线索状态', '通话状态'];
+const aiRedialMaskedVerificationFailure = '掩码核验不通过';
+const aiRedialAttributeOptions = ['线索状态', '通话状态', aiRedialMaskedVerificationFailure];
 const aiRedialCallStatusOptions = leadDispatchCallStatusOptions;
 let aiRedialRules = [
   { id: 1012, ruleName: '人工客服-高意向-重推', sortOrder: 1, outboundType: '人工客服', newOutboundType: '原外呼类型', intentLevel: 'B - B(计划三个月内买车)', leadStatus: ['总部_高意向'], abnormalReason: '', abnormalReasons: [], pushDelay: '1天', redialCount: '3次', redialInterval: '2天', attributeType: '线索状态', callStatus: '', outboundLabel: '', createdAt: '2020-06-01 13:59:59 操作人：张三', updatedAt: '2020-06-01 13:59:59 操作人：李四', enabled: true },
   { id: 1013, ruleName: '休眠未购-异常重推', sortOrder: 2, outboundType: '人工客服', newOutboundType: '人工外呼', intentLevel: 'L - L(休眠)', leadStatus: ['总部_休眠未购'], abnormalReason: '资金不足', abnormalReasons: ['资金不足', '半年内不购车'], pushDelay: '1天', redialCount: '3次', redialInterval: '2天', attributeType: '线索状态', callStatus: '', outboundLabel: '', createdAt: '2020-06-02 13:59:59 操作人：李四', updatedAt: '2020-06-02 13:59:59 操作人：李四', enabled: true },
-  { id: 1014, ruleName: 'AI外呼-未接听重推', sortOrder: 3, outboundType: 'AI外呼', newOutboundType: '原外呼类型', intentLevel: '', leadStatus: [], abnormalReason: '', abnormalReasons: [], pushDelay: '2小时', redialCount: '2次', redialInterval: '1天', attributeType: '通话状态', callStatus: '客户未接听', callStatuses: ['客户未接听'], outboundLabel: '下次联系', createdAt: '2026-06-18 10:20:00 操作人：王五', updatedAt: '2026-06-20 09:30:00 操作人：王五', enabled: false }
+  { id: 1014, ruleName: 'AI外呼-未接听重推', sortOrder: 3, outboundType: 'AI外呼', newOutboundType: '原外呼类型', intentLevel: '', leadStatus: [], abnormalReason: '', abnormalReasons: [], pushDelay: '2小时', redialCount: '2次', redialInterval: '1天', attributeType: '通话状态', callStatus: '客户未接听', callStatuses: ['客户未接听'], outboundLabel: '下次联系', createdAt: '2026-06-18 10:20:00 操作人：王五', updatedAt: '2026-06-20 09:30:00 操作人：王五', enabled: false },
+  { id: 1015, ruleName: '演示 · 掩码核验失败重推', sortOrder: 4, outboundType: 'AI外呼',
+    newOutboundType: '原外呼类型', pushDelay: '立即', redialCount: '1次', redialInterval: '立即',
+    attributeType: aiRedialMaskedVerificationFailure, enabled: true, demoDefault: true }
 ];
 let aiRedialCurrentPage = 1;
 let aiRedialPageSize = 10;
 let editingAiRedialRuleId = null;
-let aiRedialNextId = 1015;
+let aiRedialNextId = 1016;
 
 function renderAiRedialPolicyPage() {
   const page = document.getElementById('aiRedialPolicyPage');
@@ -296,12 +300,15 @@ function openAiRedialRuleModal(mode, id) {
     : `<button class="btn-secondary" type="button" ${renderUiActionCallback('ai-redial-close', ['aiRedialRuleModal'])}>取消</button><button class="btn-add" type="button" ${renderUiActionCallback('ai-redial-save', [mode])}>保存</button>`;
   document.getElementById('aiRedialRuleModal').classList.add('show');
   updateAiRedialOutboundLabelPickerSummary();
+  document.getElementById('aiRedialRuleModalBody').onchange = syncAiRedialMaskedPreview;
+  if (!readonly && rule.attributeType === aiRedialMaskedVerificationFailure) syncAiRedialConditionFields();
 }
 
 function renderAiRedialRuleForm(rule, readonly = false) {
   const disabled = readonly ? 'disabled' : '';
   const newOutboundDisabled = readonly || !rule.outboundType ? 'disabled' : '';
   const attributeType = rule.attributeType || '';
+  const masked = attributeType === aiRedialMaskedVerificationFailure;
   const selectedLeadStatuses = rule.leadStatus || [];
   const selectedAbnormalReasons = getAiRedialAbnormalReasons(rule);
   const selectedCallStatuses = getAiRedialCallStatuses(rule);
@@ -315,9 +322,10 @@ function renderAiRedialRuleForm(rule, readonly = false) {
         <div class="form-group"><div class="form-label">状态 <span class="required">*</span></div><select class="form-input" id="aiRedialFormEnabled" ${disabled}><option value="">请选择</option><option value="启用" ${rule.enabled === true ? 'selected' : ''}>启用</option><option value="停用" ${rule.enabled === false ? 'selected' : ''}>停用</option></select></div>
       </div></section>
       <section class="dispatch-form-section"><div class="dispatch-section-title">命中条件</div><div class="dispatch-form-grid">
-          <div class="form-group"><div class="form-label">原外呼类型 <span class="required">*</span></div>${renderAiRedialOutboundTypePicker(rule.outboundType || '', readonly)}</div>
+          <div class="form-group"><div class="form-label">原外呼类型 <span class="required">*</span></div>${renderAiRedialOutboundTypePicker(rule.outboundType || '', readonly || masked)}</div>
           <div class="form-group"><div class="form-label">新外呼类型 <span class="required">*</span></div><select class="form-input" id="aiRedialFormNewOutboundType" ${newOutboundDisabled}>${renderSimpleOptions(aiRedialNewOutboundTypeOptions, rule.newOutboundType || '', '请选择')}</select></div>
           <div class="form-group"><div class="form-label">命中类型 <span class="required">*</span></div><select class="form-input" id="aiRedialFormAttribute" ${renderUiActionCallback('ai-redial-condition-sync')} ${disabled}>${renderSimpleOptions(aiRedialAttributeOptions, attributeType, '请选择')}</select></div>
+          <p class="form-group wide" id="aiRedialMaskedScope" style="${masked ? '' : 'display:none'}">业务来源为抖音掩码留资。当前候选号码明确核验不通过时触发。</p>
           <div class="form-group" id="aiRedialIntentGroup" style="${attributeType === '线索状态' ? '' : 'display:none'}"><div class="form-label">意向级别 <span class="required">*</span></div><select class="form-input" id="aiRedialFormIntent" ${intentLocked || readonly ? 'disabled' : ''}>${renderLeadDispatchOptionList(getAiRedialIntentOptions(selectedLeadStatuses, rule.intentLevel || ''), getAiRedialSelectedIntentLevel(selectedLeadStatuses, rule.intentLevel || ''), intentLocked ? '不更新' : '请选择')}</select></div>
           <div class="form-group wide" id="aiRedialLeadStatusGroup" style="${attributeType === '线索状态' ? '' : 'display:none'}"><div class="form-label">线索状态 <span class="required">*</span></div><div class="series-select-panel"><div class="series-series-grid">${aiRedialLeadStatusOptions.map(item => `<label class="series-series-option"><input type="checkbox" name="aiRedialLeadStatus" value="${escapeAttr(item)}" ${selectedLeadStatuses.includes(item) ? 'checked' : ''} ${readonly ? 'disabled' : renderUiActionCallback('ai-redial-lead-status-sync')} /><span>${escapeHtml(item)}</span></label>`).join('')}</div></div></div>
           <div class="form-group wide" id="aiRedialAbnormalReasonGroup" style="${reasonVisible ? '' : 'display:none'}"><div class="form-label">异常原因 <span class="required">*</span></div><div class="series-select-panel"><div class="lead-status-reason-groups" id="aiRedialAbnormalReasonOptions">${renderLeadStatusReasonGroups(selectedLeadStatuses, selectedAbnormalReasons, 'aiRedialAbnormalReason')}</div><div class="series-form-hint">异常原因会按已选择的线索状态分组展示。</div></div></div>
@@ -329,6 +337,7 @@ function renderAiRedialRuleForm(rule, readonly = false) {
         <div class="form-group"><div class="form-label">推送时间 <span class="required">*</span></div><select class="form-input" id="aiRedialFormPushDelay" ${disabled}>${renderSimpleOptions(aiRedialPushDelayOptions, rule.pushDelay, '请选择')}</select></div>
         <div class="form-group"><div class="form-label">重推次数 <span class="required">*</span></div><select class="form-input" id="aiRedialFormCount" ${disabled}>${renderSimpleOptions(aiRedialCountOptions, rule.redialCount, '请选择')}</select></div>
         <div class="form-group"><div class="form-label">重推间隔 <span class="required">*</span></div><select class="form-input" id="aiRedialFormInterval" ${disabled}>${renderSimpleOptions(aiRedialIntervalOptions, rule.redialInterval, '请选择')}</select></div>
+        <p class="form-group wide" id="aiRedialMaskedPreview" aria-live="polite" style="${masked ? '' : 'display:none'}"></p>
       </div></section>
     </div>
   `;
@@ -350,6 +359,8 @@ function renderAiRedialRuleDetail(rule = {}) {
   } else if (rule.attributeType === '通话状态') {
     hitFields.push(['通话状态', rule.callStatus || getAiRedialCallStatuses(rule)[0] || '']);
     hitFields.push(['外呼标签', getAiRedialOutboundLabels(rule).join('、')]);
+  } else if (rule.attributeType === aiRedialMaskedVerificationFailure) {
+    hitFields.push(['业务来源', '抖音掩码留资'], ['重推条件', '计划及实际拨号均须早于隐私号截止时间，且重推次数未用尽']);
   }
   const sections = [
     { title: '基础信息', fields: [
@@ -370,7 +381,9 @@ function syncAiRedialNewOutboundType() {
   const originalType = document.getElementById('aiRedialFormOutboundType')?.value || '';
   const newTypeSelect = document.getElementById('aiRedialFormNewOutboundType');
   if (!newTypeSelect) return;
-  newTypeSelect.disabled = !originalType;
+  const masked = document.getElementById('aiRedialFormAttribute')?.value === aiRedialMaskedVerificationFailure;
+  newTypeSelect.disabled = masked || !originalType;
+  if (masked) newTypeSelect.value = '原外呼类型';
   if (!originalType) {
     newTypeSelect.value = '';
   }
@@ -386,6 +399,16 @@ function syncAiRedialConditionFields() {
   const intentSelect = document.getElementById('aiRedialFormIntent');
   const showLeadStatus = attributeType === '线索状态';
   const showCallStatus = attributeType === '通话状态';
+  const masked = attributeType === aiRedialMaskedVerificationFailure;
+  const outboundType = document.getElementById('aiRedialFormOutboundType');
+  const scope = document.getElementById('aiRedialMaskedScope');
+  if (outboundType) {
+    outboundType.disabled = masked;
+    if (masked) outboundType.value = 'AI外呼';
+  }
+  if (scope) scope.style.display = masked ? '' : 'none';
+  syncAiRedialNewOutboundType();
+  syncAiRedialMaskedPreview();
 
   if (leadStatusGroup) leadStatusGroup.style.display = showLeadStatus ? '' : 'none';
   if (intentGroup) intentGroup.style.display = showLeadStatus ? '' : 'none';
@@ -413,6 +436,26 @@ function syncAiRedialConditionFields() {
     const labelCount = document.getElementById('aiRedialOutboundLabelCount');
     if (labelCount) labelCount.textContent = `已选 0 / ${leadDispatchTagOptions.length}`;
   }
+}
+
+function syncAiRedialMaskedPreview() {
+  const preview = document.getElementById('aiRedialMaskedPreview');
+  if (!preview) return;
+  const masked = document.getElementById('aiRedialFormAttribute').value === aiRedialMaskedVerificationFailure;
+  preview.style.display = masked ? '' : 'none';
+  if (!masked) return;
+  const delay = document.getElementById('aiRedialFormPushDelay').value;
+  const count = document.getElementById('aiRedialFormCount').value;
+  const interval = document.getElementById('aiRedialFormInterval').value;
+  if (!delay || !count || !interval) {
+    preview.textContent = '请选择推送时间、重推次数和间隔，查看重推示例。';
+    return;
+  }
+  const minutes = value => (parseInt(value, 10) || 0) * (value.endsWith('天') ? 1440 : value.endsWith('小时') ? 60 : 1);
+  const scheduled = Math.max(14 * 60 + 30 + minutes(delay), 14 * 60 + 20 + minutes(interval));
+  const time = scheduled >= 1440 ? '次日或更晚' : `${String(Math.floor(scheduled / 60)).padStart(2, '0')}:${String(scheduled % 60).padStart(2, '0')}`;
+  const deadline = scheduled < 900 ? '可重推，实际拨号前再次校验。' : '达到隐私号截止时间，停止重推。';
+  preview.textContent = `示例：上轮 14:20 重推，14:30 核验不通过，隐私号 15:00 失效。次数有剩余时，下轮计划 ${time}，${deadline} 已执行 ${count} 后再失败时，停止重推并转主管待处理。`;
 }
 
 function syncAiRedialLeadStatusFields() {
@@ -449,6 +492,10 @@ function saveAiRedialRule(mode) {
   const redialCount = document.getElementById('aiRedialFormCount')?.value || '';
   const redialInterval = document.getElementById('aiRedialFormInterval')?.value || '';
   const enabledValue = document.getElementById('aiRedialFormEnabled')?.value || '';
+  if (attributeType === aiRedialMaskedVerificationFailure && (outboundType !== 'AI外呼' || newOutboundType !== '原外呼类型')) {
+    showToast('掩码核验不通过规则仅适用于原 AI 外呼类型', false);
+    return;
+  }
   if (!ruleName || !outboundType || !newOutboundType || !enabledValue || !attributeType || !pushDelay || !redialCount || !redialInterval) {
     showToast('请完整填写必填项', false);
     return;

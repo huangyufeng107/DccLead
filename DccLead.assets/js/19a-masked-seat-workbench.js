@@ -44,13 +44,93 @@
   let loading = false;
   let error = '';
   let success = '';
+  const predictiveCalls = [];
+  const predictiveStatus = {
+    queued: '排队中', dialing: '拨号中', waiting_seat: '接通待转坐席', in_call: '坐席通话中',
+    ended: '通话已结束', no_answer: '客户未接听', blocked: '拨前拦截', canceled: '已移出队列'
+  };
+  const predictiveActive = call => ['queued', 'dialing', 'waiting_seat', 'in_call'].includes(call.status);
 
   const ownedRows = () => (local ? rows : data.demoRows(account)).filter(row => row.owner === account);
   const pendingRows = () => ownedRows().filter(data.pendingFollowup);
   const matchingRows = rows => rows.filter(row => [row.task, row.original, row.name, data.phone(row)]
     .some(value => String(value || '').toLowerCase().includes(keyword.toLowerCase())));
   const privacyLabel = row => data.privacyLabels[data.privacyStatus(row)] || '待取号';
-  const canDial = row => !row.followupComplete && data.privacyStatus(row) === 'available';
+  const privacyDeadline = row => monitoring.timestamp(row.privacy?.expiresAtRaw || row.privacy?.expiresAt);
+  const canDial = row => !row.followupComplete && data.privacyStatus(row) === 'available' && privacyDeadline(row) > Date.now();
+  const missingVerificationResult = row => !row.followupComplete && !row.followupVerification &&
+    row.manualFollowup?.result === 'candidate';
+
+  function predictiveEligibility(row) {
+    return row && canDial(row) && Boolean(row.privacy?.number) && !missingVerificationResult(row)
+      && (!row.followupVerification || row.followupVerification.status === 'failed');
+  }
+
+  const awaitingPredictiveVisit = call => !call.linked && ['ended', 'no_answer'].includes(call.status);
+  const predictiveVisitContacts = call => call.status === 'ended' ? ['connected', 'rejected'] : ['no_answer'];
+
+  function renderPredictiveQueue(current) {
+    const calls = predictiveCalls.filter(call => call.seat === account);
+    const latest = calls.findLast(call => call.taskId === current?.id);
+    const displayed = calls.filter(call => predictiveActive(call) || call === latest);
+    const enqueue = predictiveEligibility(current) && (!latest || (!predictiveActive(latest) && !awaitingPredictiveVisit(latest)));
+    const actions = {
+      queued: [['dial', '模拟出队拨号'], ['cancel', '移出队列']],
+      dialing: [['connected', '模拟客户接通'], ['no_answer', '模拟未接听']],
+      waiting_seat: [['handoff', '转当前坐席']],
+      in_call: [['hangup', '结束通话']]
+    };
+    return `<div class="nt-masked-section-head"><h4>人工预测外呼</h4><span class="sd-tag sd-tag-info">演示</span></div>
+      ${current && !current.followupComplete ? `<button type="button" class="nt-page-action" data-masked-predictive="enqueue" ${enqueue ? '' : 'disabled'}>将当前任务加入预测队列</button>` : ''}
+      ${displayed.length ? `<ul class="nt-masked-predictive-list">${displayed.map(call => `<li>
+        <div><strong>${safe(call.task)}</strong><span class="sd-tag sd-tag-info">${predictiveStatus[call.status]}</span></div>
+        ${call.recordId ? `<p>话单 ${safe(call.recordId)}${call.linked ? ' · 已关联回访' : awaitingPredictiveVisit(call) ? ' · 待提交回访' : ''}</p>` : ''}
+        ${call.reason ? `<p>${safe(call.reason)}</p>` : ''}
+        <div>${(actions[call.status] || []).map(([action, label]) =>
+          `<button type="button" class="nt-page-action" data-masked-predictive="${action}" data-call="${call.id}">${label}</button>`).join('')}</div>
+      </li>`).join('')}</ul>` : '<p>暂无预测外呼记录。</p>'}`;
+  }
+
+  function predictivePanel(row) {
+    return `<section class="nt-masked-section nt-masked-predictive" aria-label="人工预测外呼">
+      <div data-predictive-queue>${renderPredictiveQueue(row)}</div><p role="status" data-predictive-status></p></section>`;
+  }
+
+  function advancePredictive(action, id, current) {
+    const call = predictiveCalls.find(item => item.id === Number(id) && item.seat === account);
+    const engaged = predictiveCalls.some(item => item.seat === account && predictiveActive(item) && item.status !== 'queued');
+    if (action === 'enqueue' && predictiveEligibility(current)) {
+      const existing = predictiveCalls.filter(item => item.taskId === current.id);
+      if (!existing.some(predictiveActive) && !existing.some(awaitingPredictiveVisit)) {
+        predictiveCalls.push({id: predictiveCalls.length + 1, taskId: current.id, task: current.task, seat: account, status: 'queued'});
+        return '已加入预测队列。';
+      }
+    }
+    if (call?.status === 'queued' && action === 'cancel') call.status = 'canceled';
+    if (call?.status === 'queued' && action === 'dial') {
+      if (engaged) return '当前坐席还有一通预测外呼待处理。';
+      const row = ownedRows().find(item => item.id === call.taskId);
+      if (!predictiveEligibility(row)) {
+        call.status = 'blocked';
+        call.reason = '任务或隐私号当前不可拨，未发起外呼。';
+        return call.reason;
+      }
+      call.status = 'dialing';
+      call.recordId = `DEMO-PRED-${String(call.id).padStart(4, '0')}`;
+    }
+    if (call?.status === 'dialing' && action === 'connected') call.status = 'waiting_seat';
+    if (call?.status === 'dialing' && action === 'no_answer') call.status = 'no_answer';
+    if (call?.status === 'waiting_seat' && action === 'handoff') {
+      if (!pendingRows().some(row => row.id === call.taskId)) {
+        call.status = 'canceled';
+        call.reason = '原任务已不在当前坐席的待跟进列表，未转接。';
+        return call.reason;
+      }
+      call.status = 'in_call';
+    }
+    if (call?.status === 'in_call' && action === 'hangup') call.status = 'ended';
+    return call ? predictiveStatus[call.status] : '';
+  }
 
   function queueFor(row) {
     if (row.followupComplete) return 'completed';
@@ -104,13 +184,14 @@
       `<option value="${key}">${label}</option>`).join('');
     return `<section class="nt-section nt-visit-form-section nt-masked-visit" aria-label="回访提交">
       <div class="nt-section-header static"><span class="nt-section-title">回访提交</span>
-        <span class="nt-masked-result">${verification ? '手机号核验' : row.followupComplete ? '已完成' : '待提交'}</span></div>
+        <span class="nt-masked-result">${verification || missingVerificationResult(row) ? '手机号核验' : row.followupComplete ? '已完成' : '待提交'}</span></div>
       <div class="nt-section-body">
         ${visit?.nextVisitAt ? `<p class="nt-visit-saved nt-masked-current-plan" role="status">
           <strong>当前预约</strong><time datetime="${safe(visit.nextVisitAt)}">${safe(dateTime(visit.nextVisitAt))}</time>
         </p>` : visit && visit.result !== 'candidate' ? `<p class="nt-visit-saved" role="status">上次回访结果 · ${safe(savedResultLabel(visit.result))}</p>` : ''}
-        ${verification ? renderVerificationProgress(row) : row.noPhoneReturn
-          ? '<p class="nt-visit-saved">未取得手机号，已退回临时池。</p>' : ''}
+        ${verification ? renderVerificationProgress(row) : missingVerificationResult(row)
+          ? '<p class="nt-visit-saved" role="status">已提交手机号核验，结果未记录。任务仍在待跟进。</p>' : row.noPhoneReturn
+          ? `<p class="nt-visit-saved">${row.noPhoneReturn.doNotContact ? '已退回临时池，保留客户拒绝继续联系的限制。' : '未取得手机号，已退回临时池。'}</p>` : ''}
         ${visit?.note ? `<p class="nt-masked-visit-note">${safe(visit.note)}</p>` : ''}
         ${locked ? '' : `<form class="nt-masked-submit">
           <div class="nt-form-grid">
@@ -124,7 +205,8 @@
               <div class="nt-form-ctl nt-plain">${known(dateTime(visit?.visitedAt))}</div></div>
             <div class="nt-form-item" data-masked-field="nextVisitAt" hidden>
               <label for="ntMaskedNextVisit">${visit?.nextVisitAt ? '重新安排回访时间' : '下次回访时间'}</label>
-              <input type="datetime-local" class="nt-form-ctl nt-input" id="ntMaskedNextVisit" name="nextVisitAt"></div>
+              <input type="datetime-local" class="nt-form-ctl nt-input" id="ntMaskedNextVisit" name="nextVisitAt" aria-describedby="ntMaskedNextVisitError">
+              <p id="ntMaskedNextVisitError" class="nt-masked-field-error" role="status" hidden></p></div>
             <div class="nt-form-item" data-masked-field="phone" hidden>
               <label for="ntMaskedCustomerPhone">客户提供的手机号</label>
               <input class="nt-form-ctl nt-input" id="ntMaskedCustomerPhone" name="phone" type="tel" inputmode="numeric"
@@ -145,8 +227,9 @@
             <div class="nt-form-item nt-form-item-wide"><label for="ntMaskedVisitNote">回访描述</label>
               <textarea id="ntMaskedVisitNote" class="nt-form-ctl nt-textarea" name="note" rows="3" maxlength="500"
                 placeholder="填写本次沟通内容和约定事项"></textarea></div>
+            <div class="nt-form-item-wide" data-masked-return-restriction hidden><label><input type="checkbox" name="doNotContact" disabled> 客户明确要求停止后续联系</label></div>
           </div>
-          <p class="nt-masked-return-note" data-nt-masked-return-note hidden>确认客户仍不愿提供手机号后，填写跟进经过并退回临时池。临时池接收后，任务将退出您的待跟进。</p>
+          <p class="nt-masked-return-note" data-nt-masked-return-note hidden>填写未取得手机号的经过。临时池接收后，任务将退出您的待跟进。</p>
           <p class="nt-masked-feedback" role="status" data-nt-masked-submit-status></p>
           <div class="nt-form-actions"><button class="nt-btn nt-btn-primary" type="submit">回访提交</button></div>
         </form>`}
@@ -192,13 +275,25 @@
     return '隐私号即将失效 · 剩余 ' + monitoring.duration(alert.at - now);
   }
 
+  function expiryGuidance(row) {
+    if (row.followupComplete || data.privacyStatus(row) !== 'expired') return '';
+    const verification = row.followupVerification;
+    if (verification && ['pending', 'timed_out'].includes(verification.status)
+      && monitoring.timestamp(verification.submittedAt) < privacyDeadline(row)) {
+      return '到期前提交的候选号码仍可继续核验，请查看原提交的核验结果。';
+    }
+    if (missingVerificationResult(row)) return '请核对原提交的核验记录。';
+    return '是否可以重新取号及任务后续去向待确认。';
+  }
+
   function card(row, now, limits) {
     return `<button type="button" class="nt-task-card ${row.id === selected ? 'active' : ''}"
       data-nt-masked-task="${safe(row.id)}" aria-pressed="${row.id === selected}">
       <span class="nt-task-card-top"><span class="nt-task-name" title="${known(row.name || row.original || row.task)}">${known(row.name || row.original || row.task)}</span>
-        ${row.followupComplete ? '' : `<span class="sd-tag sd-tag-${data.privacyTones[data.privacyStatus(row)] || 'info'}">${privacyLabel(row)}</span>`}</span>
+        ${row.followupComplete ? '' : `<span data-privacy-card-status class="sd-tag sd-tag-${data.privacyTones[data.privacyStatus(row)] || 'info'}">${privacyLabel(row)}</span>`}</span>
       <span class="nt-task-card-bottom"><span class="nt-task-phone">${[data.phone(row), seriesLabel(currentIntent(row).carSeriesId, row)].filter(Boolean).map(safe).join(' · ')}</span></span>
       ${row.followupVerification ? `<span class="nt-masked-verification-card sd-tag sd-tag-${verificationTone(row.followupVerification)}">${verificationLabel(row.followupVerification)}</span>` : ''}
+      ${missingVerificationResult(row) ? '<span class="nt-masked-verification-card sd-tag sd-tag-info">核验结果未记录</span>' : ''}
       <span class="nt-masked-privacy-card" data-privacy-card>${safe(privacyReminder(row, now, limits))}</span>
       ${row.manualFollowup?.nextVisitAt ? `<span class="nt-masked-card-time">预约回访 ${safe(dateTime(row.manualFollowup.nextVisitAt))}</span>` : ''}</button>`;
   }
@@ -215,7 +310,9 @@
         <dl class="nt-masked-fields"><div><dt>隐私号</dt><dd>${known(row.privacy?.number)}</dd></div>
         <div><dt>失效截止时间</dt><dd>${known(row.privacy?.expiresAt)}</dd></div></dl>
         ${row.privacy?.reason ? `<p class="nt-masked-feedback">${safe(row.privacy.reason)}</p>` : ''}
+        <p class="nt-masked-feedback" data-expiry-guidance role="status" hidden></p>
       </section>
+      ${local ? '' : predictivePanel(row)}
       ${renderFollowupForm(row)}
       </div>
     </section>`;
@@ -238,7 +335,7 @@
     if (row && assistantTab === 'details') {
       body = filtered.map(([title, fields], index) => `<details class="nt-masked-lead-group" ${assistantKeyword || index === 0 || index === 1 ? 'open' : ''}>
           <summary><strong>${title}</strong><span>${fields.length} 项</span></summary>
-          <dl>${fields.map(([label,value]) => `<div><dt>${label}</dt><dd>${known(value)}</dd></div>`).join('')}</dl>
+          <dl>${fields.map(([label,value]) => `<div><dt>${label}</dt><dd${label === '隐私号状态' ? ' data-privacy-assistant-status' : ''}>${known(value)}</dd></div>`).join('')}</dl>
         </details>`).join('') || '<p class="nt-masked-assistant-empty">未找到符合条件的线索字段。</p>';
     }
     if (row && assistantTab === 'records') {
@@ -251,6 +348,7 @@
           Object.hasOwn(record.intent, 'storeId') ? '意向专营店 ' + (intentCatalog.storeName(record.intent.storeId) || '暂未确认') : ''
         ].filter(Boolean).map(safe).join(' · ')}</div>` : ''}
         ${record.note ? `<p>${safe(record.note)}</p>` : ''}
+        ${record.predictiveRecordId ? `<p>人工预测外呼话单 ${safe(record.predictiveRecordId)}</p>` : ''}
       </article>`).join('') || '<p class="nt-masked-assistant-empty">暂无回访记录。</p>';
     }
     const tabs = [['details','线索详情'], ['records','回访记录']];
@@ -298,11 +396,13 @@
     const limits = monitorLimits();
     const urgent = row => monitoring.privacyAlert(row, now, data.privacyStatus(row), limits)?.type === 'expiry'
       && Boolean(privacyReminder(row, now, limits));
-    const visible = matches.filter(row => queueFor(row) === activeQueue)
+    let visible = matches.filter(row => queueFor(row) === activeQueue)
       .sort((a, b) => Number(urgent(b)) - Number(urgent(a)));
     const current = visible.find(row => row.id === selected) || visible[0];
     selected = current?.id || '';
     const dialPhone = () => current && canDial(current) ? current.privacy?.number || null : null;
+    const renderItems = (time, thresholds) => visible.length ? visible.map(row => card(row, time, thresholds)).join('') :
+      `<div class="nt-queue-empty">${loading || error ? '' : keyword ? '暂无符合查询条件的掩码任务' : completeView ? '暂无已完成的掩码任务' : '暂无待跟进的掩码任务'}</div>`;
     page.innerHTML = `<div class="nt-page-shell">
       ${outboundToolbar.render({masked: true, assistantCollapsed, dialPhone: dialPhone()})}
       <div class="nt-workspace nt-masked-workspace ${assistantCollapsed ? 'assistant-collapsed' : ''}" role="region" aria-label="抖音掩码人工外呼">
@@ -322,12 +422,12 @@
             </div>
             <p class="nt-masked-list-status" role="status">${safe(error || success || (loading ? '正在读取掩码待办…' : ''))}</p>
             ${completeView ? '' : renderQueues(pending)}
-            <div class="nt-queue-items nt-active-queue-items">${visible.length ? visible.map(row => card(row, now, limits)).join('') :
-              `<div class="nt-queue-empty">${loading || error ? '' : keyword ? '暂无符合查询条件的掩码任务' : completeView ? '暂无已完成的掩码任务' : '暂无待跟进的掩码任务'}</div>`}</div>
+            <div class="nt-queue-items nt-active-queue-items">${renderItems(now, limits)}</div>
           </div>
         </aside>
         <main class="nt-center-panel nt-masked-center">
           ${current ? detail(current) : '<div class="nt-queue-empty">待跟进任务的留资线索与跟进结果将在这里显示</div>'}
+          ${!local && !current && predictiveCalls.some(call => call.seat === account && predictiveActive(call)) ? predictivePanel() : ''}
           <div class="nt-masked-demo-footer">${renderDemoSettings()}</div>
         </main>
         <div class="nt-masked-assistant-slot" ${assistantCollapsed ? 'hidden' : ''}>${renderAssistant(current)}</div>
@@ -346,32 +446,80 @@
       }
       const time = Date.now();
       const latest = monitorLimits();
+      if (!completeView) {
+        if (current) activeQueue = queueFor(current);
+        const list = shell.querySelector('.nt-active-queue-items');
+        const nextVisible = matches.filter(row => queueFor(row) === activeQueue);
+        if (nextVisible.length !== visible.length || nextVisible.some(row => !visible.includes(row))) {
+          if (!current && nextVisible.length) {
+            render(page, tabs, switchScope);
+            return;
+          }
+          const focusedTask = list.contains(document.activeElement) ? document.activeElement.dataset.ntMaskedTask : '';
+          visible = nextVisible;
+          list.innerHTML = renderItems(time, latest);
+          if (focusedTask) [...list.querySelectorAll('[data-nt-masked-task]')]
+            .find(button => button.dataset.ntMaskedTask === focusedTask)?.focus({preventScroll:true});
+        }
+        shell.querySelectorAll('[data-nt-masked-queue]').forEach(button => {
+          const key = button.dataset.ntMaskedQueue;
+          button.classList.toggle('active', key === activeQueue);
+          button.setAttribute('aria-pressed', String(key === activeQueue));
+          button.querySelector('.nt-queue-count').textContent = pending.filter(row => queueFor(row) === key).length;
+        });
+        const planLabel = shell.querySelector('.nt-masked-current-plan strong');
+        if (planLabel) planLabel.textContent = activeQueue === 'overdue' ? '回访逾期' : '当前预约';
+      }
       const items = [...shell.querySelectorAll('[data-nt-masked-task]')];
       const ranked = items.map(button => {
         const row = visible.find(item => item.id === button.dataset.ntMaskedTask);
         const reminder = privacyReminder(row, time, latest);
         button.querySelector('[data-privacy-card]').textContent = reminder;
+        const status = button.querySelector('[data-privacy-card-status]');
+        if (status) {
+          status.textContent = privacyLabel(row);
+          status.className = 'sd-tag sd-tag-' + (data.privacyTones[data.privacyStatus(row)] || 'info');
+        }
         return {button, urgent: reminder.startsWith('隐私号即将失效')};
       }).sort((a, b) => Number(b.urgent) - Number(a.urgent));
       ranked.forEach(({button}, index) => {
         if (button.parentElement.children[index] !== button) button.parentElement.insertBefore(button, button.parentElement.children[index]);
       });
       if (current) {
+        const enqueue = shell.querySelector('[data-masked-predictive="enqueue"]');
+        if (enqueue && !predictiveEligibility(current)) enqueue.disabled = true;
         const banner = shell.querySelector('[data-privacy-banner]');
         const reminder = privacyReminder(current, time, latest);
         const deadline = current.privacy?.expiresAtRaw || current.privacy?.expiresAt;
         banner.textContent = reminder.startsWith('隐私号即将失效')
           ? reminder + '，截止 ' + dateTime(deadline) + '，请优先外呼。' : reminder;
-        const expired = reminder === '隐私号已失效';
+        const guidance = shell.querySelector('[data-expiry-guidance]');
+        const nextGuidance = expiryGuidance(current);
+        if (guidance.textContent !== nextGuidance) guidance.textContent = nextGuidance;
+        guidance.hidden = !nextGuidance;
+        const expired = data.privacyStatus(current) === 'expired' && !current.followupComplete;
         if (expired) {
           page.querySelectorAll('[data-nt-outbound-action="dial"], [data-nt-outbound-action="open-dial-modal"], [data-nt-outbound-action="submit-dial"]')
             .forEach(button => { button.disabled = true; });
+          const dialStatus = page.querySelector('[data-masked-dial-status]');
+          if (dialStatus) {
+            dialStatus.classList.add('is-expired');
+            dialStatus.textContent = '当前任务的隐私号已失效，无法拨打。';
+          }
           const status = shell.querySelector('[aria-label="隐私号外呼"] .sd-tag');
           status.textContent = '已失效';
           status.className = 'sd-tag sd-tag-danger';
+          const assistantStatus = shell.querySelector('[data-privacy-assistant-status]');
+          if (assistantStatus) assistantStatus.textContent = status.textContent;
         }
       }
-      privacyTimer = setTimeout(() => updatePrivacy(true), 30_000);
+      const boundary = pending.reduce((next, row) => {
+        const planned = monitoring.timestamp(row.manualFollowup?.nextVisitAt);
+        const expiry = monitoring.timestamp(row.privacy?.expiresAtRaw || row.privacy?.expiresAt);
+        return Math.min(next, planned > time ? planned : Infinity, expiry > time ? expiry : Infinity);
+      }, Infinity);
+      const delay = Math.min(30_000, boundary - time);
+      privacyTimer = setTimeout(() => updatePrivacy(delay < boundary - time), delay);
     };
     updatePrivacy();
     const updateAssistant = () => {
@@ -394,6 +542,17 @@
     const scopeSelector = page.querySelector('[data-task-scope-select]');
     scopeSelector.addEventListener('change', () => switchScope(scopeSelector.value));
     page.onclick = event => {
+      const predictive = event.target.closest('[data-masked-predictive]');
+      if (predictive && !local) {
+        const {maskedPredictive, call} = predictive.dataset;
+        const message = advancePredictive(maskedPredictive, call, current);
+        const panel = shell.querySelector('[data-predictive-queue]');
+        panel.innerHTML = renderPredictiveQueue(current);
+        shell.querySelector('[data-predictive-status]').textContent = message;
+        const next = panel.querySelector(`[data-call="${Number(call)}"]`) || panel.querySelector('[data-masked-predictive]:enabled');
+        next?.focus({preventScroll: true});
+        return;
+      }
       const storeTrigger = event.target.closest('[data-masked-store-picker]');
       if (storeTrigger) {
         const form = storeTrigger.form;
@@ -496,8 +655,19 @@
     };
     const form = page.querySelector('.nt-masked-submit');
     if (form) {
-      const {contactStatus, result, phone, nextVisitAt} = form.elements;
+      const {contactStatus, result, phone, nextVisitAt, doNotContact} = form.elements;
       const phoneError = form.querySelector('#ntMaskedMobileError');
+      const nextVisitError = form.querySelector('#ntMaskedNextVisitError');
+      const expiry = monitoring.timestamp(current.privacy?.expiresAtRaw || current.privacy?.expiresAt);
+      const validateNextVisit = () => {
+        const planned = monitoring.timestamp(nextVisitAt.value + '+08:00');
+        const invalid = !nextVisitAt.disabled && Number.isFinite(expiry) && planned >= expiry;
+        if (invalid) nextVisitAt.setAttribute('aria-invalid', 'true');
+        else nextVisitAt.removeAttribute('aria-invalid');
+        nextVisitError.hidden = !invalid;
+        nextVisitError.textContent = invalid ? '该号码届时已失效，请改选隐私号截止时间前的回访时间。' : '';
+        return !invalid;
+      };
       const validatePhone = (showIncomplete = false) => {
         const value = phone.value;
         const invalid = !phone.disabled && (value ? !mobileNumber.test(value) : showIncomplete);
@@ -512,6 +682,7 @@
       phone.addEventListener('input', () => validatePhone());
       phone.addEventListener('blur', () => validatePhone(Boolean(phone.value)));
       phone.addEventListener('invalid', () => validatePhone(true));
+      nextVisitAt.addEventListener('input', validateNextVisit);
       const sync = () => {
         const candidate = result.querySelector('[value="candidate"]');
         candidate.disabled = !canDial(current) || contactStatus.value !== 'connected';
@@ -523,7 +694,12 @@
           input.required = visible;
         });
         validatePhone();
+        validateNextVisit();
         const returning = result.value === 'return_no_phone';
+        const canMarkRestriction = returning && contactStatus.value === 'rejected';
+        doNotContact.disabled = !canMarkRestriction;
+        doNotContact.closest('[data-masked-return-restriction]').hidden = !canMarkRestriction;
+        if (!canMarkRestriction) doNotContact.checked = false;
         form.elements.note.required = returning;
         form.querySelector('[data-nt-masked-return-note]').hidden = !returning;
         form.querySelector('[type=submit]').textContent = returning ? '确认退回临时池'
@@ -533,6 +709,10 @@
       form.oninput = () => { delete form.dataset.submissionId; };
       form.onsubmit = event => {
         event.preventDefault();
+        if (!validateNextVisit()) {
+          nextVisitAt.focus();
+          return;
+        }
         submit(page, tabs, switchScope, form, current);
       };
       sync();
@@ -595,7 +775,8 @@
     const button = form.querySelector('button[type=submit]');
     const feedback = form.querySelector('[data-nt-masked-submit-status]');
     if (button.disabled) return;
-    const {phone, carSeriesId, storeId, ...visit} = Object.fromEntries(new FormData(form));
+    const {phone, carSeriesId, storeId, doNotContact, ...visit} = Object.fromEntries(new FormData(form));
+    if (doNotContact) visit.doNotContact = true;
     const originalIntent = currentIntent(row);
     const selectedIntent = {carSeriesId: carSeriesId || null, storeId: storeId || null};
     const updates = Object.entries(selectedIntent).filter(([key, value]) => value !== originalIntent[key]);
@@ -606,7 +787,11 @@
     const returning = visit.result === 'return_no_phone';
     if (returning && !visit.note.trim()) { feedback.textContent = '请填写跟进经过或客户未提供手机号的原因。'; return; }
     if (submittingNumber && !mobileNumber.test(phone || '')) { feedback.textContent = mobileError; return; }
-    if (submittingNumber && !canDial(row)) { feedback.textContent = '隐私号当前不可拨。'; return; }
+    // An unchanged retry may retrieve a receipt for a submission accepted before expiry.
+    if (submittingNumber && !canDial(row) && !(local && form.dataset.submissionId)) {
+      feedback.textContent = '隐私号当前不可拨。';
+      return;
+    }
     if (!local && visit.result === 'callback' && visit.nextVisitAt <= dateTime(Date.now()).replace(' ', 'T')) {
       feedback.textContent = '下次回访时间须晚于当前时间。';
       return;
@@ -617,6 +802,18 @@
     }
     const prefix = 'tasks/' + encodeURIComponent(row.id) + '/';
     const previousRecords = row.manualFollowupHistory || (row.manualFollowup ? [row.manualFollowup] : []);
+    const predictiveCall = !local && predictiveCalls.findLast(call => call.taskId === row.id && call.seat === account);
+    if (predictiveCall && predictiveActive(predictiveCall)) {
+      feedback.textContent = '请先处理该任务的预测外呼，再提交回访。';
+      return;
+    }
+    if (predictiveCall && awaitingPredictiveVisit(predictiveCall)) {
+      const allowed = predictiveVisitContacts(predictiveCall);
+      if (!allowed.includes(visit.contactStatus)) {
+        feedback.textContent = `请按本次预测话单选择${allowed.map(status => `「${contacts[status]}」`).join('或')}，再提交回访。`;
+        return;
+      }
+    }
     button.disabled = true;
     const grid = form.querySelector('.nt-form-grid');
     grid.inert = true;
@@ -627,7 +824,9 @@
           form.dataset.submissionId ||= crypto.randomUUID();
           row.followupVerification = await data.request(prefix + 'candidates',
             {submissionId: form.dataset.submissionId, phone, visitNote: visit.note, ...(visit.intent ? {intent: visit.intent} : {})}, token);
-          message = '已提交临时池核验，收到核验通过结果后计入已完成。';
+          row.followupComplete = row.followupVerification.status === 'passed';
+          message = row.followupComplete ? '已取得临时池的核验通过结果，任务已计入已完成。' :
+            '已提交临时池核验，收到核验通过结果后计入已完成。';
         } else {
           row.followupVerification = {maskedPhone: phone.slice(0,3) + '****' + phone.slice(-4),
             status: 'passed'};
@@ -643,11 +842,15 @@
         };
         if (visit.result === 'callback') message = '已安排下次回访。';
         if (returning) {
-          row.noPhoneReturn = local ? row.manualFollowup.noPhoneReturn : {status:'accepted'};
+          row.noPhoneReturn = local ? row.manualFollowup.noPhoneReturn : {status:'accepted', doNotContact: Boolean(visit.doNotContact)};
           if (row.noPhoneReturn?.status !== 'accepted') throw new Error('暂未收到临时池确认，请重试。');
           row.followupComplete = true;
           message = local ? '临时池已接收，任务已退出待跟进。' : '演示退回临时池成功，任务已退出待跟进。';
         }
+      }
+      if (predictiveCall && awaitingPredictiveVisit(predictiveCall)) {
+        row.manualFollowup.predictiveRecordId = predictiveCall.recordId;
+        predictiveCall.linked = true;
       }
       row.manualFollowupHistory = [row.manualFollowup, ...previousRecords].slice(0, 30);
       if (form.isConnected) {
@@ -656,7 +859,12 @@
         render(page, tabs, switchScope, '[data-nt-masked-queue][aria-pressed="true"]');
       }
     } catch (err) {
-      feedback.textContent = err.message || '提交失败，请重试。';
+      let failure = err.message || '提交失败，请重试。';
+      if (local && err instanceof TypeError) {
+        if (returning) failure = '暂未收到临时池退回确认，请保留原回访内容后重试。';
+        if (submittingNumber) failure = '暂未收到临时池核验提交确认，请保留原内容后重试。';
+      }
+      feedback.textContent = failure;
       button.disabled = false;
       grid.inert = false;
     }

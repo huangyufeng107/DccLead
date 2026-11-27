@@ -590,10 +590,20 @@
  Rules --> Result{确定分配去向}
  Result -->|人工| Manual[主管派给坐席，进入抖音掩码外呼列表]
  Manual --> Verify[坐席提交客户提供的手机号核验]
- Verify --> Delivered{合格结果回传成功？}
- Delivered -->|是| Complete[退出待跟进，计入已完成]
- Delivered -->|待处理| Pending[保留待跟进及核验状态]
- Result -->|AI| AI[标记 AI 跟进，按隐私号状态判断是否可拨]
+ Verify --> Delivered{DCC 取得当前候选核验通过？}
+ Delivered -->|通过| Complete[退出待跟进，计入已完成]
+ Delivered -->|待核验或超时| Pending[保留待跟进并查询原候选]
+ Delivered -->|未通过且仍可拨| Manual
+ Delivered -->|已到期| Expired[禁拨并保留原任务及历史]
+ Delivered -->|通过| Qualified[临时池独立回传合格结果给车巴巴]
+ Manual --> NoNumber[未取得手机号，按原任务退回]
+ NoNumber --> ReturnAck{临时池确认接收？}
+ ReturnAck -->|已确认| Complete
+ ReturnAck -->|待确认| Pending
+ Result -->|AI| AI[按隐私号状态及主叫备案校验后外呼]
+ AI --> Closed{AI 外呼结束且话单标签命中？}
+ Closed -->|命中| Workorder[生成人工工单并关联原线索和话单]
+ Workorder --> Manual
  Result -->|未命中| Default[待主管人工分配]
  Result -->|去向冲突或配置待核对| Review[提示主管处理]
  class Start,Existing,Manual,AI,Complete ok; class Saved,Result,Delivered decision; class Rules,Verify main; class Default,Review,Pending warn;
@@ -605,7 +615,9 @@
 <ul>
 <li><strong>适用线索</strong>覆盖意向车系、SmartCode、大项目名、渠道编码、线索状态和意向门店。历史规则默认适用常规培育线索。抖音任务同时匹配「抖音掩码留资」和规则配置的业务条件。</li>
 <li><strong>结果核对</strong>在「接单后分配」查看命中规则、外呼类型、比例配置、策略版本和分配判断时间。已分流任务保留原结果，后续发布用于新确认接单的任务。</li>
-<li><strong>联调边界</strong>本地已验证接单、规则匹配和结果保存。正式 AI 外呼接口及号码使用权限待联调。大项目名、线索状态和异常原因需上游提供对应字段。</li>
+<li><strong>页面承接</strong>　配置人员维护六类规则和分配比例；主管处理人工队列与预警；坐席在「我的任务」外呼、核验及退回。运营分别在人工／AI 外呼明细与详情、人工／AI 统计以及 AI 异常清单对账。<a href="DccLead_功能说明.html#masked90-pages">影响页面与验收</a>。</li>
+<li><strong>结案与对账</strong>DCC 取得当前候选核验通过结果或临时池退回接收确认后结案。车巴巴回传与正式下发分别记录。到期前已受理候选继续核验。正式接口、话路、自动回收及退回承接待联调。</li>
+<li><a href="../../../../产品方案/抖音掩码系统改造执行方案/90天临时方案.html#dcc-followup-flow">90 天端到端交接流程</a> · <a href="DccLead_版本日志.html#version-3-3">版本日志 v3.3</a> · <a href="DccLead_功能说明.html#masked90-spec">总部 DCC 功能说明</a></li>
 </ul>
 <p><a href="DccLead_功能说明.html#lead-assignment-manual-update-common" target="_blank" rel="noopener">查看分配策略功能说明 ↗</a> · <a href="../../../DccLead.html?prototypePage=assignment#dcc-prototype" target="_blank" rel="noopener">打开线索分配策略原型 ↗</a> · <a href="../../../DccLead.html?prototypePage=masked-seat-workbench#dcc-prototype" target="_blank" rel="noopener">打开抖音掩码外呼列表 ↗</a></p>
 </details>

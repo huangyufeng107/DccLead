@@ -21,7 +21,7 @@
   function renderActionInputs(actions, index) {
     const dictionary = api.actionDictionaries(actions.leadStatus);
     const statuses = dictionary.available ? dictionary.statuses : [{value:actions.leadStatus,label:actions.leadStatus}];
-    const levels = typeof strategyConfiguratorOptions === 'undefined' ? ['H','A','B','C','E','F','L','N'] : [...new Set([...strategyConfiguratorOptions.intentLevelAction.filter(value=>/^[A-Z]$/.test(value)),'N'])];
+    const levels = DccLeadIntent.codes(typeof strategyConfiguratorOptions === 'undefined' ? 'conversion' : [...new Set([...strategyConfiguratorOptions.intentLevelAction.filter(value=>/^[A-Z]$/.test(value)),'N'])]);
     return `<tr><td>线索状态</td><td><select data-field="leadStatus">${selectOptions(statuses,actions.leadStatus)}</select></td></tr>
       <tr><td>回访结果</td><td><select data-field="visitResult">${selectOptions(dictionary.results,actions.visitResult)}</select><small class="gsc-field-help">读取启用字典项，仅保留无人接听下发、休眠失联、休眠未购、无效结案和战败。</small></td></tr>
       <tr><td>异常原因</td><td><select data-field="resultReason">${reasonOptions(actions.leadStatus,actions.resultReason)}</select><small class="gsc-field-help" data-reason-help>仅展示适用于所选线索状态的已启用原因；不设置时清空原异常原因。</small></td></tr>

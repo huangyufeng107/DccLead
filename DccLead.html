@@ -5,16 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DCC培育 · SaaS平台</title>
   <link rel="stylesheet" href="DccLead.assets/css/app.css?v=20261110-store-picker-demo">
-  <link rel="stylesheet" href="DccLead.assets/css/outbound-mapping-fixes.css?v=20261124-verification-demo">
+  <link rel="stylesheet" href="DccLead.assets/css/outbound-mapping-fixes.css?v=20261126-predictive-queue">
   <link rel="stylesheet" href="DccLead.assets/css/sms-templates.css?v=2026110603">
   <link rel="stylesheet" href="DccLead.assets/css/schedule-management.css?v=2026102602">
   <link rel="stylesheet" href="DccLead.assets/css/download-list.css?v=2026102601">
   <link rel="stylesheet" href="DccLead.assets/css/nev-daily-report.css?v=20261111-nev-shared-tabs">
-  <link rel="stylesheet" href="DccLead.assets/css/ai-quality-daily.css?v=2026102607">
+  <link rel="stylesheet" href="DccLead.assets/css/ai-quality-daily.css?v=20261126-ai-task-statistics">
   <link rel="stylesheet" href="DccLead.assets/css/ai-strategy-workbench.css?v=20261118-strategy-date-range">
   <link rel="stylesheet" href="DccLead.assets/css/tianwang-paid-dispatch-config.css?v=20261026-doc-entry">
   <link rel="stylesheet" href="DccLead.assets/css/supervisor-nurture-task.css?v=20261124-nurture-navigation">
-  <link rel="stylesheet" href="DccLead.assets/css/masked-lead-intake.css?v=20261124-followup-outcome">
+  <link rel="stylesheet" href="DccLead.assets/css/masked-lead-intake.css?v=20261126-result-card-corners">
   <link rel="stylesheet" href="DccLead.assets/css/docs-navigation.css?v=20261103-remove-logic">
   <link rel="stylesheet" href="DccLead.assets/css/lead-assignment.css?v=20261123-masked-routing">
   <link rel="stylesheet" href="DccLead.assets/css/pagination-standard.css?v=2026102605">
@@ -22,9 +22,9 @@
   <link rel="stylesheet" href="DccLead.assets/css/global-state-conversion.css?v=20261104-multi-range">
   <link rel="stylesheet" href="DccLead.assets/css/batch-dispatch.css?v=20261104-conversion-toolbar">
   <link rel="stylesheet" href="DccLead.assets/css/recording-list.css?v=2026102702">
-  <link rel="stylesheet" href="DccLead.assets/css/hq-nurture-report.css?v=20261125-masked-workorder-inline-visits">
+  <link rel="stylesheet" href="DccLead.assets/css/hq-nurture-report.css?v=20261126-workorder-shared-detail">
   <link rel="stylesheet" href="DccLead.assets/css/low-score-visit.css?v=20261030-return-demo1">
-  <script defer src="DccLead.assets/js/29-docs-navigation.js?v=20261119-docs-organized"></script>
+  <script defer src="DccLead.assets/js/29-docs-navigation.js?v=20261127-v33-doc-links"></script>
 </head>
 <body class="login-active">
 
@@ -1339,15 +1339,7 @@
               </div>
               <div class="search-field">
                 <label>意向级别</label>
-                <select class="lead-select" id="leadSearchLevel">
-                  <option value="">全部</option>
-                  <option value="H">H - H(高意向)</option>
-                  <option value="A">A - A(一周内买车)</option>
-                  <option value="B">B - B(计划三个月内买车)</option>
-                  <option value="C">C - C(计划三个月后买车)</option>
-                  <option value="F">F - F(战败)</option>
-                  <option value="L">L - L(休眠)</option>
-                  <option value="N">N - N(阶段性战败)</option>
+                <select class="lead-select" id="leadSearchLevel"><option value="">全部</option>
                 </select>
               </div>
               <div class="search-field">
@@ -2406,13 +2398,14 @@
 <div class="metric-info-popover" id="metricInfoPopover" role="dialog" aria-live="polite"></div>
 
   <script src="DccLead.assets/js/00-ui-utils.js"></script>
-  <script src="DccLead.assets/js/00-data.js"></script>
+  <script src="DccLead.assets/js/00-intent-level-dictionary.js?v=20261125-intent-shared-final"></script>
+  <script src="DccLead.assets/js/00-data.js?v=20261125-intent-shared-final"></script>
   <script src="DccLead.assets/js/01a-shell-navigation.js?v=20261123-shell-navigation"></script>
   <script src="DccLead.assets/js/01b-pre-dial-reports.js"></script>
   <script src="DccLead.assets/js/01c-worry-free-config.js"></script>
   <script src="DccLead.assets/js/01d-page-routing.js?v=2026102301"></script>
   <script src="DccLead.assets/js/02-strategy-navigation.js?v=20261030-name1"></script>
-  <script src="DccLead.assets/js/03-strategy-configurator.js?v=20261026-excel-import"></script>
+  <script src="DccLead.assets/js/03-strategy-configurator.js?v=20261125-intent-shared-final"></script>
   <script src="DccLead.assets/js/04a-lead-assignment-core.js?v=20261123-masked-routing"></script>
   <script src="DccLead.assets/js/04b-outbound-label-mapping.js"></script>
   <script src="DccLead.assets/js/04c-lead-assignment-rule-forms.js?v=20261123-masked-routing"></script>
@@ -2424,13 +2417,13 @@
   <script src="DccLead.assets/js/04i-ai-list-transfer.js?v=20261118-strategy-date-range"></script>
   <script src="DccLead.assets/js/04j-masked-intake-routing.js?v=20261123-masked-routing"></script>
   <script src="DccLead.assets/js/05-sms-dispatch.js?v=20261125-sms-series-label-unified"></script>
-  <script src="DccLead.assets/js/06-ai-redial.js?v=2026092910"></script>
+  <script src="DccLead.assets/js/06-ai-redial.js?v=20261126-ai-workflow"></script>
   <script src="DccLead.assets/js/07-call-status.js?v=20261104-multi-range"></script>
   <script src="DccLead.assets/js/08-cold-lead.js"></script>
-  <script src="DccLead.assets/js/09-lead-dispatch.js?v=20261124-sms-series"></script>
+  <script src="DccLead.assets/js/09-lead-dispatch.js?v=20261125-intent-shared-final"></script>
   <script src="DccLead.assets/js/10-resource-leads.js"></script>
   <script src="DccLead.assets/js/11-resource-unfilled.js"></script>
-  <script src="DccLead.assets/js/12a-nurture-lead-list.js?v=20261106-initial-score-label"></script>
+  <script src="DccLead.assets/js/12a-nurture-lead-list.js?v=20261125-intent-shared-final"></script>
   <script src="DccLead.assets/js/12b-nurture-task-snapshots.js"></script>
   <script src="DccLead.assets/js/12c-nurture-snapshot-data.js?v=20261106-initial-score-label"></script>
   <script src="DccLead.assets/js/12d-nurture-export.js"></script>
@@ -2444,12 +2437,12 @@
   <script src="DccLead.assets/js/14-precall-task-import.js"></script>
   <script src="DccLead.assets/js/14a-excellent-config-import.js"></script>
   <script src="DccLead.assets/js/15-system-settings.js?v=2026102601"></script>
-  <script src="DccLead.assets/js/16-data-dictionary.js?v=20261110-store-city-group"></script>
+  <script src="DccLead.assets/js/16-data-dictionary.js?v=20261125-intent-shared-final"></script>
   <script src="DccLead.assets/js/17-lead-dispatch-audit.js?v=2026101318"></script>
   <script src="DccLead.assets/js/18-batch-dispatch-page.js?v=20261031-distribution-move"></script>
   <script src="DccLead.assets/js/19a-low-score-visit.js?v=20261104-multi-range"></script>
   <script src="DccLead.assets/js/19b-low-score-dispatch.js?v=20261104-multi-range"></script>
-  <script src="DccLead.assets/js/19-nurture-task-page.js?v=20261124-shared-intent-store-name"></script>
+  <script src="DccLead.assets/js/19-nurture-task-page.js?v=20261125-masked-dial-status"></script>
   <script src="DccLead.assets/js/20-manual-agent-workorders-report.js?v=2026102601"></script>
   <script src="DccLead.assets/js/21-ai-test-drive-scheduling.js?v=20261119-docs-organized"></script>
   <script src="DccLead.assets/js/21-seat-performance-dashboard.js?v=20261119-docs-organized"></script>
@@ -2459,13 +2452,14 @@
   <script src="DccLead.assets/js/24-tianwang-paid-dispatch-config.js?v=20261119-docs-organized"></script>
   <script src="DccLead.assets/js/23-lead-import.js?v=2026092111"></script>
   <script src="DccLead.assets/js/39-lead-import.js?v=20261026-pagination"></script>
-  <script src="DccLead.assets/js/masked-lead-demo-data.js?v=20261125-multiple-visit-sample"></script>
+  <script src="DccLead.assets/js/masked-lead-demo-data.js?v=20261126-ai-handoff-lead"></script>
   <script src="DccLead.assets/js/25b-masked-monitoring.js?v=20261124-followup-outcome"></script>
-  <script src="DccLead.assets/js/25a-masked-lead-intake.js?v=20261124-manual-report-count"></script>
-  <script src="DccLead.assets/js/19a-masked-seat-workbench.js?v=20261125-masked-workorder-inline-visits"></script>
-  <script src="DccLead.assets/js/25-supervisor-nurture-task.js?v=20261124-nurture-navigation"></script>
+  <script src="DccLead.assets/js/25a-masked-lead-intake.js?v=20261126-manual-statistics"></script>
+  <script src="DccLead.assets/js/19a-masked-seat-workbench.js?v=20261126-return-contact-restriction"></script>
+  <script src="DccLead.assets/js/25-supervisor-nurture-task.js?v=20261125-intent-shared-final"></script>
   <script src="DccLead.assets/js/26-nev-daily-grade-data.js?v=20261111-nev-grade-split"></script>
-  <script src="DccLead.assets/js/26-ops-report.js?v=20261125-workorder-return-source"></script>
+  <script src="DccLead.assets/js/26-masked-ai-workflow.js?v=20261126-90d-handoff-review"></script>
+  <script src="DccLead.assets/js/26-ops-report.js?v=20261126-90d-handoff-review"></script>
   <script src="DccLead.assets/js/30-quality-report-old.js?v=2026102601"></script>
   <script src="DccLead.assets/js/31-quality-report.js?v=2026102601"></script>
   <script src="DccLead.assets/js/32-quality-appeal.js?v=2026102601"></script>
@@ -2475,8 +2469,9 @@
   <script src="DccLead.assets/js/42-recording-list.js?v=2026102702"></script>
   <script src="DccLead.assets/js/27-retention-data-config.js?v=20261031-retention-window"></script>
   <script src="DccLead.assets/js/28-ops-ai-testdrive-efficiency.js?v=20261102-confirmed-closeout"></script>
-  <script src="DccLead.assets/js/45-global-state-conversion.js?v=20261104-multi-range"></script>
-  <script src="DccLead.assets/js/43-version-prototype-entry.js?v=20261124-sms-records-summary"></script>
+  <script src="DccLead.assets/js/45-global-state-conversion.js?v=20261125-intent-shared-final"></script>
+  <script src="DccLead.assets/js/43-version-prototype-entry.js?v=20261126-v33-page-scope"></script>
 
+<script>document.getElementById('leadSearchLevel').innerHTML = '<option value="">全部</option>' + DccLeadIntent.codes('dispatch').map(code => '<option value="'+code+'">'+escapeHtml(DccLeadIntent.display(code))+'</option>').join('');</script>
 </body>
 </html>

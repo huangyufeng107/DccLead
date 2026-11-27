@@ -1,41 +1,58 @@
 /* 统计报表 / AI渠道质量日报 */
-#opsAiChannelQualityDailyPage .ai-quality-page { padding: 20px 24px 32px; }
-#opsAiChannelQualityDailyPage .ai-quality-hero { align-items: center; }
-#opsAiChannelQualityDailyPage .ai-quality-summary-text { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; }
-#opsAiChannelQualityDailyPage .ai-quality-filter-card, #opsAiChannelQualityDailyPage .ai-quality-results { background: #fff; border: 1px solid #e4eaf3; border-radius: 8px; box-shadow: 0 4px 18px rgba(15,23,42,.035); }
-#opsAiChannelQualityDailyPage .ai-quality-filter-card { margin-bottom: 14px; padding: 18px 20px; }
-#opsAiChannelQualityDailyPage .ai-quality-section-title { color: #1f2937; font-size: 14px; font-weight: 700; }
-#opsAiChannelQualityDailyPage .ai-quality-filter-card .ai-quality-section-title { margin-bottom: 14px; }
-#opsAiChannelQualityDailyPage .ai-quality-filter-grid { display: grid; grid-template-columns: minmax(280px,1.55fr) minmax(125px,.65fr) minmax(230px,1.25fr) minmax(125px,.65fr) auto; gap: 14px; align-items: end; }
-#opsAiChannelQualityDailyPage .ai-quality-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; color: #475569; font-size: 12px; font-weight: 600; }
+#opsAiChannelQualityDailyPage .ai-quality-page { min-width: 0; }
+#opsAiChannelQualityDailyPage .ai-quality-filter-card {
+  container-type: inline-size;
+  margin-bottom: 16px;
+  padding: 18px 20px;
+  box-shadow: none !important;
+}
+#opsAiChannelQualityDailyPage .ai-quality-filter-card .lead-search-title { margin-bottom: 12px; }
+#opsAiChannelQualityDailyPage .ai-quality-filter-grid {
+  display: grid;
+  grid-template-columns: minmax(116px, 1fr) minmax(260px, 1.45fr) minmax(84px, .65fr) minmax(140px, 1.15fr) minmax(88px, .7fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+#opsAiChannelQualityDailyPage .ai-quality-drilldown {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 260px));
+  gap: 12px;
+  margin-top: 12px;
+}
+#opsAiChannelQualityDailyPage .ai-quality-drilldown[hidden] { display: none; }
+#opsAiChannelQualityDailyPage .ai-quality-field { display: grid; gap: 6px; min-width: 0; color: #475569; font-size: 12px; font-weight: 600; }
 #opsAiChannelQualityDailyPage .ai-quality-field .form-input { width: 100%; min-width: 0; height: 36px; box-sizing: border-box; font-size: 13px; font-weight: 400; }
-#opsAiChannelQualityDailyPage .ai-quality-date-range { display: flex; align-items: center; gap: 7px; min-width: 0; }
-#opsAiChannelQualityDailyPage .ai-quality-date-range span { flex: none; color: #94a3b8; }
-#opsAiChannelQualityDailyPage .ai-quality-filter-actions, #opsAiChannelQualityDailyPage .ai-quality-toolbar-actions { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
-#opsAiChannelQualityDailyPage .ai-quality-filter-actions button, #opsAiChannelQualityDailyPage .ai-quality-toolbar-actions button { min-height: 36px; padding: 0 14px; font-size: 13px; font-weight: 600; }
-#opsAiChannelQualityDailyPage .ai-quality-filter-actions .btn-blue-primary { display: inline-flex; align-items: center; justify-content: center; min-width: 64px; border: 1px solid #1d4ed8; border-radius: 5px; background: #1d4ed8; color: #fff; cursor: pointer; }
-#opsAiChannelQualityDailyPage .ai-quality-filter-actions .btn-blue-primary:hover { background: #1e40af; border-color: #1e40af; }
-#opsAiChannelQualityDailyPage .ai-quality-filter-actions .btn-secondary { display: inline-flex; align-items: center; justify-content: center; min-width: 64px; border: 1px solid #d5deeb; border-radius: 5px; background: #fff; color: #475569; cursor: pointer; }
-#opsAiChannelQualityDailyPage .ai-quality-filter-actions .btn-secondary:hover { border-color: #93c5fd; color: #1d4ed8; }
-#opsAiChannelQualityDailyPage .ai-quality-filter-actions button:focus-visible { outline: 2px solid #60a5fa; outline-offset: 2px; }
-#opsAiChannelQualityDailyPage .ai-quality-results { overflow: hidden; }
-#opsAiChannelQualityDailyPage .ai-quality-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 62px; padding: 10px 20px; }
-#opsAiChannelQualityDailyPage .ai-quality-result-count { margin-left: 7px; color: #94a3b8; font-size: 12px; font-weight: 500; }
-#opsAiChannelQualityDailyPage .ai-quality-tabs { display: flex; gap: 4px; overflow-x: auto; padding: 0 18px; border-bottom: 1px solid #e8eef7; }
-#opsAiChannelQualityDailyPage .ai-quality-tab { flex: none; padding: 12px 14px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: #64748b; font-size: 13px; font-weight: 600; cursor: pointer; }
-#opsAiChannelQualityDailyPage .ai-quality-tab:hover, #opsAiChannelQualityDailyPage .ai-quality-tab:focus-visible { color: #1d4ed8; background: #f8fbff; outline: none; }
-#opsAiChannelQualityDailyPage .ai-quality-tab.active { color: #1d4ed8; border-bottom-color: #2563eb; }
-#opsAiChannelQualityDailyPage .ai-quality-table-panel { padding: 16px 20px 0; }
-#opsAiChannelQualityDailyPage .ai-quality-pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 54px; margin: 16px -20px 0; padding: 10px 20px; box-sizing: border-box; border-top: 1px solid #e8eef7; color: #64748b; font-size: 12px; }
-#opsAiChannelQualityDailyPage .ai-quality-pager-controls { display: flex; align-items: center; gap: 7px; }
-#opsAiChannelQualityDailyPage .ai-quality-pager .hit-page-size { height: 34px; border: 1px solid #d5deeb; border-radius: 5px; color: #334155; font-size: 12px; cursor: pointer; }
-#opsAiChannelQualityDailyPage .ai-quality-pager .page-btn { display: inline-flex; align-items: center; justify-content: center; min-width: 34px; width: 34px; height: 34px; padding: 0; border: 1px solid #d5deeb; border-radius: 5px; background: #fff; color: #475569; cursor: pointer; }
-#opsAiChannelQualityDailyPage .ai-quality-pager .page-btn:hover:not(:disabled) { border-color: #2563eb; color: #1d4ed8; background: #eff6ff; }
-#opsAiChannelQualityDailyPage .ai-quality-pager .page-btn:disabled { border-color: #e2e8f0; background: #f8fafc; color: #b8c2d1; cursor: not-allowed; }
-#opsAiChannelQualityDailyPage .ai-quality-table-wrap { overflow-x: auto; border: 1px solid #e4eaf3; border-radius: 6px; }
+#opsAiChannelQualityDailyPage .ai-quality-date-range { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 7px; }
+#opsAiChannelQualityDailyPage .ai-quality-date-range span { color: #64748b; }
+#opsAiChannelQualityDailyPage :is(.ai-quality-filter-actions, .ai-quality-toolbar-actions) { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+#opsAiChannelQualityDailyPage .ai-quality-filter-actions { justify-content: flex-end; }
+#opsAiChannelQualityDailyPage .ai-quality-results { padding: 0; box-shadow: none !important; }
+#opsAiChannelQualityDailyPage .ai-quality-toolbar { flex-wrap: wrap; gap: 12px; padding: 13px 16px; }
+#opsAiChannelQualityDailyPage .ai-quality-result-count { color: #64748b; font-size: 12px; font-weight: 500; }
+#opsAiChannelQualityDailyPage .ai-quality-table-wrap { max-width: 100%; overflow-x: auto; }
+#opsAiChannelQualityDailyPage .ai-quality-table-wrap:focus-visible { outline: 2px solid #bfdbfe; outline-offset: -2px; }
+#opsAiChannelQualityDailyPage .ai-quality-note { margin: 0; padding: 12px 16px; border-top: 1px solid #e8eef7; color: #64748b; font-size: 12px; }
+#opsAiChannelQualityDailyPage .ai-quality-filter-grid.is-task-statistics {
+  grid-template-columns: minmax(260px, 360px) minmax(120px, 200px) minmax(0, 1fr);
+}
+#opsAiChannelQualityDailyPage .ai-task-statistics-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 14px 16px;
+}
+#opsAiChannelQualityDailyPage .ai-task-statistics-summary > div {
+  padding: 12px 14px;
+  border: 1px solid var(--surface-container-high);
+  border-radius: var(--radius-lg);
+  background: var(--surface-container-lowest);
+}
+#opsAiChannelQualityDailyPage .ai-task-statistics-summary dt { color: #475569; font-size: 13px; font-weight: 600; }
+#opsAiChannelQualityDailyPage .ai-task-statistics-summary dd { margin: 4px 0 0; color: var(--primary-container); font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
 #opsAiChannelQualityDailyPage .ai-quality-table { width: max-content; min-width: 100%; border-collapse: separate; border-spacing: 0; }
-#opsAiChannelQualityDailyPage .ai-quality-th { padding: 11px 12px; border-right: 1px solid #e8eef7; border-bottom: 1px solid #e8eef7; background: #f8fafc; color: #475569; font-size: 12px; font-weight: 700; text-align: center; white-space: nowrap; }
-#opsAiChannelQualityDailyPage .ai-quality-td { padding: 11px 12px; border-right: 1px solid #edf2f7; border-bottom: 1px solid #edf2f7; background: #fff; color: #334155; font-size: 12px; text-align: center; white-space: nowrap; }
+#opsAiChannelQualityDailyPage .ai-quality-th { padding: 11px 12px; border-bottom: 1px solid var(--surface-container-highest); background: var(--surface-container-low); color: var(--on-surface-variant); font-size: 12px; font-weight: 700; text-align: center; white-space: nowrap; }
+#opsAiChannelQualityDailyPage .ai-quality-td { padding: 11px 12px; border-bottom: 1px solid #edf2f7; background: #fff; color: #334155; font-size: 13px; text-align: center; white-space: nowrap; }
 #opsAiChannelQualityDailyPage .ai-quality-td.is-left { text-align: left; }
 #opsAiChannelQualityDailyPage .ai-quality-td.is-abnormal { color: #dc2626; font-weight: 700; }
 #opsAiChannelQualityDailyPage .ai-quality-td.is-strong { font-weight: 700; }
@@ -52,8 +69,13 @@
 #opsAiChannelQualityDailyPage .ai-quality-table .ai-quality-th:first-child, #opsAiChannelQualityDailyPage .ai-quality-table .ai-quality-td:first-child { left: 0; }
 #opsAiChannelQualityDailyPage .ai-quality-table .ai-quality-th:nth-child(2), #opsAiChannelQualityDailyPage .ai-quality-table .ai-quality-td:nth-child(2) { left: 104px; box-shadow: 3px 0 7px rgba(15,23,42,.04); }
 #opsAiChannelQualityDailyPage .ai-quality-table .ai-quality-th:first-child, #opsAiChannelQualityDailyPage .ai-quality-table .ai-quality-td:first-child { min-width: 104px; box-sizing: border-box; }
-@media (max-width: 1180px) { #opsAiChannelQualityDailyPage .ai-quality-filter-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } #opsAiChannelQualityDailyPage .ai-quality-filter-actions { justify-content: flex-end; } }
-@media (max-width: 650px) { #opsAiChannelQualityDailyPage .ai-quality-page { padding: 14px; } #opsAiChannelQualityDailyPage .ai-quality-hero { flex-direction: column; align-items: stretch; } #opsAiChannelQualityDailyPage .ai-quality-filter-grid { grid-template-columns: 1fr; } #opsAiChannelQualityDailyPage .ai-quality-filter-actions { justify-content: flex-start; } #opsAiChannelQualityDailyPage .ai-quality-toolbar { flex-wrap: wrap; } #opsAiChannelQualityDailyPage .ai-quality-toolbar-actions { flex-wrap: wrap; } #opsAiChannelQualityDailyPage .ai-quality-pager { flex-wrap: wrap; } #opsAiChannelQualityDailyPage .ai-quality-pager-controls { flex-wrap: wrap; } }
+@container (max-width: 900px) {
+  #opsAiChannelQualityDailyPage .ai-quality-filter-grid { grid-template-columns: minmax(0, 1fr) minmax(260px, 1fr); }
+}
+@container (max-width: 560px) {
+  #opsAiChannelQualityDailyPage :is(.ai-quality-filter-grid, .ai-quality-filter-grid.is-task-statistics, .ai-quality-drilldown) { grid-template-columns: minmax(0, 1fr); }
+  #opsAiChannelQualityDailyPage .ai-quality-filter-actions { justify-content: flex-start; }
+}
 
 /* 邮件抽屉挂载在 body 下，不能依赖报表容器内的表格样式。 */
 #aiDailyEmailDrawer.modal-backdrop { display: none; position: fixed; inset: 0; z-index: 2200; background: rgba(15, 23, 42, .42); }

@@ -815,6 +815,7 @@
     <button data-op="pyrw-13">登录态与通话流转</button>
     <button data-op="pyrw-14">更多筛选 · 跟进次数</button>
     <button data-op="pyrw-15">门店选择 · 城市与赛马小组联动</button>
+    <button data-op="masked90">抖音掩码留资 · 总部 DCC 跟进</button>
   </div>
   <div class="op-group" data-page="xsfp">
     <button data-op="xsfp-seat-direct">NEV 培育线索 · 坐席ID直派</button>
@@ -869,7 +870,7 @@
     <button data-op="aiwh-12">删除</button>
     <span class="section-divider">短信下发</span>
     <button data-op="aiwh-13">查询</button>
-    <button data-op="aiwh-14">新增</button>
+    <button data-op="intent-shared">线索意向级别共用字典</button><button data-op="aiwh-14">新增</button>
     <button data-op="aiwh-15">编辑</button>
     <button data-op="sms-dispatch-view">查看</button>
     <button data-op="aiwh-16">删除</button>
@@ -1991,6 +1992,34 @@ flowchart TD
   </pre>
 </div>
 
+<div id="interaction-masked90" class="chart-card" data-page="pyrw" data-op="masked90">
+<h2>抖音掩码留资跟进<span class="page-badge">总部 DCC</span></h2>
+<div class="param-box">核对接单分流、坐席回访和 AI 转人工在原型中的入口。各页面均使用本地演示数据。</div>
+<ol>
+<li><a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-lead-intake#dcc-prototype" target="_blank" rel="noopener">主管任务分配</a>。查看接单状态及分流结果。手工派给坐席后查看待跟进和人工任务统计。</li>
+<li><a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-seat-workbench#dcc-prototype" target="_blank" rel="noopener">坐席工作台</a>。选择任务并发起预览外拨，或加入预测队列模拟出队与转接。到期时查看禁拨提示。回访可提交候选核验，也可记录原因后退回并等待接收确认。</li>
+<li><a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-ai-report#dcc-prototype" target="_blank" rel="noopener">AI 外呼任务明细</a>。在掩码来源打开 DCC-DY-AI-022，模拟接收结束话单及命中标签。从<a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-manual-report#dcc-prototype" target="_blank" rel="noopener">人工任务明细</a>按原线索 DY-HQ-DEMO-022 查询待分配工单。人工工单的「AI外呼录音」页签可回查来源话单及核验记录。</li>
+</ol>
+<h3>按页面走查</h3>
+<ol>
+<li id="masked90-walk-routing"><strong>线索分配规则</strong>　逐个切换六种分配规则。核对筛选、新增、编辑、查看、导入模板及导出的「适用线索」。 <a href="../../../DccLead.html?standalone=1&amp;prototypePage=assignment#dcc-prototype">打开原型</a> · <a href="DccLead_功能说明.html#masked90-page-routing">规格与验收</a></li>
+<li id="masked90-walk-ratio"><strong>分配比例配置</strong>　从分配比例配置查看模板，返回规则选择引用模板或直接填写比例。 <a href="../../../DccLead.html?standalone=1&amp;prototypePage=assignment#dcc-prototype">打开原型</a> · <a href="DccLead_功能说明.html#masked90-page-ratio">规格与验收</a></li>
+<li id="masked90-walk-intake"><strong>接单详情与接单异常</strong>　从接单详情核对分配结果。返回列表后切到「接单异常」。 <a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-lead-intake&amp;maskedLead=DY-HQ-DEMO-003#dcc-prototype">打开原型</a> · <a href="DccLead_功能说明.html#masked90-page-intake">规格与验收</a></li>
+<li id="masked90-walk-redial"><strong>外呼重推配置</strong>　进入 AI外呼配置后切换「外呼重推配置」并新增规则。 <a href="../../../DccLead.html?standalone=1&amp;prototypePage=call-status#dcc-prototype">打开原型</a> · <a href="DccLead_功能说明.html#masked90-page-redial">规格与验收</a></li>
+<li id="masked90-walk-assignment"><strong>新任务分配／旧任务分配／逾期任务分配</strong>　依次切换新任务分配、旧任务分配和逾期任务分配。 <a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-lead-intake#dcc-prototype">打开原型</a> · <a href="DccLead_功能说明.html#masked90-page-assignment">规格与验收</a></li>
+<li id="masked90-walk-pending"><strong>待跟进与转派</strong>　切到待跟进，选择未首跟任务进行转派。 <a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-lead-intake#dcc-prototype">打开原型</a> · <a href="DccLead_功能说明.html#masked90-page-pending">规格与验收</a></li>
+<li id="masked90-walk-manual-stats"><strong>人工任务统计／总部预警配置／预警清单／坐席效率</strong>　切换人工任务统计，查看总部预警配置、预警清单和坐席效率，并检查下钻与返回。 <a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-lead-intake#dcc-prototype">打开原型</a> · <a href="DccLead_功能说明.html#masked90-page-manual-stats">规格与验收</a></li>
+<li id="masked90-walk-my-tasks"><strong>我的任务 · 掩码外呼工作台</strong>　切换掩码队列，选择任务后使用预览或预测外呼。 <a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-seat-workbench#dcc-prototype">打开原型</a> · <a href="DccLead_功能说明.html#masked90-page-my-tasks">规格与验收</a></li>
+<li id="masked90-walk-visit"><strong>回访提交／线索详情／回访记录</strong>　从工作台填写回访，查看线索详情与回访记录。分别检查候选核验和无号码退回。 <a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-seat-workbench#dcc-prototype">打开原型</a> · <a href="DccLead_功能说明.html#masked90-page-visit">规格与验收</a></li>
+<li id="masked90-walk-manual-list"><strong>人工外呼任务明细</strong>　使用任务编码或原线索筛选，切换业务来源核对导出。 <a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-manual-report#dcc-prototype">打开原型</a> · <a href="DccLead_功能说明.html#masked90-page-manual-list">规格与验收</a></li>
+<li id="masked90-walk-manual-detail"><strong>人工外呼任务详情</strong>　打开 DCC-DY-DEMO-023 查看逐次回访，返回后检查筛选。跨线用样例 DY-HQ-DEMO-022。 <a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-manual-report#dcc-prototype">打开原型</a> · <a href="DccLead_功能说明.html#masked90-page-manual-detail">规格与验收</a></li>
+<li id="masked90-walk-ai-list"><strong>AI外呼任务明细</strong>　查询掩码来源。选择核验状态并分页，打开一个工单。 <a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-ai-report#dcc-prototype">打开原型</a> · <a href="DccLead_功能说明.html#masked90-page-ai-list">规格与验收</a></li>
+<li id="masked90-walk-ai-detail"><strong>AI外呼任务详情</strong>　打开 DCC-DY-AI-002 查接单回执，打开 DCC-DY-AI-022 验证结束标签转人工。 <a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-ai-report#dcc-prototype">打开原型</a> · <a href="DccLead_功能说明.html#masked90-page-ai-detail">规格与验收</a></li>
+<li id="masked90-walk-ai-daily"><strong>AI渠道质量日报／异常情况日报</strong>　选择抖音掩码留资，查询质量日报，再切到异常情况日报。 <a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-ai-quality#dcc-prototype">打开原型</a> · <a href="DccLead_功能说明.html#masked90-page-ai-daily">规格与验收</a></li>
+<li id="masked90-walk-ai-exceptions"><strong>异常情况明细清单</strong>　设置掩码来源并查询，切换异常情况明细清单，按任务编码下钻后返回。 <a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-ai-quality#dcc-prototype">打开原型</a> · <a href="DccLead_功能说明.html#masked90-page-ai-exceptions">规格与验收</a></li>
+<li id="masked90-walk-ai-stats"><strong>AI任务统计</strong>　切到 AI任务统计，按日期和 R 渠道查询并查看空结果。 <a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-ai-quality#dcc-prototype">打开原型</a> · <a href="DccLead_功能说明.html#masked90-page-ai-stats">规格与验收</a></li>
+</ol>
+<p><a href="DccLead_版本日志.html#version-3-3">版本日志 v3.3</a> · <a href="DccLead_功能说明.html#masked90-spec">功能说明</a> · <a href="DccLead_业务流程.html#FLOW-010-masked-routing">业务流程</a></p></div>
 <div class="chart-card" data-page="aiwh" data-op="aiwh-01">
   <h2><span class="card-index">01</span>通话状态-查询<span class="page-badge">AI外呼配置</span></h2>
   <div class="param-box">
@@ -2351,6 +2380,14 @@ flowchart TD
   </pre>
 </div>
 
+<div id="interaction-intent-shared" class="chart-card" data-page="aiwh" data-op="intent-shared"><h2>线索意向级别共用字典</h2><p>进入数据字典管理，选择“线索意向级别”，可编辑名称、字典页排序和说明；编码及联动所需级别受保护。业务页面从同一数据源按各自范围取值，保持原颜色、默认值、锁定及历史数据；不会把高／中／低等级或智能体评级混入线索级别。</p><div class="release-doc-links"><a href="DccLead_功能说明.html#lead-intent-shared-dictionary" target="_blank" rel="noopener">范围、规则及验收 ↗</a> <a href="DccLead_版本日志.html#v32-release-R7" target="_blank" rel="noopener">版本记录 ↗</a> <a href="../../../DccLead.html?prototypePage=lead-intent-dictionary#dcc-prototype" target="_blank" rel="noopener">打开原型 ↗</a></div><pre class="mermaid">flowchart TD
+ A["维护线索意向级别字典"] --> B["编码保持，更新名称或管理排序及说明"]
+ B --> C["业务页面按既有范围取字典子集"]
+ C --> D["沿用原默认、颜色、锁定及筛选规则"]
+ D --> E["按稳定编码识别，兼容旧长文本存值"]
+ E --> F["回填、校验、保存及导出"]
+ A --> G["新增、停用、删除或改码受保护"]
+</pre></div>
 <div id="interaction-aiwh-14" class="chart-card" data-page="aiwh" data-op="aiwh-14">
   <h2><span class="card-index">14</span>短信下发-新增<span class="page-badge">AI外呼配置</span></h2><p>字段展示名称按适用场景区分：现有场景显示“外呼类型”，智能外呼场景显示“智能外呼任务”；两个场景的车系字段统一显示“AI最新意向车系”。场景切换时同步标签与提示，列表中的车系摘要及查看／编辑使用该配置所属场景的名称；全部场景列表的共用列显示“外呼类型 / 智能外呼任务”，按单一场景筛选后使用该场景名称。仅调整展示文案，字段编码、选项来源和匹配规则沿用既有逻辑。</p>
   <p>适用场景为必选，分为「现有场景」「智能外呼场景」，新建默认现有场景，历史配置缺少scenario时归入现有场景。现有场景继续使用原外呼类型及标签来源、外呼类型多选。智能外呼场景每条规则单选一个外呼类型，类型及对应标签由智能外呼系统接口提供；选择类型后仅展示该类型的包含与排除标签。切换场景清空外呼类型和包含／排除标签，切换外呼类型清空包含／排除标签；配置名称、权重、启停、通话状态、车系及模板保持当前填写值。</p><p>本地原型通过window.smsIntelligentOutboundApi.listCallTypes()及listTags(callTypeCode)预留数据接入，返回选项数组[{code,name,enabled?}]；代码和名称须有效，编码须稳定且集合内唯一。未提供正式契约时使用明确标注的原型接口示例响应。接口失败不回退至现有场景数据。实际URL、鉴权、上游响应适配、正式保存回读、来源场景标识、话单匹配及短信通道均需实施联调。</p><div class="release-doc-links"><a href="DccLead_版本日志.html#v32-release-R5" target="_blank" rel="noopener">V32-R5场景及接口联动 ↗</a> <a href="DccLead_业务流程.html#FLOW-012-flow" target="_blank" rel="noopener">短信场景与条件匹配业务流程 ↗</a></div>
@@ -6028,11 +6065,13 @@ flowchart TD
     function revealV29InteractionAnchor() {
       var id; try { id = decodeURIComponent(location.hash.slice(1)); } catch (_) { return; }
       
-      var target = document.getElementById(id); if (!target || !target.classList.contains('chart-card')) return;
-      var pidx = Array.from(pageTabs).findIndex(function(btn) { return btn.dataset.page === target.dataset.page; });
+      var target = document.getElementById(id);
+      var card = target?.closest('.chart-card');
+      if (!card) return;
+      var pidx = Array.from(pageTabs).findIndex(function(btn) { return btn.dataset.page === card.dataset.page; });
       switchPage(pidx);
       var buttons = Array.from(document.querySelectorAll('.op-group.active button'));
-      switchOp(buttons.findIndex(function(btn) { return btn.dataset.op === target.dataset.op; }));
+      switchOp(buttons.findIndex(function(btn) { return btn.dataset.op === card.dataset.op; }));
       requestAnimationFrame(function() { target.scrollIntoView({block:'start'}); });
     }
     window.addEventListener('hashchange', revealV29InteractionAnchor);

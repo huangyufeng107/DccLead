@@ -62,7 +62,8 @@ const DICTIONARY_TYPES = [
   { code: 'PRECALL_CALL_STATUS', name: '预外呼通话状态', scope: '业务字典', description: '新增回访工单配置的“预外呼通话状态”选项共用', count: 9, importable: false },
   { code: 'CALL_STATUS', name: '通话状态', scope: '业务字典', description: '新增通话状态配置的“通话状态”下拉项共用', count: 8, importable: false },
   { code: 'ABNORMAL_REASON', name: '异常原因', scope: '业务字典', description: '通话状态配置的“异常原因”下拉项共用', count: 21 },
-  { code: 'INTENT_LEVEL', name: '意向等级', scope: '业务字典', description: '通话状态配置的“意向等级”下拉项共用', count: 7, importable: false },
+  { code: 'INTENT_LEVEL', name: '意向等级', scope: '业务字典', description: '高／中／低等通话意向口径，与字母线索级别分别管理', count: 5, importable: false },
+  { code: 'LEAD_INTENT_LEVEL', name: '线索意向级别', scope: '全局共享', description: 'H/A/B/C/E/F/L/N统一来源；各页面保留自己的适用范围与联动。内置编码不可新增、停用或删除，可维护名称、排序与说明。', count: 8, importable: false },
   { code: 'INITIAL_LEAD_STATUS', name: '线索状态', scope: '业务字典', description: '初始线索状态、首次线索状态等字段共用', count: 8, importable: false },
   { code: 'NEV_DEALER_WHITELIST', name: '经销商白名单', scope: '业务字典', description: '留资未满-经销商白名单配置', count: 2, importable: true },
   { code: 'NEV_TEST_DRIVE_STORE', name: '试驾排程门店', scope: '业务字典', description: '留资未满-试驾排程门店配置', count: 2, importable: true },
@@ -72,6 +73,7 @@ const DICTIONARY_TYPES = [
 ];
 
 const DICTIONARY_ITEMS = {
+  LEAD_INTENT_LEVEL: DccLeadIntent.items,
   BLACKLIST_REASON: [
     { code: 'FREQUENT_COMPLAINT', name: '频繁投诉打扰', order: 10, status: '启用', refs: 18, description: '客户明确投诉外呼频率或要求停止联系' },
     { code: 'STRONG_REJECTION', name: '主观强拒绝（要求停拨）', order: 20, status: '启用', refs: 9, description: '客户明确表达拒绝继续外呼' },
@@ -407,7 +409,7 @@ function renderDictionaryManager() {
 
   container.innerHTML = `
     <div class="dictionary-hero">
-      <div><div class="settings-section-title" style="margin:0">数据字典管理</div><div class="dictionary-hero-desc">统一维护可配置业务枚举。编码创建后不可修改；已被业务数据引用的字典项仅支持停用或替换。</div></div>
+      <div><div class="settings-section-title" style="margin:0">数据字典管理</div><div class="dictionary-hero-desc">统一维护可配置业务枚举。编码创建后不可修改；字典项按引用与联动约束维护；内置线索级别不可停用或删除。</div></div>
       <div class="dictionary-hero-badges"><span>共 ${DICTIONARY_TYPES.length} 个字典</span><span>${DICTIONARY_TYPES.reduce((sum, item) => sum + item.count, 0)} 个字典项</span></div>
     </div>
     <div class="dictionary-layout">
@@ -416,10 +418,10 @@ function renderDictionaryManager() {
         ${DICTIONARY_TYPES.map(item => `<button type="button" class="dictionary-type-item ${item.code === type.code ? 'active' : ''}" data-ui-action="dictionary-select-type" data-dictionary-code="${item.code}"><span><b>${dictionaryEscape(item.name)}</b><small>${dictionaryEscape(item.scope)} · ${item.count} 项</small></span><span class="dictionary-chevron">›</span></button>`).join('')}
       </aside>
       <section class="dictionary-content-panel">
-        <div class="dictionary-title-row"><div><div class="dictionary-title">${dictionaryEscape(type.name)}</div><div class="dictionary-subtitle">${dictionaryEscape(type.description)}</div></div><div class="dictionary-title-actions">${type.importable === false ? '' : '<button class="btn-secondary" type="button" data-ui-action="dictionary-import-open">导入数据</button><button class="btn-secondary" type="button" data-ui-action="dictionary-export-items">导出数据</button>'}<button class="btn-add" type="button" data-ui-action="dictionary-item-open-create">新增数据</button></div></div>
-        ${renderPolicyRuleNote('dictionaryRuleNote', '停用后，历史数据仍保留原值；新增或编辑业务数据时不可再选择该字典项。', { style: 'margin-top:16px' })}
-        <div class="dictionary-filter-row unified-filter-query" id="dictionaryFilterQuery"><input class="form-input" value="${dictionaryEscape(dictionaryKeyword)}" placeholder="搜索编码、名称或说明" data-ui-action="dictionary-filter-keyword" /><select class="filter-select" data-ui-action="dictionary-filter-status"><option value="">全部状态</option><option value="启用" ${dictionaryStatusFilter === '启用' ? 'selected' : ''}>启用</option><option value="停用" ${dictionaryStatusFilter === '停用' ? 'selected' : ''}>停用</option></select><button class="btn-secondary" type="button" data-ui-action="dictionary-filter-reset">重置</button></div>
-        <div class="dictionary-table-wrap"><table class="dictionary-table"><thead><tr><th>字典项编码</th><th>显示名称</th><th>说明</th>${relationHeader}<th>排序</th><th>引用情况</th><th>状态</th><th>操作</th></tr></thead><tbody>${items.length ? items.map(item => `<tr><td><code>${dictionaryEscape(item.code)}</code></td><td><strong>${dictionaryEscape(item.name)}</strong></td><td class="dictionary-desc">${dictionaryEscape(item.description)}</td>${relationCell(item)}<td>${item.order}</td><td>${item.refs ? `<span class="dictionary-ref">被 ${item.refs} 处引用</span>` : '<span class="dictionary-empty">未被引用</span>'}</td><td><span class="dictionary-status ${item.status === '启用' ? 'on' : 'off'}">● ${item.status}</span></td><td><div class="action-btns"><button class="action-btn edit" type="button" onclick="openDictionaryItemModal('${item.code}')">编辑</button><button class="action-btn ${item.status === '启用' ? 'delete' : 'view'}" type="button" onclick="toggleDictionaryItem('${item.code}')">${item.status === '启用' ? '停用' : '启用'}</button><button class="action-btn delete" type="button" onclick="deleteDictionaryItem('${item.code}')">删除</button></div></td></tr>`).join('') : `<tr><td colspan="${colSpanCount}"><div class="empty-state">暂无匹配的字典项</div></td></tr>`}</tbody></table></div>
+        <div class="dictionary-title-row"><div><div class="dictionary-title">${dictionaryEscape(type.name)}</div><div class="dictionary-subtitle">${dictionaryEscape(type.description)}</div></div><div class="dictionary-title-actions">${type.importable === false ? '' : '<button class="btn-secondary" type="button" data-ui-action="dictionary-import-open">导入数据</button><button class="btn-secondary" type="button" data-ui-action="dictionary-export-items">导出数据</button>'}${type.code === 'LEAD_INTENT_LEVEL' ? '' : '<button class="btn-add" type="button" data-ui-action="dictionary-item-open-create">新增数据</button>'}</div></div>
+        ${renderPolicyRuleNote('dictionaryRuleNote', type.code === 'LEAD_INTENT_LEVEL' ? '内置编码参与联动规则，不可新增、停用或删除；名称调整不改写历史值，页面仍按原范围、顺序与样式展示。引用情况为原型场景引用标识。' : '停用后，历史数据仍保留原值；新增或编辑业务数据时不可再选择该字典项。', { style: 'margin-top:16px' })}
+        <div class="dictionary-filter-row unified-filter-query" id="dictionaryFilterQuery" ${type.code === 'LEAD_INTENT_LEVEL' ? 'style="flex-wrap:wrap"' : ''}><input class="form-input" value="${dictionaryEscape(dictionaryKeyword)}" placeholder="搜索编码、名称或说明" data-ui-action="dictionary-filter-keyword" /><select class="filter-select" data-ui-action="dictionary-filter-status"><option value="">全部状态</option><option value="启用" ${dictionaryStatusFilter === '启用' ? 'selected' : ''}>启用</option><option value="停用" ${dictionaryStatusFilter === '停用' ? 'selected' : ''}>停用</option></select><button class="btn-secondary" type="button" data-ui-action="dictionary-filter-reset" ${type.code === 'LEAD_INTENT_LEVEL' ? 'style="white-space:nowrap;flex-shrink:0"' : ''}>重置</button></div>
+        <div class="dictionary-table-wrap"><table class="dictionary-table"><thead><tr><th>字典项编码</th><th>显示名称</th><th>说明</th>${relationHeader}<th>排序</th><th>引用情况</th><th>状态</th><th>操作</th></tr></thead><tbody>${items.length ? items.map(item => `<tr><td><code>${dictionaryEscape(item.code)}</code></td><td><strong>${dictionaryEscape(item.name)}</strong></td><td class="dictionary-desc">${dictionaryEscape(item.description)}</td>${relationCell(item)}<td>${item.order}</td><td>${item.refs ? `<span class="dictionary-ref">被 ${item.refs} 处引用</span>` : '<span class="dictionary-empty">未被引用</span>'}</td><td><span class="dictionary-status ${item.status === '启用' ? 'on' : 'off'}">● ${item.status}</span></td><td><div class="action-btns"><button class="action-btn edit" type="button" onclick="openDictionaryItemModal('${item.code}')">编辑</button>${type.code === 'LEAD_INTENT_LEVEL' ? '<span class="dictionary-empty">内置级别</span>' : `<button class="action-btn ${item.status === '启用' ? 'delete' : 'view'}" type="button" onclick="toggleDictionaryItem('${item.code}')">${item.status === '启用' ? '停用' : '启用'}</button><button class="action-btn delete" type="button" onclick="deleteDictionaryItem('${item.code}')">删除</button>`}</div></td></tr>`).join('') : `<tr><td colspan="${colSpanCount}"><div class="empty-state">暂无匹配的字典项</div></td></tr>`}</tbody></table></div>
       </section>
     </div>`;
   schedulePolicyRuleNoteAutoHide('dictionaryRuleNote');
@@ -564,6 +566,7 @@ function autoGenerateNevCode(name) {
 }
 
 function openDictionaryItemModal(code = '') {
+  if (selectedDictionaryCode === 'LEAD_INTENT_LEVEL' && !code) return showToast('线索级别为内置业务编码，请编辑已有级别',false);
   const item = code ? getDictionaryItem(code) : null;
   const type = getSelectedDictionaryType();
   const isAbnormalReasonDictionary = type.code === 'ABNORMAL_REASON';
@@ -620,7 +623,7 @@ function openDictionaryItemModal(code = '') {
     modal.className = 'modal-overlay';
     document.body.appendChild(modal);
   }
-  modal.innerHTML = `<div class="modal dictionary-item-modal"><div class="modal-header"><div class="modal-title">${item ? '编辑字典项' : '新增字典项'}</div><button class="modal-close" type="button" data-ui-action="dictionary-item-close">×</button></div><div class="modal-body"><div class="dictionary-modal-type">所属字典：<b>${dictionaryEscape(type.name)}</b><span>${dictionaryEscape(type.scope)}</span></div><div class="form-group"><div class="form-label">字典项编码 <span class="required">*</span></div><input class="form-input" id="dictionaryItemCode" value="${dictionaryEscape(item?.code || '')}" placeholder="选择名称后自动生成" ${item || isNevSelectDictionary ? 'disabled' : ''}><div class="form-hint">${isNevSelectDictionary ? '选择显示名称后自动生成编码' : '编码保存后不可修改，用于系统和历史数据识别。'}</div></div>${nameField}${relationField}${outboundSystemField}${isSeriesRelatedField}${nevDealerFields}<div class="form-group"><div class="form-label">排序</div><input class="form-input" id="dictionaryItemOrder" type="number" min="1" value="${item?.order || 99}"><div class="form-hint">数字越小，页面下拉列表中越靠前。</div></div><div class="form-group"><div class="form-label">说明</div><textarea class="form-textarea" id="dictionaryItemDesc" placeholder="请输入添加原因或使用说明">${dictionaryEscape(item?.description || '')}</textarea><div class="form-hint">对应现网"添加原因"字段。</div></div>${item?.refs ? `<div class="dictionary-reference-warning">该字典项已被 ${item.refs} 处业务数据或规则引用。可修改名称、排序或停用；如需移除，请先替换引用关系。</div>` : ''}</div><div class="modal-footer"><button class="btn-secondary" type="button" data-ui-action="dictionary-item-close">取消</button><button class="btn-primary" type="button" onclick="saveDictionaryItem('${code}')">保存</button></div></div>`;
+  modal.innerHTML = `<div class="modal dictionary-item-modal"><div class="modal-header"><div class="modal-title">${item ? '编辑字典项' : '新增字典项'}</div><button class="modal-close" type="button" data-ui-action="dictionary-item-close">×</button></div><div class="modal-body"><div class="dictionary-modal-type">所属字典：<b>${dictionaryEscape(type.name)}</b><span>${dictionaryEscape(type.scope)}</span></div><div class="form-group"><div class="form-label">字典项编码 <span class="required">*</span></div><input class="form-input" id="dictionaryItemCode" value="${dictionaryEscape(item?.code || '')}" placeholder="选择名称后自动生成" ${item || isNevSelectDictionary ? 'disabled' : ''}><div class="form-hint">${isNevSelectDictionary ? '选择显示名称后自动生成编码' : '编码保存后不可修改，用于系统和历史数据识别。'}</div></div>${nameField}${relationField}${outboundSystemField}${isSeriesRelatedField}${nevDealerFields}<div class="form-group"><div class="form-label">排序</div><input class="form-input" id="dictionaryItemOrder" type="number" min="1" value="${item?.order || 99}"><div class="form-hint">${type.code === 'LEAD_INTENT_LEVEL' ? '本项排序影响字典管理列表；业务页面保留原场景顺序。' : '数字越小，页面下拉列表中越靠前。'}</div></div><div class="form-group"><div class="form-label">说明</div><textarea class="form-textarea" id="dictionaryItemDesc" placeholder="请输入添加原因或使用说明">${dictionaryEscape(item?.description || '')}</textarea><div class="form-hint">对应现网"添加原因"字段。</div></div>${item?.refs ? `<div class="dictionary-reference-warning">该字典项已被 ${item.refs} 处业务数据或规则引用。${type.code === 'LEAD_INTENT_LEVEL' ? '仅可维护名称、排序与说明，内置编码不可停用或删除。' : '可修改名称、排序或停用；如需移除，请先替换引用关系。'}</div>` : ''}</div><div class="modal-footer"><button class="btn-secondary" type="button" data-ui-action="dictionary-item-close">取消</button><button class="btn-primary" type="button" onclick="saveDictionaryItem('${code}')">保存</button></div></div>`;
   modal.classList.add('show');
 
   if (isOutboundTypeDictionary) {
@@ -634,6 +637,7 @@ function closeDictionaryItemModal() { document.getElementById('dictionaryItemMod
 registerUiAction('dictionary-item-close', closeDictionaryItemModal);
 
 function saveDictionaryItem(existingCode = '') {
+  if (selectedDictionaryCode === 'LEAD_INTENT_LEVEL' && !existingCode) return showToast('线索级别为内置业务编码，请编辑已有级别',false);
   const code = document.getElementById('dictionaryItemCode')?.value.trim();
   const name = document.getElementById('dictionaryItemName')?.value.trim();
   const order = Number(document.getElementById('dictionaryItemOrder')?.value) || 99;
@@ -720,6 +724,7 @@ function saveDictionaryItem(existingCode = '') {
 }
 
 function toggleDictionaryItem(code) {
+  if (selectedDictionaryCode === 'LEAD_INTENT_LEVEL') return showToast('该级别参与固定联动规则，不可停用',false);
   const item = getDictionaryItem(code);
   if (!item) return;
   const nextStatus = item.status === '启用' ? '停用' : '启用';
@@ -731,6 +736,7 @@ function toggleDictionaryItem(code) {
 }
 
 function deleteDictionaryItem(code) {
+  if (selectedDictionaryCode === 'LEAD_INTENT_LEVEL') return showToast('该级别参与固定联动规则，不可删除',false);
   const item = getDictionaryItem(code);
   if (!item) return;
   if (item.refs) { showToast(`该字典项已被 ${item.refs} 处业务数据或规则引用，请使用停用或替换方式处理`, false); return; }

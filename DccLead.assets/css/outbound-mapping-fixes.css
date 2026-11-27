@@ -1747,6 +1747,8 @@
 .nt-outbound-login-select:focus { outline:2px solid #bfdbfe; border-color:#3b82f6; }
 .nt-outbound-dial-input { display:block; width:100%; height:40px; margin:0 0 12px; padding:0 11px; border:1px solid #cbd5e1; border-radius:6px; background:#f8fafc; color:#1f2937; font:inherit; font-size:14px; font-weight:600; box-sizing:border-box; }
 .nt-outbound-dial-note { display:flex; align-items:center; gap:6px; color:#047857; font-size:12px; }
+.nt-outbound-dial-note.is-expired { color: #a51d28; }
+.nt-outbound-dial-modal [data-nt-outbound-action="submit-dial"]:disabled { opacity: .55; cursor: not-allowed; }
 .nt-outbound-login-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:24px; }
 .nt-outbound-login-submit { border-color:#2563eb; background:#2563eb; color:#fff; }
 .nt-outbound-login-submit:hover { background:#1d4ed8; color:#fff; }
@@ -3072,6 +3074,13 @@
 .nt-masked-section { padding: 16px; border: 1px solid #e2e8f0; border-radius: 8px; }
 .nt-masked-section-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: #475569; font-size: 13px; }
 .nt-masked-section h4 { margin: 0; color: #1e3a5f; font-size: 15px; }
+.nt-masked-predictive [data-masked-predictive="enqueue"] { margin-top: 12px; }
+.nt-masked-predictive p { margin: 8px 0 0; color: #475569; font-size: 13px; overflow-wrap: anywhere; }
+.nt-masked-predictive p:empty { margin: 0; }
+.nt-masked-predictive-list { display: grid; gap: 8px; padding: 0; margin: 12px 0 0; list-style: none; }
+.nt-masked-predictive-list li { padding: 10px 12px; border-radius: 6px; background: #f8fafc; }
+.nt-masked-predictive-list li > div { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; overflow-wrap: anywhere; }
+.nt-masked-predictive-list li > div:last-child:not(:empty) { margin-top: 8px; }
 .nt-masked-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 12px; margin: 12px 0; }
 .nt-masked-fields dt, .nt-masked-submit label { font-size: 12px; color: #64748b; }
 .nt-masked-fields dd { margin: 4px 0 0; overflow-wrap: anywhere; color: #0f172a; }

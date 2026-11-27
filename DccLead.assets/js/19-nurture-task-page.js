@@ -53,14 +53,7 @@ const visitResultMap = {
   wrong_number: [{ value: 'wrong_number_result', label: '错号', needFollowTime: false }]
 };
 
-const intentLevelOptions = [
-  { value: 'H', label: 'H', color: '#dc2626' },
-  { value: 'A', label: 'A', color: '#ea580c' },
-  { value: 'B', label: 'B', color: '#d97706' },
-  { value: 'C', label: 'C', color: '#2563eb' },
-  { value: 'E', label: 'E', color: '#6b7280' },
-  { value: 'F', label: 'F', color: '#9ca3af' }
-];
+const intentLevelOptions = DccLeadIntent.options('task');
 
 const resultReasonMap = {
   next_visit: ['客户忙，改期联系', '需家人商议', '需要再了解', '其他'],
@@ -89,7 +82,7 @@ Object.values(visitResultMap).forEach(options => {
 });
 resultReasonMap.no_answer_dispatch = ['手机响铃无人接听', '忙音/秘书台', '其他'];
 resultReasonMap.dormant_unreachable = ['三天四次无法接通', '用户要求不联系', '其他'];
-intentLevelOptions.push({ value: 'L', label: 'L', color: '#64748b' });
+
 const planBuyTimeOptions = ['7天内', '15天内', '1个月内', '3个月内', '半年内', '1年内', '暂无计划'];
 const addWecomOptions = ['已添加', '未添加', '客户拒绝', '无需添加'];
 const genderOptions = ['男', '女', '未知'];
@@ -716,7 +709,7 @@ function renderOutboundDialModal(maskedPhone) {
       <p class="nt-outbound-login-meta">外拨前请确认当前任务联系人和号码。</p>
       <label class="nt-outbound-login-label" for="ntOutboundDialPhone">外拨号码</label>
       <input id="ntOutboundDialPhone" class="nt-outbound-dial-input" type="text" value="${esc(phone)}" readonly aria-readonly="true" />
-      <div class="nt-outbound-dial-note"><i class="nt-outbound-dot"></i>天润软电话已连接，可发起外拨</div>
+      <div class="nt-outbound-dial-note"${maskedPhone === undefined ? '' : ' data-masked-dial-status role="status"'}><i class="nt-outbound-dot"></i>天润软电话已连接，可发起外拨</div>
       <div class="nt-outbound-login-actions"><button type="button" class="nt-page-action" data-nt-outbound-action="close-dial-modal">取消</button><button type="button" class="nt-page-action nt-outbound-login-submit" data-nt-outbound-action="submit-dial">拨打电话</button></div>
     </section>
   </div>`;

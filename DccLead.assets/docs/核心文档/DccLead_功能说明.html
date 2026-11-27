@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DCC培育 · 功能说明</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
   --bg: #faf8ff;
@@ -1299,7 +1298,7 @@ details summary:hover { text-decoration: underline; }
               </div>
     </div>
     <div class="sn-cat" data-cat="nurture-task">
-      <button class="sn-cat-head" type="button"><span class="sn-cat-title"><svg class="nav-chevron" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true" focusable="false"><path d="m4.5 2.5 3.5 3.5-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>培育任务</span><span class="sn-cat-badge">1页</span></button>
+      <button class="sn-cat-head" type="button"><span class="sn-cat-title"><svg class="nav-chevron" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true" focusable="false"><path d="m4.5 2.5 3.5 3.5-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>培育任务</span><span class="sn-cat-badge">2页</span></button>
       <div class="sn-cat-body">
         <button class="sn-menu" data-tab="tab-4-nurture-task">我的任务</button>
         <div class="sn-secs" style="display:none" data-for="tab-4-nurture-task">
@@ -1314,6 +1313,7 @@ details summary:hover { text-decoration: underline; }
           </div>
           <a class="sn-sec" href="#tab-4-section5" data-sec="tab-4-section5">待确认项与实现边界</a>
         </div>
+        <button class="sn-menu" data-tab="tab-masked90">抖音掩码留资</button>
       </div>
     </div>
     <div class="sn-cat" data-cat="seat-scheduling">
@@ -1491,10 +1491,10 @@ details summary:hover { text-decoration: underline; }
 </aside>
 <div class="content-area">
 <!-- ====== 全局概览条 ====== -->
-<!-- 汇总口径：产品菜单入口与文档章节均对应当前 47 个已编写功能文档的菜单页面；复核日期取本次文档核对日期。 -->
+<!-- 汇总口径：47 个产品菜单入口已配套文档，抖音掩码留资另设独立章节。 -->
 <div class="summary-strip">
   <div class="summary-card"><div class="summary-label">产品菜单入口</div><div class="summary-value">47</div></div>
-  <div class="summary-card"><div class="summary-label">文档章节</div><div class="summary-value">47</div></div>
+  <div class="summary-card"><div class="summary-label">文档章节</div><div class="summary-value">48</div></div>
   <div class="summary-card"><div class="summary-label">本次复核日期</div><div class="summary-value">2026-11-04</div></div>
 </div>
 
@@ -1811,7 +1811,7 @@ details summary:hover { text-decoration: underline; }
 <ul><li>有权限人员人工编辑同一条规则并保存成功后，更新人记录本次操作账号，更新时间随成功保存更新。</li><li>已有 Agent 建议来源时，保留蓝色「Agent建议」标识及原建议关联；标识代表历史采用来源，不代表当前配置仍等于原建议。</li><li>取消、校验失败或保存失败不改变原配置、更新人与时间、建议关联。纯人工规则不因人工编辑新增 Agent 来源。</li><li>列表与详情使用同一成功保存结果；来源缺失不能仅凭更新人是agent而补造关联。</li></ul>
 <h4>适用线索与抖音接单后的分配</h4>
 <p>六类配置均提供「适用线索」，可选「常规培育线索」或「抖音掩码留资」。已有规则和未填写该列的导入数据按常规培育线索处理。新增、编辑、查看、列表筛选及导入导出均使用此字段。所选线索类型、维度取值和附加条件必须同时匹配。</p>
-<p>总部 DCC 确认接单后，对已启用的抖音掩码规则执行匹配。人工任务进入主管待分配，派给坐席后进入待跟进。AI 任务显示在抖音掩码留资列表，人工派单入口关闭。分配到 AI 与隐私号可拨分别判断。无匹配规则时由主管人工分配，去向冲突或比例配置缺少匹配所需数据时提示主管核对。</p>
+<p>总部 DCC 确认接单后，对已启用的抖音掩码规则执行匹配。人工任务进入主管待分配，派给坐席后进入待跟进。AI 任务显示在抖音掩码留资列表，人工派单入口关闭。分配到 AI 与隐私号可拨分别判断。<a href="#masked90-spec">查看总部 DCC 后续跟进与结案规则</a>。无匹配规则时由主管人工分配，去向冲突或比例配置缺少匹配所需数据时提示主管核对。</p>
 <p>本地联调通过「发布到本地联调」启用后续接单分流。分配快照保存规则标识、比例配置标识、去向、配置版本和判断时间。同一任务重推沿用原结果。验收样例为 R11 分给 AI、R4 分给人工。正式 AI 外呼接口及大项目名、线索状态和异常原因字段待联调。</p>
 <h4>六类配置验收范围</h4><div class="table-wrap"><table><thead><tr><th>配置</th><th>原编辑规则入口</th><th>共同验收</th></tr></thead><tbody><tr><td>意向车系</td><td><a href="#card-tab-11-la-series-1-f5">该配置编辑规则</a></td><td>人工保存、来源保留、列表／详情回显、取消／失败、刷新回读</td></tr><tr><td>SmartCode</td><td><a href="#card-tab-11-la-sc-1-f5">该配置编辑规则</a></td><td>人工保存、来源保留、列表／详情回显、取消／失败、刷新回读</td></tr><tr><td>大项目名</td><td><a href="#card-tab-11-la-project-1-f5">该配置编辑规则</a></td><td>人工保存、来源保留、列表／详情回显、取消／失败、刷新回读</td></tr><tr><td>渠道编码</td><td><a href="#card-tab-11-la-channel-1-f5">该配置编辑规则</a></td><td>人工保存、来源保留、列表／详情回显、取消／失败、刷新回读</td></tr><tr><td>线索状态</td><td><a href="#card-tab-11-la-status-1-f5">该配置编辑规则</a></td><td>人工保存、来源保留、列表／详情回显、取消／失败、刷新回读</td></tr><tr><td>意向门店</td><td><a href="#card-tab-11-la-dealer-1-f5">该配置编辑规则</a></td><td>人工保存、来源保留、列表／详情回显、取消／失败、刷新回读</td></tr></tbody></table></div>
 <p>每类均用 Agent 来源、纯人工两类记录核对；非比例与接入比例配置分别验证。账号A、B连续保存后显示最近成功账号，Agent标识与原建议内容保留。SmartCode推送时段、线索状态异常原因等原校验不得因共用规则被绕过。</p>
@@ -2922,6 +2922,7 @@ details summary:hover { text-decoration: underline; }
 <!-- TAB 10: 总部培育报表（v2.6 新增，本次覆盖初始预评分字段） -->
 <!-- ============================================================ -->
 <div class="tab-panel" id="tab-10-hq-nurture-report">
+<p>查看<a href="#masked90-page-manual-list">抖音掩码留资 · 人工与 AI 明细</a>的页面规格与验收。</p>
 
 <!-- 一. 项目范围 -->
 <div class="section" id="tab-10-hnr-scope">
@@ -3051,7 +3052,7 @@ details summary:hover { text-decoration: underline; }
       <thead><tr><th>枚举类型</th><th>取值</th><th>展示</th><th>说明</th></tr></thead>
       <tbody>
         <tr><td>页面页签（5 项）</td><td>人工外呼任务明细 / AI外呼任务明细 / 试驾排程工单 / 留资未满任务明细 / 短信记录</td><td>页签</td><td>初始预评分查询与展示适用于常规培育人工明细及 AI 外呼明细</td></tr>
-        <tr><td>人工外呼明细业务来源</td><td>常规培育 / 抖音掩码留资</td><td>筛选区下拉，默认常规培育</td><td>掩码视图按总部人工任务汇总已保存的回访，同一任务展示一行。选择业务来源后联动筛选控件和列表，可按任务编码、原线索编码、R 渠道、客户姓名、最近跟进日期、坐席账号和核验状态筛选。列表展示原意向车系、当前意向车系及原始掩码号。点击任务编码进入人工坐席工单详情页，查看任务概览、线索记录、分配信息、原始掩码号、原始与当前意向及回访记录。详情页展示「任务详情」和「AI外呼录音」。回访记录跟随任务详情，在分配信息下逐次列出实际保存的接触状态、回访结果、意向车系、意向专营店和回访描述；按结果展示下次回访时间或客户提供的脱敏手机号。返回列表恢复原业务来源与筛选。跟进状态和号码核验各有一列。掩码视图一期仅供总部授权人员查询，无初始预评分、智能体评级及导出入口。正式权限由报表服务校验。</td></tr>
+        <tr><td>人工外呼明细业务来源</td><td>常规培育 / 抖音掩码留资</td><td>筛选区下拉，默认常规培育</td><td>掩码视图按总部人工任务汇总已保存的回访，并展示 AI 标签命中后生成的待分配人工工单。同一任务展示一行。选择业务来源后联动筛选控件和列表，可按任务编码、原线索编码、R 渠道、客户姓名、最近跟进日期、坐席账号和核验状态筛选。列表展示原意向车系、当前意向车系及原始掩码号。点击任务编码进入人工坐席工单详情页，查看任务概览、线索记录、分配信息、原始掩码号、原始与当前意向及回访记录。详情页展示「任务详情」和「AI外呼录音」。回访记录跟随任务详情，在跟进概况下逐次列出实际保存的接触状态、回访结果、意向车系、意向专营店和回访描述；按结果展示下次回访时间或客户提供的脱敏手机号。返回列表恢复原业务来源与筛选。跟进状态和号码核验各有一列。掩码视图一期仅供总部授权人员查询，无初始预评分、智能体评级及导出入口。正式权限由报表服务校验。</td></tr>
         <tr><td>初始预评分筛选形态（5 类）</td><td>区间（0~50 / 0～50 / 0-50 / 0至50 / 0到50）/ 大于等于（&gt;=60 / ≥60 / 大于等于60 / 60以上）/ 小于等于（&lt;=50 / ≤50 / 50以下）/ 精确值（50）/ 兜底字符串包含</td><td>输入框</td><td>区间为闭区间，自动取小值为下界；兜底为字符串包含匹配</td></tr>
         <tr><td>初始预评分展示态（3 类）</td><td>{分值}分（蓝色加粗） / —（缺失） / 85分（人工工单详情兜底）</td><td>文本</td><td>缺失值兜底口径存在分叉，需统一（见待确认项）</td></tr>
         <tr><td>输入预处理（2 条）</td><td>剔除中文「分」字符 / trim 两端空格</td><td>—</td><td>数值比较以 Number 转换后进行，非数字记录判为不命中</td></tr>
@@ -5329,7 +5330,7 @@ details summary:hover { text-decoration: underline; }
 
 <!-- TAB 4: 培育任务（v1.7 新增） -->
 <div class="tab-panel" id="tab-4-nurture-task">
-
+<p>查看<a href="#masked90-page-my-tasks">抖音掩码留资 · 我的任务</a>的页面规格与验收。</p>
 
 <!-- 一. 项目范围 -->
 <div class="section" id="tab-4-scope">
@@ -5579,6 +5580,76 @@ details summary:hover { text-decoration: underline; }
 </div>
 
 <div class="section" id="coverage-tab-4-nurture-task" data-outline-skip="true"><div class="section-title">附录：页面功能覆盖核对</div><p>以下清单对照当前 HTML 页面、子页及弹窗生成；含条件显示控件，不包含输入值或凭证。动态列表、字段规则和脚本生成按钮按本章正文验收。清单用于核对遗漏，不把“存在控件”视为后端能力完成。</p><p>核对依据：<a href="../../../DccLead.html">当前原型 HTML</a>。页面结构和脚本入口需按本模块实际页面逐项复核；动态行为、真实接口及视觉结果仍需实际验收。</p></div></div><!-- /tab-panel 4 -->
+
+<div class="tab-panel" id="tab-masked90">
+  <section class="section" id="masked90-spec">
+    <h2 class="section-title">抖音掩码留资 · 总部 DCC 跟进</h2>
+    <p>总部接单后按原线索及派单关联跟进。人工、AI、临时池受理和合格回传各自记录状态。</p>
+    <p><a href="DccLead_版本日志.html#version-3-3">版本日志 v3.3</a> · <a href="DccLead_业务流程.html#FLOW-010-masked-routing">业务流程</a> · <a href="../../../../产品方案/抖音掩码系统改造执行方案/90天临时方案.html#dcc-followup-flow">90 天主方案</a></p>
+  </section>
+  <section class="section" id="masked90-spec-r1">
+    <h3 class="section-title">接单、分流与取号</h3>
+    <p><strong>现行规则</strong><br>同一入池关联标识重推沿用原总部任务。接单后发起取号；按已启用且适用掩码线索的规则分人工、AI 或主管待处理。分配去向与号码可拨分别记录。</p>
+    <p><strong>验收</strong><br>验证重复接单、取号超时先核对、人工与 AI 样例分流、未命中和规则冲突提示。</p>
+  </section>
+  <section class="section" id="masked90-spec-r2">
+    <h3 class="section-title">人工预览与预测外呼</h3>
+    <p><strong>现行规则</strong><br>主管仅可在权限范围内派单和转派未首跟任务。人工预览由坐席发起，预测先入队，出队拨前复核隐私号，接通转原任务坐席。三种外呼均须核对主叫备案与号码截止时间。</p>
+    <p><strong>验收</strong><br>验证排队期间到期时禁拨且无话单。预测有效接通后，话单和回访归同一任务。真实话路待联调。</p>
+  </section>
+  <section class="section" id="masked90-spec-r3">
+    <h3 class="section-title">AI 外呼、重推与标签转人工</h3>
+    <p><strong>现行规则</strong><br>候选明确核验不通过时，按适用的掩码核验失败重推配置和剩余有效期判断。待核验、超时和旧结果不触发重推。AI 外呼结束后按现有话单标签命中才生成人工工单；各自保留编号并共享原线索 ID。</p>
+    <p><strong>验收</strong><br>用 DY-HQ-DEMO-022 验证结束前或标签未命中无人工工单，重复结束话单只生成一次。停拨与标签判定分别核对。</p>
+  </section>
+  <section class="section" id="masked90-spec-r4">
+    <h3 class="section-title">候选核验与到期处置</h3>
+    <p><strong>现行规则</strong><br>以候选提交标识保存本次号码、门店、车系与受理时间。到期前受理的候选继续核验；到期及以后禁止首次提交。DCC 取得当前候选核验通过结果即结案，临时池向车巴巴的合格回传另行追踪。</p>
+    <p><strong>验收</strong><br>验证旧候选晚到、重复结果、DCC 主动查到通过但车巴巴回执待核对，以及到期前后边界。重取和自动回收待确认。</p>
+  </section>
+  <section class="section" id="masked90-spec-r5">
+    <h3 class="section-title">无号码退回与接收回执</h3>
+    <p><strong>现行规则</strong><br>填写未取得号码的原因。客户明确要求停止联系时单独标记。临时池确认接收后 DCC 结案，回执不明保留原任务和退回标识。</p>
+    <p><strong>验收</strong><br>模拟已接收但回执丢失，按原内容重试只产生一笔。普通退回后的承接及跨系统执行联系限制待确认。</p>
+  </section>
+  <section class="section" id="masked90-spec-r6">
+    <h3 class="section-title">明细追溯与统计隔离</h3>
+    <p><strong>现行规则</strong><br>人工与 AI 明细按业务来源分别查询。掩码人工记录含已回访任务及标签生成的待分配人工工单。人工统计与 AI 统计独立，掩码数据不进入原 NEV 指标与常规培育导出。</p>
+    <p><strong>验收</strong><br>用同一原线索查回话单、候选和人工工单；核对 AI 日报、人工任务统计和常规导出过滤结果。</p>
+  </section>
+  <section class="section" id="masked90-pages">
+    <h3 class="section-title">影响页面与验收</h3>
+<p>本期规格按页面、角色及业务来源拆解。由原线索 ID 串起各页面，派单、原 DCC 任务、AI 子任务、人工工单、话单、候选与退回各用自身标识。</p>
+    <h4>配置与接单</h4>
+<div class="table-wrap"><table><thead><tr><th scope="col">页面与入口</th><th scope="col">开发规格</th><th scope="col">验收条件</th></tr></thead><tbody>
+<tr id="masked90-page-routing"><th scope="row">线索分配规则<br>培育策略 → 线索分配策略<br><a href="../../../DccLead.html?standalone=1&amp;prototypePage=assignment#dcc-prototype">打开原型</a></th><td>意向车系、SmartCode、大项目名、渠道编码、线索状态、意向门店六类均维护「适用线索」。列表支持按适用线索筛选，导入及导出包含此列。历史规则和未带此列的旧导入模板默认常规培育；总部接单只匹配已启用且适用于掩码的规则及其业务条件。<br><a href="#masked90-spec-r1">关联业务规则</a></td><td>逐类验证筛选、新增、编辑、查看、启停。用渠道 R4／R11 样例复核人工／AI 各自去向，并按确认接单时间检查发布版本。导入校验非法来源和旧模板兼容，导出核对适用线索值。用同条件的常规和掩码线索验证来源隔离；核对无命中进入主管待处理。</td></tr>
+<tr id="masked90-page-ratio"><th scope="row">分配比例配置<br>培育策略 → 线索分配策略 → 分配比例配置<br><a href="../../../DccLead.html?standalone=1&amp;prototypePage=assignment#dcc-prototype">打开原型</a></th><td>复用规则内比例及引用模板。已有地区、评分区间及兜底按配置读取；缺少匹配字段、模板不可用、比例无效或多规则去向冲突时提示主管核对。<br><a href="#masked90-spec-r1">关联业务规则</a></td><td>验证手工比例与模板两种方式、停用模板或缺地区／评分、不同去向冲突；核对同一入池关联标识重推沿用原结果。</td></tr>
+<tr id="masked90-page-intake"><th scope="row">接单详情与接单异常<br>培育任务 → 抖音掩码留资 → 接单详情／接单异常<br><a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-lead-intake&amp;maskedLead=DY-HQ-DEMO-003#dcc-prototype">打开原型</a></th><td>按入池关联标识关联原线索及派单，显示接单、号码状态和独立的分配结果。接单后分配可查命中规则、外呼类型、比例配置、策略版本及判断时间。取号超时先核对原申请。<br><a href="#masked90-spec-r1">关联业务规则</a></td><td>验证同一推送重复到达只建一笔、AI 分流详情可查且不进入人工派单、规则发布只影响其后确认接单的任务。</td></tr>
+<tr id="masked90-page-redial"><th scope="row">外呼重推配置<br>培育策略 → AI外呼配置 → 外呼重推配置<br><a href="../../../DccLead.html?standalone=1&amp;prototypePage=call-status#dcc-prototype">打开原型</a></th><td>新增「掩码核验不通过」命中类型，适用掩码 AI，复用推送时间、次数和间隔，保持原外呼类型。<br><a href="#masked90-spec-r3">关联业务规则</a></td><td>配置后验证明确不通过可创建一轮、待核验及旧结果不触发，计划拨号等于截止时间时拦截。普通重推同时命中的优先级待确认。</td></tr>
+</tbody></table></div>
+    <h4>主管分配与坐席工作台</h4>
+<div class="table-wrap"><table><thead><tr><th scope="col">页面与入口</th><th scope="col">开发规格</th><th scope="col">验收条件</th></tr></thead><tbody>
+<tr id="masked90-page-assignment"><th scope="row">新任务分配／旧任务分配／逾期任务分配<br>培育任务 → 抖音掩码留资<br><a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-lead-intake#dcc-prototype">打开原型</a></th><td>三个列表均按人工任务范围查询。主管在授权坐席范围内分派符合条件的未分配任务；AI 派发由策略处理。<br><a href="#masked90-spec-r1">关联业务规则</a></td><td>分别切换三个页签核对队列条件与权限。AI 策略命中样例不出现于人工队列。正式验收时，同一结束话单只生成一张人工工单，主管能在人工分配队列查到并派单。当前本地标签样例可在人工外呼任务明细查看，主管队列接入待实施。</td></tr>
+<tr id="masked90-page-pending"><th scope="row">待跟进与转派<br>培育任务 → 抖音掩码留资 → 待跟进<br><a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-lead-intake#dcc-prototype">打开原型</a></th><td>主管仅能转派未首跟任务。归属更新后旧坐席退出，新坐席重新计算首跟时效，记录新旧坐席。<br><a href="#masked90-spec-r2">关联业务规则</a></td><td>核对未首跟可转、已首跟及越权拦截；并发转派只更新一次且旧坐席无法提交。</td></tr>
+<tr id="masked90-page-manual-stats"><th scope="row">人工任务统计／总部预警配置／预警清单／坐席效率<br>培育任务 → 抖音掩码留资 → 人工任务统计<br><a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-lead-intake#dcc-prototype">打开原型</a></th><td>主管通过总部预警配置维护阈值，未完成任务按最新阈值判断。首跟从派单和号码变为可拨两者较晚时起算。人工侧展示待分配、待跟进、可拨、已完成及退回小计。按坐席或预警类型查看并下钻；返回读取最新数据并保留筛选。<br><a href="#masked90-spec-r6">关联业务规则</a></td><td>确认临时池接收退回后待跟进减一，已完成和退回小计更新，原预警退出。按班表验证跨班续计及转派重新计时。调整阈值后核对预警更新，校验首跟超时阈值大于提醒阈值、加急提前量短于临期提前量。</td></tr>
+<tr id="masked90-page-my-tasks"><th scope="row">我的任务 · 掩码外呼工作台<br>培育任务 → 我的任务 → 抖音掩码留资<br><a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-seat-workbench#dcc-prototype">打开原型</a></th><td>坐席按当前归属看待跟进、已完成和当日跟进、逾期等队列。工作台展示隐私号状态、预警和下次回访；预览拨前校验，预测入队后在实际拨前复核，接通转原任务坐席。<br><a href="#masked90-spec-r2">关联业务规则</a></td><td>检查待办归属、预约到点进入逾期、打开拨号窗口后到期仍禁拨并保留草稿；预测到期拦截不产生话单，接通后可用话单定位同一任务回访。</td></tr>
+<tr id="masked90-page-visit"><th scope="row">回访提交／线索详情／回访记录<br>培育任务 → 我的任务 → 抖音掩码留资 → 回访与辅助信息<br><a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-seat-workbench#dcc-prototype">打开原型</a></th><td>保留原留资意向，实际车系和专营店可修正，随候选提交按次保存。下次回访须晚于当前时间且早于已知截止时间。候选未出结果继续跟进中，退回原因与明确拒绝联系单独留痕。<br><a href="#masked90-spec-r4">关联业务规则</a></td><td>核对退回回执未明保留任务、回执确认后才退出待跟进；验证同次提交超时重试防重及旧候选晚到。</td></tr>
+</tbody></table></div>
+    <h4>人工与 AI 报表</h4>
+<div class="table-wrap"><table><thead><tr><th scope="col">页面与入口</th><th scope="col">开发规格</th><th scope="col">验收条件</th></tr></thead><tbody>
+<tr id="masked90-page-manual-list"><th scope="row">人工外呼任务明细<br>统计报表 → 总部培育报表 → 人工外呼任务明细<br><a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-manual-report#dcc-prototype">打开原型</a></th><td>按业务来源隔离常规培育和掩码。掩码可按任务编码或原线索查已回访及标签生成的待分配工单，仅提供明细查询。<br><a href="#masked90-spec-r6">关联业务规则</a></td><td>切换两种来源，验证常规按筛选导出、掩码隐藏导出；从详情返回保留来源和筛选。</td></tr>
+<tr id="masked90-page-manual-detail"><th scope="row">人工外呼任务详情<br>统计报表 → 总部培育报表 → 人工外呼任务明细 → 点击任务编码<br><a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-manual-report#dcc-prototype">打开原型</a></th><td>复用任务详情版式，展示任务和线索、分配信息、逐次回访及核验／退回状态。AI 转来的工单可回查原线索、AI 话单与候选。按权限展示脱敏信息，录音缺失展示空态。<br><a href="#masked90-spec-r6">关联业务规则</a></td><td>用 DCC-DY-DEMO-023 核对三次回访与核验状态。用 DY-HQ-DEMO-022 核对 AI 结束且标签命中才出现 DCC-DY-DEMO-022，重复结束话单仍只有一张。</td></tr>
+<tr id="masked90-page-ai-list"><th scope="row">AI外呼任务明细<br>统计报表 → 总部培育报表 → AI外呼任务明细<br><a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-ai-report#dcc-prototype">打开原型</a></th><td>按业务来源查询；掩码新增核验等筛选，展示任务、供应商接单、核验、重推、到期或停拨状态。<br><a href="#masked90-spec-r6">关联业务规则</a></td><td>由常规切到掩码查看列表，核对筛选、分页、详情返回；待核对与已完成分别可定位。</td></tr>
+<tr id="masked90-page-ai-detail"><th scope="row">AI外呼任务详情<br>统计报表 → 总部培育报表 → AI外呼任务明细 → 点击任务编码<br><a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-ai-report#dcc-prototype">打开原型</a></th><td>沿用常规详情结构，掩码追加绝对截止时间、本轮 AI 子任务、供应商回执、话单、核验及重推历史。接单或停拨待核对按本次子任务查询；技术补发沿用子任务，业务重推另建一轮。<br><a href="#masked90-spec-r3">关联业务规则</a></td><td>用 DCC-DY-AI-002 核对回执和原号补发，用 DCC-DY-AI-008 核对停拨，用 DCC-DY-AI-022 核对结束标签生成后续人工任务。停拨确认本身不建人工工单。</td></tr>
+<tr id="masked90-page-ai-daily"><th scope="row">AI渠道质量日报／异常情况日报<br>统计报表 → AI渠道质量日报<br><a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-ai-quality#dcc-prototype">打开原型</a></th><td>在既有日期和 R 渠道维度增加掩码来源。分别查看接单、到期拦截、核验与重推等质量结果，以及按异常类型汇总。<br><a href="#masked90-spec-r6">关联业务规则</a></td><td>按来源、日期和 R 渠道切换并与 AI 明细对账；核验通过率按已出终态的有效候选计算。</td></tr>
+<tr id="masked90-page-ai-exceptions"><th scope="row">异常情况明细清单<br>统计报表 → AI渠道质量日报 → 异常情况明细清单<br><a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-ai-quality#dcc-prototype">打开原型</a></th><td>列出接单待核对、停拨待确认、回传及退回待核对等异常，可按业务来源、供应商、DCC 任务编码定位。<br><a href="#masked90-spec-r6">关联业务规则</a></td><td>从异常下钻到同一 AI 工单，返回原清单与筛选。</td></tr>
+<tr id="masked90-page-ai-stats"><th scope="row">AI任务统计<br>统计报表 → AI渠道质量日报 → AI任务统计<br><a href="../../../DccLead.html?standalone=1&amp;prototypePage=masked-ai-quality#dcc-prototype">打开原型</a></th><td>按日期和 R 渠道统计掩码 AI 原任务的待派发、处理中、已完成和转人工待分配，确认退回计入已完成并另列小计。分开计 AI 子任务、实际外呼、到期拦截。<br><a href="#masked90-spec-r6">关联业务规则</a></td><td>按同一原任务对账，技术补发以及到期拦截不计入实际外呼。验证筛选和空结果。</td></tr>
+</tbody></table></div>
+<p><strong>回归验收</strong>　常规培育人工／AI 明细及详情、常规培育人工导出、总部NEV日报、坐席业绩看板、试驾排程工单、短信记录。核对来源、数据、导出、指标和既有操作隔离。人工明细中的掩码记录入口位于总部培育报表。 <a href="../../../DccLead.html?standalone=1&amp;prototypePage=nurture-report#dcc-prototype">打开原型</a> · <a href="../../../DccLead.html?prototypePage=nev-daily#dcc-prototype">总部NEV日报</a> · <a href="../../../DccLead.html?prototypePage=employee-report#dcc-prototype">坐席业绩看板</a></p>
+<p><strong>跨系统联调</strong>　车巴巴接收与识别、送联友临时池、首次分派配置、明文回传与入表、DNDC 线索中心处理、下发回执及补发、交接查询。核对临时池首次分派与 DCC 内部分流的职责。COC、NEV 线索中台按各自分支核对接单；懂车帝取号及三种外呼实拨待正式环境。 <a href="../../../../产品方案/抖音掩码系统改造执行方案/90天临时方案.html#demo/intake">接收与识别</a> · <a href="../../../../产品方案/抖音掩码系统改造执行方案/90天临时方案.html#demo/pool">送临时池</a> · <a href="../../../../产品方案/抖音掩码系统改造执行方案/90天临时方案.html#demo/config">首次分派配置</a> · <a href="../../../../产品方案/抖音掩码系统改造执行方案/90天临时方案.html#demo/verification">回传与入表</a> · <a href="../../../../产品方案/抖音掩码系统改造执行方案/90天临时方案.html#demo/center">线索中心</a> · <a href="../../../../产品方案/抖音掩码系统改造执行方案/90天临时方案.html#demo/delivery">回执及补发</a> · <a href="../../../../产品方案/抖音掩码系统改造执行方案/90天临时方案.html#demo/query">交接查询</a> · <a href="../../../../产品方案/抖音掩码系统改造执行方案/90天临时方案_功能与联调审查.md">联调审查</a></p><p><strong>正式实施边界</strong>　生产权限、排班、服务端持久化与并发防重、真实话路、外部回执及相关数据字典须在正式环境验收。人工回访和 AI 执行历史须由正式接口回读，录音与转写按通话 ID 和现有权限接入。90 天起算、号码重取、无号码退回承接、联系限制跨系统执行及普通／掩码重推冲突优先级见<a href="../../../../产品方案/抖音掩码系统改造执行方案/90天临时方案_功能与联调审查.md">功能与联调审查</a>。</p>
+  </section>
+
+</div>
 
 <!-- TAB 5: 人工坐席工单（v1.7 新增） -->
 <!-- ============================================================ -->
@@ -7346,7 +7417,16 @@ details summary:hover { text-decoration: underline; }
 <!-- 二. 逻辑说明 -->
 <div class="section" id="tab-24-ldc-logic">
   <div class="section-title">逻辑说明</div><div class="section-desc">角色分工与端到端链路、核心业务流程说明。</div>
-  <div class="table-wrap">
+  <div id="lead-intent-shared-dictionary"><h3>线索意向级别共用字典</h3><p>基础设置／数据字典管理以 LEAD_INTENT_LEVEL 统一维护 H、A、B、C、E、F、L、N 的编码、名称、排序、状态及说明。原 INTENT_LEVEL 的高／中／低／无意向／无效号码保留，两套业务口径不互换；智能体评级及预评分阈值亦不并入线索级别。</p><p>字典是编码及含义的唯一来源，页面保留原有适用子集、顺序、颜色、必填、默认值和状态联动。E 名称沿用原回访配置中的“智能体级别”，不扩展其业务含义。下列范围只决定页面可以使用哪些字典编码，不在页面重复维护名称。</p><div class="table-wrap"><table><thead><tr><th>页面／规则</th><th>保留范围及行为</th><th>兼容处理</th></tr></thead><tbody>
+<tr><td>线索下发、通话状态配置、审核拦截</td><td>总体H/A/B/C/F/L/N；高意向只可选H/A/B/C；休眠固定L、战败固定F、阶段性战败固定N、无效不更新</td><td>旧长文本存值仍有效；切换状态清除不兼容值；保存重验组合</td></tr>
+<tr><td>外呼重推、培育线索筛选</td><td>保留H/A/B/C/F/L/N原顺序、空值及历史值回显方式</td><td>筛选仍按字母编码；配置兼容原长文本；导出不改写历史记录</td></tr>
+<tr><td>回访工单配置</td><td>下次回访E/A/B/C；试驾下发H；意向下发H/A/B/C；无人接听下发C；休眠L；战败F；无效结案不更新</td><td>字母存值、原默认值及只读联动保留；“不更新”“自动降为N”为动作语义，不是字典级别</td></tr>
+<tr><td>我的任务</td><td>H/A/B/C/E/F/L；继续显示字母与原颜色</td><td>历史转换产生的级别可按原逻辑回显，不扩大普通可选范围</td></tr>
+<tr><td>主管任务、抖音掩码留资、审核工作台</td><td>分配筛选H/A/B/C；智能体工单及填单审核H/A/B/C/E、默认E</td><td>各场景原筛选、标签和表单展示保留</td></tr>
+<tr><td>总部培育报表</td><td>原H/A/B/C/L/F/Z/O/T/D筛选项及“级”后缀保留</td><td>Z/O/T/D作为历史扩展值兼容，不推断含义、不混入主字典</td></tr>
+<tr><td>预评分转换规则</td><td>八个字母级别，保持原场景顺序</td><td>仍按选中编码保存，不改阈值、回访结果或转换逻辑</td></tr>
+</tbody></table></div><h4>字典维护与验收</h4><p>内置编码参与固定联动，仅允许编辑名称、管理页排序与说明，禁止新增、停用、删除和改码。新增级别需先明确适用场景及映射，不能通过新增字典项自动扩大所有页面的可选范围。名称修改后新打开下拉使用新名称，但原始编码及旧长文本存值保持不变；历史业务快照不批量重写。字典排序仅影响管理列表，业务页面沿用原场景顺序。</p><p>验收应对比改造前后选项、联动锁定值、默认值、颜色、筛选和导出；验证字典改名可见、旧值可回填保存、受保护级别无法停用删除。回访工单“启用”是有效默认状态，不按占位项拦截；下次回访仍需填写有效回访时间。原型使用页面内存共享数据，刷新恢复示例；正式字典接口、持久化、权限和并发更新需实施联调。</p><div class="release-doc-links"><a href="DccLead_版本日志.html#v32-release-R7" target="_blank" rel="noopener">版本记录 ↗</a> <a href="DccLead_功能点清单.html?release=v3.2#v32-feature-R7" target="_blank" rel="noopener">功能清单 ↗</a> <a href="DccLead_页面交互图.html#interaction-intent-shared" target="_blank" rel="noopener">维护及引用交互 ↗</a> <a href="../../../DccLead.html?prototypePage=lead-intent-dictionary#dcc-prototype" target="_blank" rel="noopener">打开原型：线索意向级别字典 ↗</a></div></div>
+<div class="table-wrap">
     <table>
       <thead>
         <tr><th>角色</th><th>入口</th><th>职责与链路</th></tr>
@@ -7366,7 +7446,7 @@ details summary:hover { text-decoration: underline; }
         <tr><td>权重命中判定</td><td>同一电话号码命中多个线索下发配置时，按权重判定，数字越小越先判定；同权重取创建时间倒序。下发优先级口径为：下发到 NEV 线索中台 &gt; 下发到总部培育客服 &gt; 线索不下发。</td></tr>
         <tr><td>通话时长条件</td><td>支持「不限制 / 大于等于 / 小于」三种口径并填写秒数，用于过滤接通即挂的无效通话。</td></tr>
         <tr><td>标签条件</td><td>「包含标签」必填、「不包含标签」选填，二者与其他条件为「且」关系。</td></tr>
-        <tr><td>字段更新与字典锁定</td><td>线索状态、异常原因、意向级别按字典联动；线索状态为「总部_高意向／总部_暂败／总部_阶段性战败／总部_异地」时，异常原因与意向级别取锁定取值。</td></tr>
+        <tr id="lead-dispatch-intent-linkage"><td>字段更新与字典锁定</td><td>异常原因与意向级别分别按线索状态联动，不共用锁定规则。总部_高意向的异常原因不更新，意向级别可选 H／A／B／C（必填）；休眠未购／休眠失联固定 L，战败固定 F，阶段性战败固定 N，无效不更新。意向级别从线索意向级别共用字典中取当前场景的 H／A／B／C／F／L／N 子集，不读取通话状态的高／中／低字典；切换状态时清除不兼容的旧级别，保存时重验组合。</td></tr>
       </tbody>
     </table>
   </div>
@@ -7424,8 +7504,8 @@ details summary:hover { text-decoration: underline; }
         <tr><td>通话时长口径</td><td>不限制／大于等于／小于</td><td>下拉 + 秒数输入</td><td>用于过滤接通即挂等无效通话</td></tr>
         <tr><td>标签条件</td><td>外呼标签字典</td><td>标签多选</td><td>包含标签必填、不包含标签选填，条件间为「且」</td></tr>
         <tr><td>意向专营店（dealerIntent）</td><td>有／无</td><td>下拉单选</td><td>判断线索是否具备意向专营店</td></tr>
-        <tr><td>线索状态（leadStatus）</td><td>线索状态字典</td><td>下拉单选</td><td>「总部_高意向／总部_暂败／总部_阶段性战败／总部_异地」为锁定状态</td></tr>
-        <tr><td>异常原因／意向级别</td><td>异常原因字典／意向级别字典</td><td>下拉单选</td><td>随线索状态联动；锁定状态取固定取值</td></tr>
+        <tr><td>线索状态（leadStatus）</td><td>线索状态字典</td><td>下拉单选</td><td>异常原因与意向级别分别联动，不把异常原因锁定等同于意向级别锁定</td></tr>
+        <tr><td>异常原因／意向级别</td><td>异常原因字典／线索意向级别共用字典</td><td>下拉单选</td><td>总部_高意向可选H／A／B／C；其他状态按各自固定或可选规则联动，切换后清除非法旧值</td></tr>
         <tr><td>状态（status）</td><td>启用／停用</td><td>下拉单选</td><td>停用后不参与命中判定</td></tr>
       </tbody>
     </table>
@@ -7456,7 +7536,7 @@ details summary:hover { text-decoration: underline; }
         <tr><td>AC-02</td><td>新增规则时只填配置名称并保存</td><td>应依次 Toast「请选择外呼类型」「请填写通话时长秒数」「请选择包含标签」等并阻断提交</td></tr>
         <tr><td>AC-03</td><td>通话时长口径选「大于等于」但不填秒数</td><td>应 Toast「请填写通话时长秒数」并阻断保存</td></tr>
         <tr><td>AC-04</td><td>下发动作选「线索不下发」并保存</td><td>命中该规则的线索不应投递到 NEV 线索中台或总部培育客服</td></tr>
-        <tr><td>AC-05</td><td>线索状态选「总部_高意向」</td><td>异常原因与意向级别应只可选锁定取值，不可自由选择</td></tr>
+        <tr><td>AC-05</td><td>线索状态选「总部_高意向」</td><td>异常原因不更新且禁用；意向级别下拉可选 H／A／B／C，不能只剩占位项；切换到战败固定 F，再切回高意向应清除 F 并重新选择</td></tr>
         <tr><td>AC-06</td><td>同一号码命中权重 10 与权重 30 两条规则</td><td>应只执行权重 10 的规则</td></tr>
         <tr><td>AC-07</td><td>点击删除并在 confirm 中取消</td><td>不应发生任何数据变更，列表保持原状</td></tr>
         <tr><td>AC-08</td><td>确认删除某条规则</td><td>应 Toast「线索下发规则已删除」且汇总「规则总数」同步减少</td></tr>
